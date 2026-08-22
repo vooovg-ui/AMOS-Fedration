@@ -42,7 +42,17 @@ COST_PER_1K_TOKENS = {
     "claude-opus-4": 0.075,
 }
 
+#: تصنيفُ إدامةِ مخازنِ هذه الخدمةِ — مُعلَنٌ في الشِفرةِ لا مُستنتَجٌ من قارئٍ (T3.6).
+#: قِيسَ في W-029 أنَّ سجلَّ التكلفةِ ومخزنَ نتائجِ Shadow في ذاكرةِ العمليّةِ معًا.
+STORE_DURABILITY = "in_memory_volatile"
+
 # Cost log
+# T3.6-DURABILITY: WIRED_VOLATILE — سجلُّ التكلفةِ قائمةٌ في الذاكرةِ يقرأُ منها
+# `GET /v1/cost/summary`. وقِيسَ في W-029 أنَّ في الخدمةِ نفسِها **ملخَّصَ تكلفةٍ
+# ثانيًا دائمًا** (`GET /v1/models/cost-summary` من `model_layer` عبرَ قاعدةِ
+# البيانات) — أي رقمانِ للمالِ في واجهةٍ واحدةٍ أحدُهما يتبخّر. لم تُحذَفْ نقطةٌ
+# ولم يُغيَّرْ رقمٌ: حذفُ نقطةٍ منشورةٍ عقدٌ مع مُستهلِكيها، وتوحيدُ المصدرَينِ يوجبُ
+# حسمَ أيِّهما مصدرُ الحقيقةِ للمال — بابُ Q-39. وأُعلِنَ التطايرُ في خرجِ النقطةِ.
 _cost_log: list[dict[str, Any]] = []
 _shadow_store = InMemoryShadowStore()
 
@@ -270,15 +280,22 @@ async def get_shadow_result(
 async def shadow_stats(
     _: Annotated[dict[str, object], Depends(require_auth)],
 ) -> dict[str, Any]:
-    """ملخص إحصائيات shadow testing."""
-    return _shadow_store.summary()
+    """ملخص إحصائيات shadow testing — يُعلن تطايرَ مصدرِه."""
+    # مفتاحٌ مُضافٌ لا مُبدَّلٌ: لا يُحذَفُ مفتاحٌ ولا يُغيَّرُ رقمٌ، فالإعلانُ زيادةٌ
+    # في الصدقِ لا تغييرٌ في العقد (T3.6 · W-029).
+    return {**_shadow_store.summary(), "store_type": STORE_DURABILITY}
 
 
 @router.get("/cost/summary", response_model=dict)
 async def cost_summary(
     _: Annotated[dict[str, object], Depends(require_auth)],
 ) -> dict[str, Any]:
-    """ملخص التكاليف لكل النماذج."""
+    """ملخص التكاليف لكل النماذج — من سجلٍّ متطايرٍ، ويُعلنُ ذلكَ ومصدرَه الدائم.
+
+    T3.6 · W-029: هذا الملخَّصُ يُحسَبُ من `_cost_log` في الذاكرة، فيصفرُ عندَ إعادةِ
+    التشغيل. وفي الخدمةِ نفسِها `GET /v1/models/cost-summary` يقرأُ من قاعدةِ
+    البيانات. فأُعلِنَ الفارقُ في الخرجِ ولم يُحسَمْ أيُّهما مصدرُ الحقيقة — Q-39.
+    """
     total_cost = sum(r["cost_usd"] for r in _cost_log)
     by_model: dict[str, dict[str, float]] = {}
     for entry in _cost_log:
@@ -294,6 +311,10 @@ async def cost_summary(
         "total_invocations": len(_cost_log),
         "total_cost_usd": round(total_cost, 6),
         "by_model": by_model,
+        # مفتاحانِ مُضافانِ (لا حذفَ ولا تبديلَ): تصنيفُ الإدامةِ ومُؤشِّرٌ إلى
+        # الملخَّصِ الدائمِ، كي لا يُقرأَ رقمُ مالٍ متطايرٍ على أنّه سجلُّ الدولة.
+        "store_type": STORE_DURABILITY,
+        "persistent_source": "/v1/models/cost-summary",
     }
 
 

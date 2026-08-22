@@ -30,7 +30,13 @@ class CriticStore(Protocol):
 
 
 class InMemoryCriticStore:
-    """ذاكرة مراجعات خفيفة مع فلترة."""
+    """ذاكرة مراجعات خفيفة مع فلترة.
+
+    T3.6-DURABILITY: DOUBLE_NOT_WIRED — قِيسَ في W-029 أنَّ `critic/main.py:26`
+    يُوصِلُ `PersistentCriticStore()`، ولا نداءَ لهذا الصنفِ في شِفرةِ الإنتاج.
+    فهو نظيرُ عقدِ `CriticStore` في الذاكرةِ للاختبارِ لا مصدرَ حقيقة — وبابُ
+    العدّادِ الذي يعدُّ الاسمَ Q-38.
+    """
 
     def __init__(self) -> None:
         self._reviews: list[dict[str, Any]] = []

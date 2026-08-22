@@ -26,7 +26,15 @@ class ShadowStore(Protocol):
 
 
 class InMemoryShadowStore:
-    """ذاكرة نتائج shadow خفيفة."""
+    """ذاكرة نتائج shadow خفيفة.
+
+    T3.6-DURABILITY: WIRED_VOLATILE — **موصولٌ في الإنتاج**: قِيسَ في W-029 أنَّ
+    `model_gateway/main.py:47` يُهيِّئُ هذا الصنفَ على مستوى الوحدةِ،
+    وأنَّ `POST /v1/shadow/test` و`GET /v1/shadow/results` و`/v1/shadow/stats`
+    تقرأُ منه. ونتائجُ Shadow Testing **مُدخَلُ بوّابةِ ترقيةٍ** (`PROMOTION_GATES`
+    في `governance/canary.py`) — فبوّابةٌ تُقرَّرُ على شاهدٍ يتبخّرُ. أُعلِنَ التطايرُ
+    في خرجِ `/v1/shadow/stats` بـ`store_type`، والإدامةُ عملُ T4/E4 · القرارُ Q-39.
+    """
 
     def __init__(self) -> None:
         self._results: list[dict[str, Any]] = []

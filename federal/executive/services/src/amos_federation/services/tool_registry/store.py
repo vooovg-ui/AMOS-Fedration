@@ -31,7 +31,11 @@ class ToolStore(Protocol):
 
 
 class InMemoryToolStore:
-    """تنفيذ بسيط معزول في الذاكرة مع مطابقة كلمات مفتاحية حتمية."""
+    """تنفيذ بسيط معزول في الذاكرة مع مطابقة كلمات مفتاحية حتمية.
+
+    T3.6-DURABILITY: DOUBLE_NOT_WIRED — قِيسَ في W-029 أنَّ `tool_registry/main.py:21`
+    يُوصِلُ `PersistentToolStore()`، ولا نداءَ لهذا الصنفِ في شِفرةِ الإنتاج.
+    """
 
     def __init__(self) -> None:
         self._tools: dict[str, ToolManifestModel] = {}

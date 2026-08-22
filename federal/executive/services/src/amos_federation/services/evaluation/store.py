@@ -31,7 +31,13 @@ class ExperienceBackend(Protocol):
 
 
 class InMemoryExperienceStore:
-    """ذاكرة خبرات خفيفة مع فلترة وتتبع مصدر."""
+    """ذاكرة خبرات خفيفة مع فلترة وتتبع مصدر.
+
+    T3.6-DURABILITY: DOUBLE_NOT_WIRED — قِيسَ في W-029 أنَّ `evaluation/main.py:27`
+    يُوصِلُ `PersistentExperienceStore()`، ولا نداءَ لهذا الصنفِ في شِفرةِ الإنتاج.
+    وحدٌّ يُقال: `provenance` الافتراضيُّ هنا يكتبُ `verified: True` عن خبرةٍ لم
+    يتحقَّقْ منها أحدٌ — وذلك في نسخةِ الذاكرةِ وحدَها، فلا تُقرأُ منه حقيقةُ دولة.
+    """
 
     def __init__(self) -> None:
         self._experiences: list[dict[str, Any]] = []

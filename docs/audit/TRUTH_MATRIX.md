@@ -63,16 +63,16 @@
 |---|---:|---:|---:|---:|---:|---:|---|
 | `core/` | 67 | 41 | 0 | 14712 | 14 | 0 | unspecified=14 |
 | `royal/` | 51 | 2 | 1 | 38 | 14 | 0 | unspecified=14 |
-| `federal/` | 60 | 222 | 3 | 62749 | 7 | 0 | unspecified=7 |
+| `federal/` | 60 | 222 | 3 | 62801 | 7 | 0 | unspecified=7 |
 | `states/` | 47 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
 | `institutions/` | 19 | 2 | 0 | 38 | 6 | 0 | unspecified=6 |
 | `agents/` | 601 | 4 | 283 | 532 | 11 | 0 | unspecified=11 |
-| `tools/` | 41 | 24 | 2 | 6339 | 12 | 0 | unspecified=12 |
+| `tools/` | 41 | 25 | 2 | 6745 | 12 | 0 | unspecified=12 |
 | `interfaces/` | 14 | 2 | 0 | 38 | 4 | 0 | unspecified=4 |
 | `runtime/` | 20 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
 | `docs/` | 90 | 2 | 0 | 100 | 7 | 0 | unspecified=7 |
 | `ops/` | 38 | 2 | 0 | 38 | 12 | 0 | unspecified=12 |
-| `tests/` | 14 | 50 | 0 | 16344 | 5 | 0 | unspecified=5 |
+| `tests/` | 14 | 51 | 0 | 16575 | 5 | 0 | unspecified=5 |
 
 ---
 
@@ -96,15 +96,15 @@
 | `federal/executive/services/src/amos_federation/services/evaluation/store.py:33` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryExperienceStore` يُستخدم كمصدر حقيقة |
 | `federal/executive/services/src/amos_federation/services/memory_service/store.py:50` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryVectorStore` يُستخدم كمصدر حقيقة |
 | `federal/executive/services/src/amos_federation/services/model_gateway/main.py:29` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryShadowStore` يُستخدم كمصدر حقيقة |
-| `federal/executive/services/src/amos_federation/services/model_gateway/main.py:47` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryShadowStore` يُستخدم كمصدر حقيقة |
+| `federal/executive/services/src/amos_federation/services/model_gateway/main.py:57` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryShadowStore` يُستخدم كمصدر حقيقة |
 | `federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:28` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryShadowStore` يُستخدم كمصدر حقيقة |
-| `federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:142` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryShadowStore` يُستخدم كمصدر حقيقة |
+| `federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryShadowStore` يُستخدم كمصدر حقيقة |
 | `federal/executive/services/src/amos_federation/services/tool_registry/store.py:33` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryToolStore` يُستخدم كمصدر حقيقة |
 | `federal/executive/services/src/amos_federation/services/training/data_pipeline.py:31` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
 | `federal/executive/services/src/amos_federation/services/training/main.py:22` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
 | `federal/executive/services/src/amos_federation/services/training/main.py:23` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryModelRegistry` يُستخدم كمصدر حقيقة |
-| `federal/executive/services/src/amos_federation/services/training/main.py:36` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
-| `federal/executive/services/src/amos_federation/services/training/main.py:37` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryModelRegistry` يُستخدم كمصدر حقيقة |
+| `federal/executive/services/src/amos_federation/services/training/main.py:41` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
+| `federal/executive/services/src/amos_federation/services/training/main.py:42` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryModelRegistry` يُستخدم كمصدر حقيقة |
 | `federal/executive/services/src/amos_federation/services/training/model_registry.py:30` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryModelRegistry` يُستخدم كمصدر حقيقة |
 | `federal/executive/services/tests/test_common_branches.py:40` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryTaskStore` يُستخدم كمصدر حقيقة |
 | `federal/executive/services/tests/test_common_branches.py:263` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryTaskStore` يُستخدم كمصدر حقيقة |

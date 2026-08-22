@@ -670,6 +670,10 @@ class FactoryRegistry:
 
 
 # Singletons
+# T3.6-DURABILITY: CACHE_REBUILDABLE — ذاكرةُ نداءٍ لا سجلٌّ: `get_factory` تُنشِئُ
+# `Factory(factory_id)` عندَ الغيابِ (السطرُ أدناه)، فالفقدُ يُعيدُ البناءَ ولا يُفقِدُ
+# الدولةَ أثرًا. **وهذه دعوى لا تُقاسُ أداتيًّا** — مُثبَّتةٌ موضعًا في حرسِ الخطوةِ 17،
+# فمن حوَّلَ المصنعَ إلى حاملِ حالةٍ فريدةٍ وجبَ عليه تغييرُ هذا التصريحِ ومعَه الحرس.
 _factories: dict[str, Factory] = {}
 _registry: FactoryRegistry | None = None
 

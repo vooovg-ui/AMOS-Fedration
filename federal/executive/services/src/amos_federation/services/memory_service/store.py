@@ -48,7 +48,13 @@ def _keyword_similarity(query_words: list[str], doc_words: list[str]) -> float:
 
 
 class InMemoryVectorStore:
-    """ذاكرة متجهية خفيفة مع مطابقة كلمات مفتاحية حتمية."""
+    """ذاكرة متجهية خفيفة مع مطابقة كلمات مفتاحية حتمية.
+
+    T3.6-DURABILITY: DOUBLE_NOT_WIRED — قِيسَ في W-029 أنَّ `memory_service/main.py:22`
+    يُوصِلُ `PersistentMemoryStore()`، ولا نداءَ لهذا الصنفِ في شِفرةِ الإنتاج.
+    وهو مطابقةُ كلماتٍ لا تشابهَ متجهاتٍ — والاسمُ «متجهيّة» يَصِفُ العقدَ المقصودَ
+    لا ما يُنفَّذُ هنا.
+    """
 
     def __init__(self) -> None:
         self._items: list[dict[str, Any]] = []

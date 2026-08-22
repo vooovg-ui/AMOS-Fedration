@@ -28,7 +28,15 @@ class ModelRegistryStore(Protocol):
 
 
 class InMemoryModelRegistry:
-    """ذاكرة نماذج خفيفة مع Model Cards."""
+    """ذاكرة نماذج خفيفة مع Model Cards.
+
+    T3.6-DURABILITY: WIRED_VOLATILE — **موصولٌ في الإنتاج**: قِيسَ في W-029 أنَّ
+    `training/main.py:37` يُهيِّئُ هذا الصنفَ على مستوى الوحدةِ، وأنَّ
+    `PATCH /v1/models/{id}/status` يُغيِّرُ حالةَ نموذجٍ فيه. فترقيةُ نموذجٍ إلى
+    الإنتاجِ **قرارٌ يُدوَّنُ في الذاكرةِ ويزولُ بإعادةِ التشغيل**، ولا جدولَ نماذجَ
+    في `common/database.py` يحفظُه. وهذا أوضحُ موضعٍ يُدَّعى فيه صمودٌ ولا يوجد —
+    والقرارُ في Q-39، والإدامةُ في T4/E4.
+    """
 
     def __init__(self) -> None:
         self._models: list[dict[str, Any]] = []

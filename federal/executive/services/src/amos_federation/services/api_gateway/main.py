@@ -54,7 +54,17 @@ _EVENT_TYPE_BY_TASK_TYPE = {
     "data": "transformation",
     "generic": "research",
 }
+# T3.6-DURABILITY: WIRED_VOLATILE — سجلّا الوكلاءِ والأدواتِ هنا **مخزنانِ في
+# الذاكرةِ بالأثرِ لا بالاسم**، فلا يعدُّهما عدّادُ `IN_MEMORY_STORE` (يقرأُ الأسماءَ
+# لا التوصيل · Q-38). قِيسَ في W-029: `POST /v1/agents` و`POST /v1/tools` تُعيدانِ
+# **201 Created** والكتابةُ في قاموسٍ يتبخّرُ عندَ إعادةِ التشغيل، مع وجودِ
+# `AgentModel` و`ToolModel` في `common/database.py` و`PersistentToolStore` مستعملةٍ
+# في خدمةِ `tool-registry` — أي **كاتبٌ ثانٍ متنافسٌ** على الأداةِ نفسِها.
+# لم يُغيَّرْ سلوكٌ هنا: تحويلُ الكتابةِ إلى الجدولِ يُغيِّرُ عقدَ واجهةٍ منشورةٍ ويُوجِبُ
+# حسمَ ملكيّةِ السجلِّ (بوّابةُ الأدواتِ أم البوّابةُ العامّة؟) — بابُ Q-39.
 agents: dict[str, AgentManifestModel] = {}
+# T3.6-DURABILITY: WIRED_VOLATILE — عينُ التصريحِ أعلاه ينطبقُ على سجلِّ الأدواتِ هذا،
+# وهو الكاتبُ الثاني المتنافسُ مع `PersistentToolStore` في خدمةِ `tool-registry`.
 tools: dict[str, ToolManifestModel] = {}
 
 

@@ -1,0 +1,621 @@
+{
+  "$comment": "الهدف: جردُ مخازنِ الذاكرةِ في المستودعِ وتصنيفُها من المصدرِ — مُخرَجُ tools/governance/in_memory_inventory.py (T3.6 · W-029). المادةُ التاسعةُ · 2.",
+  "note": "قياسٌ لا حُكم. `occurrences_total` هو عينُ عدّادِ IN_MEMORY_STORE في truth_audit.py وهو عدّادُ **انتشارِ اسمٍ** لا عدّادُ مخازنَ موصولةٍ — والتفصيلُ في SOVEREIGN_DECISION_REGISTER.md § Q-38. و`module_stores` مخازنُ إنتاجٍ لا يراها ذاك العدّادُ أصلًا. لا يُقرَأُ هذا الملفُّ شهادةَ إدامةٍ: كلُّ ما فيه مُعلَنٌ متطايرٌ حتى تُنجَزَ T4/E4 · Q-39.",
+  "repo": "/home/user/workspace/AMOS-Fedration",
+  "summary": {
+    "occurrences_total": 60,
+    "by_bucket": {
+      "SRC_DOUBLE_NOT_WIRED": 6,
+      "SRC_WIRED_VOLATILE": 10,
+      "TEST_REFERENCE": 44
+    },
+    "classes_total": 8,
+    "classes_wired": [
+      "InMemoryDataPipeline",
+      "InMemoryModelRegistry",
+      "InMemoryShadowStore"
+    ],
+    "classes_not_wired": [
+      "InMemoryCriticStore",
+      "InMemoryExperienceStore",
+      "InMemoryTaskStore",
+      "InMemoryToolStore",
+      "InMemoryVectorStore"
+    ],
+    "undeclared_classes": [],
+    "mismatched_declarations": [],
+    "module_stores_total": 7,
+    "undeclared_module_stores": [],
+    "undeclared_total": 0
+  },
+  "classes": {
+    "InMemoryTaskStore": {
+      "path": "federal/executive/services/src/amos_federation/services/api_gateway/store.py",
+      "line": 102,
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "wired_at": []
+    },
+    "InMemoryCriticStore": {
+      "path": "federal/executive/services/src/amos_federation/services/critic/store.py",
+      "line": 32,
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "wired_at": []
+    },
+    "InMemoryExperienceStore": {
+      "path": "federal/executive/services/src/amos_federation/services/evaluation/store.py",
+      "line": 33,
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "wired_at": []
+    },
+    "InMemoryVectorStore": {
+      "path": "federal/executive/services/src/amos_federation/services/memory_service/store.py",
+      "line": 50,
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "wired_at": []
+    },
+    "InMemoryShadowStore": {
+      "path": "federal/executive/services/src/amos_federation/services/model_gateway/shadow.py",
+      "line": 28,
+      "declared_as": "WIRED_VOLATILE",
+      "wired_at": [
+        "federal/executive/services/src/amos_federation/services/model_gateway/main.py:57",
+        "federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
+      ]
+    },
+    "InMemoryToolStore": {
+      "path": "federal/executive/services/src/amos_federation/services/tool_registry/store.py",
+      "line": 33,
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "wired_at": []
+    },
+    "InMemoryDataPipeline": {
+      "path": "federal/executive/services/src/amos_federation/services/training/data_pipeline.py",
+      "line": 31,
+      "declared_as": "WIRED_VOLATILE",
+      "wired_at": [
+        "federal/executive/services/src/amos_federation/services/training/main.py:41"
+      ]
+    },
+    "InMemoryModelRegistry": {
+      "path": "federal/executive/services/src/amos_federation/services/training/model_registry.py",
+      "line": 30,
+      "declared_as": "WIRED_VOLATILE",
+      "wired_at": [
+        "federal/executive/services/src/amos_federation/services/training/main.py:42"
+      ]
+    }
+  },
+  "occurrences": [
+    {
+      "path": "federal/executive/services/src/amos_federation/services/api_gateway/store.py",
+      "line": 14,
+      "name": "InMemoryTaskStore",
+      "bucket": "SRC_DOUBLE_NOT_WIRED",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "لا تهيئةَ في شِفرةِ الإنتاج"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/api_gateway/store.py",
+      "line": 102,
+      "name": "InMemoryTaskStore",
+      "bucket": "SRC_DOUBLE_NOT_WIRED",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "لا تهيئةَ في شِفرةِ الإنتاج"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/critic/store.py",
+      "line": 32,
+      "name": "InMemoryCriticStore",
+      "bucket": "SRC_DOUBLE_NOT_WIRED",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "لا تهيئةَ في شِفرةِ الإنتاج"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/evaluation/store.py",
+      "line": 33,
+      "name": "InMemoryExperienceStore",
+      "bucket": "SRC_DOUBLE_NOT_WIRED",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "لا تهيئةَ في شِفرةِ الإنتاج"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/memory_service/store.py",
+      "line": 50,
+      "name": "InMemoryVectorStore",
+      "bucket": "SRC_DOUBLE_NOT_WIRED",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "لا تهيئةَ في شِفرةِ الإنتاج"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/model_gateway/main.py",
+      "line": 29,
+      "name": "InMemoryShadowStore",
+      "bucket": "SRC_WIRED_VOLATILE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:57, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/model_gateway/main.py",
+      "line": 57,
+      "name": "InMemoryShadowStore",
+      "bucket": "SRC_WIRED_VOLATILE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:57, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/model_gateway/shadow.py",
+      "line": 28,
+      "name": "InMemoryShadowStore",
+      "bucket": "SRC_WIRED_VOLATILE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:57, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/model_gateway/shadow.py",
+      "line": 150,
+      "name": "InMemoryShadowStore",
+      "bucket": "SRC_WIRED_VOLATILE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:57, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/tool_registry/store.py",
+      "line": 33,
+      "name": "InMemoryToolStore",
+      "bucket": "SRC_DOUBLE_NOT_WIRED",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "لا تهيئةَ في شِفرةِ الإنتاج"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/training/data_pipeline.py",
+      "line": 31,
+      "name": "InMemoryDataPipeline",
+      "bucket": "SRC_WIRED_VOLATILE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "federal/executive/services/src/amos_federation/services/training/main.py:41"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/training/main.py",
+      "line": 22,
+      "name": "InMemoryDataPipeline",
+      "bucket": "SRC_WIRED_VOLATILE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "federal/executive/services/src/amos_federation/services/training/main.py:41"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/training/main.py",
+      "line": 23,
+      "name": "InMemoryModelRegistry",
+      "bucket": "SRC_WIRED_VOLATILE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "federal/executive/services/src/amos_federation/services/training/main.py:42"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/training/main.py",
+      "line": 41,
+      "name": "InMemoryDataPipeline",
+      "bucket": "SRC_WIRED_VOLATILE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "federal/executive/services/src/amos_federation/services/training/main.py:41"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/training/main.py",
+      "line": 42,
+      "name": "InMemoryModelRegistry",
+      "bucket": "SRC_WIRED_VOLATILE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "federal/executive/services/src/amos_federation/services/training/main.py:42"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/training/model_registry.py",
+      "line": 30,
+      "name": "InMemoryModelRegistry",
+      "bucket": "SRC_WIRED_VOLATILE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "federal/executive/services/src/amos_federation/services/training/main.py:42"
+    },
+    {
+      "path": "federal/executive/services/tests/test_common_branches.py",
+      "line": 40,
+      "name": "InMemoryTaskStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_common_branches.py",
+      "line": 263,
+      "name": "InMemoryTaskStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_edge_branches.py",
+      "line": 13,
+      "name": "InMemoryShadowStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_edge_branches.py",
+      "line": 17,
+      "name": "InMemoryModelRegistry",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_edge_branches.py",
+      "line": 22,
+      "name": "InMemoryShadowStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_edge_branches.py",
+      "line": 43,
+      "name": "InMemoryModelRegistry",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_edge_branches.py",
+      "line": 47,
+      "name": "InMemoryModelRegistry",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_edge_branches.py",
+      "line": 55,
+      "name": "InMemoryModelRegistry",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 12,
+      "name": "InMemoryCriticStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 13,
+      "name": "InMemoryExperienceStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 15,
+      "name": "InMemoryVectorStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 25,
+      "name": "InMemoryToolStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 33,
+      "name": "InMemoryCriticStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 41,
+      "name": "InMemoryCriticStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 46,
+      "name": "InMemoryCriticStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 52,
+      "name": "InMemoryCriticStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 58,
+      "name": "InMemoryCriticStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 64,
+      "name": "InMemoryCriticStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 71,
+      "name": "InMemoryCriticStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 77,
+      "name": "InMemoryCriticStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 83,
+      "name": "InMemoryCriticStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 97,
+      "name": "InMemoryExperienceStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 104,
+      "name": "InMemoryExperienceStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 110,
+      "name": "InMemoryExperienceStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 116,
+      "name": "InMemoryExperienceStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 122,
+      "name": "InMemoryExperienceStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 128,
+      "name": "InMemoryExperienceStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 134,
+      "name": "InMemoryExperienceStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 141,
+      "name": "InMemoryExperienceStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 165,
+      "name": "InMemoryVectorStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 171,
+      "name": "InMemoryVectorStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 179,
+      "name": "InMemoryVectorStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 186,
+      "name": "InMemoryVectorStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 196,
+      "name": "InMemoryVectorStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 237,
+      "name": "InMemoryToolStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 244,
+      "name": "InMemoryToolStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 250,
+      "name": "InMemoryToolStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_inmemory_stores.py",
+      "line": 264,
+      "name": "InMemoryToolStore",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_training.py",
+      "line": 12,
+      "name": "InMemoryDataPipeline",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_training.py",
+      "line": 68,
+      "name": "InMemoryDataPipeline",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_training.py",
+      "line": 77,
+      "name": "InMemoryDataPipeline",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_training.py",
+      "line": 86,
+      "name": "InMemoryDataPipeline",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_training.py",
+      "line": 98,
+      "name": "InMemoryDataPipeline",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    },
+    {
+      "path": "federal/executive/services/tests/test_training.py",
+      "line": 110,
+      "name": "InMemoryDataPipeline",
+      "bucket": "TEST_REFERENCE",
+      "declared_as": "WIRED_VOLATILE",
+      "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
+    }
+  ],
+  "module_stores": [
+    {
+      "path": "federal/executive/services/src/amos_federation/services/api_gateway/main.py",
+      "line": 65,
+      "variable": "agents",
+      "mutations": 1,
+      "declared_as": "WIRED_VOLATILE"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/api_gateway/main.py",
+      "line": 68,
+      "variable": "tools",
+      "mutations": 1,
+      "declared_as": "WIRED_VOLATILE"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/governance/canary.py",
+      "line": 178,
+      "variable": "_canary_deployments",
+      "mutations": 1,
+      "declared_as": "WIRED_VOLATILE"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/governance/canary.py",
+      "line": 119,
+      "variable": "_promotions",
+      "mutations": 1,
+      "declared_as": "WIRED_VOLATILE"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/governance/canary.py",
+      "line": 23,
+      "variable": "_system_state",
+      "mutations": 8,
+      "declared_as": "WIRED_VOLATILE"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/governance/factories.py",
+      "line": 677,
+      "variable": "_factories",
+      "mutations": 1,
+      "declared_as": "CACHE_REBUILDABLE"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/model_gateway/main.py",
+      "line": 56,
+      "variable": "_cost_log",
+      "mutations": 1,
+      "declared_as": "WIRED_VOLATILE"
+    }
+  ]
+}

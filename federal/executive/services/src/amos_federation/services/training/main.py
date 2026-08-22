@@ -33,6 +33,11 @@ def _make_service(port: int, description: str) -> Any:
 
 
 # تهيئة المخازن
+#: تصنيفُ إدامةِ مخازنِ هذه الخدمةِ — مُعلَنٌ في الشِفرةِ لا مُستنتَجٌ (T3.6 · W-029):
+#: مجموعاتُ البياناتِ وسجلُّ النماذجِ (ومنه ترقيةُ نموذجٍ إلى الإنتاج) في ذاكرةِ
+#: العمليّةِ، ولا جدولَ لها في `common/database.py` — الإدامةُ عملُ T4/E4 · القرارُ Q-39.
+STORE_DURABILITY = "in_memory_volatile"
+
 _pipeline = InMemoryDataPipeline()
 _registry = InMemoryModelRegistry()
 
