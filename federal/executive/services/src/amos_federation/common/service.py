@@ -9,6 +9,7 @@ AMOS-Federation Service Application Factory
 import uuid
 from collections.abc import Iterable
 
+import structlog
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import JSONResponse
 
@@ -22,7 +23,15 @@ def _instrument_application(app: FastAPI) -> None:
     """إضافة OpenTelemetry FastAPI اختياريًا دون جعل التشغيل مرهونًا بالحزمة."""
     try:
         from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-    except ImportError:
+    except ImportError as exc:
+        # تجهيزُ القياسِ الغائبُ يُعلَنُ: خدمةٌ بلا تجهيزٍ لا تُنتِجُ آثارَ طلباتٍ،
+        # فلا تُقرأُ سلامتُها من غيابِ الأخطاءِ في الآثار.
+        structlog.get_logger().warning(
+            "service.instrumentation_unavailable",
+            app=getattr(app, "title", "unknown"),
+            reason=f"{type(exc).__name__}: {exc}",
+            effect="لا آثارَ لطلباتِ HTTP — القياسُ منقوصٌ لا معدوم",
+        )
         return
     FastAPIInstrumentor.instrument_app(app)
 

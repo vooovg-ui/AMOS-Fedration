@@ -11,6 +11,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
+import structlog
 from sqlalchemy import (
     JSON,
     Boolean,
@@ -247,9 +248,27 @@ class Ed25519Signer:
             self._Ed25519PrivateKey = Ed25519PrivateKey
             self._Ed25519PublicKey = Ed25519PublicKey
             self._serialization = serialization
-        except ImportError:
-            # Fallback: SHA-256 based signing (not cryptographically secure, but deterministic)
+        except ImportError as exc:
+            # ┌─ إعلانُ حقيقةٍ (المادة 002) — لا يُصلَحُ هنا بل يُعلَنُ ─────────────┐
+            # البديلُ أدناه **ليس توقيعًا**: `sha256(key + message)` لا يُثبِتُ
+            # هويةَ موقِّعٍ. وأسوأُ من ذلك أنَّ `verify` يقارنُ بـ
+            # `sha256(public_key_hex + message)` والمفتاحُ العامُّ **مُعلَنٌ**،
+            # فأيُّ طرفٍ يقدرُ على تلفيقِ «توقيعٍ» يُقبَل؛ في حينِ أنَّ ما وقَّعَه
+            # `sign` (بالمفتاحِ الخاصِّ) **يُرفَض**. فهو مسارٌ مكسورٌ وقابلٌ
+            # للتلفيقِ في آنٍ واحد.
+            # و`cryptography>=43.0.1` **تبعيةٌ مُعلَنةٌ صلبةٌ** في `pyproject.toml`
+            # و`requirements-dev.txt`، فهذا المسارُ لا يُبلَغُ في بيئةٍ مُركَّبةٍ
+            # صحيحةً — وحذفُه قرارٌ سياديٌّ لا يملكُه المُنفِّذ (السؤال Q-37).
+            # فيُترَكُ السلوكُ كما هو ويُصرَخُ به بأعلى مستوى.
+            # └───────────────────────────────────────────────────────────────┘
             self._ed25519_available = False
+            self._fallback_reason = f"{type(exc).__name__}: {exc}"
+            structlog.get_logger().critical(
+                "federation.signing_downgraded_to_forgeable_fallback",
+                reason=self._fallback_reason,
+                effect="التوقيعُ غيرُ آمنٍ ولا وظيفيّ: يُقبَلُ المُلفَّقُ ويُرفَضُ الأصيل",
+                sovereign_question="Q-37",
+            )
 
     def generate_keypair(self) -> tuple[str, str]:
         """توليد زوج مفاتيح. يعيد (private_key_hex, public_key_hex)."""
@@ -295,7 +314,16 @@ class Ed25519Signer:
                 public_key = Ed25519PublicKey.from_public_bytes(pub_bytes)
                 public_key.verify(sig_bytes, message.encode())
                 return True
-            except Exception:
+            except Exception as exc:
+                # `False` هنا حُكمٌ صحيحٌ (توقيعٌ غيرُ صالحٍ)، لكنّه **يُعلَنُ**:
+                # `InvalidSignature` ليس كـ`ValueError` من مفتاحٍ مشوَّهٍ ولا
+                # كـ`bytes.fromhex` على نصٍّ غيرِ سِتَّ عشريّ. من يرى «رُفِضَ»
+                # يلزمُه أن يعرفَ أرُفِضَ لتلاعبٍ أم لتلفٍ في المُدخَل.
+                structlog.get_logger().warning(
+                    "federation.signature_rejected",
+                    reason=f"{type(exc).__name__}: {exc}",
+                    public_key_prefix=public_key_hex[:16],
+                )
                 return False
         else:
             # Fallback: verify SHA-256

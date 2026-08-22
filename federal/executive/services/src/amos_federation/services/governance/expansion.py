@@ -12,6 +12,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
+import structlog
 from sqlalchemy import (
     Boolean,
     Column,
@@ -949,8 +950,15 @@ class RetirementSystem:
         try:
             history = health_checker.get_agent_history(agent_id)
             health_failures = sum(1 for h in history if h.get("status") == "critical")
-        except Exception:
-            pass
+        except Exception as exc:
+            # `health_failures = 0` عندَ الفشلِ **دعوى صحّةٍ لم تُقَسْ**: سجلُّ
+            # التقاعدِ سيقولُ «صفرُ إخفاقاتٍ صحيّةٍ» عن وكيلٍ لم يُقرأْ تاريخُه.
+            structlog.get_logger().warning(
+                "expansion.health_history_unavailable",
+                agent_id=agent_id,
+                reason=f"{type(exc).__name__}: {exc}",
+                effect="health_failures=0 تعني «لم يُقرأْ» لا «لا إخفاقات»",
+            )
 
         session = self._Session()
         try:

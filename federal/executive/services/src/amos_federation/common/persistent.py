@@ -11,6 +11,8 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
+import structlog
+
 from amos_federation.common.database import (
     AuditEntryModel,
     ExperienceModel,
@@ -63,8 +65,14 @@ class PersistentToolStore:
                         break
             finally:
                 session.close()
-        except Exception:
-            pass
+        except Exception as exc:
+            # فشلُ البذرِ **يُعلَنُ**: سجلُّ أدواتٍ فارغٌ يُقرأُ «لا أدواتَ مسجَّلة»
+            # وهو في الحقيقةِ «لم تُقرأِ الأدواتُ» — وبينهما فرقُ حقيقةٍ كامل.
+            structlog.get_logger().warning(
+                "tool_store.seed_failed",
+                reason=f"{type(exc).__name__}: {exc}",
+                effect="سجلُّ الأدواتِ قد يبدو فارغًا بلا أن يكونَ كذلك",
+            )
 
     def register(self, tool: ToolManifestModel) -> ToolManifestModel:
         session_local = get_session_factory()
@@ -278,12 +286,21 @@ class PersistentMemoryStore:
             for row in rows:
                 # تحليل القيمة: قد تكون JSON string أو نص عادي
                 value_text = row.value
-                try:
-                    parsed = json.loads(value_text)
-                    if isinstance(parsed, dict):
-                        value_text = " ".join(str(v) for v in parsed.values())
-                except (json.JSONDecodeError, TypeError):
-                    pass
+                # القيمةُ قد تكون JSON أو نصًّا عاديًّا: النصُّ العاديُّ حالةٌ
+                # متوقَّعةٌ فلا يُحاوَلُ تحليلُه ولا يُشكى منه؛ أمّا ما **يبدو**
+                # JSON ثمَّ يعجزُ التحليلُ فذاك تلفٌ يُعلَنُ لا يُبتلَع.
+                stripped = value_text.lstrip() if isinstance(value_text, str) else ""
+                if stripped.startswith(("{", "[")):
+                    try:
+                        parsed = json.loads(value_text)
+                        if isinstance(parsed, dict):
+                            value_text = " ".join(str(v) for v in parsed.values())
+                    except ValueError as exc:
+                        structlog.get_logger().warning(
+                            "memory.value_malformed_json",
+                            memory_id=row.id,
+                            reason=f"{type(exc).__name__}: {exc}",
+                        )
                 mem_words = set((row.keywords or []) + value_text.lower().split())
                 if not query_words or not mem_words:
                     continue
@@ -524,17 +541,25 @@ class PersistentAuditStore:
         self._verify_integrity()
 
     def _verify_integrity(self) -> None:
-        """التحقق من سلامة السلسلة عند الإقلاع — تحذير فقط بدون كسر النظام."""
+        """التحقق من سلامة السلسلة عند الإقلاع — تحذير فقط بدون كسر النظام.
+
+        وفشلُ **التحقُّقِ نفسِه** ليس كنجاحِه: صمتٌ هنا يعني أنّ سلسلةَ التدقيقِ
+        لم تُفحَصْ أصلًا، فيمرُّ التلاعبُ بلا كاشف. فيُعلَنُ الفشلُ صريحًا،
+        ويُميَّزُ «الجدولُ غيرُ موجودٍ بعد» عن «التحقُّقُ انكسر».
+        """
         try:
             result = self.verify_chain()
             if not result.get("valid", True):
-                import structlog
-
                 structlog.get_logger().warning(
                     "audit.chain_broken_on_init", message=result.get("message")
                 )
-        except Exception:
-            pass  # قد لا يكون الجدول موجودًا بعد
+        except Exception as exc:
+            structlog.get_logger().warning(
+                "audit.chain_verification_failed_on_init",
+                reason=f"{type(exc).__name__}: {exc}",
+                effect="سلسلةُ التدقيقِ لم تُفحَصْ عندَ الإقلاع — الغيابُ ليس سلامة",
+                note="قد يكونُ الجدولُ لم يُنشَأْ بعد؛ لا يُفترَضُ ذلك بل يُقرأُ من السبب",
+            )
 
     def append(self, action: str, actor: str, details: dict[str, Any]) -> dict[str, Any]:
         """إضافة سجل تدقيق — INSERT فقط، لا يمكن تعديل أو حذف السجلات السابقة."""
@@ -646,8 +671,16 @@ class PersistentAuditStore:
                     if entry.hash == old_hash2:
                         prev_hash = entry.hash
                         continue
-                except Exception:
-                    pass
+                except Exception as exc:
+                    # محاولةُ صيغةٍ فشلَت: ليست حُكمًا بالتلاعبِ ولا براءةً منه،
+                    # لكنّها **لا تُبتلَعُ**: من يرى «تلاعب» في المخرَجِ يلزمُه
+                    # أن يعرفَ هل الصيغةُ عجزَت أم البصمةُ اختلفَت حقًّا.
+                    structlog.get_logger().warning(
+                        "audit.hash_recompute_attempt_failed",
+                        audit_id=entry.id,
+                        attempt="str(details)",
+                        reason=f"{type(exc).__name__}: {exc}",
+                    )
                 # محاولة رابعة: قد يكون details مخزّن كـ string في DB
                 try:
                     if isinstance(entry.details, str):
@@ -657,8 +690,13 @@ class PersistentAuditStore:
                         if entry.hash == old_hash3:
                             prev_hash = entry.hash
                             continue
-                except Exception:
-                    pass
+                except Exception as exc:
+                    structlog.get_logger().warning(
+                        "audit.hash_recompute_attempt_failed",
+                        audit_id=entry.id,
+                        attempt="details_as_stored_string",
+                        reason=f"{type(exc).__name__}: {exc}",
+                    )
                 # لا يطابق أي صيغة — هناك تلاعب
                 return {
                     "valid": False,

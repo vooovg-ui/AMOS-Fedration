@@ -8,6 +8,8 @@ AMOS-Federation Benchmark Suite + Gap Analyzer
 
 from typing import Any
 
+import structlog
+
 # مجموعة 20 مهمة قياسية موزعة على الأنواع والمجالات
 BENCHMARK_TASKS: list[dict[str, Any]] = [
     {
@@ -167,9 +169,22 @@ def run_benchmark(
             try:
                 result = execute_fn(task)
                 success = result.get("status") == "completed"
-            except Exception:
+            except Exception as exc:
+                # `execution_failed` نصٌّ عامٌّ **يُخفي** الخطأَ الحقيقيّ: تقريرُ
+                # قياسٍ يقولُ «فشلَ التنفيذ» في كلِّ الحالاتِ لا يُفرِّقُ بينَ
+                # أداةٍ مفقودةٍ ومهلةٍ منتهيةٍ وخللٍ في المِعيارِ نفسِه.
                 success = False
-                result = {"error": "execution_failed"}
+                result = {
+                    "error": "execution_failed",
+                    "error_type": type(exc).__name__,
+                    "error_detail": str(exc)[:500],
+                }
+                structlog.get_logger().warning(
+                    "benchmark.task_execution_failed",
+                    task_id=task["id"],
+                    error_type=type(exc).__name__,
+                    reason=str(exc)[:500],
+                )
         else:
             # تحقق هيكلي: هل الخطوات المتوقعة لها أدوات؟
             success = len(task["expected_tools"]) > 0

@@ -43,6 +43,7 @@ import argparse
 import ast
 import json
 import os
+import sys
 from collections.abc import Iterator
 from dataclasses import asdict, dataclass, replace
 from pathlib import Path
@@ -371,7 +372,11 @@ def collect(root: Path, subtree: Path | None = None) -> list[WriteSite]:
         try:
             source = path.read_text(encoding="utf-8")
             tree = ast.parse(source)
-        except (SyntaxError, UnicodeDecodeError):
+        except (SyntaxError, UnicodeDecodeError, OSError) as exc:
+            # ملفُّ إنتاجٍ لا يُحلَّلُ **يُنقِصُ الدَّينَ المقيسَ بصمت**: أسطحُه لا
+            # تُعَدُّ فيظهرُ الدَّينُ أقلَّ مما هو. فيُعلَنُ على المِخرَجِ ولا يُتجاوَزُ صامتًا.
+            print(f"[SOVEREIGN INVENTORY] تعذَّرَ تحليلُ {relative} — "
+                  f"لم تُعَدَّ أسطحُه: {type(exc).__name__}: {exc}", file=sys.stderr)
             continue
         visitor = _WriteVisitor(str(relative), source)
         visitor.visit(tree)

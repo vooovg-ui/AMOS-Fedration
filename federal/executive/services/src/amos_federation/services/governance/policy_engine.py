@@ -9,6 +9,24 @@ AMOS-Federation Policy Engine (Rego-like)
 import re
 from typing import Any
 
+import structlog
+
+
+def _warn_non_numeric_comparison(op: str, actual: object, value: object, exc: Exception) -> None:
+    """أعلِنْ مقارنةً عدديّةً على مُدخَلٍ غيرِ عدديّ — ولا تُسلِّمْ `False` صامتًا.
+
+    شرطٌ عدديٌّ على قيمةٍ نصيّةٍ يعني سياسةً **لم تُقيَّمْ** لا سياسةً لم تتحقَّقْ؛
+    والخلطُ بينهما يُخفي سياسةً معطوبةَ التعريفِ سنينَ بلا كاشف.
+    """
+    structlog.get_logger().warning(
+        "policy.non_numeric_comparison",
+        operator=op,
+        actual=repr(actual)[:120],
+        expected=repr(value)[:120],
+        reason=f"{type(exc).__name__}: {exc}",
+        effect="الشرطُ يُحسَبُ غيرَ متحقِّقٍ لأنّه لم يُقَسْ لا لأنّه فُحِصَ",
+    )
+
 
 class RegoRule:
     """قاعدة Rego-like: اسم + جسم (شروط) + قرار."""
@@ -43,22 +61,38 @@ class RegoRule:
         elif op == "gt":
             try:
                 return float(actual) > float(value)
-            except (TypeError, ValueError):
+            except (TypeError, ValueError) as exc:
+                # `False` يبقى (شرطٌ لا يتحقَّقُ على مُدخَلٍ غيرِ عدديّ)، لكنَّ
+                # سياسةً لا تُطبَّقُ لأنَّ قيمتَها غيرُ عدديّةٍ **خطأُ تعريفٍ**
+                # لا نتيجةَ تقييمٍ — فيُعلَنُ كي لا تُقرأَ السياسةُ «مُقيَّمةً».
+                _warn_non_numeric_comparison("gt", actual, value, exc)
                 return False
         elif op == "lt":
             try:
                 return float(actual) < float(value)
-            except (TypeError, ValueError):
+            except (TypeError, ValueError) as exc:
+                # `False` يبقى (شرطٌ لا يتحقَّقُ على مُدخَلٍ غيرِ عدديّ)، لكنَّ
+                # سياسةً لا تُطبَّقُ لأنَّ قيمتَها غيرُ عدديّةٍ **خطأُ تعريفٍ**
+                # لا نتيجةَ تقييمٍ — فيُعلَنُ كي لا تُقرأَ السياسةُ «مُقيَّمةً».
+                _warn_non_numeric_comparison("lt", actual, value, exc)
                 return False
         elif op == "gte":
             try:
                 return float(actual) >= float(value)
-            except (TypeError, ValueError):
+            except (TypeError, ValueError) as exc:
+                # `False` يبقى (شرطٌ لا يتحقَّقُ على مُدخَلٍ غيرِ عدديّ)، لكنَّ
+                # سياسةً لا تُطبَّقُ لأنَّ قيمتَها غيرُ عدديّةٍ **خطأُ تعريفٍ**
+                # لا نتيجةَ تقييمٍ — فيُعلَنُ كي لا تُقرأَ السياسةُ «مُقيَّمةً».
+                _warn_non_numeric_comparison("gte", actual, value, exc)
                 return False
         elif op == "lte":
             try:
                 return float(actual) <= float(value)
-            except (TypeError, ValueError):
+            except (TypeError, ValueError) as exc:
+                # `False` يبقى (شرطٌ لا يتحقَّقُ على مُدخَلٍ غيرِ عدديّ)، لكنَّ
+                # سياسةً لا تُطبَّقُ لأنَّ قيمتَها غيرُ عدديّةٍ **خطأُ تعريفٍ**
+                # لا نتيجةَ تقييمٍ — فيُعلَنُ كي لا تُقرأَ السياسةُ «مُقيَّمةً».
+                _warn_non_numeric_comparison("lte", actual, value, exc)
                 return False
         elif op == "contains":
             return value in (actual or "")

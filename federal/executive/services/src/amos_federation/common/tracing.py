@@ -8,6 +8,8 @@ AMOS-Federation OpenTelemetry Tracing
 
 from typing import Any
 
+import structlog
+
 
 def setup_tracing(
     service_name: str = "amos-federation", otlp_endpoint: str = "http://localhost:4317"
@@ -19,7 +21,15 @@ def setup_tracing(
         from opentelemetry.sdk.resources import Resource
         from opentelemetry.sdk.trace import TracerProvider
         from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    except ImportError:
+    except ImportError as exc:
+        # التتبُّعُ المعطَّلُ **يُعلَنُ**: خدمةٌ بلا آثارٍ تبدو سليمةً في السجلِّ
+        # وهي غيرُ مُراقَبةٍ — و`OBSERVED` معيارٌ في مصفوفةِ الحقيقة.
+        structlog.get_logger().warning(
+            "tracing.unavailable",
+            service=service_name,
+            reason=f"{type(exc).__name__}: {exc}",
+            effect="لا آثارَ تُصدَّرُ — الخدمةُ غيرُ مُراقَبةٍ بالتتبُّع",
+        )
         return None
     resource = Resource.create({"service.name": service_name})
     provider = TracerProvider(resource=resource)
@@ -29,10 +39,23 @@ def setup_tracing(
     return trace.get_tracer(service_name)
 
 
+#: سببُ غيابِ التتبُّعِ — يُكتَبُ مرّةً ويُقرأُ عندَ السؤالِ بدلَ الصمت.
+_TRACER_UNAVAILABLE_REASON: str | None = None
+
+
 def get_tracer(name: str = "amos-federation") -> Any | None:
     """الحصول على tracer متاح أو None عندما لا تكون مكتبة OpenTelemetry مثبّتة."""
     try:
         from opentelemetry import trace
-    except ImportError:
+    except ImportError as exc:
+        # لا يُحذَّرُ في كلِّ نداءٍ (يُنادى في مساراتٍ حارّةٍ) بل يُقيَّدُ السببُ
+        # في حالةٍ يقرأُها من يسألُ: أَغائبٌ لغيابِ الحزمةِ أم لخللٍ؟
+        global _TRACER_UNAVAILABLE_REASON
+        _TRACER_UNAVAILABLE_REASON = f"{type(exc).__name__}: {exc}"
         return None
     return trace.get_tracer(name)
+
+
+def tracer_unavailable_reason() -> str | None:
+    """سببُ غيابِ التتبُّعِ إن غابَ — يُقرأُ ولا يُخمَّن."""
+    return _TRACER_UNAVAILABLE_REASON

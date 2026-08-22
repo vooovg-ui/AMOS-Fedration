@@ -398,11 +398,17 @@ class TestFailureIsFailClosed:
                 reason="فشلٌ بعدَ الأثر",
                 change_id="s6",
             )
-        except IdempotencyError:
-            retried = None  # فرعُ الإغلاق — تصادفَ التصريحُ في الثانيةِ نفسِها.
-        assert (
-            _status_of(institution) == "suspended"
-        ), "أوقعتِ الإعادةُ حالةً مُغايرةً — وهذا انفلاتٌ لا يحتملُه الدَّينُ المُعلَن."
+        except IdempotencyError as exc:
+            # فرعُ الإغلاق — تصادفَ التصريحُ في الثانيةِ نفسِها. ويُحمَلُ سببُ
+            # الرفضِ إلى رسالةِ التوكيدِ فلا يُبتلَعُ الاستثناءُ بلا أثرٍ مقروء.
+            retried = None
+            rejection = f"{type(exc).__name__}: {exc}"
+        else:
+            rejection = "لم يُرفَضْ — نُفِّذَت الإعادة"
+        assert _status_of(institution) == "suspended", (
+            "أوقعتِ الإعادةُ حالةً مُغايرةً — وهذا انفلاتٌ لا يحتملُه الدَّينُ المُعلَن. "
+            f"حالُ الإعادة: {rejection}"
+        )
         if retried is not None:
             assert retried.get("status") == "suspended"
 

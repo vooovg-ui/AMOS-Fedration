@@ -19,7 +19,7 @@
       "secret_hits": 0,
       "observed_hits": 3,
       "api_routes": 0,
-      "test_refs": 462,
+      "test_refs": 464,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -40,7 +40,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 462
+        "TEST_NAME_MENTIONS": 464
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -93,7 +93,7 @@
       "md_files": 60,
       "py_files": 222,
       "yaml_files": 3,
-      "code_lines": 62620,
+      "code_lines": 62749,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -103,9 +103,9 @@
       "fake_hits": 1,
       "in_memory_hits": 60,
       "secret_hits": 0,
-      "observed_hits": 127,
+      "observed_hits": 151,
       "api_routes": 178,
-      "test_refs": 177,
+      "test_refs": 179,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -126,10 +126,10 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 177
+        "TEST_NAME_MENTIONS": 179
       },
       "maturity": "UNIT_TESTED",
-      "findings_count": 83
+      "findings_count": 61
     },
     "states": {
       "domain": "states",
@@ -265,7 +265,7 @@
       "md_files": 41,
       "py_files": 24,
       "yaml_files": 2,
-      "code_lines": 6320,
+      "code_lines": 6339,
       "nucleus_count": 12,
       "nucleus_status": {
         "unspecified": 12
@@ -277,7 +277,7 @@
       "secret_hits": 0,
       "observed_hits": 7,
       "api_routes": 1,
-      "test_refs": 92,
+      "test_refs": 94,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -298,10 +298,10 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 92
+        "TEST_NAME_MENTIONS": 94
       },
       "maturity": "INTEGRATED",
-      "findings_count": 5
+      "findings_count": 1
     },
     "interfaces": {
       "domain": "interfaces",
@@ -478,21 +478,21 @@
     "tests": {
       "domain": "tests",
       "md_files": 14,
-      "py_files": 49,
+      "py_files": 50,
       "yaml_files": 0,
-      "code_lines": 16147,
+      "code_lines": 16344,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
       },
       "has_readme": true,
-      "real_source_hits": 16,
+      "real_source_hits": 17,
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 148,
+      "test_refs": 152,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -513,7 +513,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 148
+        "TEST_NAME_MENTIONS": 152
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -526,83 +526,6 @@
       "line": 15,
       "detail": "`AGENTS` بيانات ثابتة بديلة عن قاعدة البيانات",
       "severity": "CRITICAL"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/common/events.py",
-      "line": 20,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "HIGH"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/common/events.py",
-      "line": 64,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/common/events.py",
-      "line": 79,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/common/persistent.py",
-      "line": 66,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/common/persistent.py",
-      "line": 536,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/common/persistent.py",
-      "line": 285,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/common/persistent.py",
-      "line": 649,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/common/persistent.py",
-      "line": 660,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/common/service.py",
-      "line": 25,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/common/tracing.py",
-      "line": 22,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/common/tracing.py",
-      "line": 36,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
     },
     {
       "kind": "IN_MEMORY_STORE",
@@ -626,13 +549,6 @@
       "severity": "HIGH"
     },
     {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/services/evaluation/benchmark.py",
-      "line": 170,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "HIGH"
-    },
-    {
       "kind": "IN_MEMORY_STORE",
       "path": "federal/executive/services/src/amos_federation/services/evaluation/store.py",
       "line": 33,
@@ -642,58 +558,9 @@
     {
       "kind": "HARDCODED_TRUTH",
       "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
-      "line": 108,
+      "line": 109,
       "detail": "`FULL_POPULATION_CATEGORIES` بيانات ثابتة بديلة عن قاعدة البيانات",
       "severity": "CRITICAL"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
-      "line": 952,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
-      "line": 250,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "HIGH"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
-      "line": 298,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/services/governance/policy_engine.py",
-      "line": 46,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/services/governance/policy_engine.py",
-      "line": 51,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/services/governance/policy_engine.py",
-      "line": 56,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/services/governance/policy_engine.py",
-      "line": 61,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
     },
     {
       "kind": "IN_MEMORY_STORE",
@@ -733,16 +600,9 @@
     {
       "kind": "IN_MEMORY_STORE",
       "path": "federal/executive/services/src/amos_federation/services/tool_registry/store.py",
-      "line": 31,
+      "line": 33,
       "detail": "مخزن ذاكرة `InMemoryToolStore` يُستخدم كمصدر حقيقة",
       "severity": "HIGH"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/src/amos_federation/services/tool_registry/store.py",
-      "line": 58,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
     },
     {
       "kind": "IN_MEMORY_STORE",
@@ -785,20 +645,6 @@
       "line": 30,
       "detail": "مخزن ذاكرة `InMemoryModelRegistry` يُستخدم كمصدر حقيقة",
       "severity": "HIGH"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/tests/test_2a_sovereign_runtime_integration.py",
-      "line": 406,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "federal/executive/services/tests/test_2b_state_registry_sovereign.py",
-      "line": 401,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
     },
     {
       "kind": "IN_MEMORY_STORE",
@@ -1109,34 +955,6 @@
       "severity": "HIGH"
     },
     {
-      "kind": "SILENT_FALLBACK",
-      "path": "tools/audit/sovereign_write_inventory.py",
-      "line": 374,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "tools/governance/truth_audit.py",
-      "line": 349,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "tools/governance/truth_audit.py",
-      "line": 377,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
-      "kind": "SILENT_FALLBACK",
-      "path": "tools/governance/truth_audit.py",
-      "line": 551,
-      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
-      "severity": "MEDIUM"
-    },
-    {
       "kind": "SANDBOX_DISABLED",
       "path": "tools/registry/tool-index.yaml",
       "line": 49,
@@ -1184,16 +1002,16 @@
   "summary": {
     "domains_total": 12,
     "domains_proven": 0,
-    "findings_total": 89,
+    "findings_total": 63,
     "identity_violations": 0,
+    "unreadable_files": 0,
+    "unparsable_files": 0,
     "by_severity": {
       "CRITICAL": 3,
-      "HIGH": 63,
-      "MEDIUM": 23
+      "HIGH": 60
     },
     "by_kind": {
       "HARDCODED_TRUTH": 2,
-      "SILENT_FALLBACK": 26,
       "IN_MEMORY_STORE": 60,
       "SANDBOX_DISABLED": 1
     },

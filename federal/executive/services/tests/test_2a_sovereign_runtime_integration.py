@@ -403,9 +403,13 @@ class TestG7FailureAfterEffectPreservesExistingBehavior:
         after_failure = _budget_of(rt, "science")
         try:
             rt.allocate_budget("science", "400", "فشلٌ بعدَ الأثر", allocation_id="g7")
-        except IdempotencyError:
+        except IdempotencyError as exc:
             # الفرعُ الأوّل: إعادةٌ في الثانيةِ نفسِها — الإذنُ مُستهلَكٌ فتُرفَض.
-            assert _budget_of(rt, "science") == after_failure, "أُنتِجَ أثرٌ ثانٍ رغمَ رفضِ الإذن."
+            # ونصُّ الرفضِ يُحمَلُ في رسالةِ التوكيدِ: اختبارٌ يسقطُ هنا بلا سببِ
+            # الرفضِ يُجبِرُ قارئَه على تخمينِ ما رفَضَ ولماذا.
+            assert _budget_of(rt, "science") == after_failure, (
+                f"أُنتِجَ أثرٌ ثانٍ رغمَ رفضِ الإذن — سببُ الرفض: " f"{type(exc).__name__}: {exc}"
+            )
         else:
             # الفرعُ الثاني: إعادةٌ في ثانيةٍ جديدةٍ — تُنفَّذُ ويقعُ أثرٌ ثانٍ.
             # هذا **خللٌ مُعلَنٌ** لا سلوكٌ مقبولٌ يُوثَّقُ ويُنسى: مفتاحُ الذرّيّةِ

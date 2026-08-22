@@ -9,6 +9,8 @@ AMOS-Federation Tool Registry Store
 from pathlib import Path
 from typing import Protocol
 
+import structlog
+
 from amos_federation.common.schemas import ToolManifestModel
 
 
@@ -55,8 +57,14 @@ class InMemoryToolStore:
                         )
                         self._tools[tool.tool_id] = tool
                     break
-        except Exception:
-            pass  # بديل آمن عند غياب yaml أو الملف
+        except Exception as exc:
+            # البديلُ الآمنُ عندَ غيابِ yaml يبقى، لكنّه **يُعلَنُ**: سجلٌّ بلا
+            # بذورٍ يُقرأُ «لا أدواتَ» وهو «لم تُقرأِ الأدواتُ» — فرقٌ في الحقيقة.
+            structlog.get_logger().warning(
+                "tool_registry.seed_from_yaml_failed",
+                reason=f"{type(exc).__name__}: {exc}",
+                effect="السجلُّ يبدأُ فارغًا — الفراغُ سببُه العجزُ لا الواقع",
+            )
 
     def register(self, tool: ToolManifestModel) -> ToolManifestModel:
         self._tools[tool.tool_id] = tool

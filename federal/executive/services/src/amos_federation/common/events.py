@@ -13,20 +13,32 @@ from contextlib import suppress
 from datetime import UTC, datetime
 from typing import Any
 
-try:
-    import nats
-
-    _NATS_AVAILABLE = True
-except ImportError:
-    _NATS_AVAILABLE = False
-    nats = None
-
 import structlog
 
 from amos_federation.common.config import settings
 from amos_federation.common.database import db_cursor
 
+# غيابُ ناقلِ الأحداثِ **حالةٌ مُعلَنةٌ لا صمتٌ**: بلا `nats` لا يُنشَرُ حدثٌ على
+# الناقلِ، فمن قرأَ «الخدمةُ تعملُ» ولم يعلمْ أنَّ النشرَ معطَّلٌ قرأَ نصفَ الحقيقة.
+# فيُقيَّدُ السببُ ويُعلَنُ تحذيرًا عندَ الاستيرادِ لا يُبتلَع.
+_NATS_IMPORT_ERROR: str | None = None
+try:
+    import nats
+
+    _NATS_AVAILABLE = True
+except ImportError as exc:  # pragma: no cover - يعتمد على بيئةِ التركيب
+    _NATS_AVAILABLE = False
+    nats = None
+    _NATS_IMPORT_ERROR = f"{type(exc).__name__}: {exc}"
+
 logger = structlog.get_logger()
+
+if _NATS_IMPORT_ERROR is not None:  # pragma: no cover - يعتمد على بيئةِ التركيب
+    logger.warning(
+        "events.transport_unavailable",
+        reason=_NATS_IMPORT_ERROR,
+        effect="لا يُنشَرُ حدثٌ على الناقل — سلسلةُ التدقيقِ في القاعدةِ وحدَها",
+    )
 
 # بادئة subject لكل أحداث AMOS
 EVENT_SUBJECT_PREFIX = "amos_federation"
@@ -61,8 +73,15 @@ def _canonical_timestamp(value: Any) -> str | None:
     else:
         try:
             parsed = datetime.fromisoformat(str(value))
-        except ValueError:
-            # نص غير قابل للتحليل يُأخذ كما هو بلا تأويل.
+        except ValueError as exc:
+            # نصٌّ غيرُ قابلٍ للتحليلِ يُأخَذُ كما هو بلا تأويل — **ويُعلَنُ**:
+            # طابعُ وقتٍ لا يُقرأُ في سجلِّ تدقيقٍ شذوذٌ يستحقُّ أن يُرى، لا
+            # تفصيلًا يُبتلَع.
+            logger.warning(
+                "audit.timestamp_unparsable",
+                value=str(value),
+                reason=f"{type(exc).__name__}: {exc}",
+            )
             return str(value)
     if parsed.tzinfo is None:
         parsed = parsed.replace(tzinfo=UTC)
@@ -74,9 +93,20 @@ def _canonical_metadata(value: Any) -> Any:
     if value is None:
         return None
     if isinstance(value, str):
+        # الحمولةُ المُخزَّنةُ نصًّا: تُحاوَلُ قراءتُها قاموسًا، وإن كانت **تبدو**
+        # JSON ثمَّ عجزَ التحليلُ فذاك تلفٌ يُعلَنُ لا يُبتلَع. والنصُّ الذي لا
+        # يبدو JSON أصلًا حالةٌ متوقَّعةٌ في عمودِ TEXT فلا يُحاوَلُ ولا يُشكى.
+        stripped = value.lstrip()
+        if not stripped.startswith(("{", "[")):
+            return value
         try:
             return json.loads(value)
-        except (TypeError, ValueError):
+        except ValueError as exc:
+            logger.warning(
+                "audit.metadata_malformed_json",
+                reason=f"{type(exc).__name__}: {exc}",
+                length=len(value),
+            )
             return value
     return value
 

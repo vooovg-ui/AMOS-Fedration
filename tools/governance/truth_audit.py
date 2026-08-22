@@ -330,6 +330,11 @@ class TruthAudit:
         # حالةُ قراءةِ سجلِّ الأدلّة — تُنشَر في المخرَج كي لا يُقرأ `ABSENT`
         # على أنّه فشلٌ في القدرة بدل أن يكون غيابًا في الدليل.
         self.evidence_state = "NOT_LOADED"
+        # ملفّاتٌ لم يُستطَعْ قياسُها — تُعلَنُ ولا تُخطَّى بصمت. فالمدقِّقُ الذي
+        # يعجزُ عن قراءةِ ملفٍّ أو تحليلِه ثمَّ يسكتُ **يُظهِرُ نظافةً لم يقِسْها**:
+        # لا ترويسةَ تُفحَصُ ولا سِرَّ يُكشَفُ ولا ارتدادَ صامتًا يُرى فيه.
+        self.unreadable_files: list[tuple[str, str]] = []
+        self.unparsable_files: list[tuple[str, str]] = []
 
     # -- أدوات مساعدة -------------------------------------------------------
     def _iter_files(self):
@@ -344,10 +349,11 @@ class TruthAudit:
             yield p
 
     def _domain_of(self, p: Path) -> str | None:
-        try:
-            rel = p.relative_to(self.root)
-        except ValueError:
+        # مسارٌ خارجَ الجذرِ ليس خطأً يُبتلَعُ بل حالةٌ تُسأَلُ صراحةً: `is_relative_to`
+        # يُجيبُ بلا استثناءٍ، فلا يبقى `except` يُخفي غيرَ ما قُصِد.
+        if not p.is_relative_to(self.root):
             return None
+        rel = p.relative_to(self.root)
         return rel.parts[0] if rel.parts and rel.parts[0] in DOMAINS else None
 
     def _rel(self, p: Path) -> str:
@@ -370,11 +376,20 @@ class TruthAudit:
         self.test_corpus = "\n".join(test_chunks)
         self.deploy_corpus = "\n".join(deploy_chunks)
 
-    @staticmethod
-    def _read(p: Path) -> str:
+    def _read(self, p: Path) -> str:
+        """اقرأِ الملفَّ، وإن تعذَّرَ فأعلِنْ عجزَك ولا تُسلِّمْ نصًّا فارغًا بصمت.
+
+        النصُّ الفارغُ يمرُّ في كلِّ الفحوصِ: لا ترويسةَ تُطلَبُ منه (‏`.md` لا يبدأُ
+        بـ`#` فيُحسَبُ مخالفةً — أمّا الشِّفرةُ فتمرُّ)، ولا سِرَّ يُكشَفُ فيه، ولا
+        استثناءَ صامتًا يُرى. فسكوتُ المدقِّقِ عن ملفٍّ لم يقرأْه **دعوى نظافةٍ لم يقِسْها**.
+        """
         try:
             return p.read_text(encoding="utf-8", errors="replace")
-        except Exception:
+        except OSError as exc:
+            rel = self._rel(p) if p.is_relative_to(self.root) else str(p)
+            self.unreadable_files.append((rel, f"{type(exc).__name__}: {exc}"))
+            print(f"[TRUTH AUDIT] تعذَّرَت قراءةُ {rel} — {type(exc).__name__}: {exc}",
+                  file=sys.stderr)
             return ""
 
     # -- المرحلة 2: مسح الملفات --------------------------------------------
@@ -546,9 +561,14 @@ class TruthAudit:
             self.global_findings.append(f)
 
         # التحليل النحوي: أسرار ثابتة + ثوابت الحقيقة الزائفة + الاستثناءات الصامتة
+        # وملفٌّ لا يُحلَّلُ **لا يُتجاوَزُ صامتًا**: تخطّيه يعني أنَّ كلَّ فحصٍ نحويٍّ
+        # (أسرارٌ · ثوابتُ حقيقةٍ · ارتداداتٌ صامتةٌ) لم يُجرَ عليه — فيُعلَنُ ويُحصى.
         try:
             tree = ast.parse(text)
-        except SyntaxError:
+        except SyntaxError as exc:
+            self.unparsable_files.append((rel, f"SyntaxError: {exc}"))
+            print(f"[TRUTH AUDIT] تعذَّرَ تحليلُ {rel} نحويًّا — لم يُفحَصْ نحويًّا: {exc}",
+                  file=sys.stderr)
             return
 
         self._scan_secrets_ast(tree, rel, rep, lines)
@@ -782,6 +802,10 @@ class TruthAudit:
             "domains_proven": sum(1 for r in self.reports.values() if r.proven),
             "findings_total": len(self.global_findings),
             "identity_violations": sum(r.identity_violations for r in self.reports.values()),
+            # ملفّاتٌ خرجَت من نطاقِ القياسِ بعجزٍ لا بحُكمٍ — تُنشَرُ كي لا يُقرأَ
+            # «لا مخالفة» على أنّه «قِيسَ فلم يُوجَدْ».
+            "unreadable_files": len(self.unreadable_files),
+            "unparsable_files": len(self.unparsable_files),
             "by_severity": by_sev,
             "by_kind": by_kind,
             # حالةُ سجلِّ الأدلّة تُنشَر مع الخلاصة: قارئٌ يرى `TESTED: false`
@@ -833,6 +857,8 @@ class TruthAudit:
         a(f"| الأقاليم بحالة PROVEN | {s['domains_proven']} |")
         a(f"| إجمالي المخالفات | {s['findings_total']} |")
         a(f"| ملفات بلا ترويسة هوية (المادة 009) | {s['identity_violations']} |")
+        a(f"| ملفات تعذّرت قراءتها (لم تُقَس) | {s['unreadable_files']} |")
+        a(f"| ملفات تعذّر تحليلها نحويًا (لم تُفحَص نحويًا) | {s['unparsable_files']} |")
         for sev in ("CRITICAL", "HIGH", "MEDIUM", "INFO"):
             if sev in s["by_severity"]:
                 a(f"| منها {sev} | {s['by_severity'][sev]} |")
