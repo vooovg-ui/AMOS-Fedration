@@ -1,3 +1,5 @@
+# P4 — ملخص ربط قاعدة البيانات (Database Linking Summary)
+
 <!--
 File:        docs/implementation/db_linking_summary.md
 Purpose:     ملخص ربط جميع مجالات المستودع بقاعدة بيانات Supabase — وثيقة تجميعية P4
@@ -6,8 +8,6 @@ Created:     2026-08-15
 Phase:       P4 — Database Linking (Summary)
 Article 009: يخضع هذا الملف لقانون هوية الملفات (المادة الدستورية 009). هذه ترويسة تعريفية إلزامية.
 -->
-
-# P4 — ملخص ربط قاعدة البيانات (Database Linking Summary)
 
 > **وثيقة تجميعية للمرحلة P4.** تلخّص ربط كل مجال في مستودع AMOS-Federation بقاعدة بيانات
 > Supabase. كل مجال يملك ملف `db_link.md` خاصًا به يوثّق جداوله وأعمدتها واستعلاماتها.

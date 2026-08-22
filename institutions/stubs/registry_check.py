@@ -1,7 +1,8 @@
 # =============================================================================
 # File:        institutions/stubs/registry_check.py
-# Purpose:     فحص سجل المؤسسات — قياسٌ حيٌّ لعدد المؤسسات المسجَّلة
-# Owner:       institutions/
+# الهدف · Purpose: فحص سجل المؤسسات — قياسٌ حيٌّ لعدد المؤسسات المسجَّلة
+# النطاق:     قراءةُ عدّاداتٍ فقط عبرَ `tools.audit.live_truth`. لا كتابةَ ولا حكم.
+# المالك · Owner: institutions/
 # Created:     2026-08-15
 # Last Modified: 2026-08-22 (W-025)
 # Phase:       P3 (Working Nuclei)

@@ -19,8 +19,8 @@
       "secret_hits": 0,
       "observed_hits": 3,
       "api_routes": 0,
-      "test_refs": 461,
-      "identity_violations": 2,
+      "test_refs": 462,
+      "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
       "deployment_evidence": "ABSENT",
@@ -40,7 +40,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 461
+        "TEST_NAME_MENTIONS": 462
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -63,7 +63,7 @@
       "observed_hits": 0,
       "api_routes": 0,
       "test_refs": 62,
-      "identity_violations": 3,
+      "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
       "deployment_evidence": "ABSENT",
@@ -106,7 +106,7 @@
       "observed_hits": 127,
       "api_routes": 178,
       "test_refs": 177,
-      "identity_violations": 2,
+      "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
       "deployment_evidence": "ABSENT",
@@ -149,7 +149,7 @@
       "observed_hits": 0,
       "api_routes": 0,
       "test_refs": 26,
-      "identity_violations": 2,
+      "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
       "deployment_evidence": "ABSENT",
@@ -192,7 +192,7 @@
       "observed_hits": 0,
       "api_routes": 0,
       "test_refs": 15,
-      "identity_violations": 2,
+      "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
       "deployment_evidence": "ABSENT",
@@ -234,8 +234,8 @@
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 152,
-      "identity_violations": 3,
+      "test_refs": 155,
+      "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
       "deployment_evidence": "ABSENT",
@@ -255,7 +255,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 152
+        "TEST_NAME_MENTIONS": 155
       },
       "maturity": "IMPLEMENTED",
       "findings_count": 1
@@ -277,8 +277,8 @@
       "secret_hits": 0,
       "observed_hits": 7,
       "api_routes": 1,
-      "test_refs": 90,
-      "identity_violations": 3,
+      "test_refs": 92,
+      "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
       "deployment_evidence": "ABSENT",
@@ -298,7 +298,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 90
+        "TEST_NAME_MENTIONS": 92
       },
       "maturity": "INTEGRATED",
       "findings_count": 5
@@ -321,7 +321,7 @@
       "observed_hits": 0,
       "api_routes": 0,
       "test_refs": 5,
-      "identity_violations": 2,
+      "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
       "deployment_evidence": "ABSENT",
@@ -364,7 +364,7 @@
       "observed_hits": 0,
       "api_routes": 0,
       "test_refs": 81,
-      "identity_violations": 2,
+      "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
       "deployment_evidence": "ABSENT",
@@ -394,7 +394,7 @@
       "md_files": 90,
       "py_files": 2,
       "yaml_files": 0,
-      "code_lines": 47,
+      "code_lines": 100,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -406,15 +406,15 @@
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 21,
-      "identity_violations": 3,
+      "test_refs": 33,
+      "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
       "deployment_evidence": "ABSENT",
       "columns": {
         "DOCUMENTED": true,
-        "IMPLEMENTED": false,
-        "REAL_SOURCE": false,
+        "IMPLEMENTED": true,
+        "REAL_SOURCE": true,
         "FAKE_OR_CACHED": false,
         "INTEGRATED": false,
         "TESTED": false,
@@ -427,9 +427,9 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 21
+        "TEST_NAME_MENTIONS": 33
       },
-      "maturity": "SPECIFIED",
+      "maturity": "IMPLEMENTED",
       "findings_count": 0
     },
     "ops": {
@@ -450,7 +450,7 @@
       "observed_hits": 0,
       "api_routes": 0,
       "test_refs": 6,
-      "identity_violations": 1,
+      "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
       "deployment_evidence": "ABSENT",
@@ -478,22 +478,22 @@
     "tests": {
       "domain": "tests",
       "md_files": 14,
-      "py_files": 48,
+      "py_files": 49,
       "yaml_files": 0,
-      "code_lines": 15935,
+      "code_lines": 16147,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
       },
       "has_readme": true,
-      "real_source_hits": 14,
+      "real_source_hits": 16,
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 144,
-      "identity_violations": 1,
+      "test_refs": 148,
+      "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
       "deployment_evidence": "ABSENT",
@@ -513,7 +513,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 144
+        "TEST_NAME_MENTIONS": 148
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -1185,7 +1185,7 @@
     "domains_total": 12,
     "domains_proven": 0,
     "findings_total": 89,
-    "identity_violations": 26,
+    "identity_violations": 0,
     "by_severity": {
       "CRITICAL": 3,
       "HIGH": 63,

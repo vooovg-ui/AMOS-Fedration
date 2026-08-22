@@ -20,7 +20,7 @@
 | الأقاليم المفحوصة | 12 |
 | الأقاليم بحالة PROVEN | 0 |
 | إجمالي المخالفات | 89 |
-| ملفات بلا ترويسة هوية (المادة 009) | 26 |
+| ملفات بلا ترويسة هوية (المادة 009) | 0 |
 | منها CRITICAL | 3 |
 | منها HIGH | 63 |
 | منها MEDIUM | 23 |
@@ -49,7 +49,7 @@
 | `tools/` | ✅ | ✅ | ✅ | — | ✅ | ✅ | ✅ | ✅ | ❌ | **❌** | `INTEGRATED` |
 | `interfaces/` | ✅ | ❌ | ❌ | — | ❌ | ❌ | ✅ | ❌ | ❌ | **❌** | `SPECIFIED` |
 | `runtime/` | ✅ | ❌ | ❌ | — | ❌ | ❌ | ✅ | ❌ | ❌ | **❌** | `SPECIFIED` |
-| `docs/` | ✅ | ❌ | ❌ | — | ❌ | ❌ | ✅ | ❌ | ❌ | **❌** | `SPECIFIED` |
+| `docs/` | ✅ | ✅ | ✅ | — | ❌ | ❌ | ✅ | ❌ | ❌ | **❌** | `IMPLEMENTED` |
 | `ops/` | ✅ | ❌ | ❌ | — | ❌ | ❌ | ✅ | ❌ | ❌ | **❌** | `SPECIFIED` |
 | `tests/` | ✅ | ✅ | ✅ | — | ✅ | ✅ | ✅ | ❌ | ❌ | **❌** | `INTEGRATED` |
 
@@ -61,18 +61,18 @@
 
 | الإقليم | md | py | yaml | أسطر كود | نوى | بلا ترويسة هوية | حالات النوى |
 |---|---:|---:|---:|---:|---:|---:|---|
-| `core/` | 67 | 41 | 0 | 14712 | 14 | 2 | unspecified=14 |
-| `royal/` | 51 | 2 | 1 | 38 | 14 | 3 | unspecified=14 |
-| `federal/` | 60 | 222 | 3 | 62620 | 7 | 2 | unspecified=7 |
-| `states/` | 47 | 2 | 0 | 38 | 7 | 2 | unspecified=7 |
-| `institutions/` | 19 | 2 | 0 | 38 | 6 | 2 | unspecified=6 |
-| `agents/` | 601 | 4 | 283 | 532 | 11 | 3 | unspecified=11 |
-| `tools/` | 41 | 24 | 2 | 6320 | 12 | 3 | unspecified=12 |
-| `interfaces/` | 14 | 2 | 0 | 38 | 4 | 2 | unspecified=4 |
-| `runtime/` | 20 | 2 | 0 | 38 | 7 | 2 | unspecified=7 |
-| `docs/` | 90 | 2 | 0 | 47 | 7 | 3 | unspecified=7 |
-| `ops/` | 38 | 2 | 0 | 38 | 12 | 1 | unspecified=12 |
-| `tests/` | 14 | 48 | 0 | 15935 | 5 | 1 | unspecified=5 |
+| `core/` | 67 | 41 | 0 | 14712 | 14 | 0 | unspecified=14 |
+| `royal/` | 51 | 2 | 1 | 38 | 14 | 0 | unspecified=14 |
+| `federal/` | 60 | 222 | 3 | 62620 | 7 | 0 | unspecified=7 |
+| `states/` | 47 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
+| `institutions/` | 19 | 2 | 0 | 38 | 6 | 0 | unspecified=6 |
+| `agents/` | 601 | 4 | 283 | 532 | 11 | 0 | unspecified=11 |
+| `tools/` | 41 | 24 | 2 | 6320 | 12 | 0 | unspecified=12 |
+| `interfaces/` | 14 | 2 | 0 | 38 | 4 | 0 | unspecified=4 |
+| `runtime/` | 20 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
+| `docs/` | 90 | 2 | 0 | 100 | 7 | 0 | unspecified=7 |
+| `ops/` | 38 | 2 | 0 | 38 | 12 | 0 | unspecified=12 |
+| `tests/` | 14 | 49 | 0 | 16147 | 5 | 0 | unspecified=5 |
 
 ---
 

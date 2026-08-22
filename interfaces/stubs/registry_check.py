@@ -1,7 +1,8 @@
 # =============================================================================
 # File:        interfaces/stubs/registry_check.py
-# Purpose:     فحص سجل الواجهات — قياسٌ حيٌّ لعدد الواجهات المسجَّلة
-# Owner:       interfaces/
+# الهدف · Purpose: فحص سجل الواجهات — قياسٌ حيٌّ لعدد الواجهات المسجَّلة
+# النطاق:     قراءةُ عدّاداتٍ فقط عبرَ `tools.audit.live_truth`. لا كتابةَ ولا حكم.
+# المالك · Owner: interfaces/
 # Created:     2026-08-15
 # Last Modified: 2026-08-22 (W-025)
 # Phase:       P3 (Working Nuclei)
