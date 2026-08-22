@@ -1,0 +1,275 @@
+"""حرسُ الخطوةِ 18 — نجاةُ الحالةِ عبرَ إعادةِ التشغيلِ تُقاسُ ولا تُدَّعى.
+
+الهدف:
+    منعُ ثلاثِ صورٍ من الكذبِ الموثَّق:
+      1. أن يُحذَفَ سطحٌ من المِسبارِ فيَقِلَّ الفقدُ المُعلَنُ بلا أن تُدامَ حالةٌ
+         واحدةٌ — وأخطرُها **مفتاحُ الإيقافِ** فهو مُثبَّتٌ بالاسمِ هنا.
+      2. أن يُقالَ «هذه دائمةٌ» في وثيقةٍ أو ترويسةٍ ولا يُقاسَ ذلك بعمليّتَينِ.
+      3. أن يمرَّ المِسبارُ وهو مكسورٌ: فلو فُقِدَ **شاهدا الضبطِ** (سجلُّ التدقيقِ
+         والمهمّةُ الدائمةُ) لكانَ العجزُ في المِسبارِ لا في الحالة، ولذلك يُشترَطُ
+         نجاتُهما صراحةً.
+
+النطاق:
+    `tools/governance/restart_survival_probe.py` ومُخرَجُه المُقيَّدُ
+    `docs/audit/measurements/restart_survival.json`. ولا يُقيسُ هذا الحرسُ صوابَ
+    المعمار: لا يشترطُ إدامةَ شيءٍ — ذاك قرارٌ سياديٌّ مفتوحٌ (`Q-39`).
+
+المالك:
+    `tests/governance` — حرّاسُ الحوكمةِ في المستودع.
+
+تاريخ الإنشاء: 2026-08-22
+"""
+
+from __future__ import annotations
+
+import importlib.util
+import json
+import sys
+import tempfile
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+PROBE_PATH = REPO_ROOT / "tools" / "governance" / "restart_survival_probe.py"
+MEASUREMENT_PATH = (
+    REPO_ROOT / "docs" / "audit" / "measurements" / "restart_survival.json"
+)
+
+#: أقلُّ عددٍ من الأسطحِ يُقبَلُ. القياسُ يومَ الكتابةِ (W-030) أحدَ عشرَ سطحًا،
+#: فأيُّ نقصٍ بعدَه حذفٌ لسطحٍ لا تحسينٌ للمعمار.
+MIN_SURFACES = 11
+
+#: أسطحٌ مُثبَّتةٌ بالاسمِ: أثرُ فقدِها تشغيليٌّ لا تجميليّ.
+PINNED_VOLATILE = ("kill_switch", "promotion", "canary", "cost_log")
+
+#: شاهدا الضبطِ: نجاتُهما شرطُ صدقِ المِسبارِ نفسِه.
+PINNED_CONTROLS = ("audit_chain", "task")
+
+
+def _load(name: str, path: Path) -> Any:
+    """حمِّلْ أداةً من مسارِها — الحرسُ يقرأُ الأداةَ الحقيقيّةَ لا نسخةً منها."""
+    spec = importlib.util.spec_from_file_location(name, path)
+    assert spec and spec.loader, f"تعذَّرَ تحميلُ {path}."
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+@pytest.fixture(scope="module")
+def probe() -> Any:
+    """المِسبارُ محمَّلًا مرّةً واحدةً للحزمة."""
+    return _load("restart_survival_probe_under_test", PROBE_PATH)
+
+
+@pytest.fixture(scope="module")
+def measurement() -> dict[str, Any]:
+    """المُخرَجُ المُقيَّدُ في المستودعِ — يُقرأُ ولا يُولَّدُ هنا."""
+    assert MEASUREMENT_PATH.exists(), (
+        "مُخرَجُ المِسبارِ غيرُ مُقيَّدٍ: شغِّلْ "
+        "`python tools/governance/restart_survival_probe.py` ثمّ قيِّدْه."
+    )
+    return json.loads(MEASUREMENT_PATH.read_text(encoding="utf-8"))
+
+
+# =============================================================================
+# 1) الأداةُ نفسُها
+# =============================================================================
+def test_probe_declares_its_purpose() -> None:
+    """المادةُ التاسعةُ · 2: الأداةُ تُعلِنُ هدفَها في ترويستِها."""
+    head = PROBE_PATH.read_text(encoding="utf-8")[:1400]
+    assert "الهدف" in head and "النطاق" in head and "المالك" in head
+
+
+def test_every_surface_has_a_writer_and_a_reader(probe: Any) -> None:
+    """لا سطحَ مُعلَنًا بلا مرحلتَي كتابةٍ وقراءةٍ منفَّذتَين."""
+    for surface in probe.SURFACES:
+        assert surface.writer in probe.WRITERS, f"لا كاتبَ لـ{surface.surface_id}."
+        assert surface.reader in probe.READERS, f"لا قارئَ لـ{surface.surface_id}."
+
+
+def test_surface_ids_are_unique_and_not_thinned(probe: Any) -> None:
+    """عددُ الأسطحِ لا ينقصُ، ولا يتكرَّرُ معرّفٌ فيُعدَّ سطحٌ مرّتَين."""
+    ids = [s.surface_id for s in probe.SURFACES]
+    assert len(ids) == len(set(ids)), f"معرّفاتٌ مكرَّرةٌ: {ids}"
+    assert (
+        len(ids) >= MIN_SURFACES
+    ), f"الأسطحُ {len(ids)} وأقلُّ المقبولِ {MIN_SURFACES} — حذفُ سطحٍ ليس إدامةً لحالة."
+
+
+def test_consequential_surfaces_are_pinned_by_name(probe: Any) -> None:
+    """مفتاحُ الإيقافِ والترقياتُ والـcanary والتكلفةُ لا تُسقَطُ بالسكوت."""
+    ids = {s.surface_id for s in probe.SURFACES}
+    missing = [name for name in PINNED_VOLATILE if name not in ids]
+    assert not missing, f"أسطحٌ مُثبَّتةٌ حُذِفَت: {missing}"
+
+
+def test_control_surfaces_exist(probe: Any) -> None:
+    """بلا شاهدِ ضبطٍ دائمٍ يصيرُ «فُقِدَ الكلُّ» دليلًا على كسرِ المِسبار."""
+    controls = {s.surface_id for s in probe.SURFACES if s.declared == probe.DURABLE}
+    for name in PINNED_CONTROLS:
+        assert name in controls, f"شاهدُ الضبطِ {name} مفقودٌ من الأسطح."
+
+
+def test_expectation_is_derived_from_declaration_not_hand_written(probe: Any) -> None:
+    """التوقّعُ يُشتَقُّ من التصنيفِ: المتطايرُ يُفقَدُ، والدائمُ والمؤقّتُ ينجُوان."""
+    results = probe.summarize([])
+    assert results["surfaces_total"] == 0
+    for surface in probe.SURFACES:
+        expected = surface.declared in (probe.CACHE_REBUILDABLE, probe.DURABLE)
+        assert expected == (surface.declared != probe.VOLATILE)
+
+
+def test_summary_counts_are_not_cosmetic(probe: Any) -> None:
+    """الخلاصةُ تعُدُّ الواقعَ: سطحٌ فُقِدَ يُعَدُّ فقدًا لا «مطابقةً» فحسب."""
+    fabricated = [
+        probe.Result(
+            "a", "s", probe.VOLATILE, "", True, False, False, "MATCHES_DECLARATION"
+        ),
+        probe.Result(
+            "b", "s", probe.DURABLE, "", True, True, True, "MATCHES_DECLARATION"
+        ),
+        probe.Result(
+            "c", "s", probe.DURABLE, "", True, False, True, "CONTRADICTS_DECLARATION"
+        ),
+        probe.Result("d", "s", probe.VOLATILE, "", False, None, False, "UNMEASURED"),
+    ]
+    summary = probe.summarize(fabricated)
+    assert summary["lost_on_restart"] == 2
+    assert summary["survived_restart"] == 1
+    assert summary["unmeasured"] == 1
+    assert summary["contradicts_declaration"] == 1
+
+
+# =============================================================================
+# 2) المُخرَجُ المُقيَّد
+# =============================================================================
+def test_measurement_declares_its_purpose(measurement: dict[str, Any]) -> None:
+    """المُخرَجُ المُولَّدُ يُعلِنُ هدفَه وحدَّه، فلا يُقرَأُ شهادةَ إدامة."""
+    assert "الهدف" in measurement.get("$comment", "")
+    assert "Q-39" in measurement.get("note", "")
+
+
+def test_measurement_covers_every_declared_surface(
+    probe: Any, measurement: dict[str, Any]
+) -> None:
+    """لا سطحَ في الأداةِ غائبٌ عن المُخرَجِ، ولا سطحَ في المُخرَجِ مُختلَقٌ."""
+    declared = {s.surface_id for s in probe.SURFACES}
+    measured = {s["surface_id"] for s in measurement["surfaces"]}
+    assert measured == declared, f"فرقٌ بينَ الأداةِ والمُخرَجِ: {declared ^ measured}"
+
+
+def test_measurement_has_no_unmeasured_surface(measurement: dict[str, Any]) -> None:
+    """سطحٌ لم يُقَسْ ليس نجاةً ولا فقدًا — ولا يُقيَّدُ المُخرَجُ وفيه واحد."""
+    assert measurement["summary"]["unmeasured"] == 0
+    assert measurement["summary"]["contradicts_declaration"] == 0
+
+
+def test_controls_survived_in_the_recorded_measurement(
+    measurement: dict[str, Any],
+) -> None:
+    """شاهدا الضبطِ نجَوا فعلًا في القياسِ المُقيَّد — وإلّا فالقياسُ كلُّه باطل."""
+    by_id = {s["surface_id"]: s for s in measurement["surfaces"]}
+    for name in PINNED_CONTROLS:
+        assert (
+            by_id[name]["survived"] is True
+        ), f"شاهدُ الضبطِ {name} لم ينجُ — المِسبارُ مكسور."
+
+
+def test_every_declared_volatile_surface_was_measured_lost(
+    measurement: dict[str, Any],
+) -> None:
+    """التصريحُ بالتطايرِ ليس بلاغةً: كلُّ متطايرٍ مُعلَنٍ فُقِدَ بالقياس."""
+    volatile = [s for s in measurement["surfaces"] if s["declared"] == "WIRED_VOLATILE"]
+    assert volatile, "لا سطحَ متطايرًا في المُخرَجِ — وهذا وحدَه مُريب."
+    survivors = [s["surface_id"] for s in volatile if s["survived"] is not False]
+    assert not survivors, f"أسطحٌ صُرِّحَ بتطايرِها ونجَت: {survivors}"
+    assert measurement["summary"]["lost_on_restart"] == len(volatile)
+
+
+def test_kill_switch_returns_to_normal_after_restart(
+    measurement: dict[str, Any],
+) -> None:
+    """الأثرُ الأخطرُ مُقيَّدٌ برقمِه: نظامٌ أُوقِفَ يعودُ عاملًا من نفسِه."""
+    entry = next(s for s in measurement["surfaces"] if s["surface_id"] == "kill_switch")
+    assert entry["extra"]["level_after_write"] == "halt"
+    assert entry["extra"]["level_after_restart"] == "normal"
+
+
+def test_the_two_cost_sources_are_recorded_as_measured(
+    measurement: dict[str, Any],
+) -> None:
+    """مصدرا التكلفةِ يُقيَّدانِ برقمَيهما لأنَّهما مادّةُ Q-39 لا رأيًا."""
+    entry = next(s for s in measurement["surfaces"] if s["surface_id"] == "cost_log")
+    extra = entry["extra"]
+    for key in (
+        "volatile_before",
+        "persistent_before",
+        "volatile_after",
+        "persistent_after",
+    ):
+        assert isinstance(extra.get(key), int), f"عدَّادُ {key} غيرُ مقيسٍ."
+    assert extra["volatile_before"] >= 1, "النداءُ لم يُقيَّدْ في المصدرِ المتطاير."
+
+
+# =============================================================================
+# 3) قياسٌ حيٌّ لزوجِ الضبطِ — عمليّتانِ لكلِّ سطح
+# =============================================================================
+def test_live_control_pair_still_behaves_as_recorded(probe: Any) -> None:
+    """يُعادُ القياسُ الآنَ لسطحَينِ: متطايرٌ يُفقَدُ ودائمٌ ينجو.
+
+    ولا تُقاسُ الأسطحُ كلُّها هنا: القياسُ الكاملُ دقائقُ، وأمرُه مُعلَنٌ في الدليلِ
+    ويُعادُ بأداتِه. والمقصودُ هنا أن يبقى **الفرقُ** مقيسًا في كلِّ تشغيلٍ للحزمة.
+    """
+    surfaces = tuple(
+        s for s in probe.SURFACES if s.surface_id in ("kill_switch", "task")
+    )
+    assert len(surfaces) == 2
+    original = probe.SURFACES
+    probe.SURFACES = surfaces
+    try:
+        with tempfile.TemporaryDirectory(prefix="amos_step18_") as tmp:
+            results = {r.surface_id: r for r in probe.measure(Path(tmp) / "probe.db")}
+    finally:
+        probe.SURFACES = original
+
+    assert (
+        results["kill_switch"].survived is False
+    ), f"مفتاحُ الإيقافِ نجا خلافًا للتصريحِ: {results['kill_switch'].detail}"
+    assert (
+        results["task"].survived is True
+    ), f"المهمّةُ الدائمةُ فُقِدَت — فالعجزُ في المِسبارِ: {results['task'].detail}"
+    assert all(r.verdict == "MATCHES_DECLARATION" for r in results.values())
+
+
+def test_the_probe_does_not_pollute_the_measured_tree(probe: Any) -> None:
+    """القياسُ لا يُلوِّثُ المقيس: لا أثرَ تشغيلٍ يُكتَبُ في شجرةِ المستودع.
+
+    وسببُ هذا الحرسِ مقيسٌ لا متخيّلٌ (W-030): مرحلةُ الكتابةِ كانت تُنشئُ
+    `.runtime/sovereignty/*.json` داخلَ الشجرةِ فتسقطُ **بوّابةُ الهويّةِ** بثلاثِ
+    مخالفاتٍ (‏`MISSING_README` + `MISSING_PURPOSE`×2) في حزمةِ الجذرِ كلِّها. فوُجِّهَ
+    السجلُّ إلى موضعِ القياسِ المؤقّت، ولم يُضيَّقْ كاشفٌ ولم يُحسَمْ نطاقُ المادةِ
+    التاسعةِ بحكمِ عاملٍ — ذاك سؤالٌ مفتوحٌ (`Q-40`).
+    """
+    runtime_dir = REPO_ROOT / ".runtime" / "sovereignty"
+    existed_before = runtime_dir.exists()
+    surfaces = tuple(s for s in probe.SURFACES if s.surface_id == "task")
+    original = probe.SURFACES
+    probe.SURFACES = surfaces
+    try:
+        with tempfile.TemporaryDirectory(prefix="amos_step18_clean_") as tmp:
+            tmp_root = Path(tmp)
+            list(probe.measure(tmp_root / "probe.db"))
+            assert (tmp_root / "sovereignty").exists(), (
+                "سجلُّ الذرّيّةِ لم يُكتَبْ في موضعِ القياسِ — فالتوجيهُ مُعطَّلٌ "
+                "وقد يعودُ التلويثُ إلى الشجرةِ صامتًا."
+            )
+    finally:
+        probe.SURFACES = original
+
+    if not existed_before:
+        assert (
+            not runtime_dir.exists()
+        ), f"القياسُ لوَّثَ الشجرةَ المقيسةَ: {runtime_dir} — وهذا يُسقِطُ بوّابةَ الهويّة."

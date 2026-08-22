@@ -21,6 +21,7 @@
 | `final_audit_p14.json` | `tools/audit/final_audit.py` | 21 قياسَ مطابقةٍ بينَ المستودعِ والوثيقةِ (P14) |
 | `decision_wave_map.json` | `tools/audit/decision_gate.py --map` | تقسيمُ الدَّينِ 168 على موجاتِ القرارِ (52 + 34 + 82) بلا تكرارٍ ولا متروك (P15) |
 | `decision_gate_ledger.json` | `tools/audit/decision_gate.py --record` | لقطةُ جردٍ بعدَ كلِّ قرارٍ بشريٍّ يُغلَق · **مخزنُ قياسٍ لا مصدرُ حقيقةٍ للقرارات** · يُنشَأُ عندَ أوّلِ قرارٍ (P15) |
+| `restart_survival.json` | `tools/governance/restart_survival_probe.py` | ما ينجو من حالةِ الخدماتِ عبرَ إعادةِ تشغيلٍ حقيقيّةٍ — عمليّةٌ تكتبُ وعمليّةٌ أخرى تقرأُ (11 سطحًا · 8 فُقِدَ · شاهدا ضبطٍ) (T3.6 · W-030) |
 | `in_memory_inventory.json` | `tools/governance/in_memory_inventory.py` | تصنيفُ ورودِ `IN_MEMORY_STORE` الستّينَ من المصدرِ (اختبارٌ · موصولٌ متطايرٌ · بديلٌ غيرُ موصولٍ) + مخازنُ حالةِ وحدةٍ **لا يراها العدّادُ** (T3.6 · W-029) |
 
 ## الحدّ
@@ -51,7 +52,7 @@
 2026-08-18
 
 ## تاريخ آخر تعديل
-2026-08-22 (W-029 — جردُ مخازنِ الذاكرةِ يُضافُ · وتوسيعُ النطاقِ يُعلَن)
+2026-08-22 (W-030 — قياسُ نجاةِ الحالةِ يُضافُ · وقبلَه W-029 جردُ مخازنِ الذاكرةِ وتوسيعُ النطاق)
 
 ## المحتويات
 - `README.md` — بطاقة هوية هذا المجلد (المادة التاسعة)
@@ -60,5 +61,6 @@
 - `final_audit_p14.json` — بيانات مهيكلة
 - `in_memory_inventory.json` — بيانات مهيكلة
 - `judicial_gate_matrix.json` — بيانات مهيكلة
+- `restart_survival.json` — بيانات مهيكلة
 - `treasury_gate_matrix.json` — بيانات مهيكلة
 - `write_inventory_p13.json` — بيانات مهيكلة

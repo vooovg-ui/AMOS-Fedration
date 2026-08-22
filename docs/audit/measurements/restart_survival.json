@@ -1,0 +1,163 @@
+{
+  "$comment": "الهدف: قياسُ ما ينجو من حالةِ الخدماتِ عبرَ إعادةِ التشغيلِ الحقيقيّةِ (عمليّةٌ تكتبُ وعمليّةٌ أخرى تقرأُ) — مُخرَجُ tools/governance/restart_survival_probe.py (T3.6 · W-030). المادةُ التاسعةُ · 2.",
+  "note": "قياسٌ لا حُكم: يقولُ ما يُفقَدُ، ولا يقولُ ما يجبُ أن يُدامَ — ذاك قرارٌ سياديٌّ مفتوحٌ (Q-39). و`lost_on_restart` **ليس** مخالفةً جديدةً ولا يدخلُ عدّادَ المصفوفةِ: هو بيانُ أثرِ الستّينَ المعروفةِ. وشاهدا الضبطِ (audit_chain · task) يجبُ أن ينجُوا، فإن سقطا فالمِسبارُ هو المكسورُ لا الحالة.",
+  "summary": {
+    "surfaces_total": 11,
+    "lost_on_restart": 8,
+    "survived_restart": 3,
+    "unmeasured": 0,
+    "contradicts_declaration": 0,
+    "declared_volatile": 8,
+    "control_surfaces": 2
+  },
+  "surfaces": [
+    {
+      "surface_id": "kill_switch",
+      "service": "governance",
+      "declared": "WIRED_VOLATILE",
+      "what_is_lost": "مستوى مفتاحِ الإيقافِ: نظامٌ أُوقِفَ لطارئٍ يعودُ `normal` من نفسِه",
+      "wrote_ok": true,
+      "survived": false,
+      "expected_survival": false,
+      "verdict": "MATCHES_DECLARATION",
+      "detail": "المستوى بعدَ الإقلاعِ: 'normal' (‏كُتِبَ 'halt')",
+      "extra": {
+        "level_after_write": "halt",
+        "level_after_restart": "normal"
+      }
+    },
+    {
+      "surface_id": "promotion",
+      "service": "governance",
+      "declared": "WIRED_VOLATILE",
+      "what_is_lost": "موافقاتُ ترقيةِ النماذجِ وبوّاباتُها المقطوعة",
+      "wrote_ok": true,
+      "survived": false,
+      "expected_survival": false,
+      "verdict": "MATCHES_DECLARATION",
+      "detail": "HTTP 404",
+      "extra": {}
+    },
+    {
+      "surface_id": "canary",
+      "service": "governance",
+      "declared": "WIRED_VOLATILE",
+      "what_is_lost": "نشراتُ الـcanary ونسبةُ مرورِها",
+      "wrote_ok": true,
+      "survived": false,
+      "expected_survival": false,
+      "verdict": "MATCHES_DECLARATION",
+      "detail": "HTTP 404",
+      "extra": {}
+    },
+    {
+      "surface_id": "training_dataset",
+      "service": "training",
+      "declared": "WIRED_VOLATILE",
+      "what_is_lost": "مجموعاتُ بياناتِ التدريبِ المُولَّدة",
+      "wrote_ok": true,
+      "survived": false,
+      "expected_survival": false,
+      "verdict": "MATCHES_DECLARATION",
+      "detail": "HTTP 404",
+      "extra": {}
+    },
+    {
+      "surface_id": "training_model",
+      "service": "training",
+      "declared": "WIRED_VOLATILE",
+      "what_is_lost": "سجلُّ النماذجِ وبطاقاتُها وحالةُ ترقيتِها للإنتاج",
+      "wrote_ok": true,
+      "survived": false,
+      "expected_survival": false,
+      "verdict": "MATCHES_DECLARATION",
+      "detail": "HTTP 404",
+      "extra": {}
+    },
+    {
+      "surface_id": "shadow_result",
+      "service": "model_gateway",
+      "declared": "WIRED_VOLATILE",
+      "what_is_lost": "نتائجُ اختبارِ الظلِّ التي يُقارَنُ بها نموذجٌ جديد",
+      "wrote_ok": true,
+      "survived": false,
+      "expected_survival": false,
+      "verdict": "MATCHES_DECLARATION",
+      "detail": "HTTP 404",
+      "extra": {}
+    },
+    {
+      "surface_id": "cost_log",
+      "service": "model_gateway",
+      "declared": "WIRED_VOLATILE",
+      "what_is_lost": "سجلُّ تكلفةِ النداءاتِ في `/v1/cost/summary` — ولها مصدرٌ دائمٌ منافسٌ (Q-39)",
+      "wrote_ok": true,
+      "survived": false,
+      "expected_survival": false,
+      "verdict": "MATCHES_DECLARATION",
+      "detail": "المتطايرُ بعدَ الإقلاعِ 0 · الدائمُ 0",
+      "extra": {
+        "volatile_before": 1,
+        "persistent_before": 0,
+        "volatile_after": 0,
+        "persistent_after": 0
+      }
+    },
+    {
+      "surface_id": "registered_agent",
+      "service": "api_gateway",
+      "declared": "WIRED_VOLATILE",
+      "what_is_lost": "بياناتُ الوكلاءِ المُسجَّلينَ عبرَ البوّابة",
+      "wrote_ok": true,
+      "survived": false,
+      "expected_survival": false,
+      "verdict": "MATCHES_DECLARATION",
+      "detail": "عددُ الوكلاءِ بعدَ الإقلاعِ: 0",
+      "extra": {
+        "agents_after_restart": 0
+      }
+    },
+    {
+      "surface_id": "factory_product",
+      "service": "governance",
+      "declared": "CACHE_REBUILDABLE",
+      "what_is_lost": "لا شيءَ: القاموسُ ذاكرةٌ مؤقّتةٌ والمُنتَجُ في جدولٍ — والقياسُ يُثبِتُه",
+      "wrote_ok": true,
+      "survived": true,
+      "expected_survival": true,
+      "verdict": "MATCHES_DECLARATION",
+      "detail": "المُنتَجُ موجودٌ في الجدولِ بعدَ الإقلاعِ",
+      "extra": {
+        "cached_factories_before": 0,
+        "cached_factories_after_boot": 0
+      }
+    },
+    {
+      "surface_id": "audit_chain",
+      "service": "governance",
+      "declared": "DURABLE_CONTROL",
+      "what_is_lost": "لا شيءَ: سجلُّ التدقيقِ في قاعدةِ البيانات — شاهدُ ضبطٍ",
+      "wrote_ok": true,
+      "survived": true,
+      "expected_survival": true,
+      "verdict": "MATCHES_DECLARATION",
+      "detail": "مداخلُ التدقيقِ بعدَ الإقلاعِ: 7",
+      "extra": {
+        "entries_before": 7,
+        "entries_after": 7
+      }
+    },
+    {
+      "surface_id": "task",
+      "service": "api_gateway",
+      "declared": "DURABLE_CONTROL",
+      "what_is_lost": "لا شيءَ: المهامُّ في مخزنٍ دائمٍ — شاهدُ ضبطٍ",
+      "wrote_ok": true,
+      "survived": true,
+      "expected_survival": true,
+      "verdict": "MATCHES_DECLARATION",
+      "detail": "HTTP 200",
+      "extra": {}
+    }
+  ]
+}
