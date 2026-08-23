@@ -1,0 +1,109 @@
+# قياساتُ الحوكمةِ المولَّدةُ — Governance Measurements (generated)
+# الهدف: تشغيلُ **مولِّداتِ القياسِ** في بيئةٍ حقيقيّةٍ فيها تبعيّاتُها كاملةً، ودفعُ
+#        خرجِها كما وَلَّدَته الأداةُ — لا كما كتبَه إنسان. فالقياسُ يُقاسُ ولا يُنسَخُ
+#        بيدٍ، وتحريرُ خرجٍ مولَّدٍ يدويًّا مُحرَّمٌ في هذا المستودع.
+# النطاق: ثلاثةُ مولِّداتٍ وخرجُها وحدَه —
+#        `tools/governance/restart_survival_probe.py` → `measurements/restart_survival.json`
+#        `tools/audit/decision_gate.py --record-work`  → `measurements/decision_gate_ledger.json`
+#        (ومصفوفةُ الحقيقةِ لها وظيفتُها: `truth-matrix.yml`، لأنَّ أيَّ سطرٍ يُقدِّمُها)
+#        ويُشغَّلُ هنا كذلك حرسُ القياسِ الحيِّ (الخطوةُ 18) لأنَّ تبعيّاتَه هنا كاملةٌ.
+# المالك: governance/
+# تاريخ الإنشاء: 2026-08-23
+# تاريخ آخر تعديل: 2026-08-23
+#
+# ── لماذا وظيفةٌ منفصلةٌ عن CI ──────────────────────────────────────────────
+# مِسبارُ النجاةِ يُشغّلُ مراحلَه في عمليّاتِ نظامٍ مستقلّةٍ ويكتبُ قاعدةَ بياناتٍ،
+# فهو **مُولِّدُ قياسٍ** لا حارسًا. ولو رُبِطَ بكلِّ دفعةٍ لصارَ خرجُه يتغيّرُ في
+# كلِّ التزامٍ بلا عملٍ بشريّ. فيُشغَّلُ عندَ الحاجةِ (`workflow_dispatch`)، **أو
+# تلقائيًّا حينَ تتغيَّرُ الأشياءُ التي يقيسُها وحدَها** (المِسبارُ · طبقةُ الإدامةِ ·
+# مخازنُ الحوكمة)، ويُدفَعُ خرجُه إلى الفرعِ نفسِه. وحرّاسُ `tests/governance/`
+# هي التي تقرأُ الخرجَ في كلِّ دفعةٍ فتُسقِطُ الادّعاءَ غيرَ المقيس.
+#
+# ── ولماذا زِيدَ حرسُ الخطوةِ 18 هنا (W-031) ─────────────────────────────────
+# فحصانِ في `tests/governance/test_step18_restart_survival.py` يقيسانِ القياسَ
+# **حيًّا** فيُقلِّعانِ تطبيقَ الخدمةِ وقاعدتَها. وتبعيّاتُ جذرِ المستودعِ مُعلَنةٌ في
+# `requirements-dev.txt` وحدَها وليسَ فيها تطبيقُ الخدمة، فكانا يسقُطانِ في
+# `بوابة 5` منذُ كُتِبا (W-030) بـ`ModuleNotFoundError` — أي يُبلِّغانِ عجزَ البيئةِ
+# باسمِ عجزِ الحالة. فصارا يُتخطَّيانِ في الجذرِ بإعلانٍ، ويُقاسانِ **هنا** حيثُ
+# التبعيّاتُ كاملةٌ، ويحرسُ وجودَ هذا السطرِ فحصٌ في الملفِّ نفسِه.
+#
+# ── ولماذا تُسجَّلُ لقطةُ انحرافِ الدَّينِ هنا ──────────────────────────────────
+# طبقةُ الإدامةِ (`Q-39 أ`) أضافَت أسطحَ كتابةٍ عامّةً جديدةً فارتفعَ الدَّينُ
+# السياديُّ المقيسُ (‏**168 ← 179** في CI)، فسقطَ حارسُ الانحرافِ — وكانَ محقًّا.
+# فالرقمُ لا يُصحَّحُ في وثيقةٍ بيدٍ: تُقاسُ اللقطةُ بالأداةِ وتُنسَبُ إلى العملِ
+# بسببٍ مكتوبٍ، ويُقيَّدُ الفرقُ في دفترِ الإنجاز.
+#
+# ودفعُ الخرجِ لا يُعيدُ تشغيلَ هذه الوظيفةِ: ملفّاتُ الخرجِ خارجَ `paths` أدناه،
+# فلا حلقةَ لا تنتهي. و`ci.yml` لا يُشغَّلُ إلّا على `main` و`develop` وطلباتِ
+# الدمجِ، فدفعةُ البوتِ على فرعِ عملٍ لا تستهلكُ تشغيلًا زائدًا.
+
+name: قياسُ الحوكمةِ المولَّد
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/governance/restart_survival_probe.py"
+      - "tools/audit/decision_gate.py"
+      - "tools/audit/sovereign_write_inventory.py"
+      - "tests/governance/test_step18_restart_survival.py"
+      - "federal/executive/services/src/amos_federation/common/persistent.py"
+      - "federal/executive/services/src/amos_federation/common/database.py"
+      - "federal/executive/services/src/amos_federation/services/governance/canary.py"
+      - ".github/workflows/measure.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  restart-survival:
+    name: Restart Survival Measurement
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # تبعيّاتُ حزمةِ الخدماتِ لازمةٌ لا زائدة: المِسبارُ يستوردُ طبقةَ الإدامةِ
+      # نفسَها التي يقيسُها، فبغيرِها لا يُقاسُ شيءٌ بل يُبلَّغُ عن عجزِ الأداة.
+      # وتبعيّاتُ الجذرِ تُقرَأُ من إعلانِها الواحدِ لا تُكتَبُ أسماؤها هنا (T0.1).
+      - name: تثبيت التبعيّات
+        run: |
+          pip install -r requirements-dev.txt
+          pip install -r federal/executive/services/requirements.lock
+          pip install -e federal/executive/services --no-deps
+
+      - name: تشغيلُ المِسبارِ وتوليدُ القياس
+        run: python tools/governance/restart_survival_probe.py
+
+      - name: عرضُ القياسِ في السجلّ
+        run: python tools/governance/restart_survival_probe.py --check || true
+
+      # ما يُتخطَّى في `بوابة 5` لنقصِ التبعيّاتِ يُقاسُ هنا كاملًا — لا حرسَ بلا موضِع.
+      - name: حرسُ القياسِ الحيِّ (الخطوةُ 18)
+        run: python -m pytest tests/governance/test_step18_restart_survival.py -q
+
+      # لقطةُ انحرافِ الدَّينِ: تُقاسُ بالأداةِ وتُنسَبُ إلى العملِ بسببٍ مكتوبٍ،
+      # والأمرُ لا يكتبُ شيئًا إن كانتِ اللقطةُ مسجَّلةً والدَّينُ مطابقًا.
+      - name: تسجيلُ لقطةِ انحرافِ الدَّينِ (W-031)
+        run: |
+          python tools/audit/decision_gate.py --record-work W-031 --reason \
+            "طبقةُ الإدامةِ في Q-39 أ أضافَت أسطحَ كتابةٍ عامّةً في مخازنِ الحالةِ الدائمةِ فارتفعَ الدَّينُ المقيسُ عن لقطةِ Q-12"
+
+      # الدفعُ يقتصرُ على مُخرَجاتِ القياسِ: وظيفةٌ تدفعُ كودًا خطرٌ لا قياس.
+      - name: دفعُ الخرجِ المولَّدِ إن تغيَّر
+        run: |
+          git config user.name "amos-measurement-bot"
+          git config user.email "measurement-bot@users.noreply.github.com"
+          OUTPUTS="docs/audit/measurements/restart_survival.json \
+                   docs/audit/measurements/decision_gate_ledger.json"
+          if git diff --quiet -- $OUTPUTS; then
+            echo "لا تغيُّرَ في القياس — لا شيءَ يُدفَع."
+            exit 0
+          fi
+          git add $OUTPUTS
+          git commit -m "W-031: مُخرَجاتُ القياسِ مولَّدةً بأدواتِها (نجاةُ الإقلاعِ · لقطةُ الدَّين)"
+          git push origin HEAD:${{ github.ref_name }}

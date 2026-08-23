@@ -245,3 +245,22 @@ def pytest_sessionfinish(session, exitstatus):
     workspace = Path(__file__).resolve().parent.parent
     _cleanup_test_db(workspace)
     _cleanup_test_ledger(workspace)
+
+
+# ── رفعُ الإيقافِ بينَ الاختباراتِ (W-031 · قرارُ المالكِ Q-39 أ) ─────────────
+# صارَ مستوى مفتاحِ الإيقافِ **دائمًا** في جدولِ `system_state`، وهذا هو المقصودُ:
+# إعادةُ التشغيلِ لا تُطفِئُ `halt`. وأثرُه على الحزمةِ حقيقيٌّ ويُعلَنُ لا يُخفى:
+# اختبارٌ يُوقِفُ النظامَ ثمّ يسقطُ قبلَ رفعِه كانَ يزولُ أثرُه بانتهاءِ العمليّةِ،
+# وصارَ يبقى فيحجُبُ تنفيذَ ما بعدَه. فيُرفَعُ الإيقافُ بعدَ كلِّ اختبارٍ — تنظيفُ
+# حالةٍ مشتركةٍ كما تُمسَحُ قاعدةُ الاختبارِ نفسُها، لا تخفيفًا للضمانِ: من يُثبِتُ
+# النجاةَ يُثبِتُها بعمليّاتٍ مستقلّةٍ على قاعدتِه الخاصّةِ
+# (`tests/test_step19_durable_governance_state.py`)، فلا تمسُّه هذه التجهيزة.
+@pytest.fixture(autouse=True)
+def _lift_durable_halt_after_each_test():
+    """ارفعِ الإيقافَ الدائمَ بعدَ كلِّ اختبارٍ لئلّا يحجُبَ ما بعدَه."""
+    yield
+    with contextlib.suppress(Exception):
+        from amos_federation.services.governance import canary
+
+        if canary.get_system_status().get("level") != "normal":
+            canary.reset_kill_switch()

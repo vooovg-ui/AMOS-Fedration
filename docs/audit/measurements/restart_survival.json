@@ -1,41 +1,41 @@
 {
   "$comment": "الهدف: قياسُ ما ينجو من حالةِ الخدماتِ عبرَ إعادةِ التشغيلِ الحقيقيّةِ (عمليّةٌ تكتبُ وعمليّةٌ أخرى تقرأُ) — مُخرَجُ tools/governance/restart_survival_probe.py (T3.6 · W-030). المادةُ التاسعةُ · 2.",
-  "note": "قياسٌ لا حُكم: يقولُ ما يُفقَدُ، ولا يقولُ ما يجبُ أن يُدامَ — ذاك قرارٌ سياديٌّ مفتوحٌ (Q-39). و`lost_on_restart` **ليس** مخالفةً جديدةً ولا يدخلُ عدّادَ المصفوفةِ: هو بيانُ أثرِ الستّينَ المعروفةِ. وشاهدا الضبطِ (audit_chain · task) يجبُ أن ينجُوا، فإن سقطا فالمِسبارُ هو المكسورُ لا الحالة.",
+  "note": "قياسٌ لا حُكم: يقولُ ما يُفقَدُ، ولا يقولُ ما يجبُ أن يُدامَ — ذاك قرارٌ سياديٌّ (Q-39؛ حُسِمَ شقُّه الأوّلُ 2026-08-23 فأُديمَ مفتاحُ الإيقافِ والترقياتُ في W-031). و`lost_on_restart` **ليس** مخالفةً جديدةً ولا يدخلُ عدّادَ المصفوفةِ: هو بيانُ أثرِ الستّينَ المعروفةِ. وشاهدا الضبطِ (audit_chain · task) يجبُ أن ينجُوا، فإن سقطا فالمِسبارُ هو المكسورُ لا الحالة.",
   "summary": {
     "surfaces_total": 11,
-    "lost_on_restart": 8,
-    "survived_restart": 3,
+    "lost_on_restart": 6,
+    "survived_restart": 5,
     "unmeasured": 0,
     "contradicts_declaration": 0,
-    "declared_volatile": 8,
-    "control_surfaces": 2
+    "declared_volatile": 6,
+    "control_surfaces": 4
   },
   "surfaces": [
     {
       "surface_id": "kill_switch",
       "service": "governance",
-      "declared": "WIRED_VOLATILE",
-      "what_is_lost": "مستوى مفتاحِ الإيقافِ: نظامٌ أُوقِفَ لطارئٍ يعودُ `normal` من نفسِه",
+      "declared": "DURABLE_CONTROL",
+      "what_is_lost": "لا شيءَ بعدَ W-031: المستوى في جدولِ `system_state` — إيقافٌ لا يرفعُه إقلاعٌ",
       "wrote_ok": true,
-      "survived": false,
-      "expected_survival": false,
+      "survived": true,
+      "expected_survival": true,
       "verdict": "MATCHES_DECLARATION",
-      "detail": "المستوى بعدَ الإقلاعِ: 'normal' (‏كُتِبَ 'halt')",
+      "detail": "المستوى بعدَ الإقلاعِ: 'halt' (‏كُتِبَ 'halt')",
       "extra": {
         "level_after_write": "halt",
-        "level_after_restart": "normal"
+        "level_after_restart": "halt"
       }
     },
     {
       "surface_id": "promotion",
       "service": "governance",
-      "declared": "WIRED_VOLATILE",
-      "what_is_lost": "موافقاتُ ترقيةِ النماذجِ وبوّاباتُها المقطوعة",
+      "declared": "DURABLE_CONTROL",
+      "what_is_lost": "لا شيءَ بعدَ W-031: الطلباتُ وبوّاباتُها في جدولِ `promotions` — إذنُ إنسانٍ يبقى",
       "wrote_ok": true,
-      "survived": false,
-      "expected_survival": false,
+      "survived": true,
+      "expected_survival": true,
       "verdict": "MATCHES_DECLARATION",
-      "detail": "HTTP 404",
+      "detail": "HTTP 200",
       "extra": {}
     },
     {

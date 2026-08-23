@@ -3,7 +3,8 @@
 الهدف:
     منعُ ثلاثِ صورٍ من الكذبِ الموثَّق:
       1. أن يُحذَفَ سطحٌ من المِسبارِ فيَقِلَّ الفقدُ المُعلَنُ بلا أن تُدامَ حالةٌ
-         واحدةٌ — وأخطرُها **مفتاحُ الإيقافِ** فهو مُثبَّتٌ بالاسمِ هنا.
+         واحدةٌ — وأخطرُها **مفتاحُ الإيقافِ** فهو مُثبَّتٌ بالاسمِ هنا. وبعدَ
+         إدامتِه في `W-031` صارَ مُثبَّتًا مرّتَين: لا يُحذَفُ، ولا يُعادُ متطايرًا.
       2. أن يُقالَ «هذه دائمةٌ» في وثيقةٍ أو ترويسةٍ ولا يُقاسَ ذلك بعمليّتَينِ.
       3. أن يمرَّ المِسبارُ وهو مكسورٌ: فلو فُقِدَ **شاهدا الضبطِ** (سجلُّ التدقيقِ
          والمهمّةُ الدائمةُ) لكانَ العجزُ في المِسبارِ لا في الحالة، ولذلك يُشترَطُ
@@ -12,7 +13,8 @@
 النطاق:
     `tools/governance/restart_survival_probe.py` ومُخرَجُه المُقيَّدُ
     `docs/audit/measurements/restart_survival.json`. ولا يُقيسُ هذا الحرسُ صوابَ
-    المعمار: لا يشترطُ إدامةَ شيءٍ — ذاك قرارٌ سياديٌّ مفتوحٌ (`Q-39`).
+    المعمار: لا يشترطُ إدامةَ شيءٍ من نفسِه — ما يُشترَطُ إدامتُه هنا هو ما أمرَ
+    به المالكُ نصًّا في (`Q-39 (أ)`)، لا ما رآه عاملٌ صوابًا.
 
 المالك:
     `tests/governance` — حرّاسُ الحوكمةِ في المستودع.
@@ -41,11 +43,41 @@ MEASUREMENT_PATH = (
 #: فأيُّ نقصٍ بعدَه حذفٌ لسطحٍ لا تحسينٌ للمعمار.
 MIN_SURFACES = 11
 
-#: أسطحٌ مُثبَّتةٌ بالاسمِ: أثرُ فقدِها تشغيليٌّ لا تجميليّ.
-PINNED_VOLATILE = ("kill_switch", "promotion", "canary", "cost_log")
+#: أسطحٌ مُثبَّتةٌ بالاسمِ: أثرُ فقدِها تشغيليٌّ لا تجميليّ. لا تُحذَفُ من المِسبارِ
+#: أيًّا كانَ تصنيفُها — الحذفُ إخفاءٌ لا إدامة.
+PINNED_SURFACES = ("kill_switch", "promotion", "canary", "cost_log")
+
+#: أسطحٌ **أُديمَت بقرارِ المالكِ** في `Q-39 (أ)` — 2026-08-23 · نُفِّذَ في `W-031`.
+#: تثبيتُها هنا يمنعُ التراجعَ: من أعادَها إلى الذاكرةِ يُسقِطُ هذا الحرسَ، ومن أعلنَ
+#: إدامتَها بلا قياسٍ يُسقِطُه المِسبارُ نفسُه أدناه.
+PINNED_DURABLE_BY_DECISION = ("kill_switch", "promotion")
 
 #: شاهدا الضبطِ: نجاتُهما شرطُ صدقِ المِسبارِ نفسِه.
 PINNED_CONTROLS = ("audit_chain", "task")
+
+#: ما يلزمُ القياسَ الحيَّ (مراحلُ المِسبارِ تُقلِّعُ تطبيقَ الخدمةِ وقاعدتَها).
+LIVE_STACK_MODULES = ("fastapi", "sqlalchemy")
+MEASURE_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "measure.yml"
+
+
+def _require_live_stack() -> None:
+    """يُتخطَّى القياسُ الحيُّ إن غابتِ الطبقةُ المقيسةُ — بإعلانٍ وموضِعٍ بديلٍ.
+
+    ولماذا لا يُعدُّ هذا تخطِّيًا لحارسٍ (القاعدةُ 12): تبعيّاتُ جذرِ المستودعِ
+    مُعلنةٌ في `requirements-dev.txt` وحدَها وليسَ فيها تطبيقُ الخدمةِ (وذاكَ قرارُ
+    معمارٍ قائمٌ: لا تُكرَّرُ تبعيّاتُ الحزمةِ في الجذر). فكانَ هذانِ الفحصانِ
+    يسقُطانِ في `بوابة 5` منذُ كُتِبا (W-030) بـ`ModuleNotFoundError` لا بعجزِ إدامةٍ
+    — فكانا يُبلِّغانِ عجزَ البيئةِ باسمِ عجزِ الحالة، وذاكَ كذبٌ مُوثَّقٌ معكوس.
+    والموضِعُ البديلُ ليسَ وعدًا: `measure.yml` يُشغِّلُ هذا الملفَّ كلَّه بتبعيّاتٍ
+    كاملةٍ، ويحرسُ وجودَ ذلكَ فحصٌ أدناه فلا يُحذَفُ صامتًا.
+    """
+    missing = [m for m in LIVE_STACK_MODULES if importlib.util.find_spec(m) is None]
+    if missing:
+        pytest.skip(
+            "القياسُ الحيُّ يلزمُه طبقةُ الخدماتِ وهي غائبةٌ هنا بإعلانٍ لا بسهوٍ "
+            f"(الناقصُ: {', '.join(missing)}). والقياسُ يجري في "
+            ".github/workflows/measure.yml حيثُ التبعيّاتُ كاملة."
+        )
 
 
 def _load(name: str, path: Path) -> Any:
@@ -102,8 +134,18 @@ def test_surface_ids_are_unique_and_not_thinned(probe: Any) -> None:
 def test_consequential_surfaces_are_pinned_by_name(probe: Any) -> None:
     """مفتاحُ الإيقافِ والترقياتُ والـcanary والتكلفةُ لا تُسقَطُ بالسكوت."""
     ids = {s.surface_id for s in probe.SURFACES}
-    missing = [name for name in PINNED_VOLATILE if name not in ids]
+    missing = [name for name in PINNED_SURFACES if name not in ids]
     assert not missing, f"أسطحٌ مُثبَّتةٌ حُذِفَت: {missing}"
+
+
+def test_surfaces_durable_by_owner_decision_are_declared_durable(probe: Any) -> None:
+    """ما أمرَ المالكُ بإدامتِه لا يعودُ متطايرًا بصمتٍ (`Q-39 (أ)` · `W-031`)."""
+    by_id = {s.surface_id: s for s in probe.SURFACES}
+    for name in PINNED_DURABLE_BY_DECISION:
+        assert by_id[name].declared == probe.DURABLE, (
+            f"السطحُ {name} أُديمَ بقرارٍ سياديٍّ في Q-39 (أ) ثمّ عادَ تصنيفُه "
+            f"{by_id[name].declared!r} — تراجعٌ عن قرارٍ لا يملكُه عامل."
+        )
 
 
 def test_control_surfaces_exist(probe: Any) -> None:
@@ -189,13 +231,22 @@ def test_every_declared_volatile_surface_was_measured_lost(
     assert measurement["summary"]["lost_on_restart"] == len(volatile)
 
 
-def test_kill_switch_returns_to_normal_after_restart(
+def test_kill_switch_survives_restart_as_decided(
     measurement: dict[str, Any],
 ) -> None:
-    """الأثرُ الأخطرُ مُقيَّدٌ برقمِه: نظامٌ أُوقِفَ يعودُ عاملًا من نفسِه."""
+    """الأثرُ الأخطرُ مُقيَّدٌ برقمِه: نظامٌ أُوقِفَ يبقى موقوفًا بعدَ الإقلاع.
+
+    كانَ هذا الحرسُ يُقيِّدُ العكسَ حتّى W-030 (‏`halt` يعودُ `normal`)، فحُسِمَ
+    `Q-39 (أ)` بقرارِ المالكِ 2026-08-23 وأُديمَ المفتاحُ في `W-031`. فالقيدُ الآن
+    على الوعدِ الجديدِ: **الإقلاعُ لا يرفعُ الإيقافَ**، ورفعُه فعلٌ صريحٌ.
+    """
     entry = next(s for s in measurement["surfaces"] if s["surface_id"] == "kill_switch")
     assert entry["extra"]["level_after_write"] == "halt"
-    assert entry["extra"]["level_after_restart"] == "normal"
+    assert entry["extra"]["level_after_restart"] == "halt", (
+        "نظامٌ أُوقِفَ ثمّ أُقلِعَ فعادَ عاملًا — نقضٌ لقرارِ Q-39 (أ) المقيسِ."
+    )
+    assert entry["survived"] is True
+    assert entry["declared"] == "DURABLE_CONTROL"
 
 
 def test_the_two_cost_sources_are_recorded_as_measured(
@@ -223,10 +274,13 @@ def test_live_control_pair_still_behaves_as_recorded(probe: Any) -> None:
     ولا تُقاسُ الأسطحُ كلُّها هنا: القياسُ الكاملُ دقائقُ، وأمرُه مُعلَنٌ في الدليلِ
     ويُعادُ بأداتِه. والمقصودُ هنا أن يبقى **الفرقُ** مقيسًا في كلِّ تشغيلٍ للحزمة.
     """
+    _require_live_stack()
     surfaces = tuple(
-        s for s in probe.SURFACES if s.surface_id in ("kill_switch", "task")
+        s
+        for s in probe.SURFACES
+        if s.surface_id in ("canary", "kill_switch", "task")
     )
-    assert len(surfaces) == 2
+    assert len(surfaces) == 3
     original = probe.SURFACES
     probe.SURFACES = surfaces
     try:
@@ -236,8 +290,11 @@ def test_live_control_pair_still_behaves_as_recorded(probe: Any) -> None:
         probe.SURFACES = original
 
     assert (
-        results["kill_switch"].survived is False
-    ), f"مفتاحُ الإيقافِ نجا خلافًا للتصريحِ: {results['kill_switch'].detail}"
+        results["canary"].survived is False
+    ), f"الكنارُ نجا خلافًا للتصريحِ: {results['canary'].detail}"
+    assert (
+        results["kill_switch"].survived is True
+    ), f"مفتاحُ الإيقافِ لم ينجُ خلافًا لقرارِ `Q-39 أ`: {results['kill_switch'].detail}"
     assert (
         results["task"].survived is True
     ), f"المهمّةُ الدائمةُ فُقِدَت — فالعجزُ في المِسبارِ: {results['task'].detail}"
@@ -253,6 +310,7 @@ def test_the_probe_does_not_pollute_the_measured_tree(probe: Any) -> None:
     السجلُّ إلى موضعِ القياسِ المؤقّت، ولم يُضيَّقْ كاشفٌ ولم يُحسَمْ نطاقُ المادةِ
     التاسعةِ بحكمِ عاملٍ — ذاك سؤالٌ مفتوحٌ (`Q-40`).
     """
+    _require_live_stack()
     runtime_dir = REPO_ROOT / ".runtime" / "sovereignty"
     existed_before = runtime_dir.exists()
     surfaces = tuple(s for s in probe.SURFACES if s.surface_id == "task")
@@ -273,3 +331,24 @@ def test_the_probe_does_not_pollute_the_measured_tree(probe: Any) -> None:
         assert (
             not runtime_dir.exists()
         ), f"القياسُ لوَّثَ الشجرةَ المقيسةَ: {runtime_dir} — وهذا يُسقِطُ بوّابةَ الهويّة."
+
+
+# =============================================================================
+# 4) حرسُ الموضِعِ البديلِ — لا فحصَ يُتخطَّى بلا مكانٍ يُقاسُ فيه
+# =============================================================================
+def test_live_probe_runs_in_the_measurement_workflow() -> None:
+    """ما يُتخطَّى هنا لنقصِ بيئةٍ يُشغَّلُ هناكَ بتبعيّاتٍ كاملةٍ — والوعدُ محروسٌ.
+
+    ولولا هذا الفحصُ لكانَ `_require_live_stack` بابًا لتخطٍّ دائمٍ بلا قياسٍ: يُحذَفُ
+    السطرُ من `measure.yml` فلا يسقطُ شيءٌ، فيصيرُ الحرسُ زينةً. فالمكتوبُ هنا
+    شرطٌ: اسمُ هذا الملفِّ نصًّا في وظيفةِ القياسِ.
+    """
+    assert MEASURE_WORKFLOW.exists(), (
+        f"وظيفةُ القياسِ غائبةٌ: {MEASURE_WORKFLOW.relative_to(REPO_ROOT)} — "
+        "فلا موضِعَ يُقاسُ فيه ما يُتخطَّى في الجذر."
+    )
+    text = MEASURE_WORKFLOW.read_text(encoding="utf-8")
+    assert "tests/governance/test_step18_restart_survival.py" in text, (
+        "وظيفةُ القياسِ لا تُشغِّلُ حرسَ الخطوةِ 18 — فالقياسُ الحيُّ صارَ بلا موضِعٍ "
+        "في CI، والتخطِّي في الجذرِ يصيرُ إخفاءً."
+    )

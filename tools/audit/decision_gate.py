@@ -15,7 +15,16 @@
   python tools/audit/decision_gate.py --map              # يُعيدُ توليدَ خريطةِ الموجاتِ المقيسة
   python tools/audit/decision_gate.py --measure          # يقيسُ الدَّينَ الآنَ ولا يكتبُ شيئًا
   python tools/audit/decision_gate.py --record Q-11      # يُسجِّلُ لقطةً منسوبةً إلى قرارٍ أُغلِق
+  python tools/audit/decision_gate.py --record-work W-031 --reason "…"  # لقطةُ انحرافٍ
   python tools/audit/decision_gate.py --gate W1          # يفتحُ موجةً أو يسقطُ مُعلِنًا الناقص
+
+ولماذا `--record-work` (زِيدَ في W-031 بعدَ سقوطٍ مقيس): الدَّينُ لا ينحرفُ بالهجرةِ
+وحدَها؛ بل يرتفعُ حينَ يُضافُ سطحُ كتابةٍ عامٌّ جديدٌ في عملٍ هندسيٍّ (قِيسَ في CI:
+**168 ← 179** بعدَ طبقةِ الإدامةِ في `Q-39 أ`). وحارسُ الانحرافِ يُسقِطُ ذلك — وهو
+محقٌّ: الرقمُ لا يُصحَّحُ في وثيقةٍ صامتًا. فالمخرجُ المشروعُ **تسجيلُ لقطةٍ منسوبةٍ
+إلى العملِ** بسببٍ مكتوبٍ، لا تضييقُ الحارسِ ولا تسميةُ الكتابةِ الجديدةِ خاصّةً
+لتُسقَطَ من العدّ (سابقةُ W-026). ولا تُسجَّلُ لقطةُ عملٍ إلّا إذا كانَ للعملِ قيدٌ
+في `COMPLETION_LEDGER.md` وسببٌ مُعلَنٌ — فلا لقطةَ يتيمةً بلا مُساءَلة.
 
 دلالةُ `--gate Wn` (صُحِّحَتْ في P16 بعدَ سقوطٍ مقيس): تفتحُ الموجةَ إذا كانت قراراتُ
 **الموجاتِ السابقةِ** كلُّها مسجَّلةَ اللقطاتِ ولم ينحرفِ الدَّينُ بلا لقطة. أمّا قراراتُ
@@ -175,6 +184,48 @@ def cmd_record(decision: str) -> None:
     print("تذكيرٌ: القرارُ نفسُه يُدوَّنُ في SOVEREIGN_DECISION_REGISTER.md لا هنا.")
 
 
+WORK_ID_RE = re.compile(r"^W-\d{3}$")
+COMPLETION_LEDGER = AUDIT / "COMPLETION_LEDGER.md"
+MIN_REASON_CHARS = 20
+
+
+def cmd_record_work(work_id: str, reason: str | None) -> None:
+    """يُسجِّلُ لقطةَ انحرافٍ منسوبةً إلى عملٍ مُقيَّدٍ في دفترِ الإنجاز.
+
+    شروطٌ ثلاثةٌ لا تُتجاوَز: صيغةُ المُعرِّفِ · سببٌ مكتوبٌ · قيدٌ للعملِ في
+    `COMPLETION_LEDGER.md`. وإن كانتِ اللقطةُ مسجَّلةً سابقًا فلا تُكتَبُ فوقَها:
+    يُقاسُ الدَّينُ فإن طابقَ مرَّ الأمرُ بلا كتابةٍ، وإن خالفَ سقطَ مُعلِنًا الفرق.
+    """
+    if not WORK_ID_RE.match(work_id):
+        _fail(f"مُعرِّفُ عملٍ غيرُ صحيحٍ: {work_id!r} — الصيغةُ W-NNN")
+    if not reason or len(reason.strip()) < MIN_REASON_CHARS:
+        _fail(f"لا لقطةَ بلا سببٍ مكتوبٍ (≥{MIN_REASON_CHARS} حرفًا) — `--reason`")
+    if not COMPLETION_LEDGER.exists():
+        _fail(f"دفترُ الإنجازِ غائب: {COMPLETION_LEDGER.relative_to(ROOT)}")
+    if f"| {work_id} |" not in COMPLETION_LEDGER.read_text(encoding="utf-8"):
+        _fail(f"{work_id} لا قيدَ له في COMPLETION_LEDGER.md — لا لقطةَ عملٍ بلا قيد")
+    snapshots = load_ledger()
+    now = measure()
+    previous = [s for s in snapshots if s["decision"] == work_id]
+    if previous:
+        if int(previous[-1]["debt"]) != now["debt"]:
+            _fail(f"{work_id} له لقطةٌ دَينُها {previous[-1]['debt']} والمقيسُ الآنَ "
+                  f"{now['debt']} — انحرافٌ جديدٌ يُنسَبُ إلى عملٍ جديدٍ لا يُكتَبُ فوقَ لقطة")
+        print(f"{work_id}: لقطةٌ مسجَّلةٌ سابقًا والدَّينُ مطابقٌ ({now['debt']}) — لا كتابة.")
+        return
+    snap = now
+    snap["decision"] = work_id
+    snap["kind"] = "work_drift"
+    snap["reason"] = reason.strip()
+    snap["recorded_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    previous_debt = int(snapshots[-1]["debt"]) if snapshots else None
+    snapshots.append(snap)
+    save_ledger(snapshots)
+    print(f"سُجِّلتْ لقطةُ {work_id}: الدَّينُ {snap['debt']} "
+          f"(كانَ {previous_debt}) · العابراتُ {snap['sovereign']} · الرأسُ {snap['git_head']}")
+    print("والفرقُ يُقيَّدُ في COMPLETION_LEDGER.md — اللقطةُ قياسٌ لا اعتذار.")
+
+
 def cmd_gate(wave: str) -> None:
     waves = read_waves()
     if wave not in waves:
@@ -214,6 +265,9 @@ def main() -> None:
     g.add_argument("--measure", action="store_true", help="قياسٌ بلا كتابة")
     g.add_argument("--record", metavar="Q-NN", help="تسجيلُ لقطةٍ لقرارٍ أُغلِق")
     g.add_argument("--gate", metavar="Wn", help="فتحُ موجةٍ أو السقوطُ مُعلِنًا الناقص")
+    g.add_argument("--record-work", dest="record_work", metavar="W-NNN",
+                   help="تسجيلُ لقطةِ انحرافٍ منسوبةٍ إلى عملٍ مُقيَّدٍ (يلزمُها `--reason`)")
+    ap.add_argument("--reason", default=None, help="سببُ الانحرافِ مكتوبًا — لا لقطةَ بلا سبب")
     a = ap.parse_args()
     if a.map:
         cmd_map()
@@ -221,6 +275,8 @@ def main() -> None:
         cmd_measure()
     elif a.record:
         cmd_record(a.record)
+    elif a.record_work:
+        cmd_record_work(a.record_work, a.reason)
     else:
         cmd_gate(a.gate)
 

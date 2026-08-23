@@ -1,0 +1,64 @@
+# مصفوفةُ الحقيقةِ المولَّدةُ — Truth Matrix (generated)
+# الهدف: إعادةُ توليدِ [`docs/audit/TRUTH_MATRIX.md`] و[`docs/audit/truth_matrix.json`]
+#        بأداتِهما `tools/governance/truth_audit.py` بعدَ كلِّ تغييرٍ في الشجرةِ،
+#        ودفعُ الخرجِ كما وَلَّدَته الأداةُ. فلا يُحرَّرُ خرجٌ مولَّدٌ بيدٍ في هذا المستودع.
+# المالك: governance/
+# تاريخ الإنشاء: 2026-08-23
+# تاريخ آخر تعديل: 2026-08-23
+#
+# ── لماذا وظيفةٌ منفصلةٌ عن `measure.yml` ─────────────────────────────────────
+# مصفوفةُ الحقيقةِ تقيسُ **الشجرةَ كلَّها** (عددَ الأسطرِ والملفّاتِ والمخالفاتِ)،
+# فأيُّ تغييرِ سطرٍ واحدٍ في أيِّ ملفٍّ يُقدِّمُها — وقد رأينا ذلكَ بالقياسِ: إصلاحُ
+# تنسيقٍ في ملفِّ إثباتٍ واحدٍ خفَّضَ `federal/code_lines` من 63122 إلى 63121،
+# فسقطت بوّابةُ «المصفوفةُ محدَّثةٌ» في `ci.yml` بلا خطأٍ من أحد. وبوّابةُ CI محقّةٌ:
+# الخرجُ المدفوعُ كانَ قديمًا. والحلُّ ليسَ تعطيلَ البوّابةِ ولا تحريرَ الرقمِ بيدٍ،
+# بل **تشغيلُ المُولِّدِ حيثُ يتغيَّرُ ما يقيسُه**: هنا، على كلِّ دفعةٍ.
+# أمّا `measure.yml` فيبقى محصورًا بمِسبارِ النجاةِ ولقطةِ الدَّينِ لأنَّهما ثقيلانِ
+# (عمليّاتٌ مستقلّةٌ وقاعدةُ بياناتٍ) ولا يتغيَّرُ خرجُهما بكلِّ سطرٍ.
+#
+# ── ولا حلقةَ لا تنتهي ───────────────────────────────────────────────────────
+# ملفّا الخرجِ مستثنيانِ في `paths-ignore`، فدفعةُ الخرجِ لا تُعيدُ تشغيلَ الوظيفةِ؛
+# ويُضافُ إليه شرطُ الفاعلِ (‏`github-actions[bot]`) حرسًا ثانيًا. وإن سقطَ حارسُ
+# **عدمِ التراجعِ** (‏`--ratchet`) فلا يُدفَعُ شيءٌ: التراجعُ يُبلَّغُ ولا يُدفَنُ.
+
+name: مصفوفةُ الحقيقةِ المولَّدة
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - "docs/audit/TRUTH_MATRIX.md"
+      - "docs/audit/truth_matrix.json"
+
+permissions:
+  contents: write
+
+jobs:
+  truth-matrix:
+    name: Truth Matrix Regeneration
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # الأداةُ تعملُ بالمكتبةِ القياسيّةِ (‏`ast`) فلا تبعيّاتَ لها.
+      - name: إعادةُ توليدِ المصفوفةِ وحارسُ عدمِ التراجع
+        run: python tools/governance/truth_audit.py . --ratchet
+
+      - name: دفعُ الخرجِ المولَّدِ إن تغيَّر
+        run: |
+          set -euo pipefail
+          if git diff --quiet docs/audit/TRUTH_MATRIX.md docs/audit/truth_matrix.json; then
+            echo "لا تغيُّرَ في المصفوفةِ — لا شيءَ يُدفَع."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/audit/TRUTH_MATRIX.md docs/audit/truth_matrix.json
+          git commit -m "مصفوفةُ الحقيقةِ: خرجٌ مولَّدٌ بأداتِه بعدَ تغيُّرِ الشجرة"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

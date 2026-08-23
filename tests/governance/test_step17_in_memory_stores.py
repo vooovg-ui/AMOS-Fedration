@@ -278,15 +278,28 @@ def test_training_service_declares_its_store_durability():
     )
 
 
-def test_kill_switch_volatility_is_declared_where_it_lives():
-    """أخطرُ موضعٍ — مفتاحُ الإيقافِ — يُعلِنُ تطايرَه في موضعِ تعريفِه."""
+def test_kill_switch_durability_is_declared_where_it_lives():
+    """أخطرُ موضعٍ — مفتاحُ الإيقافِ — يُعلِنُ إدامتَه في موضعِ تعريفِه.
+
+    كانَ هذا الحرسُ يشترطُ إعلانَ **التطايرِ** حتّى W-030، لأنَّ إدامةَ الإيقافِ تغييرُ
+    عقدِ تشغيلٍ لا يملكُه عامل. ثمّ حُسِمَ `Q-39 (أ)` بقرارِ المالكِ 2026-08-23،
+    فأُديمَ المفتاحُ في `W-031`. فصارَ المشروطُ: إعلانُ الإدامةِ، وذكرُ القرارِ الذي
+    أذِنَ بها، و**ألّا يعودَ المستوى قاموسًا في الذاكرةِ** بأيِّ اسمٍ.
+    """
     text = (SERVICES_SRC / "services" / "governance" / "canary.py").read_text(
         encoding="utf-8"
     )
-    head = text.split("_system_state =")[0]
-    assert "T3.6-DURABILITY: WIRED_VOLATILE" in head, (
-        "حالةُ مفتاحِ الإيقافِ بلا تصريحِ تطايرٍ فوقَها — و`halt` الذي يزولُ "
-        "بإعادةِ التشغيلِ يجبُ أن يُعلَنَ لا أن يُسكَتَ عنه."
+    head = text.split("def _system_state_store")[0]
+    assert "T4-DURABILITY: WIRED_DURABLE" in head, (
+        "حالةُ مفتاحِ الإيقافِ بلا تصريحِ إدامةٍ فوقَها — والإدامةُ التي لا تُعلَنُ "
+        "في موضعِها تُنسى فتُعادُ الذاكرةُ من حيثُ لا يُقاس."
+    )
+    assert "Q-39" in head, "الإدامةُ بلا ذكرِ القرارِ الذي أذِنَ بها = حكمُ عاملٍ."
+    assert "_system_state = {" not in text, (
+        "عادَ مستوى مفتاحِ الإيقافِ قاموسًا في ذاكرةِ العمليّةِ — نقضٌ لقرارِ Q-39 (أ)."
+    )
+    assert "_promotions: list" not in text, (
+        "عادَت طلباتُ الترقيةِ قائمةً في الذاكرةِ — وموافقةُ الإنسانِ تزولُ معها."
     )
 
 

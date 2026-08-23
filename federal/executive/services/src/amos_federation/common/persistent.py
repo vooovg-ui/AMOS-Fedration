@@ -17,7 +17,9 @@ from amos_federation.common.database import (
     AuditEntryModel,
     ExperienceModel,
     MemoryModel,
+    PromotionModel,
     ReviewModel,
+    SystemStateModel,
     TaskModel,
     ToolModel,
     get_session_factory,
@@ -714,3 +716,155 @@ class PersistentAuditStore:
             "audit_id": audit_id,
             "blocked": True,
         }
+
+
+class PersistentSystemStateStore:
+    """حالةُ النظامِ (مفتاحُ الإيقافِ) في جدولٍ دائمٍ لا في ذاكرةِ عمليّة.
+
+    قرارُ المالكِ في Q-39 (أ) — 2026-08-23: «مفتاحُ الإيقافِ والترقياتُ أوّلًا».
+    وأثرُه على عقدِ التشغيلِ مُعلَنٌ ولا يُسكَتُ عنه: **إعادةُ التشغيلِ لا تُطفِئُ
+    الإيقافَ**، فمن أوقفَ النظامَ لا يرفعُه إلا رفعٌ صريحٌ (`reset`).
+    """
+
+    DEFAULT_ID = "system"
+
+    def _row(self, session: Any) -> Any:
+        """الصفُّ الواحدُ، يُنشأُ بالحالةِ الطبيعيّةِ إن لم يكن موجودًا."""
+        query = session.query(SystemStateModel)
+        row = query.filter(SystemStateModel.id == self.DEFAULT_ID).first()
+        if row is None:
+            row = SystemStateModel(
+                id=self.DEFAULT_ID,
+                level="normal",
+                reason="",
+                activated_at=None,
+                activated_by="",
+            )
+            session.add(row)
+            session.commit()
+        return row
+
+    @staticmethod
+    def _as_dict(row: Any) -> dict[str, Any]:
+        return {
+            "level": row.level,
+            "reason": row.reason or "",
+            "activated_at": row.activated_at,
+            "activated_by": row.activated_by or "",
+        }
+
+    def get(self) -> dict[str, Any]:
+        """الحالةُ الحاليّةُ للدولةِ — تُقرأُ من القاعدةِ في كلِّ نداء."""
+        session_local = get_session_factory()
+        session = session_local()
+        try:
+            return self._as_dict(self._row(session))
+        finally:
+            session.close()
+
+    def set_level(self, level: str, reason: str, activated_by: str) -> dict[str, Any]:
+        """اكتُبْ مستوًى جديدًا — كتابةٌ دائمةٌ تنجو من إعادةِ التشغيل."""
+        session_local = get_session_factory()
+        session = session_local()
+        try:
+            row = self._row(session)
+            row.level = level
+            row.reason = reason
+            row.activated_at = datetime.now(UTC).isoformat()
+            row.activated_by = activated_by
+            session.commit()
+            return self._as_dict(row)
+        finally:
+            session.close()
+
+    def reset(self) -> dict[str, Any]:
+        """ارفعِ الإيقافَ صراحةً — الرفعُ فعلٌ مقصودٌ لا نتيجةُ إقلاع."""
+        session_local = get_session_factory()
+        session = session_local()
+        try:
+            row = self._row(session)
+            row.level = "normal"
+            row.reason = ""
+            row.activated_at = None
+            row.activated_by = ""
+            session.commit()
+            return self._as_dict(row)
+        finally:
+            session.close()
+
+
+class PersistentPromotionStore:
+    """طلباتُ ترقيةِ النماذجِ وبوّاباتُها في جدولٍ دائمٍ.
+
+    قرارُ المالكِ في Q-39 (أ) — 2026-08-23. وموافقةُ الإنسانِ بوّابةٌ من بوّاباتِها،
+    فزوالُها بإعادةِ التشغيلِ كان يعني أنَّ إذنَ إنسانٍ لا أثرَ له يُقاس.
+    """
+
+    @staticmethod
+    def _as_dict(row: Any) -> dict[str, Any]:
+        return {
+            "promotion_id": row.id,
+            "model_id": row.model_id,
+            "gates": row.gates or {},
+            "status": row.status,
+            "created_at": row.created_at,
+            "updated_at": row.updated_at,
+        }
+
+    def create(self, promotion: dict[str, Any]) -> dict[str, Any]:
+        """قيِّدْ طلبَ ترقيةٍ جديدًا كما بُنِيَ في طبقةِ الحوكمة."""
+        session_local = get_session_factory()
+        session = session_local()
+        try:
+            row = PromotionModel(
+                id=promotion["promotion_id"],
+                model_id=promotion["model_id"],
+                gates=promotion["gates"],
+                status=promotion["status"],
+                created_at=promotion["created_at"],
+                updated_at=promotion["updated_at"],
+            )
+            session.merge(row)
+            session.commit()
+            return dict(promotion)
+        finally:
+            session.close()
+
+    def get(self, promotion_id: str) -> dict[str, Any] | None:
+        session_local = get_session_factory()
+        session = session_local()
+        try:
+            query = session.query(PromotionModel)
+            row = query.filter(PromotionModel.id == promotion_id).first()
+            return None if row is None else self._as_dict(row)
+        finally:
+            session.close()
+
+    def list_all(self, limit: int = 50) -> list[dict[str, Any]]:
+        session_local = get_session_factory()
+        session = session_local()
+        try:
+            query = session.query(PromotionModel).order_by(PromotionModel.created_at)
+            rows = query.limit(limit).all()
+            return [self._as_dict(r) for r in rows]
+        finally:
+            session.close()
+
+    def save_gates(
+        self, promotion_id: str, gates: dict[str, Any], status: str, updated_at: str
+    ) -> dict[str, Any] | None:
+        """اكتُبْ نتيجةَ بوّابةٍ وحالةَ الطلبِ — لا تُبنى الحالةُ في الذاكرةِ وتُنسى."""
+        session_local = get_session_factory()
+        session = session_local()
+        try:
+            query = session.query(PromotionModel)
+            row = query.filter(PromotionModel.id == promotion_id).first()
+            if row is None:
+                return None
+            row.gates = gates
+            row.status = status
+            row.updated_at = updated_at
+            session.commit()
+            return self._as_dict(row)
+        finally:
+            session.close()
