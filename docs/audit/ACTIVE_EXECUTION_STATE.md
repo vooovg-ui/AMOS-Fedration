@@ -3643,6 +3643,20 @@ curl -X POST .../v1/system/kill-switch/reset -H "Authorization: Bearer <token>"
    فالتشغيلُ عليها يُنتِجُ سقوطًا كاذبًا (رأيناه: `No module named 'jwt'`).
    **فالحُكمُ يبقى لـCI** وحدَها، وكلُّ رقمٍ في هذا المستندِ يُنسَبُ إلى تشغيلِها.
 
+### 7) مَن يُولِّدُ ماذا — بعدَ فرزِ 2026-08-23
+
+| المُخرَجُ المولَّدُ | مُولِّدُه | وظيفتُه | متى |
+|---|---|---|---|
+| `measurements/restart_survival.json` | `restart_survival_probe.py` | `measure.yml` | حينَ يتغيَّرُ المِسبارُ أو طبقةُ الإدامةِ أو مخازنُ الحوكمة |
+| `measurements/decision_gate_ledger.json` | `decision_gate.py --record-work` | `measure.yml` | مع القياسِ نفسِه |
+| `TRUTH_MATRIX.md` + `truth_matrix.json` | `truth_audit.py --ratchet` | `truth-matrix.yml` | **كلُّ دفعةٍ** — لأنَّ المصفوفةَ تقيسُ الشجرةَ كلَّها فيُقدِّمُها سطرٌ واحدٌ |
+| `tests/governance/README.md` (المحتويات) | `stamp_readme_identity.py` | بيدِ العاملِ بالأداةِ | عندَ إضافةِ ملفٍّ |
+
+والقاعدةُ التي وَلَّدَت هذا الجدولَ: **مَن يقيسُ الشجرةَ كلَّها يُشغَّلُ على كلِّ
+دفعةٍ، ومَن يقيسُ سطحًا محدودًا يُشغَّلُ حينَ يتغيَّرُ ذاكَ السطحُ.** وقد كُسِرَت هذه
+القاعدةُ في أوّلِ `W-031` فسقطت بوّابةُ المصفوفةِ بلا خطأٍ في الكودِ — والبوّابةُ
+كانت محقّةً، فأُصلِحَ المعمارُ لا البوّابة.
+
 
 ## المراجع
 - تسليم 1N: [`STAGE_1N_HANDOFF.md`](STAGE_1N_HANDOFF.md)

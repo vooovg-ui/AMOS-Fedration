@@ -5,7 +5,7 @@
 # النطاق: ثلاثةُ مولِّداتٍ وخرجُها وحدَه —
 #        `tools/governance/restart_survival_probe.py` → `measurements/restart_survival.json`
 #        `tools/audit/decision_gate.py --record-work`  → `measurements/decision_gate_ledger.json`
-#        `tools/governance/truth_audit.py`             → `TRUTH_MATRIX.md` + `truth_matrix.json`
+#        (ومصفوفةُ الحقيقةِ لها وظيفتُها: `truth-matrix.yml`، لأنَّ أيَّ سطرٍ يُقدِّمُها)
 #        ويُشغَّلُ هنا كذلك حرسُ القياسِ الحيِّ (الخطوةُ 18) لأنَّ تبعيّاتَه هنا كاملةٌ.
 # المالك: governance/
 # تاريخ الإنشاء: 2026-08-23
@@ -93,24 +93,17 @@ jobs:
           python tools/audit/decision_gate.py --record-work W-031 --reason \
             "طبقةُ الإدامةِ في Q-39 أ أضافَت أسطحَ كتابةٍ عامّةً في مخازنِ الحالةِ الدائمةِ فارتفعَ الدَّينُ المقيسُ عن لقطةِ Q-12"
 
-      # مصفوفةُ الحقيقةِ مُخرَجٌ مولَّدٌ: تُعادُ بأداتِها لا تُحرَّرُ بيدٍ. وبوّابةُ
-      # عدمِ التراجعِ تبقى حاكمةً — خطُّ الأساسِ في `truth_baseline.json` لا يُمسّ.
-      - name: إعادةُ توليدِ مصفوفةِ الحقيقة
-        run: python tools/governance/truth_audit.py . --ratchet
-
       # الدفعُ يقتصرُ على مُخرَجاتِ القياسِ: وظيفةٌ تدفعُ كودًا خطرٌ لا قياس.
       - name: دفعُ الخرجِ المولَّدِ إن تغيَّر
         run: |
           git config user.name "amos-measurement-bot"
           git config user.email "measurement-bot@users.noreply.github.com"
           OUTPUTS="docs/audit/measurements/restart_survival.json \
-                   docs/audit/measurements/decision_gate_ledger.json \
-                   docs/audit/TRUTH_MATRIX.md \
-                   docs/audit/truth_matrix.json"
+                   docs/audit/measurements/decision_gate_ledger.json"
           if git diff --quiet -- $OUTPUTS; then
             echo "لا تغيُّرَ في القياس — لا شيءَ يُدفَع."
             exit 0
           fi
           git add $OUTPUTS
-          git commit -m "W-031: مُخرَجاتُ القياسِ مولَّدةً بأدواتِها (نجاةُ الإقلاعِ · لقطةُ الدَّينِ · مصفوفةُ الحقيقة)"
+          git commit -m "W-031: مُخرَجاتُ القياسِ مولَّدةً بأدواتِها (نجاةُ الإقلاعِ · لقطةُ الدَّين)"
           git push origin HEAD:${{ github.ref_name }}
