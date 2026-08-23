@@ -55,6 +55,30 @@ PINNED_DURABLE_BY_DECISION = ("kill_switch", "promotion")
 #: شاهدا الضبطِ: نجاتُهما شرطُ صدقِ المِسبارِ نفسِه.
 PINNED_CONTROLS = ("audit_chain", "task")
 
+#: ما يلزمُ القياسَ الحيَّ (مراحلُ المِسبارِ تُقلِّعُ تطبيقَ الخدمةِ وقاعدتَها).
+LIVE_STACK_MODULES = ("fastapi", "sqlalchemy")
+MEASURE_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "measure.yml"
+
+
+def _require_live_stack() -> None:
+    """يُتخطَّى القياسُ الحيُّ إن غابتِ الطبقةُ المقيسةُ — بإعلانٍ وموضِعٍ بديلٍ.
+
+    ولماذا لا يُعدُّ هذا تخطِّيًا لحارسٍ (القاعدةُ 12): تبعيّاتُ جذرِ المستودعِ
+    مُعلنةٌ في `requirements-dev.txt` وحدَها وليسَ فيها تطبيقُ الخدمةِ (وذاكَ قرارُ
+    معمارٍ قائمٌ: لا تُكرَّرُ تبعيّاتُ الحزمةِ في الجذر). فكانَ هذانِ الفحصانِ
+    يسقُطانِ في `بوابة 5` منذُ كُتِبا (W-030) بـ`ModuleNotFoundError` لا بعجزِ إدامةٍ
+    — فكانا يُبلِّغانِ عجزَ البيئةِ باسمِ عجزِ الحالة، وذاكَ كذبٌ مُوثَّقٌ معكوس.
+    والموضِعُ البديلُ ليسَ وعدًا: `measure.yml` يُشغِّلُ هذا الملفَّ كلَّه بتبعيّاتٍ
+    كاملةٍ، ويحرسُ وجودَ ذلكَ فحصٌ أدناه فلا يُحذَفُ صامتًا.
+    """
+    missing = [m for m in LIVE_STACK_MODULES if importlib.util.find_spec(m) is None]
+    if missing:
+        pytest.skip(
+            "القياسُ الحيُّ يلزمُه طبقةُ الخدماتِ وهي غائبةٌ هنا بإعلانٍ لا بسهوٍ "
+            f"(الناقصُ: {', '.join(missing)}). والقياسُ يجري في "
+            ".github/workflows/measure.yml حيثُ التبعيّاتُ كاملة."
+        )
+
 
 def _load(name: str, path: Path) -> Any:
     """حمِّلْ أداةً من مسارِها — الحرسُ يقرأُ الأداةَ الحقيقيّةَ لا نسخةً منها."""
@@ -250,10 +274,13 @@ def test_live_control_pair_still_behaves_as_recorded(probe: Any) -> None:
     ولا تُقاسُ الأسطحُ كلُّها هنا: القياسُ الكاملُ دقائقُ، وأمرُه مُعلَنٌ في الدليلِ
     ويُعادُ بأداتِه. والمقصودُ هنا أن يبقى **الفرقُ** مقيسًا في كلِّ تشغيلٍ للحزمة.
     """
+    _require_live_stack()
     surfaces = tuple(
-        s for s in probe.SURFACES if s.surface_id in ("kill_switch", "task")
+        s
+        for s in probe.SURFACES
+        if s.surface_id in ("canary", "kill_switch", "task")
     )
-    assert len(surfaces) == 2
+    assert len(surfaces) == 3
     original = probe.SURFACES
     probe.SURFACES = surfaces
     try:
@@ -263,8 +290,11 @@ def test_live_control_pair_still_behaves_as_recorded(probe: Any) -> None:
         probe.SURFACES = original
 
     assert (
-        results["kill_switch"].survived is False
-    ), f"مفتاحُ الإيقافِ نجا خلافًا للتصريحِ: {results['kill_switch'].detail}"
+        results["canary"].survived is False
+    ), f"الكنارُ نجا خلافًا للتصريحِ: {results['canary'].detail}"
+    assert (
+        results["kill_switch"].survived is True
+    ), f"مفتاحُ الإيقافِ لم ينجُ خلافًا لقرارِ `Q-39 أ`: {results['kill_switch'].detail}"
     assert (
         results["task"].survived is True
     ), f"المهمّةُ الدائمةُ فُقِدَت — فالعجزُ في المِسبارِ: {results['task'].detail}"
@@ -280,6 +310,7 @@ def test_the_probe_does_not_pollute_the_measured_tree(probe: Any) -> None:
     السجلُّ إلى موضعِ القياسِ المؤقّت، ولم يُضيَّقْ كاشفٌ ولم يُحسَمْ نطاقُ المادةِ
     التاسعةِ بحكمِ عاملٍ — ذاك سؤالٌ مفتوحٌ (`Q-40`).
     """
+    _require_live_stack()
     runtime_dir = REPO_ROOT / ".runtime" / "sovereignty"
     existed_before = runtime_dir.exists()
     surfaces = tuple(s for s in probe.SURFACES if s.surface_id == "task")
@@ -300,3 +331,24 @@ def test_the_probe_does_not_pollute_the_measured_tree(probe: Any) -> None:
         assert (
             not runtime_dir.exists()
         ), f"القياسُ لوَّثَ الشجرةَ المقيسةَ: {runtime_dir} — وهذا يُسقِطُ بوّابةَ الهويّة."
+
+
+# =============================================================================
+# 4) حرسُ الموضِعِ البديلِ — لا فحصَ يُتخطَّى بلا مكانٍ يُقاسُ فيه
+# =============================================================================
+def test_live_probe_runs_in_the_measurement_workflow() -> None:
+    """ما يُتخطَّى هنا لنقصِ بيئةٍ يُشغَّلُ هناكَ بتبعيّاتٍ كاملةٍ — والوعدُ محروسٌ.
+
+    ولولا هذا الفحصُ لكانَ `_require_live_stack` بابًا لتخطٍّ دائمٍ بلا قياسٍ: يُحذَفُ
+    السطرُ من `measure.yml` فلا يسقطُ شيءٌ، فيصيرُ الحرسُ زينةً. فالمكتوبُ هنا
+    شرطٌ: اسمُ هذا الملفِّ نصًّا في وظيفةِ القياسِ.
+    """
+    assert MEASURE_WORKFLOW.exists(), (
+        f"وظيفةُ القياسِ غائبةٌ: {MEASURE_WORKFLOW.relative_to(REPO_ROOT)} — "
+        "فلا موضِعَ يُقاسُ فيه ما يُتخطَّى في الجذر."
+    )
+    text = MEASURE_WORKFLOW.read_text(encoding="utf-8")
+    assert "tests/governance/test_step18_restart_survival.py" in text, (
+        "وظيفةُ القياسِ لا تُشغِّلُ حرسَ الخطوةِ 18 — فالقياسُ الحيُّ صارَ بلا موضِعٍ "
+        "في CI، والتخطِّي في الجذرِ يصيرُ إخفاءً."
+    )

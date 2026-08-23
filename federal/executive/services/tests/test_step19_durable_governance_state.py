@@ -50,9 +50,7 @@ def _run_in_fresh_process(db_path: Path, expression: str) -> object:
     env.setdefault("AMOS_JWT_SECRET", "step19_secret_at_least_32_characters_long")
     env.setdefault("AMOS_CLAUDE_API_KEY", "step19_key_not_real")
     existing = env.get("PYTHONPATH", "")
-    env["PYTHONPATH"] = (
-        f"{SERVICES_SRC}{os.pathsep}{existing}" if existing else str(SERVICES_SRC)
-    )
+    env["PYTHONPATH"] = f"{SERVICES_SRC}{os.pathsep}{existing}" if existing else str(SERVICES_SRC)
     proc = subprocess.run(
         [sys.executable, "-c", _RUNNER, expression],
         env=env,
@@ -92,18 +90,14 @@ def test_halt_survives_a_real_restart(db_path: Path) -> None:
 
 def test_halt_still_blocks_execution_after_restart(db_path: Path) -> None:
     """الإدامةُ ليست حقلًا في جدولٍ فحسب: الحجبُ نفسُه يبقى بعدَ الإقلاع."""
-    _run_in_fresh_process(
-        db_path, "canary.activate_kill_switch('halt', 'حجبٌ دائمٌ', 'step19')"
-    )
+    _run_in_fresh_process(db_path, "canary.activate_kill_switch('halt', 'حجبٌ دائمٌ', 'step19')")
     assert _run_in_fresh_process(db_path, "canary.is_system_halted()") is True
     assert _run_in_fresh_process(db_path, "canary.is_execution_blocked()") is True
 
 
 def test_reset_is_the_only_way_back_to_normal(db_path: Path) -> None:
     """الرفعُ فعلٌ صريحٌ — والنتيجةُ تنجو هي أيضًا لئلّا يعودَ الإيقافُ من نفسِه."""
-    _run_in_fresh_process(
-        db_path, "canary.activate_kill_switch('halt', 'ثمّ يُرفَعُ', 'step19')"
-    )
+    _run_in_fresh_process(db_path, "canary.activate_kill_switch('halt', 'ثمّ يُرفَعُ', 'step19')")
     lifted = _run_in_fresh_process(db_path, "canary.reset_kill_switch()")
     assert isinstance(lifted, dict) and lifted["level"] == "normal"
 
@@ -114,9 +108,7 @@ def test_reset_is_the_only_way_back_to_normal(db_path: Path) -> None:
 
 def test_degraded_level_survives_too(db_path: Path) -> None:
     """ليست النجاةُ خاصّةً بـ`halt`: كلُّ مستوًى مكتوبٍ حالةُ دولةٍ لا حالةُ عمليّة."""
-    _run_in_fresh_process(
-        db_path, "canary.activate_kill_switch('degraded', 'تدهورٌ', 'step19')"
-    )
+    _run_in_fresh_process(db_path, "canary.activate_kill_switch('degraded', 'تدهورٌ', 'step19')")
     blocked = _run_in_fresh_process(db_path, "canary.is_execution_blocked('sql_query')")
     assert blocked is True
     allowed = _run_in_fresh_process(db_path, "canary.is_execution_blocked('chart_generate')")
@@ -148,9 +140,7 @@ def test_a_failed_gate_stays_failed_after_restart(db_path: Path) -> None:
     created = _run_in_fresh_process(db_path, "canary.create_promotion('step19-fail')")
     assert isinstance(created, dict)
     promotion_id = created["promotion_id"]
-    _run_in_fresh_process(
-        db_path, f"canary.check_gate({promotion_id!r}, 'canary', False, 'سقطَت')"
-    )
+    _run_in_fresh_process(db_path, f"canary.check_gate({promotion_id!r}, 'canary', False, 'سقطَت')")
 
     read = _run_in_fresh_process(db_path, f"canary.get_promotion({promotion_id!r})")
     assert isinstance(read, dict)
