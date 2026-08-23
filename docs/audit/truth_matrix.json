@@ -93,7 +93,7 @@
       "md_files": 60,
       "py_files": 224,
       "yaml_files": 3,
-      "code_lines": 63630,
+      "code_lines": 63628,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -265,7 +265,7 @@
       "md_files": 41,
       "py_files": 26,
       "yaml_files": 2,
-      "code_lines": 7471,
+      "code_lines": 7475,
       "nucleus_count": 12,
       "nucleus_status": {
         "unspecified": 12
@@ -480,7 +480,7 @@
       "md_files": 14,
       "py_files": 53,
       "yaml_files": 0,
-      "code_lines": 16942,
+      "code_lines": 16940,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
