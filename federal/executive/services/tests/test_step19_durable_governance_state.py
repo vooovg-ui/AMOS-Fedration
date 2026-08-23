@@ -63,8 +63,7 @@ def _run_in_fresh_process(db_path: Path, expression: str) -> object:
         if line.startswith("RESULT:"):
             return json.loads(line[len("RESULT:") :])
     raise AssertionError(
-        f"العمليّةُ لم تُعِدْ حصيلةً — الخروجُ {proc.returncode}:\n"
-        f"{proc.stderr.strip()[-2000:]}"
+        f"العمليّةُ لم تُعِدْ حصيلةً — الخروجُ {proc.returncode}:\n" f"{proc.stderr.strip()[-2000:]}"
     )
 
 
