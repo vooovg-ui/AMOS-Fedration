@@ -2,13 +2,13 @@
   "$comment": "الهدف: قياسُ ما ينجو من حالةِ الخدماتِ عبرَ إعادةِ التشغيلِ الحقيقيّةِ (عمليّةٌ تكتبُ وعمليّةٌ أخرى تقرأُ) — مُخرَجُ tools/governance/restart_survival_probe.py (T3.6 · W-030). المادةُ التاسعةُ · 2.",
   "note": "قياسٌ لا حُكم: يقولُ ما يُفقَدُ، ولا يقولُ ما يجبُ أن يُدامَ — ذاك قرارٌ سياديٌّ (Q-39؛ حُسِمَ شقُّه الأوّلُ 2026-08-23 فأُديمَ مفتاحُ الإيقافِ والترقياتُ في W-031). و`lost_on_restart` **ليس** مخالفةً جديدةً ولا يدخلُ عدّادَ المصفوفةِ: هو بيانُ أثرِ الستّينَ المعروفةِ. وشاهدا الضبطِ (audit_chain · task) يجبُ أن ينجُوا، فإن سقطا فالمِسبارُ هو المكسورُ لا الحالة.",
   "summary": {
-    "surfaces_total": 11,
-    "lost_on_restart": 6,
-    "survived_restart": 5,
+    "surfaces_total": 12,
+    "lost_on_restart": 5,
+    "survived_restart": 7,
     "unmeasured": 0,
     "contradicts_declaration": 0,
-    "declared_volatile": 6,
-    "control_surfaces": 4
+    "declared_volatile": 5,
+    "control_surfaces": 6
   },
   "surfaces": [
     {
@@ -106,15 +106,29 @@
     {
       "surface_id": "registered_agent",
       "service": "api_gateway",
-      "declared": "WIRED_VOLATILE",
-      "what_is_lost": "بياناتُ الوكلاءِ المُسجَّلينَ عبرَ البوّابة",
+      "declared": "DURABLE_CONTROL",
+      "what_is_lost": "لا شيءَ بعدَ W-032: البيانُ في جدولِ `agents` والمالِكُ واحدٌ — والتوزيعُ لا يُمنَحُ بالتسجيل",
       "wrote_ok": true,
-      "survived": false,
-      "expected_survival": false,
+      "survived": true,
+      "expected_survival": true,
       "verdict": "MATCHES_DECLARATION",
-      "detail": "عددُ الوكلاءِ بعدَ الإقلاعِ: 0",
+      "detail": "عددُ الوكلاءِ بعدَ الإقلاعِ: 1",
       "extra": {
-        "agents_after_restart": 0
+        "agents_after_restart": 1
+      }
+    },
+    {
+      "surface_id": "registered_tool",
+      "service": "api_gateway",
+      "declared": "DURABLE_CONTROL",
+      "what_is_lost": "لا شيءَ بعدَ W-032: الأداةُ تُكتَبُ في جدولِ المالكِ بكلِّ حقولِها — ولا كاتبَ ثانيًا",
+      "wrote_ok": true,
+      "survived": true,
+      "expected_survival": true,
+      "verdict": "MATCHES_DECLARATION",
+      "detail": "عددُ الأدواتِ بعدَ الإقلاعِ: 11 · البيانُ أمينٌ",
+      "extra": {
+        "tools_after_restart": 11
       }
     },
     {

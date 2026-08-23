@@ -388,6 +388,51 @@ def _read_agent(key: str) -> dict[str, Any]:
     }
 
 
+def _tool_manifest() -> dict[str, Any]:
+    """بيانٌ يحملُ قيمًا **غيرَ** افتراضيّةٍ ليُقاسَ نقلُ الحقيقةِ لا وجودُ الصف.
+
+    لو كانتِ القيمُ هي الافتراضيّةَ (`1.0.0` · `low`) لما فرّقَ القياسُ بينَ
+    حفظٍ أمينٍ وبينَ قراءةٍ تُختلِقُ الافتراضيّ.
+    """
+    return {
+        "tool_id": "probe-tool",
+        "name": "probe-tool-name",
+        "version": "7.7.7",
+        "risk_level": "critical",
+        "input_schema": {"type": "object"},
+        "output_schema": {"type": "string"},
+    }
+
+
+def _write_tool() -> dict[str, Any]:
+    client, _ = _client("api_gateway")
+    resp = client.post("/v1/tools", headers=_headers(), json=_tool_manifest())
+    if resp.status_code >= 400:
+        return {"key": "", "detail": f"HTTP {resp.status_code}: {resp.text[:200]}"}
+    return {"key": resp.json()["tool_id"]}
+
+
+def _read_tool(key: str) -> dict[str, Any]:
+    """لا يكفي وجودُ المعرّفِ: النجاةُ أن تعودَ القيمُ المُعلَنةُ كما أُعلِنَت."""
+    client, _ = _client("api_gateway")
+    resp = client.get("/v1/tools", headers=_headers())
+    items = resp.json() if resp.status_code == 200 else []
+    found = next((item for item in items if item.get("tool_id") == key), None)
+    faithful = (
+        bool(found)
+        and found.get("risk_level") == "critical"
+        and found.get("version") == "7.7.7"
+    )
+    return {
+        "survived": faithful,
+        "detail": (
+            f"عددُ الأدواتِ بعدَ الإقلاعِ: {len(items)} · "
+            + ("البيانُ أمينٌ" if faithful else "البيانُ مفقودٌ أو مُحرَّفٌ")
+        ),
+        "extra": {"tools_after_restart": len(items)},
+    }
+
+
 def _write_task() -> dict[str, Any]:
     """شاهدُ الضبطِ الثاني: المهامُّ في `PersistentTaskStore` فيجبُ أن تنجو."""
     client, _ = _client("api_gateway")
@@ -417,6 +462,7 @@ WRITERS: dict[str, Callable[[], dict[str, Any]]] = {
     "promotion": _write_promotion,
     "canary": _write_canary,
     "registered_agent": _write_agent,
+    "registered_tool": _write_tool,
     "factory_product": _write_factory_product,
     "audit_chain": _write_audit,
     "task": _write_task,
@@ -431,6 +477,7 @@ READERS: dict[str, Callable[[str], dict[str, Any]]] = {
     "promotion": _read_promotion,
     "canary": _read_canary,
     "registered_agent": _read_agent,
+    "registered_tool": _read_tool,
     "factory_product": _read_factory_product,
     "audit_chain": _read_audit,
     "task": _read_task,
@@ -496,10 +543,18 @@ SURFACES: tuple[Surface, ...] = (
     Surface(
         "registered_agent",
         "api_gateway",
-        VOLATILE,
-        "بياناتُ الوكلاءِ المُسجَّلينَ عبرَ البوّابة",
+        DURABLE,
+        "لا شيءَ بعدَ W-032: البيانُ في جدولِ `agents` والمالِكُ واحدٌ — والتوزيعُ لا يُمنَحُ بالتسجيل",
         "registered_agent",
         "registered_agent",
+    ),
+    Surface(
+        "registered_tool",
+        "api_gateway",
+        DURABLE,
+        "لا شيءَ بعدَ W-032: الأداةُ تُكتَبُ في جدولِ المالكِ بكلِّ حقولِها — ولا كاتبَ ثانيًا",
+        "registered_tool",
+        "registered_tool",
     ),
     Surface(
         "factory_product",

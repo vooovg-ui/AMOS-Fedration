@@ -19,6 +19,23 @@ R1 — توحيد مسار التنفيذ الخارجي:
 
 الإخطار القديم `task.created` على ناقل `common/events` باقٍ كإخطار فقط (لا يُشغّل
 تنفيذًا)، ويُنشَر **بعد** نجاح القبول القانوني لا قبله.
+
+W-032 — البوّابةُ وسيطٌ على سجلَّي الوكلاءِ والأدواتِ لا مالِكٌ:
+
+قبلَ W-032 كانت `POST /v1/agents` و`POST /v1/tools` تُعيدانِ `201 Created`
+والكتابةُ في قاموسَي ذاكرةٍ في هذا الملفِّ، بينما `AgentModel` و`ToolModel`
+موجودانِ و`PersistentToolStore` مستعملٌ في `tool-registry` — أي **كاتبانِ
+متنافسانِ** على الأداةِ نفسِها، والوكيلُ المُسجَّلُ يتبخّرُ بإعادةِ التشغيلِ
+(مقيسٌ · W-029 و W-030). وبنصِّ المالكِ في Q-39 (ب) بتاريخ 2026-08-23:
+«`tool-registry` يملكُ · `api-gateway` وسيطٌ» — فحُذِفَ القاموسانِ وصارتِ
+النقاطُ تفوّضُ إلى مخزنَي الخدمةِ المالكةِ مباشرةً.
+
+**حدُّ هذه الوساطةِ يُقالُ ولا يُوارى:** التفويضُ **نداءٌ داخلَ العمليّةِ**
+إلى مخزنِ الخدمةِ المالكةِ، لا قفزةُ HTTP إلى المنفذِ 8003. والمقصودُ من القرارِ
+— رفعُ الكاتبِ المنافسِ — يتحقّقُ بالنداءِ داخلَ العمليّةِ لأنَّ الكاتبَ واحدٌ
+والجدولَ واحدٌ. أمّا القفزةُ الشبكيّةُ فتُوجِبُ اكتشافَ خدمةٍ ومهلةً ومسلكًا
+للفشلِ عندَ سقوطِ المالكِ — وهي عقدُ تشغيلٍ جديدٌ لم يُطلبْ، ومسجّلٌ في خارطةِ
+الطريقِ أنَّه لم يُفعَل.
 """
 
 from datetime import UTC, datetime
@@ -40,6 +57,7 @@ from amos_federation.common.service import create_service_app
 from amos_federation.services.api_gateway.store import DatabaseTaskStore, TaskStore
 from amos_federation.services.executive_core.engine import get_executive_core
 from amos_federation.services.executive_core.http_errors import to_http_exception
+from amos_federation.services.tool_registry import main as owning_registry
 
 router = APIRouter(prefix="/v1", tags=["api-gateway"])
 
@@ -54,18 +72,11 @@ _EVENT_TYPE_BY_TASK_TYPE = {
     "data": "transformation",
     "generic": "research",
 }
-# T3.6-DURABILITY: WIRED_VOLATILE — سجلّا الوكلاءِ والأدواتِ هنا **مخزنانِ في
-# الذاكرةِ بالأثرِ لا بالاسم**، فلا يعدُّهما عدّادُ `IN_MEMORY_STORE` (يقرأُ الأسماءَ
-# لا التوصيل · Q-38). قِيسَ في W-029: `POST /v1/agents` و`POST /v1/tools` تُعيدانِ
-# **201 Created** والكتابةُ في قاموسٍ يتبخّرُ عندَ إعادةِ التشغيل، مع وجودِ
-# `AgentModel` و`ToolModel` في `common/database.py` و`PersistentToolStore` مستعملةٍ
-# في خدمةِ `tool-registry` — أي **كاتبٌ ثانٍ متنافسٌ** على الأداةِ نفسِها.
-# لم يُغيَّرْ سلوكٌ هنا: تحويلُ الكتابةِ إلى الجدولِ يُغيِّرُ عقدَ واجهةٍ منشورةٍ ويُوجِبُ
-# حسمَ ملكيّةِ السجلِّ (بوّابةُ الأدواتِ أم البوّابةُ العامّة؟) — بابُ Q-39.
-agents: dict[str, AgentManifestModel] = {}
-# T3.6-DURABILITY: WIRED_VOLATILE — عينُ التصريحِ أعلاه ينطبقُ على سجلِّ الأدواتِ هذا،
-# وهو الكاتبُ الثاني المتنافسُ مع `PersistentToolStore` في خدمةِ `tool-registry`.
-tools: dict[str, ToolManifestModel] = {}
+# لا مخزنَ وكلاءٍ ولا أدواتٍ في هذا الملفِّ بعدَ W-032: المالِكُ واحدٌ وهو
+# `tool_registry` (Q-39 (ب))، وهذه الوحدةُ تُترجِمُ HTTP وتُفوّضُ إليهِ — كما
+# تفعلُ معَ المهامِّ منذُ R1. ومن أرادَ إعادةَ قاموسٍ هنا وجبَ أن يُسقِطَ
+# حرسَ `tests/test_w032_registry_ownership.py` أوّلًا — فيُرى في المراجعةِ لا ينزلِق.
+_OWNING_SERVICE = "tool-registry"
 
 
 @router.post("/tasks", response_model=TaskAccepted, status_code=status.HTTP_202_ACCEPTED)
@@ -123,30 +134,61 @@ async def get_task(
     return task
 
 
+def _conflict(exc: Exception, what: str) -> HTTPException:
+    """ترجمةُ خرقِ قيدِ المالكِ إلى `409` — لا `500` يُخفي السبب.
+
+    قيدٌ واحدٌ معروفٌ يقعُ تحتَ هذا: `tools.name` **فريدٌ** في الجدولِ المالكِ،
+    والقاموسُ المحذوفُ لم يكنْ يعرِفُ ذلك. فهذا تغييرُ عقدٍ مُعلَنٌ لا مُوارى:
+    أداتانِ باسمٍ واحدٍ ومعرّفَينِ مختلفَينِ كانتا تُقبَلانِ والأولى تتبخّر، وصارتا
+    الآنَ تُرفَضُ بـ`409` معَ ذِكرِ السببِ واسمِ المالك.
+    """
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail=f"{what} يخالفُ قيدًا في السجلِّ المالكِ ({_OWNING_SERVICE}): {type(exc).__name__}",
+    )
+
+
 @router.get("/agents", response_model=list[AgentManifestModel])
 async def list_agents(
     _: Annotated[dict[str, object], Depends(require_auth)],
 ) -> list[AgentManifestModel]:
-    """عرض بيانات الوكلاء المسجلين مؤقتًا في الذاكرة."""
-    return list(agents.values())
+    """عرضُ بياناتِ الوكلاءِ من الخدمةِ المالكةِ — لا من ذاكرةِ هذه البوّابة."""
+    return owning_registry.agent_store.list_all()
 
 
 @router.post("/agents", response_model=AgentManifestModel, status_code=status.HTTP_201_CREATED)
 async def register_agent(
     manifest: AgentManifestModel, _: Annotated[dict[str, object], Depends(require_auth)]
 ) -> AgentManifestModel:
-    """تسجيل بيان وكيل في المرحلة الحالية."""
-    agents[manifest.agent_id] = manifest
-    return manifest
+    """تمريرُ بيانِ الوكيلِ إلى المالكِ — ولا نسخةَ محليّةً هنا."""
+    try:
+        return owning_registry.agent_store.register(manifest)
+    except Exception as exc:  # noqa: BLE001
+        raise _conflict(exc, "بيانُ الوكيلِ") from exc
 
 
 @router.post("/tools", response_model=ToolManifestModel, status_code=status.HTTP_201_CREATED)
 async def register_tool(
     manifest: ToolManifestModel, _: Annotated[dict[str, object], Depends(require_auth)]
 ) -> ToolManifestModel:
-    """تسجيل بيان أداة في المرحلة الحالية."""
-    tools[manifest.tool_id] = manifest
-    return manifest
+    """تمريرُ بيانِ الأداةِ إلى المالكِ — ولا كاتبَ ثانيًا على الأداةِ نفسِها."""
+    try:
+        return owning_registry.tool_store.register(manifest)
+    except Exception as exc:  # noqa: BLE001
+        raise _conflict(exc, "بيانُ الأداةِ") from exc
+
+
+@router.get("/tools", response_model=list[ToolManifestModel])
+async def list_tools(
+    _: Annotated[dict[str, object], Depends(require_auth)],
+) -> list[ToolManifestModel]:
+    """قراءةُ الأدواتِ من المالكِ نفسِه.
+
+    أُضيفَتْ في W-032: قبلَها كانتِ البوّابةُ تقبلُ `POST /v1/tools` ولا تُعطي
+    طريقًا لقراءةِ ما كُتِبَ، والقراءةُ من نفسِ البابِ الذي كتبَ هي ما يُمكِّنُ من
+    **قياسِ** نجاتِها من إعادةِ التشغيل.
+    """
+    return owning_registry.tool_store.list_all()
 
 
 _service = SERVICES["api-gateway"]
