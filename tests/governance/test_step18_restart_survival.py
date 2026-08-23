@@ -3,7 +3,8 @@
 الهدف:
     منعُ ثلاثِ صورٍ من الكذبِ الموثَّق:
       1. أن يُحذَفَ سطحٌ من المِسبارِ فيَقِلَّ الفقدُ المُعلَنُ بلا أن تُدامَ حالةٌ
-         واحدةٌ — وأخطرُها **مفتاحُ الإيقافِ** فهو مُثبَّتٌ بالاسمِ هنا.
+         واحدةٌ — وأخطرُها **مفتاحُ الإيقافِ** فهو مُثبَّتٌ بالاسمِ هنا. وبعدَ
+         إدامتِه في `W-031` صارَ مُثبَّتًا مرّتَين: لا يُحذَفُ، ولا يُعادُ متطايرًا.
       2. أن يُقالَ «هذه دائمةٌ» في وثيقةٍ أو ترويسةٍ ولا يُقاسَ ذلك بعمليّتَينِ.
       3. أن يمرَّ المِسبارُ وهو مكسورٌ: فلو فُقِدَ **شاهدا الضبطِ** (سجلُّ التدقيقِ
          والمهمّةُ الدائمةُ) لكانَ العجزُ في المِسبارِ لا في الحالة، ولذلك يُشترَطُ
@@ -12,7 +13,8 @@
 النطاق:
     `tools/governance/restart_survival_probe.py` ومُخرَجُه المُقيَّدُ
     `docs/audit/measurements/restart_survival.json`. ولا يُقيسُ هذا الحرسُ صوابَ
-    المعمار: لا يشترطُ إدامةَ شيءٍ — ذاك قرارٌ سياديٌّ مفتوحٌ (`Q-39`).
+    المعمار: لا يشترطُ إدامةَ شيءٍ من نفسِه — ما يُشترَطُ إدامتُه هنا هو ما أمرَ
+    به المالكُ نصًّا في (`Q-39 (أ)`)، لا ما رآه عاملٌ صوابًا.
 
 المالك:
     `tests/governance` — حرّاسُ الحوكمةِ في المستودع.
@@ -41,8 +43,14 @@ MEASUREMENT_PATH = (
 #: فأيُّ نقصٍ بعدَه حذفٌ لسطحٍ لا تحسينٌ للمعمار.
 MIN_SURFACES = 11
 
-#: أسطحٌ مُثبَّتةٌ بالاسمِ: أثرُ فقدِها تشغيليٌّ لا تجميليّ.
-PINNED_VOLATILE = ("kill_switch", "promotion", "canary", "cost_log")
+#: أسطحٌ مُثبَّتةٌ بالاسمِ: أثرُ فقدِها تشغيليٌّ لا تجميليّ. لا تُحذَفُ من المِسبارِ
+#: أيًّا كانَ تصنيفُها — الحذفُ إخفاءٌ لا إدامة.
+PINNED_SURFACES = ("kill_switch", "promotion", "canary", "cost_log")
+
+#: أسطحٌ **أُديمَت بقرارِ المالكِ** في `Q-39 (أ)` — 2026-08-23 · نُفِّذَ في `W-031`.
+#: تثبيتُها هنا يمنعُ التراجعَ: من أعادَها إلى الذاكرةِ يُسقِطُ هذا الحرسَ، ومن أعلنَ
+#: إدامتَها بلا قياسٍ يُسقِطُه المِسبارُ نفسُه أدناه.
+PINNED_DURABLE_BY_DECISION = ("kill_switch", "promotion")
 
 #: شاهدا الضبطِ: نجاتُهما شرطُ صدقِ المِسبارِ نفسِه.
 PINNED_CONTROLS = ("audit_chain", "task")
@@ -102,8 +110,18 @@ def test_surface_ids_are_unique_and_not_thinned(probe: Any) -> None:
 def test_consequential_surfaces_are_pinned_by_name(probe: Any) -> None:
     """مفتاحُ الإيقافِ والترقياتُ والـcanary والتكلفةُ لا تُسقَطُ بالسكوت."""
     ids = {s.surface_id for s in probe.SURFACES}
-    missing = [name for name in PINNED_VOLATILE if name not in ids]
+    missing = [name for name in PINNED_SURFACES if name not in ids]
     assert not missing, f"أسطحٌ مُثبَّتةٌ حُذِفَت: {missing}"
+
+
+def test_surfaces_durable_by_owner_decision_are_declared_durable(probe: Any) -> None:
+    """ما أمرَ المالكُ بإدامتِه لا يعودُ متطايرًا بصمتٍ (`Q-39 (أ)` · `W-031`)."""
+    by_id = {s.surface_id: s for s in probe.SURFACES}
+    for name in PINNED_DURABLE_BY_DECISION:
+        assert by_id[name].declared == probe.DURABLE, (
+            f"السطحُ {name} أُديمَ بقرارٍ سياديٍّ في Q-39 (أ) ثمّ عادَ تصنيفُه "
+            f"{by_id[name].declared!r} — تراجعٌ عن قرارٍ لا يملكُه عامل."
+        )
 
 
 def test_control_surfaces_exist(probe: Any) -> None:
@@ -189,13 +207,22 @@ def test_every_declared_volatile_surface_was_measured_lost(
     assert measurement["summary"]["lost_on_restart"] == len(volatile)
 
 
-def test_kill_switch_returns_to_normal_after_restart(
+def test_kill_switch_survives_restart_as_decided(
     measurement: dict[str, Any],
 ) -> None:
-    """الأثرُ الأخطرُ مُقيَّدٌ برقمِه: نظامٌ أُوقِفَ يعودُ عاملًا من نفسِه."""
+    """الأثرُ الأخطرُ مُقيَّدٌ برقمِه: نظامٌ أُوقِفَ يبقى موقوفًا بعدَ الإقلاع.
+
+    كانَ هذا الحرسُ يُقيِّدُ العكسَ حتّى W-030 (‏`halt` يعودُ `normal`)، فحُسِمَ
+    `Q-39 (أ)` بقرارِ المالكِ 2026-08-23 وأُديمَ المفتاحُ في `W-031`. فالقيدُ الآن
+    على الوعدِ الجديدِ: **الإقلاعُ لا يرفعُ الإيقافَ**، ورفعُه فعلٌ صريحٌ.
+    """
     entry = next(s for s in measurement["surfaces"] if s["surface_id"] == "kill_switch")
     assert entry["extra"]["level_after_write"] == "halt"
-    assert entry["extra"]["level_after_restart"] == "normal"
+    assert entry["extra"]["level_after_restart"] == "halt", (
+        "نظامٌ أُوقِفَ ثمّ أُقلِعَ فعادَ عاملًا — نقضٌ لقرارِ Q-39 (أ) المقيسِ."
+    )
+    assert entry["survived"] is True
+    assert entry["declared"] == "DURABLE_CONTROL"
 
 
 def test_the_two_cost_sources_are_recorded_as_measured(

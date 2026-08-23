@@ -1,0 +1,61 @@
+# قياساتُ الحوكمةِ المُشغَّلةُ يدويًّا — Governance Measurements (manual)
+# الهدف: تشغيلُ مِسبارِ نجاةِ إعادةِ التشغيلِ في بيئةٍ حقيقيّةٍ فيه تبعيّاتُه
+#        كاملةً، ودفعُ خرجِه المولَّدِ كما وَلَّده المُسبارُ — لا كما كتبَه إنسان.
+#        فالقياسُ يُقاسُ ولا يُنسَخُ بيدٍ، وتحريرُ خرجٍ مولَّدٍ يدويًّا مُحرَّمٌ
+#        في هذا المستودع.
+# النطاق: `tools/governance/restart_survival_probe.py` وخرجُه
+#        `docs/audit/measurements/restart_survival.json` وحدَه.
+# المالك: governance/
+# تاريخ الإنشاء: 2026-08-23
+# تاريخ آخر تعديل: 2026-08-23
+#
+# ── لماذا وظيفةٌ يدويّةٌ منفصلةٌ عن CI ──────────────────────────────────────
+# مِسبارُ النجاةِ يُشغّلُ مراحلَه في عمليّاتِ نظامٍ مستقلّةٍ ويكتبُ قاعدةَ بياناتٍ،
+# فهو **مُولِّدُ قياسٍ** لا حارسًا. ولو رُبِطَ بكلِّ دفعةٍ لصارَ خرجُه يتغيّرُ في
+# كلِّ التزامٍ بلا عملٍ بشريّ. فيُشغَّلُ عندَ الحاجةِ (`workflow_dispatch`) على
+# الفرعِ المُحدَّدِ، ويُدفَعُ خرجُه إلى الفرعِ نفسِه. وحرّاسُ `tests/governance/`
+# هي التي تقرأُ الخرجَ في كلِّ دفعةٍ فتُسقِطُ الادّعاءَ غيرَ المقيس.
+
+name: قياسُ نجاةِ إعادةِ التشغيل
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  restart-survival:
+    name: Restart Survival Measurement
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # تبعيّاتُ حزمةِ الخدماتِ لازمةٌ لا زائدة: المِسبارُ يستوردُ طبقةَ الإدامةِ
+      # نفسَها التي يقيسُها، فبغيرِها لا يُقاسُ شيءٌ بل يُبلَّغُ عن عجزِ الأداة.
+      - name: تثبيت التبعيّات
+        run: |
+          pip install -r federal/executive/services/requirements.lock
+          pip install -e federal/executive/services --no-deps
+
+      - name: تشغيلُ المِسبارِ وتوليدُ القياس
+        run: python tools/governance/restart_survival_probe.py
+
+      - name: عرضُ القياسِ في السجلّ
+        run: python tools/governance/restart_survival_probe.py --check || true
+
+      # الدفعُ يقتصرُ على ملفِّ القياسِ وحدَه: وظيفةٌ تدفعُ كودًا خطرٌ لا قياس.
+      - name: دفعُ الخرجِ المولَّدِ إن تغيَّر
+        run: |
+          git config user.name "amos-measurement-bot"
+          git config user.email "measurement-bot@users.noreply.github.com"
+          if git diff --quiet -- docs/audit/measurements/restart_survival.json; then
+            echo "لا تغيُّرَ في القياس — لا شيءَ يُدفَع."
+            exit 0
+          fi
+          git add docs/audit/measurements/restart_survival.json
+          git commit -m "W-031: قياسُ نجاةِ إعادةِ التشغيلِ مُولَّدًا بالمِسبارِ (Q-39 أ)"
+          git push origin HEAD:${{ github.ref_name }}

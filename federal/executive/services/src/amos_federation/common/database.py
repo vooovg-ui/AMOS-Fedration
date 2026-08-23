@@ -151,6 +151,51 @@ class AuditEntryModel(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
 
+class SystemStateModel(Base):
+    """جدولُ حالةِ النظامِ — صفٌّ واحدٌ يحملُ مستوى مفتاحِ الإيقاف.
+
+    أُنشئَ في W-031 تنفيذًا لقرارِ المالكِ في Q-39 (أ) بتاريخ 2026-08-23: إدامةُ
+    مفتاحِ الإيقافِ **أوّلًا** قبلَ باقي الأسطح. وقبلَه كان المستوى قاموسًا في
+    ذاكرةِ العمليّةِ، فقِيسَ في W-030 أنَّ نظامًا أُوقِفَ بمستوى `halt` يعودُ
+    `normal` بإعادةِ التشغيلِ — أي أنَّ الدولةَ تُلغي إيقافَ نفسِها.
+
+    والصفُّ واحدٌ بمعرّفٍ ثابتٍ (`system`) لأنَّ الحالةَ حالةُ الدولةِ لا حالةُ
+    عمليّةٍ: كلُّ عاملٍ يقرأُ الصفَّ نفسَه، فلا يبقى لكلِّ عمليّةٍ مستوًى خاصٌّ.
+    """
+
+    __tablename__ = "system_state"
+
+    id = Column(String, primary_key=True, default="system")
+    level = Column(String, nullable=False, default="normal")
+    reason = Column(Text, default="")
+    #: نصٌّ ISO لا `DateTime`: هذه القيمةُ تُعادُ حرفيًّا في جسمِ الواجهةِ، وتحويلُها
+    #: إلى وقتٍ ثمّ تنسيقُها من جديدٍ يُغيِّرُ عقدَ الواجهةِ بلا سبب.
+    activated_at = Column(String, nullable=True, default=None)
+    activated_by = Column(String, default="")
+    updated_at = Column(
+        DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)
+    )
+
+
+class PromotionModel(Base):
+    """جدولُ طلباتِ ترقيةِ النماذجِ وبوّاباتِها الخمس.
+
+    أُنشئَ في W-031 بقرارِ المالكِ في Q-39 (أ). وقبلَه كانت الطلباتُ قائمةً في
+    الذاكرةِ، فكانت **موافقةُ الإنسانِ على ترقيةٍ** (`human_approval`) تزولُ
+    بإعادةِ التشغيلِ ولا يبقى لها أثرٌ يُقاس (W-029 · W-030).
+    """
+
+    __tablename__ = "promotions"
+
+    id = Column(String, primary_key=True)
+    model_id = Column(String, nullable=False)
+    gates = Column(JSON, default=dict)
+    status = Column(String, default="in_progress")
+    #: نصوصُ ISO حفظًا لعقدِ الواجهةِ كما كانَ قبلَ الإدامةِ — لا تغييرَ في الشكل.
+    created_at = Column(String, default="")
+    updated_at = Column(String, default="")
+
+
 # === إدارة الاتصال ===
 
 

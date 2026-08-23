@@ -13,7 +13,7 @@ federal/executive/services
 2026-08-15
 
 ## تاريخ آخر تعديل
-2026-08-15
+2026-08-23
 
 ## المحتويات
 - `README.md` — بطاقة هوية هذا المجلد (المادة التاسعة)
@@ -46,6 +46,7 @@ federal/executive/services
 - `test_model_layer.py` — اختبارات النماذج الحقيقية (Phase 5)
 - `test_models.py` — اختبارات النماذج الأساسية
 - `test_orchestrator.py` — اختبارات المنسق
+- `test_step19_durable_governance_state.py` — إثباتُ إدامةِ مفتاحِ الإيقافِ والترقياتِ بعمليّاتٍ مستقلّةٍ (W-031 · Q-39 أ)
 - `test_persistence.py` — اختبارات استمرارية البيانات (Persistence)
 - `test_phase12_states.py` — AMOS-Federation Phase 12 — Federal States Tests
 - `test_phase13_factories.py` — AMOS-Federation Phase 13 — Federal Factories Tests

@@ -13,29 +13,45 @@ from typing import Any
 # === Kill Switch ===
 
 KILL_SWITCH_LEVELS = ["normal", "alert", "degraded", "halt"]
-# T3.6-DURABILITY: WIRED_VOLATILE — **أخطرُ ما قِيسَ في W-029**: حالةُ مفتاحِ الإيقافِ
-# نفسُها قاموسٌ في ذاكرةِ العمليّة. فمن رفعَ المستوى إلى `halt` يفقدُ رفعَه بإعادةِ
-# تشغيلِ الخدمةِ، والقيمةُ **لكلِّ عمليّةِ عاملٍ على حِدَة** فلا تُقرأُ حالةٌ واحدةٌ
-# للدولة. ولا يعدُّه عدّادُ `IN_MEMORY_STORE` لأنَّ اسمَه ليس فيه بادئةُ المخزن (Q-38).
-# **ولم يُغيَّرْ سلوكُ مفتاحِ أمنٍ في هذا القيدِ عن قصد**: إدامةُ الإيقافِ تعني أنَّ
-# إعادةَ التشغيلِ لا تُطفِئُه، وذاك تغييرُ عقدِ تشغيلٍ وقرارٌ سياديٌّ لا حكمُ عاملٍ
-# (عينُ حجّةِ Q-37 في W-027) — فقُيِّدَ في Q-39 مُعلَنًا لا مُصلَحًا.
-_system_state = {"level": "normal", "reason": "", "activated_at": None, "activated_by": ""}
+# T4-DURABILITY: WIRED_DURABLE — **حُسِمَ في Q-39 (أ) بقرارِ المالكِ 2026-08-23**:
+# «مفتاحُ الإيقافِ والترقياتُ أوّلًا». وكانَ المستوى قاموسًا في ذاكرةِ العمليّةِ، فقِيسَ
+# في W-030 أنَّ نظامًا أُوقِفَ بمستوى `halt` يعودُ `normal` بإعادةِ التشغيلِ — أي أنَّ
+# الدولةَ تُلغي إيقافَ نفسِها، وأنَّ القيمةَ **لكلِّ عمليّةِ عاملٍ على حِدَة** فلا تُقرأُ
+# حالةٌ واحدةٌ للدولة. فصارَ المستوى صفًّا في جدولِ `system_state` (W-031).
+#
+# وأثرُ ذلكَ على عقدِ التشغيلِ مُعلَنٌ لا مسكوتٌ عنه: **إعادةُ التشغيلِ لا تُطفِئُ
+# الإيقافَ**؛ فمن أوقفَ النظامَ لطارئٍ لا يرفعُه إقلاعٌ، بل رفعٌ صريحٌ عبرَ
+# `reset_kill_switch`. وهذا هو نفسُ ما كانَ يُمنَعُ على العاملِ في W-029 لأنَّه تغييرُ
+# عقدٍ لا إصلاحُ عيبٍ — فأذِنَ به المالكُ نصًّا، فنُفِّذَ.
+
+
+_SYSTEM_STATE_STORE: Any = None
+
+
+def _system_state_store() -> Any:
+    """مخزنُ حالةِ الدولةِ الدائمُ — يُستورَدُ عندَ الحاجةِ لا عندَ تحميلِ الوحدة.
+
+    الاستيرادُ المتأخّرُ مقصودٌ: `common.persistent` يُهيِّئُ قاعدةَ البياناتِ عندَ
+    استيرادِه، فلا يُجبَرُ من يستوردُ هذه الوحدةَ لقراءةِ ثابتٍ على تهيئةِ قاعدة.
+    """
+    from amos_federation.common.persistent import PersistentSystemStateStore
+
+    global _SYSTEM_STATE_STORE
+    if _SYSTEM_STATE_STORE is None:
+        _SYSTEM_STATE_STORE = PersistentSystemStateStore()
+    return _SYSTEM_STATE_STORE
 
 
 def get_system_status() -> dict[str, Any]:
-    """حالة النظام الحالية."""
-    return _system_state.copy()
+    """حالة النظام الحالية — تُقرأُ من الجدولِ الدائمِ في كلِّ نداء."""
+    return _system_state_store().get()
 
 
 def activate_kill_switch(level: str, reason: str, activated_by: str) -> dict[str, Any]:
     """تفعيل مفتاح الإيقاف."""
     if level not in KILL_SWITCH_LEVELS:
         raise ValueError(f"مستوى غير صالح: {level}")
-    _system_state["level"] = level
-    _system_state["reason"] = reason
-    _system_state["activated_at"] = datetime.now(UTC).isoformat()
-    _system_state["activated_by"] = activated_by
+    state = _system_state_store().set_level(level, reason, activated_by)
     # نشر حدث
     from amos_federation.common.event_bus import get_event_bus
 
@@ -49,26 +65,22 @@ def activate_kill_switch(level: str, reason: str, activated_by: str) -> dict[str
             "activated_by": activated_by,
         },
     )
-    return _system_state.copy()
+    return state
 
 
 def reset_kill_switch() -> dict[str, Any]:
-    """إعادة ضبط مفتاح الإيقاف."""
-    _system_state["level"] = "normal"
-    _system_state["reason"] = ""
-    _system_state["activated_at"] = None
-    _system_state["activated_by"] = ""
-    return _system_state.copy()
+    """إعادة ضبط مفتاح الإيقاف — الرفعُ فعلٌ صريحٌ لا نتيجةُ إقلاع."""
+    return _system_state_store().reset()
 
 
 def is_system_halted() -> bool:
     """هل النظام متوقف؟"""
-    return _system_state["level"] == "halt"
+    return get_system_status()["level"] == "halt"
 
 
 def is_execution_blocked(tool: str | None = None) -> bool:
     """هل التنفيذ محجوب؟ في halt كل شيء محجوب. في degraded الأدوات الخطيرة محجوبة."""
-    level = _system_state["level"]
+    level = get_system_status()["level"]
     if level == "halt":
         return True
     return bool(level == "degraded" and tool in ["python_execute", "sql_query", "http_request"])
@@ -78,7 +90,8 @@ def enforce_kill_switch(tool: str, role: str = "user") -> dict[str, Any]:
     """تطبيق Kill Switch على تنفيذ أداة. يرمي HTTPException إذا محجوب."""
     from fastapi import HTTPException
 
-    level = _system_state["level"]
+    state = get_system_status()
+    level = state["level"]
     if level == "halt":
         raise HTTPException(
             status_code=503,
@@ -86,7 +99,7 @@ def enforce_kill_switch(tool: str, role: str = "user") -> dict[str, Any]:
                 "error": "system_halted",
                 "message": "النظام متوقف — Kill Switch مفعّل بمستوى halt",
                 "level": level,
-                "reason": _system_state["reason"],
+                "reason": state["reason"],
             },
         )
     if level == "degraded" and tool in ["python_execute", "sql_query", "http_request"]:
@@ -96,7 +109,7 @@ def enforce_kill_switch(tool: str, role: str = "user") -> dict[str, Any]:
                 "error": "system_degraded",
                 "message": f"النظام في وضع متدهور — الأداة '{tool}' محجوبة",
                 "level": level,
-                "reason": _system_state["reason"],
+                "reason": state["reason"],
             },
         )
     return {"allowed": True, "level": level}
@@ -112,11 +125,23 @@ PROMOTION_GATES = [
     "activation",
 ]
 
-# قاموس حالات الترقية
-# T3.6-DURABILITY: WIRED_VOLATILE — طلباتُ الترقيةِ وبوّاباتُها الخمسُ (ومنها
-# `human_approval`) تُدوَّنُ في قائمةٍ في الذاكرة. قِيسَ في W-029: **موافقةُ إنسانٍ
-# على ترقيةٍ تزولُ بإعادةِ التشغيل** ولا تُقاسُ بعدَها. الإدامةُ عملُ T4/E4 · Q-39.
-_promotions: list[dict[str, Any]] = []
+# T4-DURABILITY: WIRED_DURABLE — **حُسِمَ في Q-39 (أ) بقرارِ المالكِ 2026-08-23**.
+# قِيسَ في W-029/W-030: **موافقةُ إنسانٍ على ترقيةٍ** (`human_approval`) تزولُ بإعادةِ
+# التشغيلِ ولا يبقى لها أثرٌ يُقاس. فصارت الطلباتُ وبوّاباتُها صفوفًا في جدولِ
+# `promotions` (W-031)، فإذنُ الإنسانِ يبقى بعدَ الإقلاعِ ويُراجَع.
+
+
+_PROMOTION_STORE: Any = None
+
+
+def _promotion_store() -> Any:
+    """مخزنُ طلباتِ الترقيةِ الدائمُ — استيرادٌ متأخّرٌ لنفسِ سببِ حالةِ الدولة."""
+    from amos_federation.common.persistent import PersistentPromotionStore
+
+    global _PROMOTION_STORE
+    if _PROMOTION_STORE is None:
+        _PROMOTION_STORE = PersistentPromotionStore()
+    return _PROMOTION_STORE
 
 
 def create_promotion(model_id: str) -> dict[str, Any]:
@@ -129,45 +154,45 @@ def create_promotion(model_id: str) -> dict[str, Any]:
         "created_at": datetime.now(UTC).isoformat(),
         "updated_at": datetime.now(UTC).isoformat(),
     }
-    _promotions.append(promotion)
+    _promotion_store().create(promotion)
     return promotion
 
 
 def check_gate(promotion_id: str, gate_name: str, passed: bool, notes: str = "") -> dict[str, Any]:
     """فحص بوابة ترقية."""
-    for promo in _promotions:
-        if promo["promotion_id"] == promotion_id:
-            if gate_name not in promo["gates"]:
-                raise ValueError(f"بوابة غير صالحة: {gate_name}")
-            promo["gates"][gate_name] = {
-                "status": "passed" if passed else "failed",
-                "checked_at": datetime.now(UTC).isoformat(),
-                "notes": notes,
-            }
-            promo["updated_at"] = datetime.now(UTC).isoformat()
-
-            # إذا فشلت بوابة، تتوقف الترقية
-            if not passed:
-                promo["status"] = "failed"
-            # إذا اجتازت كل البوابات
-            elif all(g["status"] == "passed" for g in promo["gates"].values()):
-                promo["status"] = "promoted"
-
-            return promo.copy()
-    raise ValueError(f"ترقية غير موجودة: {promotion_id}")
+    store = _promotion_store()
+    promo = store.get(promotion_id)
+    if promo is None:
+        raise ValueError(f"ترقية غير موجودة: {promotion_id}")
+    gates = dict(promo["gates"])
+    if gate_name not in gates:
+        raise ValueError(f"بوابة غير صالحة: {gate_name}")
+    gates[gate_name] = {
+        "status": "passed" if passed else "failed",
+        "checked_at": datetime.now(UTC).isoformat(),
+        "notes": notes,
+    }
+    status = promo["status"]
+    # إذا فشلت بوابة، تتوقف الترقية
+    if not passed:
+        status = "failed"
+    # إذا اجتازت كل البوابات
+    elif all(g["status"] == "passed" for g in gates.values()):
+        status = "promoted"
+    updated = store.save_gates(promotion_id, gates, status, datetime.now(UTC).isoformat())
+    if updated is None:
+        raise ValueError(f"ترقية غير موجودة: {promotion_id}")
+    return updated
 
 
 def get_promotion(promotion_id: str) -> dict[str, Any] | None:
-    """إرجاع طلب ترقية."""
-    for p in _promotions:
-        if p["promotion_id"] == promotion_id:
-            return p.copy()
-    return None
+    """إرجاع طلب ترقية — من الجدولِ الدائمِ، فينجو من إعادةِ التشغيل."""
+    return _promotion_store().get(promotion_id)
 
 
 def list_promotions(limit: int = 50) -> list[dict[str, Any]]:
     """عرض طلبات الترقية."""
-    return [p.copy() for p in _promotions[:limit]]
+    return _promotion_store().list_all(limit)
 
 
 # === Canary Controller ===
