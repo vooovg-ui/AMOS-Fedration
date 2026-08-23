@@ -12,14 +12,26 @@
 # ── لماذا وظيفةٌ يدويّةٌ منفصلةٌ عن CI ──────────────────────────────────────
 # مِسبارُ النجاةِ يُشغّلُ مراحلَه في عمليّاتِ نظامٍ مستقلّةٍ ويكتبُ قاعدةَ بياناتٍ،
 # فهو **مُولِّدُ قياسٍ** لا حارسًا. ولو رُبِطَ بكلِّ دفعةٍ لصارَ خرجُه يتغيّرُ في
-# كلِّ التزامٍ بلا عملٍ بشريّ. فيُشغَّلُ عندَ الحاجةِ (`workflow_dispatch`) على
-# الفرعِ المُحدَّدِ، ويُدفَعُ خرجُه إلى الفرعِ نفسِه. وحرّاسُ `tests/governance/`
+# كلِّ التزامٍ بلا عملٍ بشريّ. فيُشغَّلُ عندَ الحاجةِ (`workflow_dispatch`)، **أو
+# تلقائيًّا حينَ تتغيَّرُ الأشياءُ التي يقيسُها وحدَها** (المِسبارُ · طبقةُ الإدامةِ ·
+# مخازنُ الحوكمة)، ويُدفَعُ خرجُه إلى الفرعِ نفسِه. وحرّاسُ `tests/governance/`
 # هي التي تقرأُ الخرجَ في كلِّ دفعةٍ فتُسقِطُ الادّعاءَ غيرَ المقيس.
+#
+# ودفعُ الخرجِ لا يُعيدُ تشغيلَ هذه الوظيفةِ: ملفُّ القياسِ خارجَ `paths` أدناه،
+# فلا حلقةَ لا تنتهي. و`ci.yml` لا يُشغَّلُ إلّا على `main` و`develop` وطلباتِ
+# الدمجِ، فدفعةُ البوتِ على فرعِ عملٍ لا تستهلكُ تشغيلًا زائدًا.
 
 name: قياسُ نجاةِ إعادةِ التشغيل
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - "tools/governance/restart_survival_probe.py"
+      - "federal/executive/services/src/amos_federation/common/persistent.py"
+      - "federal/executive/services/src/amos_federation/common/database.py"
+      - "federal/executive/services/src/amos_federation/services/governance/canary.py"
+      - ".github/workflows/measure.yml"
 
 permissions:
   contents: write
