@@ -37,13 +37,27 @@ class Base(DeclarativeBase):
 
 
 class AgentModel(Base):
-    """جدول الوكلاء."""
+    """جدول الوكلاء — السجلُّ الكانونيُّ الواحدُ لهويّةِ الوكيل.
+
+    W-032 (قرارُ المالكِ في Q-39 (ب) بتاريخ 2026-08-23): كانَ `api-gateway` يكتبُ
+    بيانَ الوكيلِ في **قاموسِ ذاكرةٍ** بينما هذا الجدولُ موجودٌ — أي كاتبانِ على
+    حقيقةٍ واحدةٍ، أحدُهما يتبخّرُ بإعادةِ التشغيل. فحُوِّلَتِ الكتابةُ إلى هنا،
+    وأُضيفَتِ الأعمدةُ الثلاثةُ أدناه لأنَّ البيانَ المنشورَ يحملُها: لو كُتِبَ
+    الوكيلُ بلا `agent_type` و`domain` و`description` لصارَ الجدولُ يُعيدُ **أقلَّ**
+    مِمّا أعلنَه العقدُ، وذاك نقصُ حقيقةٍ لا إدامةٌ لها.
+    """
 
     __tablename__ = "agents"
 
     id = Column(String, primary_key=True)
     name = Column(String, nullable=False)
     role = Column(String, nullable=False)
+    #: نوعُ الوكيلِ كما أعلنَه بيانُ التسجيلِ (`AgentManifestModel.agent_type`).
+    #: و`role` يبقى حقلَ القدرةِ الذي يقرأُه الموزِّعُ — لا يُدمَجانِ في عمودٍ واحد.
+    agent_type = Column(String, default="worker")
+    #: مجالُ الوكيلِ المُعلَنُ في البيان — `None` تعني «لم يُعلَنْ» لا «عامّ».
+    domain = Column(String, nullable=True)
+    description = Column(Text, default="")
     status = Column(String, default="registered")
     permissions = Column(JSON, default=list)
     allowed_tools = Column(JSON, default=list)
@@ -56,7 +70,14 @@ class AgentModel(Base):
 
 
 class ToolModel(Base):
-    """جدول الأدوات."""
+    """جدول الأدوات — مالكُ سجلِّ الأدواتِ الواحدُ (Q-39 (ب) · W-032).
+
+    الأعمدةُ الأربعةُ المُضافةُ في W-032 (`version` · `risk_level` ·
+    `input_schema` · `output_schema`) ليست ترفًا: قبلَها كانَ `PersistentToolStore`
+    يكتبُ الأداةَ ويُعيدُ قراءتَها بقيمٍ **ثابتةٍ مُختلَقةٍ** (`1.0.0` و`low`
+    وقاموسَينِ فارغَينِ)، فأداةٌ تُسجَّلُ بخطورةِ `critical` تُقرأُ `low`. وحينَ صارَ
+    هذا الجدولُ المصدرَ الوحيدَ للحقيقةِ لم يَجُزْ أن يُخفِّضَ خطورةَ أداةٍ بالسكوت.
+    """
 
     __tablename__ = "tools"
 
@@ -67,6 +88,10 @@ class ToolModel(Base):
     keywords = Column(JSON, default=list)
     endpoint = Column(String, default="")
     permissions_required = Column(JSON, default=list)
+    version = Column(String, default="1.0.0")
+    risk_level = Column(String, default="low")
+    input_schema = Column(JSON, default=dict)
+    output_schema = Column(JSON, default=dict)
     sandbox_required = Column(Boolean, default=False)
     tenant_id = Column(String, default="default")
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
@@ -331,9 +356,58 @@ def get_session_factory():
     return _SessionLocal
 
 
+#: الأعمدةُ التي أُضيفَتْ إلى جداولَ **قائمةٍ** في W-032. و`create_all` لا يُعدِّلُ
+#: جدولًا موجودًا: يُنشئُ الغائبَ ويسكتُ عن الناقص. فقاعدةُ بياناتٍ أُنشئَتْ قبلَ
+#: W-032 كانت ستُسقِطُ كلَّ نداءٍ بـ`no such column` — وهو سقوطٌ صامتُ السببِ عندَ
+#: من يُشغِّلُ النظامَ على قاعدتِه القديمة. فالإضافةُ تُطبَّقُ هنا **مرّةً واحدةً
+#: وبأمانٍ**: تُقرأُ الأعمدةُ الموجودةُ فعلًا ثمَّ يُضافُ الناقصُ فقط، ولا يُحذَفُ
+#: عمودٌ ولا يُغيَّرُ نوعُه ولا تُمَسُّ بياناتٌ. ونصُّ الترحيلِ نفسُه مُقيَّدٌ في
+#: `migrations/015_registry_ownership_w032.sql` لمن يُرحِّلُ بالـSQL لا بالمحرّك.
+_W032_ADDED_COLUMNS: dict[str, dict[str, str]] = {
+    "agents": {
+        "agent_type": "VARCHAR",
+        "domain": "VARCHAR",
+        "description": "TEXT",
+    },
+    "tools": {
+        "version": "VARCHAR",
+        "risk_level": "VARCHAR",
+        "input_schema": "JSON",
+        "output_schema": "JSON",
+    },
+}
+
+
+def ensure_added_columns() -> list[str]:
+    """أضِفِ الأعمدةَ الناقصةَ في جداولَ قائمةٍ — وأعِدْ ما أُضيفَ فعلًا.
+
+    الإرجاعُ ليس زينةً: بلا قائمةٍ مُعادةٍ لا يستطيعُ اختبارٌ أن يُثبِتَ أنَّ
+    الإضافةَ جرَتْ ولا أنَّ إعادةَ النداءِ لا تُضيفُ شيئًا (idempotent).
+    """
+    from sqlalchemy import inspect as sa_inspect
+    from sqlalchemy import text as sa_text
+
+    engine = get_engine()
+    inspector = sa_inspect(engine)
+    added: list[str] = []
+    existing_tables = set(inspector.get_table_names())
+    for table, columns in _W032_ADDED_COLUMNS.items():
+        if table not in existing_tables:
+            continue
+        present = {col["name"] for col in inspector.get_columns(table)}
+        for column, sql_type in columns.items():
+            if column in present:
+                continue
+            with engine.begin() as connection:
+                connection.execute(sa_text(f"ALTER TABLE {table} ADD COLUMN {column} {sql_type}"))
+            added.append(f"{table}.{column}")
+    return added
+
+
 def init_db() -> None:
-    """إنشاء كل الجداول عند الإقلاع."""
+    """إنشاء كل الجداول عند الإقلاع، وإتمامُ أعمدةِ W-032 في القائمِ منها."""
     Base.metadata.create_all(get_engine())
+    ensure_added_columns()
 
 
 def get_db() -> Generator[Session, None, None]:

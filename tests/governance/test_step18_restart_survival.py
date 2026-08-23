@@ -40,17 +40,33 @@ MEASUREMENT_PATH = (
 )
 
 #: أقلُّ عددٍ من الأسطحِ يُقبَلُ. القياسُ يومَ الكتابةِ (W-030) أحدَ عشرَ سطحًا،
-#: فأيُّ نقصٍ بعدَه حذفٌ لسطحٍ لا تحسينٌ للمعمار.
-MIN_SURFACES = 11
+#: وصارَ اثني عشرَ في W-032 بإضافةِ `registered_tool`، فأيُّ نقصٍ بعدَه حذفٌ
+#: لسطحٍ لا تحسينٌ للمعمار.
+MIN_SURFACES = 12
 
 #: أسطحٌ مُثبَّتةٌ بالاسمِ: أثرُ فقدِها تشغيليٌّ لا تجميليّ. لا تُحذَفُ من المِسبارِ
 #: أيًّا كانَ تصنيفُها — الحذفُ إخفاءٌ لا إدامة.
-PINNED_SURFACES = ("kill_switch", "promotion", "canary", "cost_log")
+PINNED_SURFACES = (
+    "kill_switch",
+    "promotion",
+    "canary",
+    "cost_log",
+    # أُضيفَتا في W-032: سجلّا الوكلاءِ والأدواتِ أُديما بقرارِ Q-39 (ب)،
+    # فحذفُ أحدِهما من المِسبارِ يُسقِطُ دليلَ تنفيذِ القرارِ لا أكثر.
+    "registered_agent",
+    "registered_tool",
+)
 
 #: أسطحٌ **أُديمَت بقرارِ المالكِ** في `Q-39 (أ)` — 2026-08-23 · نُفِّذَ في `W-031`.
 #: تثبيتُها هنا يمنعُ التراجعَ: من أعادَها إلى الذاكرةِ يُسقِطُ هذا الحرسَ، ومن أعلنَ
 #: إدامتَها بلا قياسٍ يُسقِطُه المِسبارُ نفسُه أدناه.
-PINNED_DURABLE_BY_DECISION = ("kill_switch", "promotion")
+#: وأُضيفَ إليها سجلّا الوكلاءِ والأدواتِ بقرارِ `Q-39 (ب)` — نُفِّذَ في `W-032`.
+PINNED_DURABLE_BY_DECISION = (
+    "kill_switch",
+    "promotion",
+    "registered_agent",
+    "registered_tool",
+)
 
 #: شاهدا الضبطِ: نجاتُهما شرطُ صدقِ المِسبارِ نفسِه.
 PINNED_CONTROLS = ("audit_chain", "task")
@@ -242,9 +258,9 @@ def test_kill_switch_survives_restart_as_decided(
     """
     entry = next(s for s in measurement["surfaces"] if s["surface_id"] == "kill_switch")
     assert entry["extra"]["level_after_write"] == "halt"
-    assert entry["extra"]["level_after_restart"] == "halt", (
-        "نظامٌ أُوقِفَ ثمّ أُقلِعَ فعادَ عاملًا — نقضٌ لقرارِ Q-39 (أ) المقيسِ."
-    )
+    assert (
+        entry["extra"]["level_after_restart"] == "halt"
+    ), "نظامٌ أُوقِفَ ثمّ أُقلِعَ فعادَ عاملًا — نقضٌ لقرارِ Q-39 (أ) المقيسِ."
     assert entry["survived"] is True
     assert entry["declared"] == "DURABLE_CONTROL"
 
@@ -276,9 +292,7 @@ def test_live_control_pair_still_behaves_as_recorded(probe: Any) -> None:
     """
     _require_live_stack()
     surfaces = tuple(
-        s
-        for s in probe.SURFACES
-        if s.surface_id in ("canary", "kill_switch", "task")
+        s for s in probe.SURFACES if s.surface_id in ("canary", "kill_switch", "task")
     )
     assert len(surfaces) == 3
     original = probe.SURFACES

@@ -71,6 +71,12 @@ class AgentLifecycleState(StrEnum):
     قبل R4، حتى لا تبقى دورتا حياة لنفس الوكيل.
     """
 
+    #: أُضيفَتْ في W-032 (Q-39 (ب)): وكيلٌ وصلَ بيانُه من الواجهةِ العامّةِ
+    #: (`POST /v1/agents`) وصارَ يُحفَظُ في جدولِ `agents` بدلًا من قاموسٍ
+    #: متطاير. وهي **خارجَ** `EMPLOYABLE_STATUSES` بقصدٍ: إدامةُ البيانِ ليست
+    #: توزيعًا، ومنحُ نادِي الواجهةِ قدرةَ إدخالِ وكيلٍ إلى مُرشَّحي الموزِّعِ
+    #: سلطةٌ لم يمنَحْها قرارٌ (السؤالُ مفتوحٌ · Q-41).
+    DECLARED = "declared"
     REGISTERED = "registered"
     TRAINING = "training"
     TESTING = "testing"
@@ -84,8 +90,14 @@ class AgentLifecycleState(StrEnum):
 
 
 #: الحالات التي تُحتسب «خارج الخدمة» في الإسقاط السكّاني.
+#: و`declared` فيها بحكمِ أنَّها لا تُوزَّعُ: وكيلٌ مُعلَنٌ ولمّا يُوظَّفْ ليس في
+#: الخدمةِ، وعدُّه في الخدمةِ يُعطي رقمًا سكّانيًّا أكبرَ ممّا يملِكُه الموزِّعُ فعلًا.
 OUT_OF_SERVICE_STATES = frozenset(
-    {AgentLifecycleState.PAUSED.value, AgentLifecycleState.RETIRED.value}
+    {
+        AgentLifecycleState.DECLARED.value,
+        AgentLifecycleState.PAUSED.value,
+        AgentLifecycleState.RETIRED.value,
+    }
 )
 
 

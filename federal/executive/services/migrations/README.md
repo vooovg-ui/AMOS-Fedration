@@ -26,6 +26,14 @@
   `state_economic_programs.policy_id` الناقص
 - `013_economic_decision_execution_evidence.sql`: «نُفِّذ» يلزمه دليلٌ من مسارٍ
   قائم — مهمّةٌ في النواة التنفيذية **أو** مرجعُ حركةٍ خزانية
+- `014_unify_money_representation.sql`: توحيدُ تمثيلِ المال — **لم يكن مقيَّدًا في
+  هذه البطاقةِ حينَ أُضيفَ، فقُيِّدَ في `W-032`** (القاعدةُ: لا ملفَّ بلا قيدٍ)
+- `015_registry_ownership_w032.sql`: أعمدةُ بيانِ الأدواتِ والوكلاءِ (`tools`:
+  `version` · `risk_level` · `input_schema` · `output_schema` — `agents`:
+  `agent_type` · `domain` · `description`) بحسمِ **Q-39 (ب)** في `W-032`، لتصيرَ
+  الخدمةُ المالكةُ قادرةً على حفظِ البيانِ **كما أُعلِنَ** لا بقيمٍ افتراضيّةٍ
+  مُختلَقةٍ. وعينُ هذه القائمةِ مُعلَنٌ في `_W032_ADDED_COLUMNS` في
+  `common/database.py` وحرسٌ يُسقِطُ افتراقَهما
 
 ## المبدأ
 الهجراتُ صريحةٌ ومتراكمة: لا تُحرَّر هجرةٌ بعد دفعها، ولا يُحذَف تاريخٌ.
@@ -38,7 +46,7 @@ federal/executive/services
 2026-08-15
 
 ## تاريخ آخر تعديل
-2026-08-17
+2026-08-23 (W-032)
 
 ## المحتويات
 - `001_init.sql` — مخطّط أو استعلام قاعدة بيانات
@@ -54,4 +62,6 @@ federal/executive/services
 - `011_national_economic_state.sql` — مخطّط أو استعلام قاعدة بيانات
 - `012_economic_decision_references.sql` — مخطّط أو استعلام قاعدة بيانات
 - `013_economic_decision_execution_evidence.sql` — مخطّط أو استعلام قاعدة بيانات
+- `014_unify_money_representation.sql` — مخطّط أو استعلام قاعدة بيانات
+- `015_registry_ownership_w032.sql` — مخطّط أو استعلام قاعدة بيانات
 - `README.md` — بطاقة هوية هذا المجلد (المادة التاسعة)

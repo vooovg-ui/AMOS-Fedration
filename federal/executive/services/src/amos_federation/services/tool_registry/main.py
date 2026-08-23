@@ -1,9 +1,21 @@
 """
 AMOS-Federation Tool Registry Service
-الهدف: تسجيل وعرض وحل الأدوات عبر مطابقة كلمات مفتاحية
+الهدف: تسجيل وعرض وحل الأدوات عبر مطابقة كلمات مفتاحية، ومِلكُ سجلِّ بياناتِ الوكلاء
 النطاق: خدمة tool-registry على المنفذ 8003
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-15
+تاريخ آخر تعديل: 2026-08-23
+
+W-032 — مالِكُ سجلَّي الأدواتِ والوكلاءِ واحدٌ:
+
+بنصِّ المالكِ في Q-39 (ب) بتاريخ 2026-08-23: «`tool-registry` يملكُ · `api-gateway`
+وسيطٌ». فأُضيفَتْ هنا نقاطُ `/v1/agents` مسنودةً إلى `PersistentAgentStore`،
+وصارتْ نقطتا الوكلاءِ والأدواتِ في `api-gateway` تفوّضُ إلى مخزنَي هذه الخدمةِ
+نفسِهما — فلا كاتبانِ متنافسانِ على حقيقةٍ واحدة.
+
+ويُقالُ ما لم يُفعَلْ: **اسمُ الخدمةِ لم يُغَيَّرْ** معَ أنَّ نطاقَها صارَ أوسعَ من
+الأدواتِ، لأنَّ اسمَ الخدمةِ منشورٌ في `common/registry.py` وفي النشرِ والمنافذِ،
+وتغييرُه عقدٌ معَ مُستهلِكيه لا حكمُ عامل.
 """
 
 from typing import Annotated
@@ -11,14 +23,23 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from amos_federation.common.auth import require_auth
-from amos_federation.common.persistent import PersistentToolStore
+from amos_federation.common.persistent import PersistentAgentStore, PersistentToolStore
 from amos_federation.common.registry import SERVICES
-from amos_federation.common.schemas import ToolManifestModel
+from amos_federation.common.schemas import AgentManifestModel, ToolManifestModel
 from amos_federation.common.service import create_service_app
 from amos_federation.services.tool_registry.store import ToolStore
 
 router = APIRouter(prefix="/v1", tags=["tool-registry"])
+
+#: تصريحٌ مقروءٌ لمن يقرأُ الملفَّ وحدَه: مخزنا هذه الخدمةِ دائمانِ في
+#: قاعدةِ البياناتِ، وهي الخدمةُ المالكةُ للسجلَّينِ بنصِّ Q-39 (ب).
+STORE_DURABILITY = {
+    "tool_store": "DURABLE_CONTROL",
+    "agent_store": "DURABLE_CONTROL",
+}
+
 tool_store: ToolStore = PersistentToolStore()
+agent_store = PersistentAgentStore()
 
 
 @router.get("/tools", response_model=list[ToolManifestModel])
@@ -48,6 +69,35 @@ async def register_tool(
 ) -> ToolManifestModel:
     """تسجيل أداة جديدة أو تحديثها."""
     return tool_store.register(manifest)
+
+
+@router.get("/agents", response_model=list[AgentManifestModel])
+async def list_agents(
+    _: Annotated[dict[str, object], Depends(require_auth)],
+) -> list[AgentManifestModel]:
+    """عرضُ بياناتِ الوكلاءِ المُسجَّلينَ من جدولِ `agents` — لا من ذاكرةِ عمليّة."""
+    return agent_store.list_all()
+
+
+@router.get("/agents/{agent_id}", response_model=AgentManifestModel)
+async def get_agent(
+    agent_id: str,
+    _: Annotated[dict[str, object], Depends(require_auth)],
+) -> AgentManifestModel:
+    """إرجاعُ بيانِ وكيلٍ بالمعرّفِ أو 404."""
+    agent = agent_store.get(agent_id)
+    if agent is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="الوكيل غير موجود")
+    return agent
+
+
+@router.post("/agents", response_model=AgentManifestModel, status_code=status.HTTP_201_CREATED)
+async def register_agent(
+    manifest: AgentManifestModel,
+    _: Annotated[dict[str, object], Depends(require_auth)],
+) -> AgentManifestModel:
+    """تسجيلُ بيانِ وكيلٍ في الجدولِ — بحالةٍ لا تُوزَّعُ (`declared`)."""
+    return agent_store.register(manifest)
 
 
 @router.post("/tools/resolve", response_model=list[ToolManifestModel])

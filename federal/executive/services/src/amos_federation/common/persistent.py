@@ -14,6 +14,7 @@ from typing import Any
 import structlog
 
 from amos_federation.common.database import (
+    AgentModel,
     AuditEntryModel,
     ExperienceModel,
     MemoryModel,
@@ -25,10 +26,126 @@ from amos_federation.common.database import (
     get_session_factory,
     init_db,
 )
-from amos_federation.common.schemas import ToolManifestModel
+from amos_federation.common.schemas import AgentManifestModel, ToolManifestModel
 
 # تهيئة قاعدة البيانات عند الاستيراد
 init_db()
+
+#: حالةُ دورةِ الحياةِ التي يُكتَبُ بها وكيلٌ سُجِّلَ **بيانًا** عبرَ الواجهةِ العامّة.
+#: مكتوبةٌ نصًّا هنا لا مستوردةً: `common/` لا تستوردُ من `services/` (اتّجاهُ
+#: الاعتمادِ واحدٌ). وحرسٌ في `tests/test_w032_registry_ownership.py` يُسقِطُ
+#: افتراقَها عن `AgentLifecycleState.DECLARED`.
+#:
+#: ولمَ ليست `registered`؟ لأنَّ `registered` **قابلةٌ للتوزيعِ** في
+#: `EMPLOYABLE_STATUSES`: فلو كُتِبَ بها لصارَ كلُّ من يستطيعُ نداءَ
+#: `POST /v1/agents` قادرًا على إدخالِ وكيلٍ إلى مُرشَّحي الموزِّعِ — وهي سلطةٌ لم
+#: يمنَحْها أحدٌ، وما كانت تُمنَحُ قبلَ W-032 لأنَّ البيانَ كانَ يقفُ في قاموسٍ لا
+#: يقرأُه الموزِّع. فالاختيارُ **مُغلَقٌ عندَ الفشل**: يُحفَظُ البيانُ ولا يُوظَّفُ،
+#: وسؤالُ «من يُوظِّفُ وكيلًا مُعلَنًا ومتى» مقيَّدٌ سؤالًا سياديًّا مفتوحًا (Q-41).
+GATEWAY_DECLARED_AGENT_STATUS = "declared"
+
+#: قيمُ العقدِ حينَ يكونُ العمودُ `NULL` — أي صفٌّ كُتِبَ قبلَ هجرةِ 015. تُعلَنُ
+#: هنا مرّةً واحدةً لأنَّ ترجمةَ `NULL` إلى قيمةٍ **دعوى**: تُقالُ في موضعٍ يُقرَأُ.
+_TOOL_DEFAULT_VERSION = "1.0.0"
+_TOOL_DEFAULT_RISK = "low"
+_AGENT_DEFAULT_TYPE = "worker"
+
+
+def _tool_from_row(row: ToolModel) -> ToolManifestModel:
+    """ترجمةُ صفٍّ إلى بيانِ أداةٍ — موضعٌ واحدٌ لا موضعانِ متفرّقان.
+
+    وقبلَ W-032 كانت هذه الترجمةُ تُعيدُ `1.0.0` و`low` وقاموسَينِ فارغَينِ
+    **دائمًا** أيًّا كانَ المُسجَّلُ، فتُقرأُ أداةٌ خطرةٌ آمنةً. والآنَ تُقرأُ من
+    الأعمدةِ، و`NULL` (صفٌّ قبلَ الهجرةِ 015) تُترجَمُ إلى قيمةِ العقدِ المُعلَنة.
+    """
+    return ToolManifestModel(
+        tool_id=row.id,
+        name=row.name,
+        version=row.version or _TOOL_DEFAULT_VERSION,
+        risk_level=row.risk_level or _TOOL_DEFAULT_RISK,
+        input_schema=dict(row.input_schema or {}),
+        output_schema=dict(row.output_schema or {}),
+    )
+
+
+def _agent_from_row(row: AgentModel) -> AgentManifestModel:
+    """ترجمةُ صفٍّ إلى بيانِ وكيلٍ — لا يُختلَقُ حقلٌ غائب."""
+    return AgentManifestModel(
+        agent_id=row.id,
+        agent_type=row.agent_type or _AGENT_DEFAULT_TYPE,
+        domain=row.domain,
+        name=row.name,
+        description=row.description or None,
+        permissions=list(row.permissions or []),
+    )
+
+
+class PersistentAgentStore:
+    """مالِكُ سجلِّ بياناتِ الوكلاءِ الدائمُ — جدولُ `agents` (Q-39 (ب) · W-032).
+
+    قبلَ W-032: `POST /v1/agents` في `api-gateway` تُعيدُ `201 Created` والكتابةُ في
+    قاموسِ عمليّةٍ، فمن سجّلَ وكيلًا يجدُ السجلَّ فارغًا بعدَ إعادةِ التشغيلِ ولا
+    خبرَ له بذلك (مقيسٌ · W-030 · `measurements/restart_survival.json`).
+
+    وحدُّ هذا المخزنِ مُعلَنٌ: هو يكتبُ في **نفسِ** جدولِ الهويّةِ الكانونيّةِ الذي
+    يكتبُ فيه `executive_core/agent_identity.py` — ولذلك لا يُنشِئُ هويّةً قابلةً
+    للتوزيعِ بل يكتبُ حالةً **غيرَ قابلةٍ للتوظيف** (`declared`)، ولا يحذفُ ولا
+    يُرقِّي ولا يُغيرُ حالةَ وكيلٍ قائمٍ أنشأته دورةُ الحياة.
+    """
+
+    def register(self, manifest: AgentManifestModel) -> AgentManifestModel:
+        """اكتُبِ البيانَ في الجدولِ — ولا تُمسْسْ حالةَ وكيلٍ موجودٍ أو دورَه.
+
+        إعادةُ التسجيلِ تُحدِّثُ حقولَ البيانِ وحدَها. ولو أُرِيدَ تخفيضُ وكيلٍ
+        مُوظَّفٍ إلى `declared` بنداءِ تسجيلٍ لصارتِ الواجهةُ العامّةُ بابًا لـ**عزلِ**
+        وكيلٍ عاملٍ — وهو ما لم يطلبْه قرارٌ ولا كانَ ممكنًا قبلَ W-032.
+        """
+        session_local = get_session_factory()
+        session = session_local()
+        try:
+            row = session.query(AgentModel).filter(AgentModel.id == manifest.agent_id).first()
+            if row is None:
+                session.add(
+                    AgentModel(
+                        id=manifest.agent_id,
+                        name=manifest.name,
+                        role=manifest.agent_type,
+                        agent_type=manifest.agent_type,
+                        domain=manifest.domain,
+                        description=manifest.description or "",
+                        status=GATEWAY_DECLARED_AGENT_STATUS,
+                        permissions=list(manifest.permissions),
+                        allowed_tools=[],
+                    )
+                )
+            else:
+                row.name = manifest.name
+                row.agent_type = manifest.agent_type
+                row.domain = manifest.domain
+                row.description = manifest.description or ""
+                row.permissions = list(manifest.permissions)
+            session.commit()
+            return manifest
+        finally:
+            session.close()
+
+    def get(self, agent_id: str) -> AgentManifestModel | None:
+        session_local = get_session_factory()
+        session = session_local()
+        try:
+            row = session.query(AgentModel).filter(AgentModel.id == agent_id).first()
+            return _agent_from_row(row) if row is not None else None
+        finally:
+            session.close()
+
+    def list_all(self) -> list[AgentManifestModel]:
+        session_local = get_session_factory()
+        session = session_local()
+        try:
+            rows = session.query(AgentModel).order_by(AgentModel.created_at.asc()).all()
+            return [_agent_from_row(row) for row in rows]
+        finally:
+            session.close()
 
 
 class PersistentToolStore:
@@ -61,6 +178,10 @@ class PersistentToolStore:
                                 category=entry.get("category", "general"),
                                 keywords=entry.get("keywords", []),
                                 permissions_required=entry.get("permissions_required", []),
+                                version=entry.get("version", _TOOL_DEFAULT_VERSION),
+                                risk_level=entry.get("risk_level", _TOOL_DEFAULT_RISK),
+                                input_schema=entry.get("input_schema", {}),
+                                output_schema=entry.get("output_schema", {}),
                             )
                             session.merge(tool)
                         session.commit()
@@ -77,18 +198,38 @@ class PersistentToolStore:
             )
 
     def register(self, tool: ToolManifestModel) -> ToolManifestModel:
+        """اكتُبِ الأداةَ بكلِّ ما أعلنَه بيانُها — ولا تُمْح وصفًا قائمًا لا يحملُه البيان.
+
+        `ToolManifestModel` لا يحملُ `description` ولا `category` ولا `keywords`،
+        وكانت النسخةُ السابقةُ تمسحُها بـ`merge` يُمرِّرُ قيمًا فارغةً: فإعادةُ
+        تسجيلِ أداةٍ مبذورةٍ من `tool-index.yaml` كانت تمسحُ وصفَها وكلماتِها
+        المفتاحيّةَ وإذناتِها بلا أن يطلُبَ ذلكَ أحدٌ.
+        """
         session_local = get_session_factory()
         session = session_local()
         try:
-            db_tool = ToolModel(
-                id=tool.tool_id,
-                name=tool.name,
-                description="",
-                category="general",
-                keywords=[],
-                permissions_required=[],
-            )
-            session.merge(db_tool)
+            row = session.query(ToolModel).filter(ToolModel.id == tool.tool_id).first()
+            if row is None:
+                session.add(
+                    ToolModel(
+                        id=tool.tool_id,
+                        name=tool.name,
+                        description="",
+                        category="general",
+                        keywords=[],
+                        permissions_required=[],
+                        version=tool.version,
+                        risk_level=tool.risk_level,
+                        input_schema=dict(tool.input_schema),
+                        output_schema=dict(tool.output_schema),
+                    )
+                )
+            else:
+                row.name = tool.name
+                row.version = tool.version
+                row.risk_level = tool.risk_level
+                row.input_schema = dict(tool.input_schema)
+                row.output_schema = dict(tool.output_schema)
             session.commit()
             return tool
         finally:
@@ -99,16 +240,7 @@ class PersistentToolStore:
         session = session_local()
         try:
             row = session.query(ToolModel).filter(ToolModel.id == tool_id).first()
-            if row is None:
-                return None
-            return ToolManifestModel(
-                tool_id=row.id,
-                name=row.name,
-                version="1.0.0",
-                risk_level="low",
-                input_schema={},
-                output_schema={},
-            )
+            return _tool_from_row(row) if row is not None else None
         finally:
             session.close()
 
@@ -117,17 +249,7 @@ class PersistentToolStore:
         session = session_local()
         try:
             rows = session.query(ToolModel).all()
-            return [
-                ToolManifestModel(
-                    tool_id=row.id,
-                    name=row.name,
-                    version="1.0.0",
-                    risk_level="low",
-                    input_schema={},
-                    output_schema={},
-                )
-                for row in rows
-            ]
+            return [_tool_from_row(row) for row in rows]
         finally:
             session.close()
 
