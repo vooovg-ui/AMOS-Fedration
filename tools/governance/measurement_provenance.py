@@ -80,6 +80,10 @@ class Provenance:
     ignore: tuple[str, ...] = ()
     #: سببُ الإعلانِ بلا إعادةِ قياسٍ، أو سببُ الاستثناءِ. واجبٌ لغيرِ المُقاسِ.
     reason: str = ""
+    #: حزمٌ خارجيّةٌ يلزمُ تنصيبُها لإعادةِ القياسِ (W-038). وجودُها ينقلُ القيدَ
+    #: إلى الشطرِ الذي يُفحَصُ في وظيفةٍ مُنصِّبةٍ، ولا يُعفيه من الحرسِ:
+    #: القسمةُ مُعلَنةٌ ومعدودةٌ ومربوطةٌ بفحصٍ يقرأُ ملفَّ CI — لا تخطٍّ صامتٍ.
+    needs: tuple[str, ...] = ()
 
 
 #: قيدُ النَّسَبِ لكلِّ قياسٍ منشورٍ. أيُّ ملفٍّ يُضافُ إلى المجلَّدِ ولا يُقيَّدُ
@@ -146,24 +150,32 @@ REGISTRY: tuple[Provenance, ...] = (
         name="judicial_gate_matrix.json",
         generator="tools/audit/judicial_gate_probe.py",
         command="python tools/audit/judicial_gate_probe.py",
-        strategy="declared",
+        strategy="tmpfile",
+        probe=("python", "tools/audit/judicial_gate_probe.py", "--json", "{out}"),
+        needs=("cryptography",),
         reason=(
-            "المُولِّدُ يكتبُ إلى مسارِ القياسِ ثابتًا ولا وضعَ قياسٍ بلا كتابةٍ له، "
-            "فتشغيلُه في بوّابةٍ يجعلُ الحرسَ يكتبُ ما يحكمُ عليه. ويستوردُ حزمةَ "
-            "الخدماتِ وهي غيرُ مُنصَّبةٍ في وظيفةِ التدقيقِ. وحتميّتُه مقيسةٌ في "
-            "W-037: أُعيدَ توليدُه فخرجَ مُطابِقًا للمنشورِ بايتًا بايتًا — فالنقصُ "
-            "بوّابةٌ لا صحّةٌ، ويُرفَعُ بإضافةِ وضعِ قياسٍ لا يكتبُ."
+            "رُفِعَ في W-038 ما أُعلِنَ في W-037: كانَ المُولِّدُ يكتبُ إلى مسارِ قياسِه "
+            "ثابتًا فلا يُحرَسُ إلّا بأن يكتبَ الحرسُ ما يحكمُ عليه؛ فأُضيفَ إليه "
+            "`--json PATH` فصارَ يكتبُ حيثُ يُقالُ له، وبلا الرايةِ لم يتغيَّرْ مُخرَجُه "
+            "بايتًا. ويستوردُ المحرِّكَ الدستوريَّ ومن خلفِه `cryptography` (مرسومُ "
+            "التاجِ يُوقَّعُ بـEd25519)، ووظيفةُ التدقيقِ لا تُنصِّبُ شيئًا — فيُفحَصُ هذا "
+            "القيدُ في وظيفةِ النواةِ الدستوريّةِ بـ`--only-deps`، وهو موضعُه معنًى لا "
+            "حيلةً: المِسبارُ يقيسُ أحكامَ ذاكَ المحرِّكِ. والقسمةُ مُعلَنةٌ ومعدودةٌ "
+            "ومربوطةٌ بفحصٍ يقرأُ ملفَّ CI — فلا تنهارُ إلى تخطٍّ صامتٍ."
         ),
     ),
     Provenance(
         name="treasury_gate_matrix.json",
         generator="tools/audit/treasury_gate_probe.py",
         command="python tools/audit/treasury_gate_probe.py",
-        strategy="declared",
+        strategy="tmpfile",
+        probe=("python", "tools/audit/treasury_gate_probe.py", "--json", "{out}"),
+        needs=("cryptography",),
         reason=(
-            "كسابقِه حرفًا بحرفٍ: يكتبُ إلى مسارِ قياسِه ثابتًا، ويستوردُ حزمةَ "
-            "الخدماتِ. وأُعيدَ توليدُه في W-037 فخرجَ مُطابِقًا للمنشورِ بايتًا "
-            "بايتًا — فالنقصُ بوّابةٌ لا صحّةٌ."
+            "كسابقِه حرفًا بحرفٍ ورُفِعَ معَه في W-038: أُضيفَ إليه `--json PATH` فصارَ "
+            "يُعادُ قياسُه بلا أن يكتبَ الحرسُ ما يحكمُ عليه، وبلا الرايةِ لم يتغيَّرْ "
+            "مُخرَجُه بايتًا. ويحتاجُ `cryptography` كسابقِه فيُفحَصُ في وظيفةِ النواةِ "
+            "الدستوريّةِ بـ`--only-deps`."
         ),
     ),
     Provenance(
@@ -296,8 +308,17 @@ def _freshness(root: Path, entry: Provenance) -> str | None:
     return f"القياسُ المنشورُ متقادمٌ في {len(drifted)} حقلًا — {detail}"
 
 
-def audit(root: Path, freshness: bool = True) -> tuple[list[str], dict[str, int]]:
+def audit(
+    root: Path, freshness: bool = True, deps: bool | None = None
+) -> tuple[list[str], dict[str, int]]:
     """احكمْ على العقدِ كلِّه وأعِدْ (الخُرومَ، العدَّ).
+
+    `deps` يقسمُ **إعادةَ القياسِ وحدَها**، لا بنودَ العقدِ: `None` = الكلُّ ·
+    `False` = ما لا يحتاجُ حزمًا خارجيّةً (وظيفةُ التدقيقِ بلا تنصيبٍ) · `True` =
+    ما يحتاجُها (وظيفةٌ مُنصِّبةٌ). والقسمةُ ليست إعفاءً: بنودُ العقدِ السبعةُ
+    تُفحَصُ في الشطرَينِ، والمُؤَجَّلُ **يُعَدُّ ويُطبَعُ** في كلِّ تشغيلٍ، وربطُ
+    الشطرَينِ في CI محروسٌ بفحصٍ يقرأُ ملفَّ الوقائعِ نصًّا — فحارسٌ يُتخطَّى
+    بصمتٍ ليس حارسًا (القاعدةُ 10 · W-012).
 
     `freshness=False` يفحصُ العقدَ وحدَه بلا إعادةِ قياسٍ. وهو ليس تخفيفًا للحكمِ
     بل فصلٌ لازمٌ: إعادةُ قياسِ `final_audit_p14.json` تقرأُ سجلَّ git، فوظيفةٌ
@@ -305,6 +326,7 @@ def audit(root: Path, freshness: bool = True) -> tuple[list[str], dict[str, int]
     سجلًّا، وتبقى الطزاجةُ في الوظيفةِ التي تجلبُ السجلَّ كاملًا.
     """
     breaches: list[str] = []
+    deferred: list[str] = []
     directory = root / MEASUREMENTS
     if not directory.is_dir():
         return [f"مجلَّدُ القياساتِ مفقودٌ: {MEASUREMENTS}"], {}
@@ -362,16 +384,30 @@ def audit(root: Path, freshness: bool = True) -> tuple[list[str], dict[str, int]
             breaches.append(f"{entry.name}: وضعُه يقتضي أمرَ قياسٍ ولا أمرَ له.")
 
         # 6) الطزاجةُ نفسُها — لِمَن يُمكِنُ قياسُه بلا كتابةٍ في الشجرة.
+        #    والقسمةُ على الحزمِ اللازمةِ: لا تخطٍّ صامتٌ بل تأجيلٌ مُعلَنٌ معدودٌ.
         if freshness and entry.strategy != "declared" and entry.probe:
-            breach = _freshness(root, entry)
-            if breach:
-                breaches.append(f"{entry.name}: {breach}")
+            if deps is None or bool(entry.needs) is deps:
+                breach = _freshness(root, entry)
+                if breach:
+                    breaches.append(f"{entry.name}: {breach}")
+            else:
+                deferred.append(entry.name)
+
+        # 7) ما يحتاجُ حزمًا خارجيّةً لا يكونُ مُعلَنًا بلا حرسٍ — وإلّا صارَ
+        #    حقلُ `needs` بابًا خلفيًّا للإعفاءِ من الحرسِ بلا سببٍ.
+        if entry.needs and entry.strategy == "declared":
+            breaches.append(
+                f"{entry.name}: يُعلِنُ حزمًا لازمةً ({', '.join(entry.needs)}) وهو "
+                f"مُعلَنٌ بلا حرسٍ — حقلُ `needs` قسمةٌ لا إعفاءٌ."
+            )
 
     guarded = sum(1 for e in REGISTRY if e.strategy != "declared")
     counts = {
         "registered": len(REGISTRY),
         "guarded": guarded,
         "declared_only": len(REGISTRY) - guarded,
+        "needs_deps": sum(1 for e in REGISTRY if e.needs),
+        "deferred": len(deferred),
     }
     return breaches, counts
 
@@ -384,6 +420,8 @@ def report(root: Path) -> str:
         lines.append(f"- {entry.name} — {mark}")
         lines.append(f"  المُولِّدُ: {entry.generator or '— لا مُولِّدَ برمجيًّا —'}")
         lines.append(f"  الأمرُ: {entry.command}")
+        if entry.needs:
+            lines.append(f"  يحتاجُ: {', '.join(entry.needs)} — يُفحَصُ بـ`--only-deps`")
         if entry.reason:
             lines.append(f"  السببُ: {entry.reason}")
     guarded = sum(1 for e in REGISTRY if e.strategy != "declared")
@@ -405,7 +443,18 @@ def main(argv: list[str]) -> int:
         if "--check" not in flags:
             return 0
 
-    breaches, counts = audit(root, freshness="--contract-only" not in flags)
+    if "--only-deps" in flags and "--without-deps" in flags:
+        print("لا تُجمَعُ `--only-deps` و`--without-deps`: القسمةُ شطرانِ لا شطرٌ واحدٌ.",
+              file=sys.stderr)
+        return 2
+    deps: bool | None = None
+    if "--only-deps" in flags:
+        deps = True
+    elif "--without-deps" in flags:
+        deps = False
+    breaches, counts = audit(
+        root, freshness="--contract-only" not in flags, deps=deps
+    )
     if breaches:
         print("سقطَ عقدُ نَسَبِ القياساتِ (W-037):", file=sys.stderr)
         for breach in breaches:
@@ -416,11 +465,18 @@ def main(argv: list[str]) -> int:
             file=sys.stderr,
         )
         return 1
-    print(
+    line = (
         f"عقدُ نَسَبِ القياساتِ مستقيمٌ: {counts['registered']} قياسًا مقيَّدًا · "
         f"{counts['guarded']} محروسًا بإعادةِ قياسٍ · "
         f"{counts['declared_only']} مُعلَنًا بسببٍ مكتوبٍ."
     )
+    if counts.get("deferred"):
+        # يُطبَعُ المُؤَجَّلُ رقمًا لا صمتًا: مَن قرأَ سطرَ الخُضرةِ يعرفُ ما لم يُقَسْ هنا.
+        line += (
+            f" ومُؤَجَّلٌ إلى الشطرِ الآخرِ: {counts['deferred']} "
+            f"(‏من {counts['needs_deps']} يحتاجُ حزمًا خارجيّةً)."
+        )
+    print(line)
     return 0
 
 
