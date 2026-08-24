@@ -24,6 +24,7 @@ AMOS-Federation — حرسُ قياسِ افتراقِ التسعيرِ (W-036 �
 
 from __future__ import annotations
 
+import ast
 import importlib.util
 import json
 import subprocess
@@ -153,13 +154,28 @@ def test_06_the_smallest_rate_is_the_one_that_justified_eight_places(
     per_token = measured["summary"]["smallest_nonzero_rate_per_token"]
     assert per_token == pytest.approx(8e-7), f"أصغرُ سعرٍ للرمزِ صارَ {per_token} لا 8e-7"
 
+    # **ولا يُستوردُ عقدُ المالِ هنا ليُقرأَ `COST_SCALE`** — وهذا عيبٌ وقعَ فعلًا
+    # وقُيِّدَ: كانَ هذا الفحصُ يستوردُ `amos_federation.common.money`، فسقطَ في
+    # وظيفةِ `Identity Law (E3)` بـ`ModuleNotFoundError: sqlalchemy` لأنَّ وظيفةَ
+    # الحوكمةِ **لا تُركِّبُ تبعيّاتِ الخدمةِ** عن قصدٍ. فصارَ المقياسُ يُقرأُ من
+    # **نصِّ** المصدرِ بـ`ast` — وهو منهجُ الأداةِ نفسِها: **أداةُ حكمٍ لا تستوردُ
+    # ما تحكمُ عليه**، فتُقاسُ بلا بيئةِ خدمةٍ ولا تُقلِعُ شيئًا.
     from decimal import Decimal
 
-    sys.path.insert(0, str(REPO / "federal/executive/services/src"))
-    from amos_federation.common.money import COST_SCALE  # noqa: PLC0415
-
-    assert Decimal(str(per_token)).quantize(Decimal(1).scaleb(-COST_SCALE)) > 0, (
-        f"أرخصُ سعرٍ لا يزالُ يُصفَّرُ بمقياسِ {COST_SCALE} — فالمقياسُ لا يكفي"
+    money_src = (
+        REPO / "federal/executive/services/src/amos_federation/common/money.py"
+    ).read_text(encoding="utf-8")
+    scale: int | None = None
+    for node in ast.walk(ast.parse(money_src)):
+        if isinstance(node, ast.Assign) and any(
+            isinstance(t, ast.Name) and t.id == "COST_SCALE" for t in node.targets
+        ):
+            scale = ast.literal_eval(node.value)
+    assert scale is not None, (
+        "لم يُوجَدْ `COST_SCALE` في نصِّ عقدِ المالِ — حُذِفَ المقياسُ أو أُخفِيَ."
+    )
+    assert Decimal(str(per_token)).quantize(Decimal(1).scaleb(-scale)) > 0, (
+        f"أرخصُ سعرٍ لا يزالُ يُصفَّرُ بمقياسِ {scale} — فالمقياسُ لا يكفي"
     )
 
 
