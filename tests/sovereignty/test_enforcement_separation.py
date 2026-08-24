@@ -45,6 +45,7 @@ from core.sovereignty.enforcement import (
     sign_permit,
 )
 from core.sovereignty.gateway import SovereignGateway
+from core.sovereignty.runtime_identity import IDENTITY_KEY, strip_identity
 
 TARGET = "treasury/account-A"
 
@@ -562,7 +563,13 @@ class Testسجلُّالاستهلاك:
         with pytest.raises(OSError):
             سجل.consume("EP-2")
 
-        assert list(json.loads(مسار.read_text(encoding="utf-8"))) == ["EP-1"]
+        # الملفُّ يحملُ ترويسةَ هدفٍ منذَ W-034 (حسمُ Q-40 ج)، فتُجرَّدُ الترويسةُ
+        # ليُحكَمَ على **السجلّاتِ** وحدَها — والحكمُ لم يُلَيَّنْ: يُشتَرَطُ بعدَ
+        # التجريدِ سجلٌّ واحدٌ بعينِه، ويُشتَرَطُ فوقَه بقاءُ الترويسةِ (فالسقوطُ لم
+        # يترك ملفًّا ناقصًا لا سجلًّا ولا هويّةً).
+        خام = json.loads(مسار.read_text(encoding="utf-8"))
+        assert IDENTITY_KEY in خام
+        assert list(strip_identity(خام)) == ["EP-1"]
         assert list(tmp_path.glob("*.tmp")) == []
 
 

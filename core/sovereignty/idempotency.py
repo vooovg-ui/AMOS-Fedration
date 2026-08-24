@@ -50,6 +50,13 @@ from pathlib import Path
 from threading import RLock
 from typing import Any, Final, Generic, TypeVar
 
+from core.sovereignty.runtime_identity import (
+    RuntimeStateCard,
+    ensure_directory_card,
+    stamped,
+    strip_identity,
+)
+
 T = TypeVar("T")
 
 #: مجالُ بصمةِ العمليّة — يمنعُ خلطَ بصمةِ ذرّيّةٍ ببصمةِ إذنٍ أو عقد.
@@ -136,15 +143,31 @@ def _canonical(payload: dict[str, Any]) -> bytes:
     ).encode("utf-8")
 
 
+#: بطاقةُ هويّةِ هذا الأثرِ — تُكتَبُ في الملفِّ وفي `README` المجلَّدِ
+#: تنفيذًا لحسمِ Q-40 (ج). لا تُغيِّرُ موضعَ السجلِّ ولا نطاقَ الكاشفِ.
+IDEMPOTENCY_STATE_CARD = RuntimeStateCard(
+    name="سجلُّ ذرّيّةِ العملياتِ",
+    purpose=(
+        "بقاءُ حالةِ كلِّ عمليّةٍ بعدَ سقوطِ المسارِ أو إعادةِ التشغيلِ، فلا تُنفَّذُ عمليّةٌ مرّتَينِ ولا تبقى حالةٌ وسطى مجهولةً"
+    ),
+    scope="مفاتيحُ الذرّيّةِ وسجلّاتُها كما يكتبُها `IdempotencyLedger`",
+    owner="core/sovereignty — النواةُ السياديّة (القاعدة 1H)",
+    authority=(
+        "حسمُ المالكِ في 2026-08-23 على Q-40 «(ج) بطاقةُ هويّةٍ للأثرِ نفسِه» — نُفِّذَ في العملِ `W-034`"
+    ),
+)
+
+
 def _atomic_write(path: Path, payload: dict[str, Any]) -> None:
     """كتابةٌ ذرّيّة: إمّا السجلُّ القديمُ كاملًا أو الجديدُ كاملًا."""
     path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_directory_card(path.parent, card=IDEMPOTENCY_STATE_CARD)
     handle = tempfile.NamedTemporaryFile(  # noqa: SIM115 — إدارةٌ يدويّةٌ للإغلاقِ الذرّيّ
         "w", encoding="utf-8", dir=path.parent, delete=False, suffix=".tmp"
     )
     try:
         with handle as stream:
-            json.dump(payload, stream, ensure_ascii=False, indent=2, sort_keys=True)
+            json.dump(stamped(payload, card=IDEMPOTENCY_STATE_CARD), stream, ensure_ascii=False, indent=2, sort_keys=True)
             stream.write("\n")
             stream.flush()
             os.fsync(stream.fileno())
@@ -283,7 +306,8 @@ class IdempotencyLedger:
         if not self.path.exists():
             return {}
         try:
-            return dict(json.loads(self.path.read_text(encoding="utf-8")))
+            # ترويسةُ الهدفِ ليست سجلًّا: تُجرَّدُ قبلَ القراءةِ (Q-40 ج · W-034)
+            return strip_identity(json.loads(self.path.read_text(encoding="utf-8")))
         except (json.JSONDecodeError, ValueError) as exc:
             raise IdempotencyError(
                 f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."
