@@ -40,6 +40,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
@@ -332,4 +333,91 @@ def test_auditor_detector_was_not_narrowed(inventory_module):
     )
     assert inventory_module.RE_IN_MEMORY.pattern == "\\b" + _P + "[A-Za-z_]*\\b", (
         "أداةُ الجردِ تقيسُ بقاعدةٍ غيرِ قاعدةِ المدقّق."
+    )
+
+
+# ── 8 · حرسُ طزاجةِ القياسِ المنشور (W-035) ──────────────────────────────────
+#
+# لماذا أُضيفَ هذا القسمُ — عيبٌ مقيسٌ لا مُفترَض:
+#     كلُّ ما سبقَ في هذا الملفِّ يقيسُ **حيًّا** عبرَ تجهيزةِ `inventory`، فيبقى
+#     أخضرَ وإن كانَ الملفُّ المنشورُ في `docs/audit/measurements/` متقادمًا.
+#     وقد تقادَمَ فعلًا: نُشِرَ `module_stores_total: 7` بقياسِ 2026-08-22 (W-029)،
+#     ثمَّ أزالَت `W-031` مفتاحَ الإيقافِ والترقياتِ (صارا دائمَينِ)، و`W-032`
+#     الوكلاءَ والأدواتِ (صارا وساطةً)، و`W-033` سجلَّ المالِ (صارَ جدولًا) —
+#     فصارَ المقيسُ **2** والمنشورُ يقولُ **7**، ونُقِلَ الرقمُ المنشورُ في خارطةِ
+#     الطريقِ وفي نصِّ `Q-38` عرضًا على المالكِ. **قياسٌ لا يُحرَسُ من التقادمِ
+#     يصيرُ دعوى، وقرارٌ يُبنى عليه يُبنى على رقمٍ ميّت.**
+
+
+def test_published_measurement_is_not_stale(inventory, inventory_module):
+    """الملفُّ المنشورُ يُطابِقُ قياسًا طازجًا من المصدرِ — وإلّا فالرقمُ المُعلَنُ ميّتٌ."""
+    ok, message = inventory_module.check_published_is_fresh(REPO_ROOT, inventory)
+    assert ok, message
+
+
+def test_freshness_gate_actually_fails_on_drift(inventory, inventory_module, tmp_path):
+    """البوّابةُ تكشفُ الانحرافَ فعلًا — لا تُعيدُ `True` دائمًا.
+
+    حرسٌ أخضرُ بلا قدرةٍ على الاحمرارِ ليس حرسًا. فيُصطَنَعُ هنا انحرافٌ في نسخةٍ
+    مؤقّتةٍ من الملفِّ المنشورِ ويُشترَطُ أن تحكمَ البوّابةُ بالفشلِ وتُسمّيَ الحقلَ.
+    """
+    published = inventory_module._output_path(REPO_ROOT)
+    drifted_root = tmp_path / "repo"
+    target = inventory_module._output_path(drifted_root)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.loads(published.read_text(encoding="utf-8"))
+    payload["summary"]["module_stores_total"] = int(
+        payload["summary"]["module_stores_total"]
+    ) + 99
+    target.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    ok, message = inventory_module.check_published_is_fresh(drifted_root, inventory)
+    assert not ok, "البوّابةُ لم تكشفْ انحرافًا مصطنعًا — فهي تُصادِقُ لا تقيسُ."
+    assert "module_stores_total" in message, (
+        "البوّابةُ حكمَتْ بالفشلِ ولم تُسمِّ الحقلَ المنحرفَ — حكمٌ بلا دليلٍ لا يُصلَحُ به شيءٌ."
+    )
+
+
+def test_freshness_gate_does_not_write_what_it_judges(inventory_module):
+    """`--check` يحكمُ ولا يكتبُ: بوّابةٌ تُصلِحُ ما تحكمُ عليهِ تُخفي التقادمَ لا تمنعُه."""
+    source = INVENTORY_TOOL.read_text(encoding="utf-8")
+    gate_body = source.split("def check_published_is_fresh")[1].split("\ndef ")[0]
+    assert "_write_json" not in gate_body and ".write_text" not in gate_body, (
+        "بوّابةُ الطزاجةِ تكتبُ — فتُزيلُ الانحرافَ في نفسِ النَّفَسِ الذي تحكمُ به، "
+        "فتمرُّ الدَّفعةُ والملفُّ المنشورُ لم يُلتَزَمْ."
+    )
+
+
+def test_option_impact_is_measured_not_transcribed(inventory):
+    """أثرُ خياراتِ Q-38 مُشتَقٌّ من القياسِ الحاضرِ، لا رقمٌ منقولٌ عن وثيقة."""
+    impact = inventory.summary["q38_option_impact"]
+    inputs = impact["inputs"]
+    total = inventory.summary["occurrences_total"]
+    modules = inventory.summary["module_stores_total"]
+    non_test = total - inventory.summary["by_bucket"].get("TEST_REFERENCE", 0)
+
+    assert inputs["name_occurrences_total"] == total
+    assert inputs["module_stores_not_seen_by_counter"] == modules
+    assert inputs["name_occurrences_outside_tests"] == non_test
+    assert impact["option_b_counter_unchanged"] == total, (
+        "الخيارُ (ب) لا يُغيِّرُ العدّادَ بنصِّه — فإن خالفَ الرقمُ ذلك فالحسابُ خاطئٌ."
+    )
+    assert impact["option_c_second_detector_added"] == total + modules
+    assert impact["option_a_counts_wiring_not_names"] == non_test + modules
+    assert "Q-38" in impact["note"], "أثرُ خيارٍ بلا إحالةٍ إلى سؤالِه يُقرأُ حكمَ عاملٍ."
+
+
+def test_option_impact_is_a_display_not_an_enforced_baseline():
+    """أرقامُ الخياراتِ **عرضٌ** — لم تُنقَلْ إلى خطِّ الأساسِ ولا إلى بوّابةِ CI.
+
+    نصُّ Q-38 يقولُ إنَّ أيَّ تغييرٍ في القاعدةِ يُحرِّكُ رقمَ الدَّينِ المُعلَنَ
+    للدولةِ، وذاك **قرارُ صاحبِ قرارٍ لا اجتهادُ مُنفِّذ**. فهذا الحرسُ يُثبِّتُ أنَّ
+    W-035 عرضَ الأثرَ ولم يُنفِّذْ خيارًا: خطُّ الأساسِ كما هو حتى يُحسَمَ السؤال.
+    """
+    baseline = json.loads(
+        (REPO_ROOT / "docs" / "audit" / "truth_baseline.json").read_text(encoding="utf-8")
+    )
+    text = json.dumps(baseline, ensure_ascii=False)
+    assert "q38_option_impact" not in text, (
+        "أثرُ خيارٍ مُعروضٍ دخلَ خطَّ الأساسِ — فصارَ العرضُ إنفاذًا بلا حسمِ مالكٍ."
     )

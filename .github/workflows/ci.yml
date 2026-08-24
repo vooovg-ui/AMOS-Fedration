@@ -410,6 +410,12 @@ jobs:
         run: |
           git diff --exit-code docs/audit/TRUTH_MATRIX.md docs/audit/truth_matrix.json \
             || (echo "::error::مصفوفة الحقيقة قديمة. شغّل truth_audit.py وادفع النتيجة." && exit 1)
+      # W-035: جردُ مخازنِ الذاكرةِ كانَ يُنشَرُ بلا بوّابةِ طزاجةٍ — خلافًا للمصفوفةِ
+      # فوقَ — فتقادَمَ خمسةَ مداخلَ بعدَ W-031/032/033 وبقيَ رقمُه يُقرأُ في Q-38.
+      # ولا يُقاسُ بـ`git diff`: الملفُّ يحملُ مسارَ الآلةِ في `repo` فيختلفُ
+      # بينَ بيئةٍ وبيئةٍ؛ وأداةُ الجردِ تُقارِنُ ما عداه وتُسمّي الحقلَ المنحرف.
+      - name: التحقق من أن جرد مخازن الذاكرة المنشور ليس متقادمًا (W-035)
+        run: python tools/governance/in_memory_inventory.py . --check
       - name: رفع مصفوفة الحقيقة
         if: always()
         uses: actions/upload-artifact@v4
