@@ -82,6 +82,12 @@ from core.sovereignty.contract import (
     SovereignEffect,
     in_scope,
 )
+from core.sovereignty.runtime_identity import (
+    RuntimeStateCard,
+    ensure_directory_card,
+    stamped,
+    strip_identity,
+)
 from core.sovereignty.idempotency import (
     IdempotencyError,
     IdempotencyGuard,
@@ -179,15 +185,37 @@ class CompensationScopeError(CompensationError):
     """
 
 
+#: بطاقةُ هويّةِ هذا الأثرِ — تُكتَبُ في الملفِّ وفي `README` المجلَّدِ
+#: تنفيذًا لحسمِ Q-40 (ج). لا تُغيِّرُ موضعَ السجلِّ ولا نطاقَ الكاشفِ.
+COMPENSATION_STATE_CARD = RuntimeStateCard(
+    name="سجلُّ التعويضِ",
+    purpose=(
+        "بقاءُ خطواتِ التعويضِ ونتائجِها حتّى لا تُقرأَ حالةٌ ناقصةٌ نجاحًا"
+    ),
+    scope="سجلّاتُ التعويضِ كما يكتبُها سجلُّ التعويضِ في النواةِ",
+    owner="core/sovereignty — النواةُ السياديّة",
+    authority=(
+        "حسمُ المالكِ في 2026-08-23 على Q-40 «(ج) بطاقةُ هويّةٍ للأثرِ نفسِه» — نُفِّذَ في العملِ `W-034`"
+    ),
+)
+
+
 def _atomic_write(path: Path, payload: Mapping[str, Any]) -> None:
     """كتابةٌ ذرّيّة: إمّا السجلُّ القديمُ كاملًا أو الجديدُ كاملًا."""
     path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_directory_card(path.parent, card=COMPENSATION_STATE_CARD)
     handle = tempfile.NamedTemporaryFile(  # noqa: SIM115 — إدارةٌ يدويّةٌ للإغلاقِ الذرّيّ
         "w", encoding="utf-8", dir=path.parent, delete=False, suffix=".tmp"
     )
     try:
         with handle as stream:
-            json.dump(dict(payload), stream, ensure_ascii=False, indent=2, sort_keys=True)
+            json.dump(
+                stamped(payload, card=COMPENSATION_STATE_CARD),
+                stream,
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
             stream.write("\n")
             stream.flush()
             os.fsync(stream.fileno())
@@ -437,7 +465,8 @@ class CompensationJournal:
         if not self.path.exists():
             return {}
         try:
-            return dict(json.loads(self.path.read_text(encoding="utf-8")))
+            # ترويسةُ الهدفِ ليست سجلًّا: تُجرَّدُ قبلَ القراءةِ (Q-40 ج · W-034)
+            return strip_identity(json.loads(self.path.read_text(encoding="utf-8")))
         except (json.JSONDecodeError, ValueError) as exc:
             raise CompensationError(
                 f"سجلُّ التعويضِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."

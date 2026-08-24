@@ -72,6 +72,12 @@ from core.sovereignty.idempotency import (
     IdempotencyLedger,
     OperationStatus,
 )
+from core.sovereignty.runtime_identity import (
+    RuntimeStateCard,
+    ensure_directory_card,
+    stamped,
+    strip_identity,
+)
 
 OUTBOX_DOMAIN: Final[bytes] = b"AMOS-FEDERATION/OUTBOX/v1"
 PAYLOAD_SCHEMA_VERSION: Final[int] = 1
@@ -166,6 +172,21 @@ def _canonical(payload: Any) -> bytes:
     ).encode("utf-8")
 
 
+#: بطاقةُ هويّةِ هذا الأثرِ — تُكتَبُ في الملفِّ وفي `README` المجلَّدِ
+#: تنفيذًا لحسمِ Q-40 (ج). لا تُغيِّرُ موضعَ السجلِّ ولا نطاقَ الكاشفِ.
+OUTBOX_STATE_CARD = RuntimeStateCard(
+    name="سجلُّ الصادرِ",
+    purpose=(
+        "ضمانُ تسليمِ الأثرِ الخارجيِّ مرّةً واحدةً على الأقلِّ بلا ازدواجٍ، وبقاءُ ما لم يُسلَّمْ بعدَ السقوطِ"
+    ),
+    scope="سجلّاتُ الصادرِ كما يكتبُها سجلُّ الصادرِ في النواةِ",
+    owner="core/sovereignty — النواةُ السياديّة",
+    authority=(
+        "حسمُ المالكِ في 2026-08-23 على Q-40 «(ج) بطاقةُ هويّةٍ للأثرِ نفسِه» — نُفِّذَ في العملِ `W-034`"
+    ),
+)
+
+
 def _atomic_write(path: Path, payload: Mapping[str, Any]) -> None:
     """كتابةٌ ذرّيّةٌ مع `fsync` — إمّا الملفُّ القديمُ كاملًا أو الجديدُ كاملًا.
 
@@ -173,13 +194,20 @@ def _atomic_write(path: Path, payload: Mapping[str, Any]) -> None:
     الخسارة: سجلٌّ تالفٌ يُقرأُ حقيقةً.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_directory_card(path.parent, card=OUTBOX_STATE_CARD)
     tmp_name: str | None = None
     try:
         with tempfile.NamedTemporaryFile(
             "w", encoding="utf-8", dir=path.parent, delete=False
         ) as handle:
             tmp_name = handle.name
-            json.dump(payload, handle, ensure_ascii=False, indent=2, sort_keys=True)
+            json.dump(
+                stamped(payload, card=OUTBOX_STATE_CARD),
+                handle,
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
             handle.flush()
             os.fsync(handle.fileno())
         os.replace(tmp_name, path)
@@ -547,7 +575,8 @@ class OutboxLedger:
         if not self.path.exists():
             return {}
         try:
-            return dict(json.loads(self.path.read_text(encoding="utf-8")))
+            # ترويسةُ الهدفِ ليست سجلًّا: تُجرَّدُ قبلَ القراءةِ (Q-40 ج · W-034)
+            return strip_identity(json.loads(self.path.read_text(encoding="utf-8")))
         except (json.JSONDecodeError, ValueError) as exc:
             raise OutboxError(
                 f"سجلُّ الصادرِ في «{self.path}» تالفٌ ولا يُقرأ. "

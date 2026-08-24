@@ -61,6 +61,12 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
 from core.sovereignty.contract import ExecutionContract, SovereignEffect
+from core.sovereignty.runtime_identity import (
+    RuntimeStateCard,
+    ensure_directory_card,
+    stamped,
+    strip_identity,
+)
 
 #: مجالُ التوقيع — يمنع أن يُقرَأ توقيعُ إذنٍ توقيعَ مرسومٍ أو تحدّي تنسيب.
 PERMIT_DOMAIN: Final[bytes] = b"AMOS-FEDERATION/ENFORCEMENT-PERMIT/v1"
@@ -122,15 +128,31 @@ def _canonical(payload: dict[str, Any]) -> bytes:
     ).encode("utf-8")
 
 
+#: بطاقةُ هويّةِ هذا الأثرِ — تُكتَبُ في الملفِّ وفي `README` المجلَّدِ
+#: تنفيذًا لحسمِ Q-40 (ج). لا تُغيِّرُ موضعَ السجلِّ ولا نطاقَ الكاشفِ.
+CONSUMED_PERMITS_STATE_CARD = RuntimeStateCard(
+    name="سجلُّ الأذونِ المُستهلَكةِ",
+    purpose=(
+        "منعُ إعادةِ استعمالِ إذنٍ سياديٍّ بعمليّةٍ ثانيةٍ — الإذنُ الواحدُ لفعلٍ واحدٍ"
+    ),
+    scope="معرّفاتُ الأذونِ المُستهلَكةِ وزمنُ استهلاكِ كلٍّ منها",
+    owner="core/sovereignty — النواةُ السياديّة (القاعدة 17)",
+    authority=(
+        "حسمُ المالكِ في 2026-08-23 على Q-40 «(ج) بطاقةُ هويّةٍ للأثرِ نفسِه» — نُفِّذَ في العملِ `W-034`"
+    ),
+)
+
+
 def _atomic_write(path: Path, payload: dict[str, Any]) -> None:
     """كتابةٌ ذرّيّة: إمّا السجلُّ القديمُ كاملًا أو الجديدُ كاملًا، ولا نصفَ سجلّ."""
     path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_directory_card(path.parent, card=CONSUMED_PERMITS_STATE_CARD)
     handle = tempfile.NamedTemporaryFile(
         "w", encoding="utf-8", dir=path.parent, delete=False, suffix=".tmp"
     )
     try:
         with handle as stream:
-            json.dump(payload, stream, ensure_ascii=False, indent=2, sort_keys=True)
+            json.dump(stamped(payload, card=CONSUMED_PERMITS_STATE_CARD), stream, ensure_ascii=False, indent=2, sort_keys=True)
             stream.write("\n")
             stream.flush()
             os.fsync(stream.fileno())
@@ -261,7 +283,8 @@ class ConsumedPermitLedger:
     def _load(self) -> dict[str, str]:
         if not self.path.exists():
             return {}
-        return dict(json.loads(self.path.read_text(encoding="utf-8")))
+        # ترويسةُ الهدفِ ليست سجلًّا: تُجرَّدُ قبلَ القراءةِ (Q-40 ج · W-034)
+        return strip_identity(json.loads(self.path.read_text(encoding="utf-8")))
 
     def is_consumed(self, permit_id: str) -> bool:
         return permit_id in self._load()
