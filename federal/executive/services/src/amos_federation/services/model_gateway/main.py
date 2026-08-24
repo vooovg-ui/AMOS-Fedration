@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 
 from amos_federation.common.auth import require_auth
 from amos_federation.common.config import settings
+from amos_federation.common.money import COST_SCALE
 from amos_federation.common.registry import SERVICES
 from amos_federation.common.service import create_service_app
 from amos_federation.services.executive_core.fidelity import ExecutionFidelity
@@ -34,6 +35,30 @@ from amos_federation.services.model_gateway.shadow import (
 router = APIRouter(prefix="/v1", tags=["model-gateway"])
 
 # Cost tracking: تكلفة التقديم بالدولار لكل ألف رمز
+#
+# ## جدولانِ مُقَرَّانِ وفرقُهما مُقيَّدٌ — Q-42 · الشقُّ الأوّلُ · (ج) · W-036
+#
+# هذا جدولُ **مسارِ النداءِ** — الطريقُ الذي يكتبُ قيدَ المالِ في `model_cost_log`.
+# وفي الخدمةِ جدولٌ ثانٍ `ModelLayer.PRICING` في `model_layer.py`. وقد سُئِلَ
+# المالكُ: أيُوحَّدانِ أم يُقَرَّانِ؟ فأجابَ في Q-42 (ج) بتاريخ 2026-08-24:
+# **«يُقَرُّ الجدولانِ ويُقيَّدُ الفرقُ»**. فبقيَ الجدولانِ، وصارَ الفرقُ **مقيسًا
+# منشورًا محروسًا** لا مستورًا — لا مُلغًى ولا مُجمَّلًا.
+#
+# والفرقُ المقيسُ ثلاثةُ أوجهٍ (المصدر: `docs/audit/measurements/pricing_divergence.json`
+# ويُعادُ توليدُه بـ`python tools/governance/pricing_divergence.py .`):
+#
+#   1. **شكلًا** — هذا الجدولُ سعرٌ واحدٌ مسطَّحٌ للنموذجِ، وجدولُ الطبقةِ سعرانِ
+#      (`input` و`output`). فليسَ الخلافُ في رقمٍ بل في بنيةِ التسعيرِ.
+#   2. **سعرًا** — في النماذجِ الثلاثةِ المشتركةِ يُطابِقُ السعرُ المسطَّحُ هنا
+#      سعرَ **الخَرْجِ** في الطبقةِ ويبلغُ **خمسةَ أضعافِ** سعرِ الدَخلِ
+#      (سونِت 0.015 مقابلَ 0.003 · أوپُس 0.075 مقابلَ 0.015). أي أنَّ رمزَ
+#      الدَخلِ يُحاسَبُ في هذا الطريقِ بسعرِ الخَرْجِ — **فالقيدُ أعلى لا أدنى**،
+#      وهو ميلٌ إلى تحميلِ الدولةِ لا إلى إخفاءِ نفقةٍ.
+#   3. **تغطيةً** — `claude-haiku-3.5` مُسعَّرٌ بمالٍ حقيقيٍّ في الطبقةِ وغائبٌ عن
+#      هذا الجدولِ، والقراءةُ أدناهُ `.get(model, 0.0)` فيُقيَّدُ **مجّانًا** لو
+#      نُودِيَ من هذا الطريقِ. وهذا **الوجهُ الوحيدُ الذي يُنقِصُ** مالَ الدولةِ،
+#      وهو مُعلَنٌ مقيسٌ محروسٌ — ولم يُسَدَّ بإضافةِ سطرٍ لأنَّ إضافةَ سعرٍ إلى
+#      جدولٍ **قرارُ مالٍ** لا حكمُ عاملٍ، وقد أُقِرَّ الجدولانِ كما هما.
 COST_PER_1K_TOKENS = {
     "local-fallback": 0.0,
     "alpha-local": 0.0,
@@ -192,7 +217,10 @@ async def invoke_model(
             else f"external_invocation_failed:{type(exc).__name__}"
         )
     latency = int((time.monotonic() - start) * 1000)
-    cost = round(tokens * COST_PER_1K_TOKENS.get(model, 0.0) / 1000, 6)
+    # يُقرَّبُ إلى مقياسِ عمودِ الكلفةِ (`COST_SCALE` = 8) لا إلى `6` منسوخةٍ
+    # (W-036 · Q-42 (أ)): تقريبٌ أضيقُ من العمودِ يُضيعُ الكسرَ قبلَ أن يبلغَه،
+    # فيصيرُ توسيعُ العمودِ حلًّا لا يُحَلُّ به شيءٌ.
+    cost = round(tokens * COST_PER_1K_TOKENS.get(model, 0.0) / 1000, COST_SCALE)
     # W-033 · حسمُ Q-39 (ج): الكتابةُ **في مسارِ النداءِ** وفي السجلِّ الدائمِ نفسِه،
     # لا في قائمةِ ذاكرةٍ تُنافِسُه. وموضعُ الكتابةِ **حيثُ أُنفِقَ المالُ**: قبلَ بوّابةِ
     # الصلاحيةِ أدناه، لأنَّ الرموزَ استُهلِكَت فعلًا حتى لو رُفِضَ نسبُ النشاطِ —
@@ -321,11 +349,16 @@ async def cost_summary(
         by_model[m]["invocations"] += 1
         by_model[m]["total_tokens"] += entry["tokens"]
         by_model[m]["total_cost"] += entry["cost_usd"]
+    # W-036 · Q-42 (أ): يُقرَّبُ الملخَّصُ إلى **مقياسِ الصفوفِ نفسِه**. وكانَ
+    # يُقرَّبُ إلى `6` فوقَ صفوفٍ صارَت تحملُ ثمانِ منازلَ — أي ملخَّصٌ يُنقِضُ
+    # الجدولَ الذي بُنِيَ فوقَه، وهو عينُ ما حُسِمَ في Q-39 (ج) أن لا يكون:
+    # «الملخَّصُ يُعادُ بناؤُه فوقَه لا يُنافِسُه». والشكلُ لم يتغيَّرْ ولا مفتاحٌ:
+    # القيمةُ صارت أدقَّ لا أكثرَ.
     for m in by_model:
-        by_model[m]["total_cost"] = round(by_model[m]["total_cost"], 6)
+        by_model[m]["total_cost"] = round(by_model[m]["total_cost"], COST_SCALE)
     return {
         "total_invocations": len(rows),
-        "total_cost_usd": round(total_cost, 6),
+        "total_cost_usd": round(total_cost, COST_SCALE),
         "by_model": by_model,
         # المفتاحانِ باقيانِ بلا تبديلٍ، وقيمةُ الأوّلِ صارت صادقةً بعدَ W-033،
         # والثاني يُشيرُ إلى **نفسِ** الجدولِ الذي بُنِيَ فوقَه هذا الملخَّصُ.

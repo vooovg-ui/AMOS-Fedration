@@ -1,0 +1,106 @@
+{
+  "$comment": "الهدف: قياسُ الفرقِ بينَ جدولَي تسعيرِ الرموزِ في بوّابةِ النماذجِ — مُخرَجُ tools/governance/pricing_divergence.py (Q-42 (ج) · W-036). المادةُ التاسعةُ · 2. لا يُحرَّرُ بيدٍ: يُعادُ توليدُه.",
+  "note": "قياسٌ لا حُكم. أُقِرَّ الجدولانِ بنصِّ المالكِ في Q-42 (ج) فلا يُقرأُ هذا الملفُّ دعوةً لتوحيدِهما، ولا يُقرأُ شهادةَ صحّةِ سعرٍ: صحّةُ السعرِ نفسِه تلزمُها فاتورةُ مُزوِّدٍ لا مِلكَ هذا المستودعِ.",
+  "authority": "حسمُ المالكِ في Q-42 · الشقُّ الأوّلُ · الخيارُ (ج) — 2026-08-24: «يُقَرُّ الجدولانِ ويُقيَّدُ الفرقُ». والمرجعُ: docs/audit/SOVEREIGN_DECISION_REGISTER.md § Q-42.",
+  "tables": {
+    "call_path": {
+      "file": "federal/executive/services/src/amos_federation/services/model_gateway/main.py",
+      "name": "COST_PER_1K_TOKENS",
+      "table": {
+        "local-fallback": 0.0,
+        "alpha-local": 0.0,
+        "beta-candidate": 0.0,
+        "claude-sonnet-4": 0.015,
+        "claude-opus-4": 0.075
+      }
+    },
+    "layer": {
+      "file": "federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py",
+      "name": "PRICING",
+      "table": {
+        "claude-sonnet-4": {
+          "input": 0.003,
+          "output": 0.015
+        },
+        "claude-opus-4": {
+          "input": 0.015,
+          "output": 0.075
+        },
+        "claude-haiku-3.5": {
+          "input": 0.0008,
+          "output": 0.004
+        },
+        "local-fallback": {
+          "input": 0.0,
+          "output": 0.0
+        },
+        "local-model": {
+          "input": 0.0,
+          "output": 0.0
+        }
+      }
+    }
+  },
+  "summary": {
+    "shape_divergence": "flat_single_rate_vs_split_input_output",
+    "tokens_per_unit": 1000,
+    "models_in_call_path": 5,
+    "models_in_layer": 5,
+    "models_shared": [
+      "claude-opus-4",
+      "claude-sonnet-4",
+      "local-fallback"
+    ],
+    "models_only_in_call_path": [
+      "alpha-local",
+      "beta-candidate"
+    ],
+    "models_only_in_layer": [
+      "claude-haiku-3.5",
+      "local-model"
+    ],
+    "priced_in_layer_free_in_call_path": [
+      "claude-haiku-3.5"
+    ],
+    "shared_models_where_flat_equals_layer_output": [
+      "claude-opus-4",
+      "claude-sonnet-4",
+      "local-fallback"
+    ],
+    "shared_models_where_flat_differs_from_layer_input": [
+      "claude-opus-4",
+      "claude-sonnet-4"
+    ],
+    "smallest_nonzero_rate_per_1k": 0.0008,
+    "smallest_nonzero_rate_per_token": 8.000000000000001e-07
+  },
+  "rate_divergence": {
+    "claude-opus-4": {
+      "flat_per_1k": 0.075,
+      "layer_input_per_1k": 0.015,
+      "layer_output_per_1k": 0.075,
+      "flat_equals_layer_input": false,
+      "flat_equals_layer_output": true,
+      "flat_over_layer_input": 5.0,
+      "input_token_overcharge": 0.06
+    },
+    "claude-sonnet-4": {
+      "flat_per_1k": 0.015,
+      "layer_input_per_1k": 0.003,
+      "layer_output_per_1k": 0.015,
+      "flat_equals_layer_input": false,
+      "flat_equals_layer_output": true,
+      "flat_over_layer_input": 5.0,
+      "input_token_overcharge": 0.012
+    },
+    "local-fallback": {
+      "flat_per_1k": 0.0,
+      "layer_input_per_1k": 0.0,
+      "layer_output_per_1k": 0.0,
+      "flat_equals_layer_input": true,
+      "flat_equals_layer_output": true,
+      "flat_over_layer_input": null,
+      "input_token_overcharge": 0.0
+    }
+  }
+}

@@ -70,7 +70,7 @@
       "line": 28,
       "declared_as": "WIRED_VOLATILE",
       "wired_at": [
-        "federal/executive/services/src/amos_federation/services/model_gateway/main.py:64",
+        "federal/executive/services/src/amos_federation/services/model_gateway/main.py:89",
         "federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
       ]
     },
@@ -140,19 +140,19 @@
     },
     {
       "path": "federal/executive/services/src/amos_federation/services/model_gateway/main.py",
-      "line": 29,
+      "line": 30,
       "name": "InMemoryShadowStore",
       "bucket": "SRC_WIRED_VOLATILE",
       "declared_as": "WIRED_VOLATILE",
-      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:64, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
+      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:89, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
     },
     {
       "path": "federal/executive/services/src/amos_federation/services/model_gateway/main.py",
-      "line": 64,
+      "line": 89,
       "name": "InMemoryShadowStore",
       "bucket": "SRC_WIRED_VOLATILE",
       "declared_as": "WIRED_VOLATILE",
-      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:64, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
+      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:89, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
     },
     {
       "path": "federal/executive/services/src/amos_federation/services/model_gateway/shadow.py",
@@ -160,7 +160,7 @@
       "name": "InMemoryShadowStore",
       "bucket": "SRC_WIRED_VOLATILE",
       "declared_as": "WIRED_VOLATILE",
-      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:64, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
+      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:89, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
     },
     {
       "path": "federal/executive/services/src/amos_federation/services/model_gateway/shadow.py",
@@ -168,7 +168,7 @@
       "name": "InMemoryShadowStore",
       "bucket": "SRC_WIRED_VOLATILE",
       "declared_as": "WIRED_VOLATILE",
-      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:64, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
+      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:89, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
     },
     {
       "path": "federal/executive/services/src/amos_federation/services/tool_registry/store.py",

@@ -4,6 +4,7 @@ AMOS-Federation Real Model Layer
 النطاق: services/model_gateway/model_layer
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-15
+تاريخ آخر تعديل: 2026-08-24 (W-036 — تنفيذُ Q-42 بشقَّيه)
 """
 
 import hashlib
@@ -17,7 +18,7 @@ from sqlalchemy import Column, DateTime, Integer, String, Text, create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from amos_federation.common.database import get_database_url
-from amos_federation.common.money import MoneyType, to_money
+from amos_federation.common.money import COST_SCALE, CostMoneyType, to_cost
 
 
 class ModelBase(DeclarativeBase):
@@ -49,7 +50,14 @@ class CostLogModel(ModelBase):
     tokens = Column(Integer, default=0)
     #: كلفةٌ بالدولارِ الحقيقيِّ — مالٌ بلا خلافٍ في تصنيفِه، فـ`NUMERIC(20,4)`
     #: لا نصًّا ولا عائمًا (الهجرة 014 · Q-20). والقيمةُ في بايثون `Decimal`.
-    cost_usd = Column(MoneyType, nullable=False, default=Decimal("0"))
+    #:
+    #: ومقياسُه منذُ W-036 هو `NUMERIC(20,8)` لا `(20,4)` — بحسمِ المالكِ في
+    #: **Q-42 · الشقِّ الثاني · (أ)**: «توسيعُ دقّةِ أعمدةِ الكلفةِ وحدَها»
+    #: (الهجرة 016). والسببُ مقيسٌ: كلفةُ نداءٍ أقلَّ من `0.00005$` كانَت
+    #: تُقَيّدُ **صفرًا** في الرقمِ المنشورِ، وأرخصُ سعرٍ في جدولَي التسعيرِ
+    #: `0.0000008$` للرمزِ — فأربعُ منازلَ كانَت تُبلِعُ ألفَ نداءٍ صغيرٍ.
+    #: ولا يُقرأُ هذا نقضًا لـQ-20: سائرُ أعمدةِ المالِ باقيةٌ على `MoneyType`.
+    cost_usd = Column(CostMoneyType, nullable=False, default=Decimal("0"))
     latency_ms = Column(Integer, default=0)
     source = Column(String, default="local")
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
@@ -67,10 +75,21 @@ def _money_from_provider_float(value: float) -> Decimal:
     وتحويلُها إلى `Decimal` يُغيِّرُ نوعَ ردٍّ عامٍّ (`cost_usd: float` في
     `main.py`) فلا يُفعَلُ بلا قرار: هو مُقيَّدٌ سؤالًا مستقلًّا **Q-29**.
 
-    والتقريبُ إلى أربعِ منازلَ قبلَ التحويلِ مقصودٌ: هو دقّةُ عقدِ المالِ نفسِها،
-    فلا تُخزَّنُ منازلُ لا يعترفُ بها العقد.
+    والتقريبُ قبلَ التحويلِ مقصودٌ: هو دقّةُ عقدِ العمودِ نفسِها، فلا تُخزَّنُ
+    منازلُ لا يعترفُ بها العقد.
+
+    ## ما تغيَّرَ في W-036 (Q-42 · (أ)) ولماذا ليسَ انحرافًا صامتًا
+
+    كانَ التقريبُ إلى **أربعِ** منازلَ والتحويلُ بـ`to_money`، فكانَت كلفةُ نداءٍ
+    أقلَّ من `0.00005$` تُقَيّدُ `0.0000`. وصارَ إلى **ثمانٍ** وبـ`to_cost` بنصِّ
+    المالكِ في Q-42 (أ). والمقياسُ مقروءٌ من `COST_SCALE` لا مكتوبٌ رقمًا هنا:
+    رقمٌ منسوخٌ في موضعِ التقريبِ هو الطريقُ إلى مقياسَينِ يختلفانِ بلا أن يراهُما
+    أحدٌ — فيُقرَّبَ إلى أربعٍ ويُخزَّنَ في عمودٍ ذي ثمانٍ.
+
+    والاسمُ لم يُغيَّرْ وهو يُستدعى في حرسٍ قائمٍ باسمِه، وإبدالُه كانَ سيُسقِطُ
+    الحرسَ لسببٍ ليسَ هو السببَ المقصودَ.
     """
-    return to_money(f"{value:.4f}")
+    return to_cost(f"{value:.{COST_SCALE}f}")
 
 
 class ModelLayer:
@@ -149,7 +168,10 @@ class ModelLayer:
         """حساب التكلفة الحقيقية."""
         pricing = self.PRICING.get(model, {"input": 0.0, "output": 0.0})
         cost = (input_tokens / 1000) * pricing["input"] + (output_tokens / 1000) * pricing["output"]
-        return round(cost, 6)
+        # يُقرَّبُ إلى مقياسِ عمودِ الكلفةِ لا إلى رقمٍ منسوخٍ (W-036 · Q-42 (أ)):
+        # كانَ `round(cost, 6)` يُصفِّرُ ما دونَ `5e-7`، وأرخصُ رمزٍ في الجدولِ
+        # `8e-7` — فحدُّ الحسابِ كانَ يلتقي حدَّ العمودِ في إضاعةِ الكسرِ مرّتَين.
+        return round(cost, COST_SCALE)
 
     def log_cost(
         self,
@@ -227,7 +249,17 @@ class ModelLayer:
                 by_model[r.model]["tokens"] += r.tokens
                 by_model[r.model]["count"] += 1
             return {
-                "total_cost_usd": round(total_cost, 6),
+                # `W-036`: كانَ `round(total_cost, 6)` هنا **بوّابةً رابعةً** لم
+                # تُصلِحْها الهجرةُ ولا العقدُ: الصفُّ يُخزَّنُ بثمانِ منازلَ
+                # صحيحةً، ثمَّ يُقرَّبُ في **مسارِ القراءةِ** فتقولُ هذه الواجهةُ
+                # `1e-06` عن مالٍ مقدارُه `8e-07`. وبانَ ذلكَ بالقياسِ لا
+                # بالمراجعةِ: فحصٌ يُقارِنُ `/v1/cost/summary` بـ
+                # `/v1/models/cost-summary` احمرَّ بالرقمَينِ المختلفَينِ.
+                # **فالتقريبُ يُشتقُّ الآنَ من `COST_SCALE` لا من رقمٍ مكتوبٍ**،
+                # فتصيرُ الواجهتانِ قراءتَينِ لحقيقةٍ واحدةٍ كما يُلزِمُ حسمُ
+                # Q-39 (ج). ونوعُ الحقلِ باقٍ `float` كما نُشِرَ — تبديلُه
+                # عقدٌ مع مُستهلِكيه ومسألتُه **Q-29** المفتوحةُ لا حكمُ عاملٍ.
+                "total_cost_usd": round(total_cost, COST_SCALE),
                 "total_tokens": total_tokens,
                 "total_invocations": total_invocations,
                 "by_model": by_model,

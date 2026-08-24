@@ -4,7 +4,7 @@ AMOS-Federation State Treasury — Money Primitive
 النطاق: common — مفردةٌ مشتركةٌ لا مِلكَ خدمةٍ واحدة
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-17 (R7-B)
-تاريخ آخر تعديل: 2026-08-20 (Q-20)
+تاريخ آخر تعديل: 2026-08-24 (Q-42 · الشقُّ الثاني · (أ) — دقّةُ أعمدةِ الكلفةِ وحدَها)
 
 ## لماذا نُقِلَ هذا الملفُّ من `services/state_treasury` إلى `common`
 
@@ -72,6 +72,38 @@ MONEY_MAX = Decimal("900000000000")
 
 CURRENCY_LENGTH = 3
 
+#: ثمانِ منازلَ عشريّةٍ — **لأعمدةِ الكلفةِ وحدَها** (Q-42 · الشقُّ الثاني · (أ) · W-036).
+#:
+#: ## بأيِّ سلطةٍ يُوجَدُ مقياسٌ ثانٍ في ملفِّ «تمثيلٍ واحدٍ للمبلغِ»
+#:
+#: بنصِّ المالكِ في Q-42 · الشقِّ الثاني · الخيارِ (أ) بتاريخ 2026-08-24:
+#: **«توسيعُ دقّةِ أعمدةِ الكلفةِ وحدَها»**. فهذا ليسَ نقضًا لحسمِ Q-20 ولا التفافًا
+#: عليه: `MONEY_SCALE = 4` يبقى عقدَ **كلِّ مبلغٍ** في الدولةِ كما هو، ولا يُمَسُّ
+#: عمودٌ واحدٌ منه. والاستثناءُ **مقصورٌ نصًّا على أعمدةِ الكلفةِ** ومُعلَنٌ هنا في
+#: نفسِ الملفِّ الذي يحملُ العقدَ الأصلَ كي لا يُبنى عقدُ مالٍ ثانٍ في زاويةٍ.
+#:
+#: ## لماذا ثمانٍ لا سِتٌّ ولا عَشرٌ — رقمٌ مُشتقٌّ لا مُختارٌ
+#:
+#: أرخصُ سعرٍ غيرِ صفريٍّ في جدولَي التسعيرِ `0.0008$` لكلِّ ألفِ رمزٍ (‏مقيسٌ في
+#: `docs/audit/measurements/pricing_divergence.json`)، أي `0.0000008$` للرمزِ
+#: الواحدِ — فسبعُ منازلَ هي **أوّلُ** منزلةٍ يظهرُ فيها رمزٌ واحدٌ، والثامنةُ هامشٌ
+#: لسعرٍ أرخصَ يأتي. وستٌّ كانَت ستُقيِّدُ الرمزَ الواحدَ `0.000001` بتقريبٍ لا
+#: بقياسٍ، وعَشرٌ كانَت ستهبِطُ بالحدِّ الأعلى إلى أقلَّ من مليونِ دولارٍ.
+COST_SCALE = 8
+COST_QUANT = Decimal(1).scaleb(-COST_SCALE)  # Decimal("0.00000001")
+
+#: الحدُّ الأعلى لقيدِ كلفةٍ واحدٍ: 9×10⁷. وهو **مُشتقٌّ بنفسِ حسابِ `MONEY_MAX`**:
+#: 9e7 × 10⁸ = 9e15 < 2⁵³ ≈ 9.007e15، فيبقى كلُّ قيدِ كلفةٍ قابلًا للتمثيلِ تمامًا
+#: حتى على SQLite.
+#:
+#: **وهذا ثمنٌ يُقالُ ولا يُخفى:** توسيعُ الدقّةِ أربعَ منازلَ **يُنقِصُ** الحدَّ
+#: الأعلى من 9×10¹¹ إلى 9×10⁷ — لأنَّ حاصلَ الضربِ محكومٌ بـ2⁵³ لا بالرغبةِ. فهو
+#: **تضييقٌ حقيقيٌّ** في المقدارِ مقابلَ توسيعٍ حقيقيٍّ في الدقّةِ، لا مكسبٌ بلا
+#: مقابلٍ. ومقبولٌ هنا بقياسٍ: قيدُ كلفةِ نداءٍ واحدٍ يتجاوزُ تسعينَ مليونَ دولارٍ
+#: ليسَ مالًا بل خطأً، ورفضُه في القاعدةِ أولى من قبولِه. والحدُّ مفروضٌ بـ`CHECK`
+#: في الهجرةِ 016 لا بفحصٍ في بايثون وحدَه.
+COST_MAX = Decimal("90000000")
+
 
 class MoneyError(ValueError):
     """مبلغ غير مقبول — نوعًا أو مقدارًا."""
@@ -107,6 +139,45 @@ def to_money(value: Any, *, field: str = "amount") -> Decimal:
     quantized = amount.quantize(MONEY_QUANT)
     if abs(quantized) > MONEY_MAX:
         raise MoneyError(f"{field}: المقدار يتجاوز الحدّ المسموح {MONEY_MAX}")
+    return quantized
+
+
+def to_cost(value: Any, *, field: str = "cost") -> Decimal:
+    """حوِّل مدخلًا إلى **كلفةٍ** `Decimal` بثمانِ منازلَ، أو ارفضه.
+
+    نفسُ انضباطِ `to_money` حرفًا: `float` مرفوضٌ، والحدُّ مفروضٌ، والنتيجةُ
+    مُقرَّبةٌ إلى مقياسٍ مُعلَنٍ. والفرقُ الوحيدُ **المقياسُ والحدُّ**، وهما
+    مقصورانِ على أعمدةِ الكلفةِ بنصِّ الحسمِ (Q-42 · (أ)).
+
+    ولماذا دالّةٌ ثانيةٌ لا وسيطُ `scale` في `to_money`: وسيطٌ اختياريٌّ يجعلُ
+    مقياسَ المالِ **قابلًا للتغييرِ في موضعِ النداءِ**، فيكفي أن يُمرِّرَه أحدٌ في
+    خزانةٍ حتى يصيرَ لعقدِ Q-20 استثناءٌ لا يراهُ مُراجِعٌ. فالمقياسُ الثاني
+    **مُسمًّى ومقصورٌ** ويُقرأُ في كلِّ موضعٍ يُستدعى فيه.
+
+    Raises:
+        MoneyError: عائم، أو نوع غير مفهوم، أو مقدار خارج الحدّ.
+    """
+    if isinstance(value, bool):
+        raise MoneyError(f"{field}: قيمة منطقية ليست كلفةً")
+    if isinstance(value, float):
+        raise MoneyError(f"{field}: العائم غير مقبول للكلفة — مرِّر Decimal أو نصًّا مثل '0.00000080'")
+    if isinstance(value, Decimal):
+        amount = value
+    elif isinstance(value, int):
+        amount = Decimal(value)
+    elif isinstance(value, str):
+        try:
+            amount = Decimal(value.strip())
+        except InvalidOperation as exc:
+            raise MoneyError(f"{field}: نصٌّ ليس عددًا عشريًّا: '{value}'") from exc
+    else:
+        raise MoneyError(f"{field}: نوع غير مقبول للكلفة: {type(value).__name__}")
+
+    if not amount.is_finite():
+        raise MoneyError(f"{field}: مبلغ غير منتهٍ")
+    quantized = amount.quantize(COST_QUANT)
+    if abs(quantized) > COST_MAX:
+        raise MoneyError(f"{field}: المقدار يتجاوز الحدّ المسموح للكلفة {COST_MAX}")
     return quantized
 
 
@@ -171,6 +242,31 @@ class MoneyType(TypeDecorator):  # type: ignore[type-arg]
         return to_money(value)
 
 
+class CostMoneyType(TypeDecorator):  # type: ignore[type-arg]
+    """عمود كلفة: `NUMERIC(20, 8)` في القاعدة، و`Decimal` في بايثون دائمًا.
+
+    مقصورٌ على أعمدةِ الكلفةِ (Q-42 · (أ) · هجرةُ 016). وسائرُ المبالغِ تبقى على
+    `MoneyType` أي `NUMERIC(20, 4)` بحسمِ Q-20 — فلا يُستعملُ هذا النوعُ لمبلغٍ
+    ليسَ كلفةً، ومن استعملَه كذلك وسَّعَ عقدًا بلا قرارٍ.
+    """
+
+    impl = Numeric(20, COST_SCALE, asdecimal=True)
+    cache_ok = True
+
+    def process_bind_param(self, value: Any, dialect: Any) -> Decimal | None:
+        if value is None:
+            return None
+        return to_cost(value)
+
+    def process_result_value(self, value: Any, dialect: Any) -> Decimal | None:
+        """التقريب عند القراءة يجعل SQLite يعيد ما كُتب لا تقريبَ عائمٍ له."""
+        if value is None:
+            return None
+        if isinstance(value, float):  # SQLite: NUMERIC مخزَّن عائمًا
+            return Decimal(repr(value)).quantize(COST_QUANT)
+        return to_cost(value)
+
+
 #: تعبير `CHECK` مشترك لكل عمود مبلغ موجب — نصٌّ واحد فلا تتباعد الصياغات.
 def positive_money_check(column: str) -> str:
     """قيد: موجبٌ وداخل الحدّ. يعمل حرفيًّا في PostgreSQL وSQLite."""
@@ -182,18 +278,33 @@ def currency_check(column: str = "currency") -> str:
     return f"length({column}) = {CURRENCY_LENGTH} AND {column} = upper({column})"
 
 
+def cost_check(column: str) -> str:
+    """قيد عمود كلفة: غيرُ سالبٍ وداخلَ حدِّ الكلفةِ. يعمل حرفيًّا في اللهجتين.
+
+    والصفرُ **مقبولٌ** هنا خلافًا لـ`positive_money_check`: كلفةُ نداءٍ محليٍّ صفرٌ
+    حقيقيٌّ لا غيابُ قيمةٍ، ومنعُه كانَ سيمنعَ قيدَ نداءٍ وقعَ فعلًا.
+    """
+    return f"{column} >= 0 AND {column} <= {COST_MAX}"
+
+
 __all__ = [
+    "COST_MAX",
+    "COST_QUANT",
+    "COST_SCALE",
     "CURRENCY_LENGTH",
     "MONEY_MAX",
     "MONEY_QUANT",
     "MONEY_SCALE",
+    "CostMoneyType",
     "MoneyError",
     "MoneyType",
+    "cost_check",
     "currency_check",
     "format_money",
     "money_sum",
     "normalize_currency",
     "positive_money_check",
     "require_positive",
+    "to_cost",
     "to_money",
 ]
