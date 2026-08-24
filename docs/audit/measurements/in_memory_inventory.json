@@ -1,7 +1,7 @@
 {
   "$comment": "الهدف: جردُ مخازنِ الذاكرةِ في المستودعِ وتصنيفُها من المصدرِ — مُخرَجُ tools/governance/in_memory_inventory.py (T3.6 · W-029). المادةُ التاسعةُ · 2.",
   "note": "قياسٌ لا حُكم. `occurrences_total` هو عينُ عدّادِ IN_MEMORY_STORE في truth_audit.py وهو عدّادُ **انتشارِ اسمٍ** لا عدّادُ مخازنَ موصولةٍ — والتفصيلُ في SOVEREIGN_DECISION_REGISTER.md § Q-38. و`module_stores` مخازنُ إنتاجٍ لا يراها ذاك العدّادُ أصلًا. لا يُقرَأُ هذا الملفُّ شهادةَ إدامةٍ: كلُّ ما فيه مُعلَنٌ متطايرٌ حتى تُنجَزَ T4/E4 · Q-39.",
-  "repo": "/home/user/workspace/AMOS-Fedration",
+  "repo": "AMOS-Fedration",
   "summary": {
     "occurrences_total": 60,
     "by_bucket": {
