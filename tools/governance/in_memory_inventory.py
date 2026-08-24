@@ -63,6 +63,7 @@ from __future__ import annotations
 import ast
 import json
 import re
+import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -148,6 +149,30 @@ class Inventory:
     summary: dict[str, object] = field(default_factory=dict)
 
 
+def _repo_identity(root: Path) -> str:
+    """هُويّةُ المستودعِ من بُعدِه لا من مسارِ الآلةِ (‏W-037).
+
+    كانَ هذا الحقلُ يُنشَرُ `str(root)` — أي مسارَ جهازِ مَن شغَّلَ الأداةَ حرفيًّا
+    (مثالُه المقيسُ: `/home/user/workspace/AMOS-Fedration`). فأفشى بيئةَ عاملٍ في
+    سجلٍّ عامٍّ، وجعلَ الملفَّ غيرَ منقولٍ بينَ بيئتَينِ، فاضطرَّ W-035 إلى استثنائِه
+    من المقارنةِ بدلًا من منعِ نشرِه. وW-037 يمنعُ النشرَ من أصلِه.
+
+    ونُسِخَ المنطقُ عن `tools/governance/truth_audit.py::_repo_identity` قصدًا:
+    أداةُ التدقيقِ لا تُستورَدُ هنا لأنَّ `tools/` ليست حزمةً، والنسخُ محروسٌ بفحصٍ
+    يُقارِنُ ناتجَ الدالّتَينِ فلا يفترقانِ صامتًا.
+    """
+    probe = subprocess.run(
+        ["git", "-C", str(root), "remote", "get-url", "origin"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    url = probe.stdout.strip()
+    if probe.returncode != 0 or not url:
+        return str(root.name)
+    return url.rstrip("/").removesuffix(".git").rsplit("/", 1)[-1].rsplit(":", 1)[-1]
+
+
 def _iter_python_files(root: Path):
     """امشِ في ملفّاتِ بايثونَ كلِّها متجاوزًا مجلّداتِ البناءِ والبيئة."""
     for p in sorted(root.rglob("*.py")):
@@ -202,7 +227,7 @@ class VolatileStoreInventory:
     def __init__(self, root: Path):
         self.root = root.resolve()
         self.src = self.root / SERVICES_SRC
-        self.inventory = Inventory(repo=str(self.root))
+        self.inventory = Inventory(repo=_repo_identity(self.root))
         # اسمُ الصنفِ → معلوماتُه المقيسةُ في `src/`
         self.class_info: dict[str, dict[str, object]] = {}
 
@@ -483,6 +508,9 @@ def _payload(inv: Inventory) -> dict[str, object]:
 
 
 #: الحقولُ التي تختلفُ بين آلةٍ وآلةٍ فلا تُقارَنُ — وما عداها يُقارَنُ كلُّه.
+#: وW-037 نزعَ عن `repo` مسارَ الآلةِ فصارَ هُويّةً (اسمَ المستودعِ من `origin`)،
+#: وبقيَ مُستثنًى لسببٍ واحدٍ باقٍ: استنساخٌ بلا `origin` يرتدُّ إلى اسمِ مجلَّدِه،
+#: فلو قُورِنَ لسقطَت البوّابةُ على مَن أعادَ تسميةَ مجلَّدِه لا على انحرافٍ حقيقيٍّ.
 _MACHINE_LOCAL_KEYS = ("repo",)
 
 
