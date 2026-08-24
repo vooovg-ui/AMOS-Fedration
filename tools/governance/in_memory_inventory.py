@@ -47,10 +47,12 @@
     للتوصيلِ المقيس.
 
 Usage:
-    python tools/governance/in_memory_inventory.py [REPO_ROOT] [--json] [--strict]
+    python tools/governance/in_memory_inventory.py [REPO_ROOT] [--json] [--strict] [--check]
 
     --json    اطبعِ الجردَ كاملًا JSON على المخرجِ القياسيّ.
     --strict  اخرجْ بـ1 إن وُجدَ مخزنٌ غيرُ مُصرَّحٍ به (`UNDECLARED` > 0).
+    --check   اخرجْ بفشلٍ إن كانَ القياسُ المنشورُ متقادمًا عن المصدرِ (‏W-035)،
+              ولا يكتبُ شيئًا: يحكمُ ويُعلِنُ الفرقَ حقلًا حقلًا.
 
 المخرجات:
     docs/audit/measurements/in_memory_inventory.json
@@ -400,6 +402,45 @@ class VolatileStoreInventory:
             "module_stores_total": len(self.inventory.module_stores),
             "undeclared_module_stores": undeclared_module_stores,
             "undeclared_total": len(undeclared_classes) + len(undeclared_module_stores),
+            "q38_option_impact": self._q38_option_impact(buckets),
+        }
+
+    def _q38_option_impact(self, buckets: dict[str, int]) -> dict[str, object]:
+        """احسبْ **أثرَ كلِّ خيارٍ من خياراتِ Q-38 الثلاثةِ بالرقمِ المقيسِ اليومَ**.
+
+        لماذا هذا هنا (W-035): نصُّ Q-38 يعرضُ ثلاثةَ خياراتٍ على المالكِ، وكلُّ
+        خيارٍ **يُحرِّكُ رقمَ الدَّينِ المُعلَنَ للدولةِ** وخطَّ الأساسِ الذي تقيسُ
+        به بوّابةُ `--ratchet`. وكانَ الرقمُ المعروضُ في السجلِّ منقولًا عن قياسِ
+        **2026-08-22** (‏W-029)، وقد بطَلَ منه ما بطَلَ بعدَ W-031 وW-032 وW-033.
+        فيُحسَبُ الأثرُ **هنا من المصدرِ** كي يكونَ القرارُ حسابًا لا تخمينًا.
+
+        وهذه الأرقامُ **لا تُغيِّرُ عدّادًا ولا خطَّ أساسٍ ولا تمسُّ الكاشفَ**: هي
+        عرضُ أثرٍ لا تنفيذُ خيار. والتنفيذُ لا يجوزُ إلّا بحسمٍ مكتوبٍ من المالك.
+        """
+        # نصُّ الخيارِ (أ) يقولُ: «يُستثنى `tests/` ويُضافُ كشفُ حالةِ الوحدةِ».
+        # فالمستثنى هو دلوُ حزمةِ الاختبارِ وحدَهُ، وما سواه يبقى معدودًا —
+        # ومنه `UNKNOWN_NAME` (‏ورودٌ خارجَ الخدماتِ وخارجَ الاختبارِ): حطُّه من العدَّ
+        # لم يَأمرْ به أحدٌ، وحطُّ ما لم يُأمرْ بحطِّه تجميلٌ لا قياسٌ.
+        total = len(self.inventory.occurrences)
+        non_test = total - int(buckets.get("TEST_REFERENCE", 0))
+        modules = len(self.inventory.module_stores)
+        return {
+            "measured_at_scan": True,
+            "option_a_counts_wiring_not_names": non_test + modules,
+            "option_b_counter_unchanged": total,
+            "option_c_second_detector_added": total + modules,
+            "inputs": {
+                "name_occurrences_total": total,
+                "name_occurrences_outside_tests": non_test,
+                "module_stores_not_seen_by_counter": modules,
+            },
+            "note": (
+                "أثرٌ مقيسٌ لخياراتِ SOVEREIGN_DECISION_REGISTER.md § Q-38 — عرضٌ لا "
+                "تنفيذ. (أ) يقيسُ التوصيلَ لا الاسمَ فيستثني حزمةَ الاختبارِ ويُضيفُ "
+                "مخازنَ حالةِ الوحدةِ. (ب) يُبقي العدّادَ ويُصحِّحُ دلالتَه. (ج) يُضيفُ "
+                "كاشفًا ثانيًا لمخازنِ حالةِ الوحدةِ فيرتفعُ العدُّ. ولم يُمَسَّ الكاشفُ "
+                "ولا خطُّ الأساسِ في هذا القياس."
+            ),
         }
 
     def scan(self) -> Inventory:
@@ -412,12 +453,14 @@ class VolatileStoreInventory:
         return self.inventory
 
 
-def _write_json(root: Path, inv: Inventory) -> Path:
-    """اكتبِ الجردَ إلى `docs/audit/measurements/` وأعِدْ مسارَه."""
-    out_dir = root / "docs" / "audit" / "measurements"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out = out_dir / "in_memory_inventory.json"
-    payload = {
+def _payload(inv: Inventory) -> dict[str, object]:
+    """ابنِ الحِملَ المنشورَ — موضعٌ واحدٌ يبنيه فلا يختلفُ الكاتبُ عن المُقارِن.
+
+    لماذا استُخرِجَ (W-035): بوّابةُ `--check` تُقارِنُ المنشورَ بقياسٍ طازجٍ. فلو
+    بنى كلٌّ منهما حِملَه بنفسِه لصارَت البوّابةُ تُصادِقُ على فهمِها لا على
+    المُولِّدِ، فتبقى خضراءَ بعدَ أن يختلفَ المُولِّدُ عمّا يُقارِنُ به.
+    """
+    return {
         # المادةُ التاسعةُ · 2: الملفُّ المُولَّدُ يُعلِنُ هدفَه في ترويستِه، وإلّا
         # سقطَتْ بوّابةُ الهويّةِ عليه. ويُكتَبُ من المُولِّدِ لا يدًا (‏المخرَجُ لا يُحرَّر).
         "$comment": (
@@ -437,8 +480,71 @@ def _write_json(root: Path, inv: Inventory) -> Path:
         "occurrences": [asdict(o) for o in inv.occurrences],
         "module_stores": [asdict(m) for m in inv.module_stores],
     }
-    out.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+#: الحقولُ التي تختلفُ بين آلةٍ وآلةٍ فلا تُقارَنُ — وما عداها يُقارَنُ كلُّه.
+_MACHINE_LOCAL_KEYS = ("repo",)
+
+
+def _comparable(payload: dict[str, object]) -> str:
+    """جرِّدِ الحِملَ من الحقولِ المحليّةِ للآلةِ ثمّ ثبِّتْ ترتيبَه للمقارنة."""
+    return json.dumps(
+        {k: v for k, v in payload.items() if k not in _MACHINE_LOCAL_KEYS},
+        ensure_ascii=False,
+        sort_keys=True,
+    )
+
+
+def _output_path(root: Path) -> Path:
+    """موضعُ القياسِ المنشورِ — يُقرأُ منه ويُكتَبُ إليه بنفسِ الدالّة."""
+    return root / "docs" / "audit" / "measurements" / "in_memory_inventory.json"
+
+
+def _write_json(root: Path, inv: Inventory) -> Path:
+    """اكتبِ الجردَ إلى `docs/audit/measurements/` وأعِدْ مسارَه."""
+    out = _output_path(root)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(
+        json.dumps(_payload(inv), ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     return out
+
+
+def check_published_is_fresh(root: Path, inv: Inventory) -> tuple[bool, str]:
+    """أَيُطابِقُ القياسُ المنشورُ على القرصِ قياسًا طازجًا من المصدر؟
+
+    لماذا وُجِدَت هذه البوّابةُ (W-035 · عيبٌ مقيسٌ لا مُفترَض): كلُّ حرّاسِ الخطوةِ
+    17 يقيسونَ **حيًّا** في تجهيزاتِهم، فيبقونَ خُضرًا وإن تقادَمَ الملفُّ المنشورُ.
+    وقد تقادَمَ فعلًا: نُشِرَ `module_stores_total: 7` بقياسِ 2026-08-22، ثمَّ أزالَت
+    W-031 وW-032 وW-033 خمسةً منها (‏مفتاحُ الإيقافِ والترقياتُ صارا دائمَينِ،
+    والوكلاءُ والأدواتُ صارا وساطةً، وسجلُّ المالِ صارَ جدولًا) — ولم يُعَدْ توليدُ
+    الملفِّ، فبقيَ الرقمُ المنشورُ يُقرأُ في السجلِّ سبعةً وهو اثنانِ. **قياسٌ لا
+    يُحرَسُ من التقادمِ يصيرُ دعوى.**
+
+    وترجعُ الدالّةُ الحكمَ ونصَّه، ولا تكتبُ شيئًا: البوّابةُ تحكمُ ولا تُصلِحُ صامتةً.
+    """
+    out = _output_path(root)
+    if not out.exists():
+        return False, f"القياسُ المنشورُ غيرُ موجودٍ: {out} — شغِّلِ الأداةَ بلا `--check`."
+    try:
+        published = json.loads(out.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return False, f"تعذَّرَ قراءةُ القياسِ المنشورِ ({out}): {exc}"
+    if _comparable(published) != _comparable(_payload(inv)):
+        fresh_summary = inv.summary
+        pub_summary = published.get("summary", {})
+        diffs = [
+            f"    - {key}: المنشورُ {pub_summary.get(key)!r} · المقيسُ الآنَ {fresh_summary.get(key)!r}"
+            for key in sorted(set(fresh_summary) | set(pub_summary))
+            if pub_summary.get(key) != fresh_summary.get(key)
+        ]
+        detail = "\n" + "\n".join(diffs) if diffs else "\n    - الفرقُ في التفاصيلِ لا في الملخَّص."
+        return False, (
+            f"القياسُ المنشورُ متقادمٌ ({out}): لا يُطابِقُ قياسًا طازجًا من المصدر.{detail}\n"
+            "    والإصلاحُ توليدٌ لا تحريرٌ بيدٍ: "
+            "`python tools/governance/in_memory_inventory.py .`"
+        )
+    return True, f"القياسُ المنشورُ طازجٌ ويُطابِقُ المصدرَ: {out}"
 
 
 def main(argv: list[str]) -> int:
@@ -449,6 +555,13 @@ def main(argv: list[str]) -> int:
 
     inv = VolatileStoreInventory(root).scan()
     s = inv.summary
+
+    # `--check` يحكمُ ولا يكتبُ: بوّابةٌ تُصلِحُ ما تحكمُ عليهِ لا تُثبِتُ شيئًا —
+    # تُخفي التقادمَ بإزالتِه في نفسِ النّفسِ، فتمرُّ الدَّفعةُ والملفُّ لم يُلتَزم.
+    if "--check" in flags:
+        ok, message = check_published_is_fresh(root, inv)
+        print(f"[IN-MEMORY INVENTORY --check] {'✓' if ok else '✗'} {message}")
+        return 0 if ok else 1
 
     if "--json" in flags:
         print(json.dumps(asdict(inv), ensure_ascii=False, indent=2))

@@ -24,9 +24,21 @@
     ],
     "undeclared_classes": [],
     "mismatched_declarations": [],
-    "module_stores_total": 7,
+    "module_stores_total": 2,
     "undeclared_module_stores": [],
-    "undeclared_total": 0
+    "undeclared_total": 0,
+    "q38_option_impact": {
+      "measured_at_scan": true,
+      "option_a_counts_wiring_not_names": 18,
+      "option_b_counter_unchanged": 60,
+      "option_c_second_detector_added": 62,
+      "inputs": {
+        "name_occurrences_total": 60,
+        "name_occurrences_outside_tests": 16,
+        "module_stores_not_seen_by_counter": 2
+      },
+      "note": "أثرٌ مقيسٌ لخياراتِ SOVEREIGN_DECISION_REGISTER.md § Q-38 — عرضٌ لا تنفيذ. (أ) يقيسُ التوصيلَ لا الاسمَ فيستثني حزمةَ الاختبارِ ويُضيفُ مخازنَ حالةِ الوحدةِ. (ب) يُبقي العدّادَ ويُصحِّحُ دلالتَه. (ج) يُضيفُ كاشفًا ثانيًا لمخازنِ حالةِ الوحدةِ فيرتفعُ العدُّ. ولم يُمَسَّ الكاشفُ ولا خطُّ الأساسِ في هذا القياس."
+    }
   },
   "classes": {
     "InMemoryTaskStore": {
@@ -58,7 +70,7 @@
       "line": 28,
       "declared_as": "WIRED_VOLATILE",
       "wired_at": [
-        "federal/executive/services/src/amos_federation/services/model_gateway/main.py:57",
+        "federal/executive/services/src/amos_federation/services/model_gateway/main.py:64",
         "federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
       ]
     },
@@ -132,15 +144,15 @@
       "name": "InMemoryShadowStore",
       "bucket": "SRC_WIRED_VOLATILE",
       "declared_as": "WIRED_VOLATILE",
-      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:57, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
+      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:64, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
     },
     {
       "path": "federal/executive/services/src/amos_federation/services/model_gateway/main.py",
-      "line": 57,
+      "line": 64,
       "name": "InMemoryShadowStore",
       "bucket": "SRC_WIRED_VOLATILE",
       "declared_as": "WIRED_VOLATILE",
-      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:57, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
+      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:64, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
     },
     {
       "path": "federal/executive/services/src/amos_federation/services/model_gateway/shadow.py",
@@ -148,7 +160,7 @@
       "name": "InMemoryShadowStore",
       "bucket": "SRC_WIRED_VOLATILE",
       "declared_as": "WIRED_VOLATILE",
-      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:57, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
+      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:64, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
     },
     {
       "path": "federal/executive/services/src/amos_federation/services/model_gateway/shadow.py",
@@ -156,7 +168,7 @@
       "name": "InMemoryShadowStore",
       "bucket": "SRC_WIRED_VOLATILE",
       "declared_as": "WIRED_VOLATILE",
-      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:57, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
+      "note": "federal/executive/services/src/amos_federation/services/model_gateway/main.py:64, federal/executive/services/src/amos_federation/services/model_gateway/shadow.py:150"
     },
     {
       "path": "federal/executive/services/src/amos_federation/services/tool_registry/store.py",
@@ -569,38 +581,10 @@
   ],
   "module_stores": [
     {
-      "path": "federal/executive/services/src/amos_federation/services/api_gateway/main.py",
-      "line": 65,
-      "variable": "agents",
-      "mutations": 1,
-      "declared_as": "WIRED_VOLATILE"
-    },
-    {
-      "path": "federal/executive/services/src/amos_federation/services/api_gateway/main.py",
-      "line": 68,
-      "variable": "tools",
-      "mutations": 1,
-      "declared_as": "WIRED_VOLATILE"
-    },
-    {
       "path": "federal/executive/services/src/amos_federation/services/governance/canary.py",
-      "line": 178,
+      "line": 203,
       "variable": "_canary_deployments",
       "mutations": 1,
-      "declared_as": "WIRED_VOLATILE"
-    },
-    {
-      "path": "federal/executive/services/src/amos_federation/services/governance/canary.py",
-      "line": 119,
-      "variable": "_promotions",
-      "mutations": 1,
-      "declared_as": "WIRED_VOLATILE"
-    },
-    {
-      "path": "federal/executive/services/src/amos_federation/services/governance/canary.py",
-      "line": 23,
-      "variable": "_system_state",
-      "mutations": 8,
       "declared_as": "WIRED_VOLATILE"
     },
     {
@@ -609,13 +593,6 @@
       "variable": "_factories",
       "mutations": 1,
       "declared_as": "CACHE_REBUILDABLE"
-    },
-    {
-      "path": "federal/executive/services/src/amos_federation/services/model_gateway/main.py",
-      "line": 56,
-      "variable": "_cost_log",
-      "mutations": 1,
-      "declared_as": "WIRED_VOLATILE"
     }
   ]
 }
