@@ -91,21 +91,21 @@
     "federal": {
       "domain": "federal",
       "md_files": 60,
-      "py_files": 225,
+      "py_files": 226,
       "yaml_files": 3,
-      "code_lines": 63824,
+      "code_lines": 64294,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
       },
       "has_readme": true,
-      "real_source_hits": 215,
+      "real_source_hits": 217,
       "fake_hits": 1,
       "in_memory_hits": 60,
       "secret_hits": 0,
       "observed_hits": 151,
       "api_routes": 182,
-      "test_refs": 184,
+      "test_refs": 192,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -126,7 +126,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 184
+        "TEST_NAME_MENTIONS": 192
       },
       "maturity": "UNIT_TESTED",
       "findings_count": 61
@@ -263,9 +263,9 @@
     "tools": {
       "domain": "tools",
       "md_files": 41,
-      "py_files": 27,
+      "py_files": 28,
       "yaml_files": 2,
-      "code_lines": 7635,
+      "code_lines": 7880,
       "nucleus_count": 12,
       "nucleus_status": {
         "unspecified": 12
@@ -277,7 +277,7 @@
       "secret_hits": 0,
       "observed_hits": 7,
       "api_routes": 1,
-      "test_refs": 116,
+      "test_refs": 118,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -298,7 +298,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 116
+        "TEST_NAME_MENTIONS": 118
       },
       "maturity": "INTEGRATED",
       "findings_count": 1
@@ -406,7 +406,7 @@
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 38,
+      "test_refs": 40,
       "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
@@ -427,7 +427,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 38
+        "TEST_NAME_MENTIONS": 40
       },
       "maturity": "IMPLEMENTED",
       "findings_count": 0
@@ -478,9 +478,9 @@
     "tests": {
       "domain": "tests",
       "md_files": 14,
-      "py_files": 54,
+      "py_files": 55,
       "yaml_files": 0,
-      "code_lines": 17156,
+      "code_lines": 17347,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
@@ -492,7 +492,7 @@
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 162,
+      "test_refs": 164,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -513,7 +513,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 162
+        "TEST_NAME_MENTIONS": 164
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -572,14 +572,14 @@
     {
       "kind": "IN_MEMORY_STORE",
       "path": "federal/executive/services/src/amos_federation/services/model_gateway/main.py",
-      "line": 29,
+      "line": 30,
       "detail": "مخزن ذاكرة `InMemoryShadowStore` يُستخدم كمصدر حقيقة",
       "severity": "HIGH"
     },
     {
       "kind": "IN_MEMORY_STORE",
       "path": "federal/executive/services/src/amos_federation/services/model_gateway/main.py",
-      "line": 64,
+      "line": 89,
       "detail": "مخزن ذاكرة `InMemoryShadowStore` يُستخدم كمصدر حقيقة",
       "severity": "HIGH"
     },
