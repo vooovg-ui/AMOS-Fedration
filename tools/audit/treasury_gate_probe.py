@@ -89,7 +89,20 @@ for action in CANDIDATES:
                 }
             )
 
-OUT = ROOT / "docs/audit/measurements/treasury_gate_matrix.json"
+# W-038: مسارُ الكتابةِ يُملى عليه ولا يُفرَضُ عليه. `--json PATH` يجعلُ المِسبارَ
+# يكتبُ حيثُ يُقالُ له، فيصيرُ قابلًا لأن يُعادَ قياسُه في بوّابةٍ **بلا أن تكتبَ
+# البوّابةُ ما تحكمُ عليه**. وبلا الرايةِ لا يتغيَّرُ شيءٌ: المسارُ هو نفسُه
+# والمُخرَجُ هو نفسُه بايتًا بايتًا — فالإضافةُ لا تنقُضُ قياسًا منشورًا.
+DEFAULT_OUT = ROOT / "docs/audit/measurements/treasury_gate_matrix.json"
+if "--json" in sys.argv[1:]:
+    _i = sys.argv.index("--json")
+    if _i + 1 >= len(sys.argv):
+        raise SystemExit("--json يقتضي مسارًا بعدَه.")
+    OUT = Path(sys.argv[_i + 1])
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+else:
+    OUT = DEFAULT_OUT
+
 # المادةُ التاسعةُ · 2: المُخرَجُ يُعلِنُ هدفَه في ترويستِه. وُضِعَ الصَّفُّ تحتَ
 # مفتاحِ rows لأنَّ قائمةً عليا لا تحمِلُ ترويسةً؛ والقيمُ لم تُمَسّ.
 with open(OUT, "w", encoding="utf-8") as fh:
