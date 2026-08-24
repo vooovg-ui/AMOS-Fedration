@@ -3,12 +3,12 @@
   "note": "قياسٌ لا حُكم: يقولُ ما يُفقَدُ، ولا يقولُ ما يجبُ أن يُدامَ — ذاك قرارٌ سياديٌّ (Q-39؛ حُسِمَ شقُّه الأوّلُ 2026-08-23 فأُديمَ مفتاحُ الإيقافِ والترقياتُ في W-031). و`lost_on_restart` **ليس** مخالفةً جديدةً ولا يدخلُ عدّادَ المصفوفةِ: هو بيانُ أثرِ الستّينَ المعروفةِ. وشاهدا الضبطِ (audit_chain · task) يجبُ أن ينجُوا، فإن سقطا فالمِسبارُ هو المكسورُ لا الحالة.",
   "summary": {
     "surfaces_total": 12,
-    "lost_on_restart": 5,
-    "survived_restart": 7,
+    "lost_on_restart": 4,
+    "survived_restart": 8,
     "unmeasured": 0,
     "contradicts_declaration": 0,
-    "declared_volatile": 5,
-    "control_surfaces": 6
+    "declared_volatile": 4,
+    "control_surfaces": 7
   },
   "surfaces": [
     {
@@ -89,18 +89,19 @@
     {
       "surface_id": "cost_log",
       "service": "model_gateway",
-      "declared": "WIRED_VOLATILE",
-      "what_is_lost": "سجلُّ تكلفةِ النداءاتِ في `/v1/cost/summary` — ولها مصدرٌ دائمٌ منافسٌ (Q-39)",
+      "declared": "DURABLE_CONTROL",
+      "what_is_lost": "لا شيءَ بعدَ W-033: كلفةُ كلِّ نداءٍ في جدولِ `model_cost_log` — ورقمٌ واحدٌ للمالِ لا اثنان",
       "wrote_ok": true,
-      "survived": false,
-      "expected_survival": false,
+      "survived": true,
+      "expected_survival": true,
       "verdict": "MATCHES_DECLARATION",
-      "detail": "المتطايرُ بعدَ الإقلاعِ 0 · الدائمُ 0",
+      "detail": "المتطايرُ بعدَ الإقلاعِ 1 · الدائمُ 1 · رقمٌ واحدٌ للمال",
       "extra": {
         "volatile_before": 1,
-        "persistent_before": 0,
-        "volatile_after": 0,
-        "persistent_after": 0
+        "persistent_before": 1,
+        "volatile_after": 1,
+        "persistent_after": 1,
+        "single_number": true
       }
     },
     {

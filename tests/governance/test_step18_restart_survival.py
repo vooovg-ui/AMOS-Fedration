@@ -66,6 +66,9 @@ PINNED_DURABLE_BY_DECISION = (
     "promotion",
     "registered_agent",
     "registered_tool",
+    # W-033 · حسمُ Q-39 (ج): سجلُّ المالِ دائمٌ ويُكتَبُ فيه في مسارِ النداءِ.
+    # تثبيتُه هنا يعني أنَّ إعادتَه متطايرًا تُسقِطُ الحرسَ لا تمرُّ بصمتٍ.
+    "cost_log",
 )
 
 #: شاهدا الضبطِ: نجاتُهما شرطُ صدقِ المِسبارِ نفسِه.
@@ -278,7 +281,16 @@ def test_the_two_cost_sources_are_recorded_as_measured(
         "persistent_after",
     ):
         assert isinstance(extra.get(key), int), f"عدَّادُ {key} غيرُ مقيسٍ."
-    assert extra["volatile_before"] >= 1, "النداءُ لم يُقيَّدْ في المصدرِ المتطاير."
+    assert extra["volatile_before"] >= 1, "النداءُ لم يُقيَّدْ في مصدرِ الملخَّصِ."
+    # W-033 · حسمُ Q-39 (ج): الملخَّصُ يُعادُ بناؤُه **فوقَ** السجلِّ الدائمِ، فرقمانِ
+    # مختلفانِ للمالِ في واجهةٍ واحدةٍ نقضٌ للحسمِ — لا فرقٌ يُشرَحُ في تعليقٍ.
+    assert (
+        extra["volatile_before"] == extra["persistent_before"]
+    ), "مصدرا التكلفةِ يختلفانِ قبلَ الإقلاعِ — رقمانِ للمالِ نقضٌ لـQ-39 (ج)."
+    assert (
+        extra["volatile_after"] == extra["persistent_after"]
+    ), "مصدرا التكلفةِ يختلفانِ بعدَ الإقلاعِ — رقمانِ للمالِ نقضٌ لـQ-39 (ج)."
+    assert extra.get("single_number") is True, "المِسبارُ لم يشهَدْ برقمٍ واحدٍ للمال."
 
 
 # =============================================================================

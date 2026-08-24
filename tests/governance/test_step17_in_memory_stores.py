@@ -255,19 +255,38 @@ def test_inventory_tool_carries_no_store_of_its_own(inventory):
 
 # ── 5 · لا يُدَّعى صمودٌ حيثُ يُقاسُ تطايرٌ ─────────────────────────────────
 def test_volatile_endpoints_declare_their_store_type():
-    """النقطتانِ القارئتانِ من ذاكرةٍ تُعلِنانِ تصنيفَ مخزنِهما في الخرج."""
+    """كلُّ نقطةٍ تُعلِنُ تصنيفَ مخزنِها في خرجِها — والإعلانُ يتبعُ القياسَ (W-033).
+
+    كانَ الحرسُ يشترطُ **إعلانَينِ متطايرَينِ** في `model_gateway` لأنَّ فيها
+    مخزنَينِ متطايرَينِ: سجلُّ التكلفةِ ونتائجُ الظلِّ. ولمّا حُسِمَ **Q-39 (ج)**
+    وأُديمَ سجلُّ المالِ في `W-033` بقيَ متطايرٌ واحدٌ. فلم يُحذَفِ الشرطُ ولم
+    يُخفَّضْ عددٌ ليمرَّ: صارَ **مُسمًّى** — الظلُّ يُعلِنُ تطايرَه، والمالُ يُعلِنُ
+    إدامتَه. فلو رُدَّ المالُ إلى الذاكرةِ بلا قرارٍ سقطَ هذا الحرسُ.
+    """
     text = (SERVICES_SRC / "services" / "model_gateway" / "main.py").read_text(
         encoding="utf-8"
     )
     assert 'STORE_DURABILITY = "in_memory_volatile"' in text, (
         "غابَ ثابتُ تصنيفِ الإدامةِ من `model_gateway`."
     )
-    assert text.count('"store_type": STORE_DURABILITY') >= 2, (
-        "نقطةٌ تقرأُ من ذاكرةٍ متطايرةٍ بلا إعلانِ `store_type` في خرجِها."
+    assert text.count('"store_type": STORE_DURABILITY') >= 1, (
+        "نقطةُ الظلِّ تقرأُ من ذاكرةٍ متطايرةٍ بلا إعلانِ `store_type` في خرجِها."
     )
-    assert '"persistent_source": "/v1/models/cost-summary"' in text, (
-        "ملخَّصُ التكلفةِ المتطايرُ لا يُشيرُ إلى الملخَّصِ الدائمِ المنافسِ له."
+    assert 'COST_STORE_DURABILITY = "durable_record"' in text, (
+        "سجلُّ المالِ أُديمَ في W-033 ولا إعلانَ لإدامتِه في الشِفرةِ."
     )
+    assert text.count('"store_type": COST_STORE_DURABILITY') >= 1, (
+        "ملخَّصُ المالِ لا يُعلِنُ في خرجِه أنَّه قراءةٌ على سجلٍّ دائمٍ."
+    )
+    assert '"persistent_source": COST_RECORD_ENDPOINT' in text, (
+        "ملخَّصُ المالِ لا يُشيرُ إلى السجلِّ الذي بُنِيَ فوقَه."
+    )
+    # الاسمُ مذكورٌ في تعليقٍ يشرحُ ما حُذِفَ، فالحرسُ على **الشِفرةِ** لا على النصِّ:
+    # لا إنشاءَ للقائمةِ ولا كتابةَ فيها.
+    for pattern in ("_cost_log: list", "_cost_log.append(", "_cost_log ="):
+        assert pattern not in text, (
+            f"عادَ سجلُّ التكلفةِ قائمةً في الذاكرةِ ({pattern}) — نقضٌ لحسمِ Q-39 (ج)."
+        )
 
 
 def test_training_service_declares_its_store_durability():

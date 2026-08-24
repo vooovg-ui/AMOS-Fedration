@@ -8,7 +8,6 @@ AMOS-Federation Model Gateway Service
 
 import time
 import uuid
-from datetime import UTC, datetime
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -25,6 +24,7 @@ from amos_federation.services.executive_core.subsystem_boundary import (
     SubsystemRefusedError,
     get_subsystem_boundary,
 )
+from amos_federation.services.model_gateway.model_layer import get_model_layer
 from amos_federation.services.model_gateway.shadow import (
     InMemoryShadowStore,
     _alpha_response,
@@ -42,18 +42,25 @@ COST_PER_1K_TOKENS = {
     "claude-opus-4": 0.075,
 }
 
-#: تصنيفُ إدامةِ مخازنِ هذه الخدمةِ — مُعلَنٌ في الشِفرةِ لا مُستنتَجٌ من قارئٍ (T3.6).
-#: قِيسَ في W-029 أنَّ سجلَّ التكلفةِ ومخزنَ نتائجِ Shadow في ذاكرةِ العمليّةِ معًا.
+#: تصنيفُ إدامةِ **مخزنِ نتائجِ الظلِّ** — مُعلَنٌ في الشِفرةِ لا مُستنتَجٌ من قارئٍ (T3.6).
+#: بقيَ متطايرًا بعدَ W-033: حسمُ Q-39 (ج) نصَّ على **المالِ** ولم ينُصَّ على الظلِّ،
+#: والقياسُ على قرارٍ سياديٍّ اختراعٌ له. والاسمُ لم يُغيَّرْ لأنَّه **قيمةٌ منشورةٌ**
+#: في خرجِ `GET /v1/shadow/stats`.
 STORE_DURABILITY = "in_memory_volatile"
 
-# Cost log
-# T3.6-DURABILITY: WIRED_VOLATILE — سجلُّ التكلفةِ قائمةٌ في الذاكرةِ يقرأُ منها
-# `GET /v1/cost/summary`. وقِيسَ في W-029 أنَّ في الخدمةِ نفسِها **ملخَّصَ تكلفةٍ
-# ثانيًا دائمًا** (`GET /v1/models/cost-summary` من `model_layer` عبرَ قاعدةِ
-# البيانات) — أي رقمانِ للمالِ في واجهةٍ واحدةٍ أحدُهما يتبخّر. لم تُحذَفْ نقطةٌ
-# ولم يُغيَّرْ رقمٌ: حذفُ نقطةٍ منشورةٍ عقدٌ مع مُستهلِكيها، وتوحيدُ المصدرَينِ يوجبُ
-# حسمَ أيِّهما مصدرُ الحقيقةِ للمال — بابُ Q-39. وأُعلِنَ التطايرُ في خرجِ النقطةِ.
-_cost_log: list[dict[str, Any]] = []
+#: تصنيفُ إدامةِ **سجلِّ المالِ** — W-033 · حسمُ Q-39 (ج).
+#: كانَ سجلُّ التكلفةِ قائمةً في ذاكرةِ العمليّةِ (`_cost_log`) يقرأُ منها
+#: `GET /v1/cost/summary`، وفي الخدمةِ نفسِها ملخَّصٌ ثانٍ دائمٌ
+#: (`GET /v1/models/cost-summary`) — رقمانِ للمالِ في واجهةٍ واحدةٍ أحدُهما يتبخّر.
+#: فحُسِمَ: «الدائمُ سجلًّا · ويُكتَبُ فيه في مسارِ النداءِ · والملخَّصُ المتطايرُ
+#: يُعادُ بناؤُه فوقَه لا يُنافِسُه». فحُذِفَت القائمةُ، وصارَ `POST /v1/models/invoke`
+#: يكتبُ في جدولِ `model_cost_log` **في مسارِ النداءِ نفسِه**، و`GET /v1/cost/summary`
+#: يُعادُ بناؤُه فوقَ الجدولِ بشكلِ خرجِه المنشورِ بلا حذفِ مفتاحٍ.
+COST_STORE_DURABILITY = "durable_record"
+
+#: النقطةُ التي تُعلِنُ نفسَها مصدرَ الحقيقةِ للمالِ — مكتوبةٌ مرّةً وتُقرأُ في الخرجِ.
+COST_RECORD_ENDPOINT = "/v1/models/cost-summary"
+
 _shadow_store = InMemoryShadowStore()
 
 
@@ -186,16 +193,19 @@ async def invoke_model(
         )
     latency = int((time.monotonic() - start) * 1000)
     cost = round(tokens * COST_PER_1K_TOKENS.get(model, 0.0) / 1000, 6)
-    _cost_log.append(
-        {
-            "invocation_id": f"inv-{uuid.uuid4()}",
-            "timestamp": datetime.now(UTC).isoformat(),
-            "model": model,
-            "tokens": tokens,
-            "cost_usd": cost,
-            "latency_ms": latency,
-            "source": source,
-        }
+    # W-033 · حسمُ Q-39 (ج): الكتابةُ **في مسارِ النداءِ** وفي السجلِّ الدائمِ نفسِه،
+    # لا في قائمةِ ذاكرةٍ تُنافِسُه. وموضعُ الكتابةِ **حيثُ أُنفِقَ المالُ**: قبلَ بوّابةِ
+    # الصلاحيةِ أدناه، لأنَّ الرموزَ استُهلِكَت فعلًا حتى لو رُفِضَ نسبُ النشاطِ —
+    # فقيدُ الإنفاقِ يبقى ولو رُدَّ الطلبُ بـ403، وهذا هو الترتيبُ الذي كانَ قائمًا
+    # قبلَ الإدامةِ فلم يُغيَّرْ ترتيبٌ معَ تغييرِ الموضعِ.
+    invocation_id = f"inv-{uuid.uuid4()}"
+    get_model_layer().log_cost(
+        invocation_id=invocation_id,
+        model=model,
+        tokens=tokens,
+        cost_usd=cost,
+        latency_ms=latency,
+        source=source,
     )
     try:
         activity = boundary.authorized_activity(
@@ -290,15 +300,21 @@ async def shadow_stats(
 async def cost_summary(
     _: Annotated[dict[str, object], Depends(require_auth)],
 ) -> dict[str, Any]:
-    """ملخص التكاليف لكل النماذج — من سجلٍّ متطايرٍ، ويُعلنُ ذلكَ ومصدرَه الدائم.
+    """ملخص التكاليف لكل النماذج — **يُعادُ بناؤُه فوقَ السجلِّ الدائمِ** (W-033 · Q-39 ج).
 
-    T3.6 · W-029: هذا الملخَّصُ يُحسَبُ من `_cost_log` في الذاكرة، فيصفرُ عندَ إعادةِ
-    التشغيل. وفي الخدمةِ نفسِها `GET /v1/models/cost-summary` يقرأُ من قاعدةِ
-    البيانات. فأُعلِنَ الفارقُ في الخرجِ ولم يُحسَمْ أيُّهما مصدرُ الحقيقة — Q-39.
+    كانَ يُحسَبُ من `_cost_log` في الذاكرةِ فيصفرُ عندَ إعادةِ التشغيلِ، وفي الخدمةِ
+    نفسِها ملخَّصٌ ثانٍ دائمٌ — رقمانِ للمالِ أحدُهما يتبخّر. فحُسِمَ أنَّ الدائمَ هو
+    السجلُّ، فصارَ هذا الملخَّصُ **قراءةً على الجدولِ نفسِه** لا مخزنًا منافسًا.
+
+    **ولم يُحذَفْ مفتاحٌ ولم يُبدَّلْ شكلٌ:** `total_invocations` و`total_cost_usd`
+    و`by_model{invocations,total_tokens,total_cost}` كما كانت، لأنَّ حذفَ مفتاحٍ
+    منشورٍ عقدٌ مع مُستهلِكيه. والذي تغيَّرَ **قيمةُ** `store_type`: صارت
+    `durable_record` بدلَ `in_memory_volatile` — إعلانٌ صارَ صادقًا لا مفتاحٌ جديد.
     """
-    total_cost = sum(r["cost_usd"] for r in _cost_log)
+    rows = get_model_layer().cost_rows()
+    total_cost = sum(r["cost_usd"] for r in rows)
     by_model: dict[str, dict[str, float]] = {}
-    for entry in _cost_log:
+    for entry in rows:
         m = entry["model"]
         if m not in by_model:
             by_model[m] = {"invocations": 0, "total_tokens": 0, "total_cost": 0.0}
@@ -308,13 +324,13 @@ async def cost_summary(
     for m in by_model:
         by_model[m]["total_cost"] = round(by_model[m]["total_cost"], 6)
     return {
-        "total_invocations": len(_cost_log),
+        "total_invocations": len(rows),
         "total_cost_usd": round(total_cost, 6),
         "by_model": by_model,
-        # مفتاحانِ مُضافانِ (لا حذفَ ولا تبديلَ): تصنيفُ الإدامةِ ومُؤشِّرٌ إلى
-        # الملخَّصِ الدائمِ، كي لا يُقرأَ رقمُ مالٍ متطايرٍ على أنّه سجلُّ الدولة.
-        "store_type": STORE_DURABILITY,
-        "persistent_source": "/v1/models/cost-summary",
+        # المفتاحانِ باقيانِ بلا تبديلٍ، وقيمةُ الأوّلِ صارت صادقةً بعدَ W-033،
+        # والثاني يُشيرُ إلى **نفسِ** الجدولِ الذي بُنِيَ فوقَه هذا الملخَّصُ.
+        "store_type": COST_STORE_DURABILITY,
+        "persistent_source": COST_RECORD_ENDPOINT,
     }
 
 

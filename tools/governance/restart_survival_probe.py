@@ -191,7 +191,14 @@ def _read_shadow(key: str) -> dict[str, Any]:
 
 
 def _write_cost() -> dict[str, Any]:
-    """نداءُ نموذجٍ واحدٌ يُقيَّدُ في مَصدرَي تكلفةٍ متنافسَين."""
+    """نداءُ نموذجٍ واحدٌ يُقيَّدُ في **سجلٍّ واحدٍ دائمٍ** بعدَ W-033.
+
+    كانَ يُقيَّدُ في مَصدرَي تكلفةٍ متنافسَينِ: قائمةٌ في ذاكرةِ العمليّةِ يقرأُها
+    `/v1/cost/summary` وجدولٌ دائمٌ يقرأُه `/v1/models/cost-summary`. فحُسِمَ
+    **Q-39 (ج)** فصارَ الجدولُ هو السجلَّ، والملخَّصُ يُعادُ بناؤُه فوقَه. ولذلك
+    يُقاسُ العدَّانِ معًا **قبلَ** الإقلاعِ وبعدَه: تطابقُهما هو الدليلُ على أنَّهما
+    قراءتانِ لحقيقةٍ واحدةٍ لا رقمانِ للمال.
+    """
     client, _ = _client("model_gateway")
     resp = client.post(
         "/v1/models/invoke", headers=_headers(), json={"prompt": "قِسْ تكلفةً"}
@@ -236,10 +243,21 @@ def _read_cost(key: str) -> dict[str, Any]:
     persistent = _cost_count(
         client.get("/v1/models/cost-summary", headers=_headers()).json()
     )
+    # W-033: النجاةُ ليست «بقيَ رقمٌ» بل **رقمٌ واحدٌ**: لو نجا الملخَّصُ وخالفَ
+    # السجلَّ الدائمَ لكانَ في الواجهةِ رقمانِ للمالِ، وذلك أسوأُ من الصفرِ لأنَّه
+    # يُصدَّقُ. فالتطابقُ شرطٌ في النجاةِ لا زخرفةٌ في التفصيل.
+    faithful = volatile == persistent
     return {
-        "survived": volatile > 0,
-        "detail": f"المتطايرُ بعدَ الإقلاعِ {volatile} · الدائمُ {persistent}",
-        "extra": {"volatile_after": volatile, "persistent_after": persistent},
+        "survived": volatile > 0 and faithful,
+        "detail": (
+            f"المتطايرُ بعدَ الإقلاعِ {volatile} · الدائمُ {persistent}"
+            + (" · رقمٌ واحدٌ للمال" if faithful else " · رقمانِ مختلفانِ للمال")
+        ),
+        "extra": {
+            "volatile_after": volatile,
+            "persistent_after": persistent,
+            "single_number": faithful,
+        },
     }
 
 
@@ -535,8 +553,8 @@ SURFACES: tuple[Surface, ...] = (
     Surface(
         "cost_log",
         "model_gateway",
-        VOLATILE,
-        "سجلُّ تكلفةِ النداءاتِ في `/v1/cost/summary` — ولها مصدرٌ دائمٌ منافسٌ (Q-39)",
+        DURABLE,
+        "لا شيءَ بعدَ W-033: كلفةُ كلِّ نداءٍ في جدولِ `model_cost_log` — ورقمٌ واحدٌ للمالِ لا اثنان",
         "cost_log",
         "cost_log",
     ),

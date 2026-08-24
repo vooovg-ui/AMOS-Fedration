@@ -30,11 +30,12 @@
 2026-08-18
 
 ## تاريخ آخر تعديل
-2026-08-19
+2026-08-24
 
 ## المحتويات
 - `README.md` — بطاقة هوية هذا المجلد (المادة التاسعة)
 - `decision_gate.py` — بوابةُ إعادةِ الجردِ بينَ موجاتِ القرارِ البشريّ
+- `last_recorded_work.py` — يطبعُ حقلًا من **آخرِ لقطةِ انحرافِ دَينٍ** مسجَّلةٍ، فلا يُكتَبُ رقمُ قيدٍ بيدٍ في CI (W-033)
 - `final_audit.py` — P14: تدقيقٌ نهائيٌّ يُطابِقُ المستودعَ بالوثيقة. يقيسُ ولا يُصلِحُ
 - `judicial_gate_probe.py` — P7: قياسُ أحكامِ البوابةِ على الأفعالِ القضائيّةِ والتشريعيّة
 - `sovereign_write_inventory.py` — جردُ مواضعِ الكتابةِ ومصدرُ رقمِ الدَّينِ الوحيد
@@ -51,6 +52,7 @@ python tools/audit/decision_gate.py --map                  # خريطةُ الم
 python tools/audit/decision_gate.py --measure              # قياسٌ بلا كتابة
 python tools/audit/decision_gate.py --record Q-NN          # لقطةٌ لقرارٍ أُغلِق
 python tools/audit/decision_gate.py --gate Wn              # فتحُ موجةٍ أو السقوطُ مُعلِنًا
+python tools/audit/last_recorded_work.py --field decision  # آخرُ قيدِ عملٍ مسجَّلٍ (لِتُعادَ لقطتُه بلا رقمٍ مكتوبٍ بيد)
 ```
 
 ---
