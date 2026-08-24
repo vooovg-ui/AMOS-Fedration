@@ -176,6 +176,41 @@ class ModelLayer:
         finally:
             session.close()
 
+    def cost_rows(self) -> list[dict[str, Any]]:
+        """كلُّ قيدٍ في سجلِّ التكلفةِ الدائمِ — صفوفٌ لا ملخَّصٌ (W-033).
+
+        ## لماذا صفوفٌ وقد وُجِدَ `get_cost_summary`
+
+        حُسِمَ **Q-39 (ج)**: «الدائمُ سجلًّا · ويُكتَبُ فيه في مسارِ النداءِ، والملخَّصُ
+        المتطايرُ يُعادُ بناؤُه فوقَه لا يُنافِسُه». ولنقطةِ `GET /v1/cost/summary`
+        شكلُ خرجٍ **منشورٌ** يختلفُ عن شكلِ `get_cost_summary` (‏`invocations` ·
+        `total_tokens` · `total_cost` مقابلَ `count` · `tokens` · `cost`)، وحذفُ
+        مفتاحٍ منشورٍ عقدٌ مع مُستهلِكيه لا حكمُ عاملٍ. فتُقرأُ الصفوفُ مرّةً
+        ويُعادُ بناءُ **كلِّ** شكلٍ فوقَها، فيبقى مصدرُ الحقيقةِ واحدًا والشكلانِ
+        اثنَينِ — وهذا هو معنى «يُعادُ بناؤُه فوقَه».
+
+        والكلفةُ تُعادُ `float` هنا لأنَّ عقدَ النقطةِ العامّةِ عائمٌ، وتحويلُ نوعِ
+        الردِّ العامِّ مُقيَّدٌ سؤالًا مستقلًّا (**Q-29**) لا يُخترَعُ جوابُه هنا.
+        والقيمةُ في القاعدةِ `NUMERIC(20,4)` كما هي.
+        """
+        session = self._Session()
+        try:
+            rows = session.query(CostLogModel).order_by(CostLogModel.id).all()
+            return [
+                {
+                    "invocation_id": r.invocation_id,
+                    "model": r.model,
+                    "tokens": r.tokens or 0,
+                    "cost_usd": float(r.cost_usd),
+                    "latency_ms": r.latency_ms or 0,
+                    "source": r.source,
+                    "created_at": r.created_at.isoformat() if r.created_at else None,
+                }
+                for r in rows
+            ]
+        finally:
+            session.close()
+
     def get_cost_summary(self) -> dict[str, Any]:
         """ملخص التكلفة التراكمي."""
         session = self._Session()
