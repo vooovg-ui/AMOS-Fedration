@@ -19,7 +19,7 @@
 
 | المعرِّف | النطاق | المسار | المالك | المراجع | الحالة | المسارات | بدأ | ينتهي الحجز | العائق | الخطوةُ التالية | قيدُ السجلّ |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| WI-001 | governance-docs | T2 | Driving H | المجلس التأسيسي | IN_REVIEW | docs/governance/work · tools/governance/check_work_governance.py · tests/governance/test_work_governance_gate.py · .github/workflows/ci.yml · docs/governance/README.md · docs/index.md · README.md · docs/PROJECT_HANDBOOK.md · docs/audit/COMPLETION_LEDGER.md | 2026-08-25 | 2026-09-01 | — | عرضُ الطبقةِ على المالكِ لاعتمادِ § 16 قبلَ الدفع | — |
+| WI-001 | governance-docs | T2 | Driving H | المجلس التأسيسي | VERIFIED | docs/governance/work · tools/governance/check_work_governance.py · tests/governance/test_work_governance_gate.py · .github/workflows/ci.yml · docs/governance/README.md · docs/index.md · README.md · docs/PROJECT_HANDBOOK.md · docs/audit/COMPLETION_LEDGER.md | 2026-08-25 | 2026-09-01 | — | نقلُه إلى CLOSED بقيدِه ورقمِ دمجِه (§ 7) | — |
 
 ---
 
@@ -41,7 +41,7 @@
 النطاق: governance-docs
 المسار/المرحلة: T2 (الحوكمةُ والتوثيقُ المحروس)
 المالك: Driving H            المراجع: المجلس التأسيسي
-الحالة: IN_REVIEW
+الحالة: VERIFIED
 المسارات:
   docs/governance/work/
   tools/governance/check_work_governance.py
@@ -71,7 +71,7 @@
   ruff check .
 بدأ: 2026-08-25        ينتهي الحجز: 2026-09-01
 العائق: —
-الخطوةُ التالية: عرضُ الطبقةِ على المالكِ لاعتمادِ § 16 قبلَ الدفعِ إلى main
+الخطوةُ التالية: نقلُ البندِ إلى CLOSED بقيدِه ورقمِ دمجِه — واجبُ ما بعدَ الدمج (THE_ROADMAP § 7)
 قيدُ السجلّ: —
 ```
 
