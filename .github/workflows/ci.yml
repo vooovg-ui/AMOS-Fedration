@@ -168,6 +168,43 @@ jobs:
           pip install -r requirements-dev.txt
           pytest tests/governance/test_completion_ledger_gate.py -v --tb=short
 
+  work-governance-gate:
+    name: Work Governance (الخارطةُ الحاكمة — لا عملَ غيرُ مُسجَّل)
+    runs-on: ubuntu-latest
+    steps:
+      # fetch-depth: 0 لازمٌ لا زينة: البوابةُ تقرأُ الأساسَ من git لقياسِ انتقالِ
+      # الحالةِ ومجموعةِ التغيير؛ وفي استنساخٍ ضحلٍ لا أساسَ يُقارَنُ به.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # البوابةُ لا تحتاج تبعيّات: مكتبةٌ قياسيّةٌ و git وحدهما — سجلّاتُ الطبقةِ
+      # جداولُ Markdown عن قصد، فلا تُسقِطُ البوّابةَ حزمةٌ غيرُ مُثبَّتةٍ في CI
+      # (DISC-002 في docs/governance/work/DISCOVERIES.md).
+      - name: بوابة 1 — سجلّاتُ الطبقةِ قائمةٌ سليمةُ الشكلِ ولا تقاطعَ فيها
+        run: python tools/governance/check_work_governance.py --self-check
+
+      # مجموعةُ التغييرِ تُقاسُ في وضعِ **الإبلاغِ** حتى يُعتمَدَ القرارُ A-3 في
+      # docs/governance/work/THE_ROADMAP.md § 16. وثيقةٌ لم تُعتمَدْ بعد لا يُحاسَبُ
+      # عليها عاملٌ سبقَها؛ وفحصُ الشكلِ أعلاه مُلزِمٌ الآنَ لأنّنا نملكُه كاملًا.
+      - name: بوابة 2 — كلُّ مسارٍ في هذا الطلبِ محجوزٌ ببندٍ نشِط (إبلاغ)
+        if: github.event_name == 'pull_request'
+        run: |
+          python tools/governance/check_work_governance.py --advisory \
+            --range "origin/${{ github.base_ref }}..HEAD"
+
+      - name: بوابة 2 — الالتزامُ المدفوعُ يستندُ إلى بندٍ نشِط (إبلاغ)
+        if: github.event_name == 'push'
+        run: python tools/governance/check_work_governance.py --advisory --commit HEAD
+
+      - name: بوابة 3 — البوّابةُ نفسُها مُراقَبةٌ باختباراتها
+        run: |
+          pip install -r requirements-dev.txt
+          pytest tests/governance/test_work_governance_gate.py -v --tb=short
+
   constitutional-kernel:
     name: Constitutional Kernel (E1 — بوابات الدستور)
     runs-on: ubuntu-latest

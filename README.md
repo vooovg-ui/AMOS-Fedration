@@ -13,6 +13,8 @@
 >
 > **ثم اقرأ [docs/governance/WORKING_PRINCIPLE.md](docs/governance/WORKING_PRINCIPLE.md) — مبدأ العمل الملزم.**
 >
+> **ثم [docs/governance/work/THE_ROADMAP.md](docs/governance/work/THE_ROADMAP.md) — الخارطة الحاكمة: لا تكتب سطرًا قبل أن تسجّل بندك وتحجز نطاقك في [ACTIVE_WORK.md](docs/governance/work/ACTIVE_WORK.md).**
+>
 > **ثم [docs/audit/PHASE_E_ROADMAP.md](docs/audit/PHASE_E_ROADMAP.md) — خطة السجل: عصر التنفيذ E0–E24.**
 >
 > **وقبل أن تصدّق أي ادعاء اكتمال: [docs/audit/TRUTH_MATRIX.md](docs/audit/TRUTH_MATRIX.md) — الحقيقة المقاسة آليًا.**
@@ -34,7 +36,7 @@
 كل ملف داخله يجب أن يحتوي على ترويسة تعريفية.
 
 ## تاريخ آخر تعديل
-2026-08-15
+2026-08-25
 
 ## المحتويات
 - `.coverage` — ملف تابع

@@ -52,6 +52,13 @@
 الدفعُ بلا قيدٍ **يفشلُ آليًّا** بإحدى المخالفات: `LEDGER_NOT_UPDATED` ·
 `LEDGER_NOT_EXTENDED` · `DUPLICATE_WORK_ID` · `LEDGER_STALE_BASE`.
 
+**وقاعدةٌ ثانيةٌ تكمِّلُها — قبلَ العملِ لا بعدَه:** القيدُ يوثِّقُ الماضيَ، ولا يمنعُ
+أن تعملَ جهتانِ الشيءَ نفسَه في الوقتِ نفسِه. لذلك يُسجَّلُ العملُ **قبلَ** بدئِه
+ويُحجَزُ نطاقُه في [`docs/governance/work/ACTIVE_WORK.md`](governance/work/ACTIVE_WORK.md)
+بحسبِ [`THE_ROADMAP.md`](governance/work/THE_ROADMAP.md) — الخارطةُ الحاكمةُ لطريقِ
+العمل. من يفرضُها: `tools/governance/check_work_governance.py` عبرَ وظيفةِ
+`work-governance-gate`. (‏حالتُها `PROPOSED` حتى يعتمدَها المالكُ — § 16 منها.)
+
 **حدُّها المُعلَن:** البوّابةُ تحكمُ على **وجودِ** القيدِ لا على **صدقِه**
 (§ 2.2 من السجلّ). فصدقُ القيدِ أمانةٌ على كاتبِه، ولا تُغنيه البوّابةُ عنها.
 
