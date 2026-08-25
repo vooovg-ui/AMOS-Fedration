@@ -22,6 +22,8 @@
 | [`ARCHITECTURE.md`](../ARCHITECTURE.md) | دستور البنية |
 | [`EXECUTION_PLAN.md`](../EXECUTION_PLAN.md) | سجل تاريخي (P0–P9) — لم يعد خطة السجل |
 | [`governance/WORKING_PRINCIPLE.md`](governance/WORKING_PRINCIPLE.md) | **مبدأ العمل الملزم** |
+| [`governance/work/THE_ROADMAP.md`](governance/work/THE_ROADMAP.md) | **الخارطة الحاكمة** — قانون العمل وترتيبه وملكيته |
+| [`governance/work/ACTIVE_WORK.md`](governance/work/ACTIVE_WORK.md) | **العمل المفتوح الآن** — من يحجز أي نطاق وإلى متى |
 | [`audit/PHASE_E_ROADMAP.md`](audit/PHASE_E_ROADMAP.md) | **خطة السجل** — عصر التنفيذ E0–E24 |
 | [`audit/DEFINITION_OF_DONE.md`](audit/DEFINITION_OF_DONE.md) | تعريف الإنجاز ونظام الحالات |
 | [`audit/TRUTH_MATRIX.md`](audit/TRUTH_MATRIX.md) | مصفوفة الحقيقة (مولَّدة آليًا) |
