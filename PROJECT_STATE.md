@@ -5,13 +5,13 @@
 النطاق: جميع مراحل المشروع ومؤشراته
 المالك: ديوان التدقيق
 تاريخ الإنشاء: 2026-08-18
-تاريخ آخر تعديل: 2026-08-18
-tags: project-state, handoff, quick-reference
+تاريخ آخر تعديل: 2026-08-26 (W-047 — إغلاق DISC-004 و DISC-001 وتفعيل الخارطة الحاكمة A-1)
+tags: project-state, handoff, quick-reference, governance-active
 -->
 
-> **المرجع السريع للوكيل القادم:** اقرأ هذا الملف أولًا، ثم تسليم المرحلة الأخيرة
-> `docs/audit/STAGE_2A_HANDOFF.md`، ثم `docs/audit/STAGE_1N_HANDOFF.md`، ثم `docs/audit/ACTIVE_EXECUTION_STATE.md § 37`
-> للتفاصيل. **لا تُعِد فحص ما ثبت.**
+> **المرجع السريع للوكيل القادم:** الخارطة الحاكمة للعمل هي [`docs/governance/work/THE_ROADMAP.md`](docs/governance/work/THE_ROADMAP.md)
+> وسجل العمل المفتوح [`docs/governance/work/ACTIVE_WORK.md`](docs/governance/work/ACTIVE_WORK.md). وسجل الإنجاز التاريخي في
+> [`docs/audit/COMPLETION_LEDGER.md`](docs/audit/COMPLETION_LEDGER.md). **لا تبدأ عملاً دون تسجيل بند وحجز مساراته.**
 
 ## الهوية والحالة
 
@@ -20,13 +20,12 @@ tags: project-state, handoff, quick-reference
 | المشروع | AMOS-Federation — النواة السيادية لدولة فدرالية |
 | المستودع | `https://github.com/zoorooz/AMOS-Fedration` |
 | الفرع | `main` |
-| **Current Stage** | Stage 1 — أساس الدولة |
-| **Last Completed Stage** | **2A — وصلُ زمنِ التشغيلِ السياديّ (Sovereign Runtime Integration)** · 2026-08-18 · `BUILT / VERIFIED / PUSHED` |
-| **Previous Stage** | **1N — وصلُ الإنفاذ (Enforcement Integration)** · 2026-08-18 · `BUILT / VERIFIED / PUSHED` |
-| **Last Commit** | 2A: هجرة كتابتين إنتاجيّتين إلى حدِّ التنفيذ السياديّ (الأساس: `024f8ab`) · ووثائقُه في العَقْبِ مباشرةً |
-| **Commit قبله** | `72a6082` — 1N: هجرة المُنادين الفعليين إلى حدِّ التنفيذ السياديّ (الأساس: `1cae95f`) · ووثائقُه في العَقْبِ مباشرةً |
-| **Last Handoff** | [`docs/audit/STAGE_2A_HANDOFF.md`](docs/audit/STAGE_2A_HANDOFF.md) · وقبله [`STAGE_1N_HANDOFF.md`](docs/audit/STAGE_1N_HANDOFF.md) · مرآته: `ACTIVE_EXECUTION_STATE.md § 37` |
-| **Next Authorized Stage** | **غير مُثبَتة · HUMAN DECISION REQUIRED** — تُقرَأ من [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) ولا تُخترَع هنا |
+| **Current Stage** | المسارات الحاكمة (T0: قابليّة القياس · T2: الحوكمة والقرارات السيادية · T4: الطبقة الحقيقية) |
+| **Last Completed Work** | **W-047 · 2026-08-26**: إغلاق ديون التدقيق (`DISC-004` و `DISC-001`) وتفعيل اعتماد الخارطة الحاكمة (`A-1` = `ACTIVE`) |
+| **Governing Roadmap** | [`docs/governance/work/THE_ROADMAP.md`](docs/governance/work/THE_ROADMAP.md) (الحالة: `ACTIVE` نافذة) |
+| **Active Work Register** | [`docs/governance/work/ACTIVE_WORK.md`](docs/governance/work/ACTIVE_WORK.md) (حجز النطاقات ومنع التكرار) |
+| **Central Ledger** | [`docs/audit/COMPLETION_LEDGER.md`](docs/audit/COMPLETION_LEDGER.md) (سجل W-000 إلى W-047) |
+| **Truth Matrix Status** | **63 مخالفة مقيسة وثابتة بالترباس** (60 مخزن ذاكرة · 2 حقيقة مضمنة · 1 عزل معطل) |
 
 ## Current Capability — ما صارت الدولة قادرة عليه بعد 2A
 

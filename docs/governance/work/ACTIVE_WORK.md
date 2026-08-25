@@ -20,6 +20,7 @@
 | المعرِّف | النطاق | المسار | المالك | المراجع | الحالة | المسارات | بدأ | ينتهي الحجز | العائق | الخطوةُ التالية | قيدُ السجلّ |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | WI-001 | governance-docs | T2 | Driving H | المجلس التأسيسي | CLOSED | docs/governance/work · tools/governance/check_work_governance.py · tests/governance/test_work_governance_gate.py · .github/workflows/ci.yml · docs/governance/README.md · docs/index.md · README.md · docs/PROJECT_HANDBOOK.md · docs/audit/COMPLETION_LEDGER.md | 2026-08-25 | 2026-09-01 | — | — (مُغلَق) | W-043 · W-044 · W-045 · W-046 · دمجُ #14 (`2b355ca3`) · #15 (`b4d957fa`) |
+| WI-002 | audit-truth | T0 / T2 | Driving H | المجلس التأسيسي | CLOSED | docs/audit/COMPLETION_LEDGER.md · EXECUTION_PLAN.md · docs/governance/work/DISCOVERIES.md · docs/governance/work/THE_ROADMAP.md · PROJECT_STATE.md · docs/audit/ACTIVE_EXECUTION_STATE.md · docs/governance/work/ACTIVE_WORK.md | 2026-08-26 | 2026-09-02 | — | — (مُغلَق) | W-047 |
 
 ---
 
@@ -73,6 +74,44 @@
 العائق: —
 الخطوةُ التالية: — (البندُ مُغلَقٌ؛ لا عودةَ إلّا ببندٍ جديدٍ — § 4.3)
 قيدُ السجلّ: W-043 · W-044 · W-045 · W-046   |   دمجُ #14 (2b355ca3) · #15 (b4d957fa)
+```
+
+### WI-002 — معالجةُ ديونِ التدقيق (DISC-004 و DISC-001) وتحديثُ خطّةِ التنفيذِ والحالة
+
+```text
+النطاق: audit-truth
+المسار/المرحلة: T0 / T2 (قابليّةُ القياسِ والحوكمةُ المحروسة)
+المالك: Driving H            المراجع: المجلس التأسيسي
+الحالة: CLOSED
+المسارات:
+  docs/audit/COMPLETION_LEDGER.md § 9
+  EXECUTION_PLAN.md
+  docs/governance/work/DISCOVERIES.md
+  docs/governance/work/THE_ROADMAP.md § 16
+  PROJECT_STATE.md
+  docs/audit/ACTIVE_EXECUTION_STATE.md
+  docs/governance/work/ACTIVE_WORK.md
+خارجَ النطاق:
+  - لا يُعدَّلُ نصٌّ دستوريٌّ ولا مرسومٌ ملكي
+  - لا يُختلَقُ رقمٌ غيرُ مقيسٍ لمصفوفةِ الحقيقة
+  - لا يُلمَسُ كودُ التطبيقِ في core/ federal/ states/ agents/ runtime/
+معيارُ القبول:
+  1. جدولُ ملخَّصِ § 9 في COMPLETION_LEDGER.md يُطابِقُ المقاسَ الفعليَّ (63 مخالفة: 60 IN_MEMORY_STORE + 2 HARDCODED_TRUTH + 1 SANDBOX_DISABLED)
+  2. مفرداتُ EXECUTION_PLAN.md تُحَرَّرُ من الخلطِ بين DONE القديمةِ وحقيقةِ الإثباتِ DoD
+  3. إغلاقُ DISC-004 و DISC-001 في DISCOVERIES.md برقمِ هذا البند
+  4. تثبيتُ قرارِ الاعتمادِ A-1 في THE_ROADMAP.md بأمرِ المالكِ الصريح
+  5. تحديثُ PROJECT_STATE.md و ACTIVE_EXECUTION_STATE.md بالواقعِ المقاس
+  6. اجتيازُ كافّةِ بوّاباتِ الحوكمةِ والهويّةِ والسجلِّ ومصفوفةِ الحقيقة
+الدليلُ المطلوب:
+  python tools/governance/check_work_governance.py --self-check
+  python tools/governance/check_completion_ledger.py --self-check
+  python tools/governance/check_repository_identity.py .
+  python tools/governance/check_root_file_names.py . --source disk
+  python tools/governance/truth_audit.py
+بدأ: 2026-08-26        ينتهي الحجز: 2026-09-02
+العائق: —
+الخطوةُ التالية: — (البندُ مُغلَقٌ بعدَ استيفاءِ معاييرِ القبولِ وقيدِ W-047)
+قيدُ السجلّ: W-047
 ```
 
 ---
