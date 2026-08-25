@@ -19,7 +19,7 @@
 
 | المعرِّف | النطاق | المسار | المالك | المراجع | الحالة | المسارات | بدأ | ينتهي الحجز | العائق | الخطوةُ التالية | قيدُ السجلّ |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| WI-001 | governance-docs | T2 | Driving H | المجلس التأسيسي | VERIFIED | docs/governance/work · tools/governance/check_work_governance.py · tests/governance/test_work_governance_gate.py · .github/workflows/ci.yml · docs/governance/README.md · docs/index.md · README.md · docs/PROJECT_HANDBOOK.md · docs/audit/COMPLETION_LEDGER.md | 2026-08-25 | 2026-09-01 | — | نقلُه إلى CLOSED بقيدِه ورقمِ دمجِه (§ 7) | — |
+| WI-001 | governance-docs | T2 | Driving H | المجلس التأسيسي | CLOSED | docs/governance/work · tools/governance/check_work_governance.py · tests/governance/test_work_governance_gate.py · .github/workflows/ci.yml · docs/governance/README.md · docs/index.md · README.md · docs/PROJECT_HANDBOOK.md · docs/audit/COMPLETION_LEDGER.md | 2026-08-25 | 2026-09-01 | — | — (مُغلَق) | W-043 · W-044 · W-045 · W-046 · دمجُ #14 (`2b355ca3`) · #15 (`b4d957fa`) |
 
 ---
 
@@ -41,7 +41,7 @@
 النطاق: governance-docs
 المسار/المرحلة: T2 (الحوكمةُ والتوثيقُ المحروس)
 المالك: Driving H            المراجع: المجلس التأسيسي
-الحالة: VERIFIED
+الحالة: CLOSED
 المسارات:
   docs/governance/work/
   tools/governance/check_work_governance.py
@@ -71,8 +71,8 @@
   ruff check .
 بدأ: 2026-08-25        ينتهي الحجز: 2026-09-01
 العائق: —
-الخطوةُ التالية: نقلُ البندِ إلى CLOSED بقيدِه ورقمِ دمجِه — واجبُ ما بعدَ الدمج (THE_ROADMAP § 7)
-قيدُ السجلّ: —
+الخطوةُ التالية: — (البندُ مُغلَقٌ؛ لا عودةَ إلّا ببندٍ جديدٍ — § 4.3)
+قيدُ السجلّ: W-043 · W-044 · W-045 · W-046   |   دمجُ #14 (2b355ca3) · #15 (b4d957fa)
 ```
 
 ---
