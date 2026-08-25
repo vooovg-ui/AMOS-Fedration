@@ -244,7 +244,15 @@ def test_gate_is_green_when_the_published_measurement_is_fresh(
     monkeypatch.setattr(tool, "REGISTRY", _fake_registry(tool))
     breaches, counts = tool.audit(root)
     assert breaches == [], breaches
-    assert counts == {"registered": 1, "guarded": 1, "declared_only": 0}
+    # W-038: زِيدَ في العدِّ حقلانِ يُظهِرانِ القسمةَ على الحزمِ اللازمةِ رقمًا،
+    # ولم يُنقَصْ حقلٌ — فالتصحيحُ إضافةٌ لا محوٌ.
+    assert counts == {
+        "registered": 1,
+        "guarded": 1,
+        "declared_only": 0,
+        "needs_deps": 0,
+        "deferred": 0,
+    }
 
 
 def test_gate_does_not_write_what_it_judges(
