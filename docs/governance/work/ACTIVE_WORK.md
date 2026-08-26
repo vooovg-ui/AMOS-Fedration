@@ -21,6 +21,7 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | WI-001 | governance-docs | T2 | Driving H | المجلس التأسيسي | CLOSED | docs/governance/work · tools/governance/check_work_governance.py · tests/governance/test_work_governance_gate.py · .github/workflows/ci.yml · docs/governance/README.md · docs/index.md · README.md · docs/PROJECT_HANDBOOK.md · docs/audit/COMPLETION_LEDGER.md | 2026-08-25 | 2026-09-01 | — | — (مُغلَق) | W-043 · W-044 · W-045 · W-046 · دمجُ #14 (`2b355ca3`) · #15 (`b4d957fa`) |
 | WI-003 | tooling-gates | T0 / T2 | Driving H | المجلس التأسيسي | CLOSED | tools/governance/measurement_provenance.py · tools/governance/restart_survival_probe.py · .github/workflows/measure.yml · tests/governance/test_w048_bound_provenance.py · tests/governance/test_w037_measurement_provenance.py · tests/governance/test_w038_probe_measure_mode.py · docs/audit/measurements/README.md · docs/PROJECT_HANDBOOK.md · docs/audit/COMPLETION_LEDGER.md · docs/audit/ACTIVE_EXECUTION_STATE.md | 2026-08-26 | 2026-09-02 | — | — (مُغلَقٌ بقيدِ W-048 · وحكمُ CI على دفعتِه يُقيِّدُه أوّلُ عملٍ تالٍ كما فَعلَ W-044 بما قبلَه) | W-048 |
+| WI-005 | audit-truth | T0 | Driving H | المجلس التأسيسي | CLOSED | docs/governance/work/ACTIVE_WORK.md · docs/governance/work/DISCOVERIES.md · docs/audit/COMPLETION_LEDGER.md · docs/audit/ACTIVE_EXECUTION_STATE.md | 2026-08-26 | 2026-09-02 | — | — (مُغلَقٌ بقيدِ W-050 · وDISC-006 ما زالَ مفتوحًا بيدِ المالكِ) | W-050 |
 | WI-004 | audit-truth | T0 | Driving H | المجلس التأسيسي | CLOSED | docs/governance/work/DISCOVERIES.md · docs/governance/work/RISK_REGISTER.md · docs/governance/work/ACTIVE_WORK.md · docs/audit/COMPLETION_LEDGER.md · docs/audit/ACTIVE_EXECUTION_STATE.md | 2026-08-26 | 2026-09-02 | — | — (مُغلَقٌ بقيدِ W-049 · وإصلاحُ حسابِ Actions بيدِ المالكِ — DISC-006 مفتوحٌ عليه) | W-049 |
 | WI-002 | audit-truth | T0 / T2 | Driving H | المجلس التأسيسي | CLOSED | docs/audit/COMPLETION_LEDGER.md · EXECUTION_PLAN.md · docs/governance/work/DISCOVERIES.md · docs/governance/work/THE_ROADMAP.md · PROJECT_STATE.md · docs/audit/ACTIVE_EXECUTION_STATE.md · docs/governance/work/ACTIVE_WORK.md | 2026-08-26 | 2026-09-02 | — | — (مُغلَق) | W-047 |
 
@@ -212,6 +213,47 @@
   - والإغلاقُ توثيقٌ لا مراجعةٌ — القرارُ `A-2` معلَّقٌ بيدِ المالك
   - وحكمُ CI على دفعتِه **لن يُقرأَ أيضًا** ما لم يُصلَحْ حسابُ `Actions`
 قيدُ السجلّ: W-049
+```
+
+---
+
+### WI-005 — قيدُ دمجِ #18 بإذنِ المالكِ صريحًا وبلا شاهدٍ من CI
+
+```text
+النطاق: audit-truth
+المسار/المرحلة: T0 (صدقُ الشاهدِ — قيدُ ما بعدَ الدمجِ)
+المالك: Driving H            المراجع: المجلس التأسيسي
+الحالة: CLOSED
+المسارات:
+  docs/governance/work/ACTIVE_WORK.md
+  docs/governance/work/DISCOVERIES.md
+  docs/audit/COMPLETION_LEDGER.md
+  docs/audit/ACTIVE_EXECUTION_STATE.md
+خارجَ النطاق:
+  - لا يُمَسُّ محتوى `W-048` ولا `W-049` — كلاهما في الرأسِ، وهذا قيدُ ما بعدَهما
+  - لا تُلمَسُ شِفرةٌ ولا وظيفةُ CI: العطبُ في حسابِ `Actions`، وإصلاحُه بيدِ المالكِ (`DISC-006`)
+  - لا يُغلَقُ `DISC-006` — الدمجُ لا يُصلِحُ عطبًا، والقيدُ ليس دواءً
+  - لا يُدَّعى أنَّ الشجرةَ خضراءُ في CI، ولا أنَّ `B-9` وحدَهما الحمراءُ
+معيارُ القبول:
+  1. قيدُ الدمجِ برقمِه وعقدتِه: #18 → `main` عندَ `f91da5d6` · 2026-08-26T22:58:20Z
+  2. قيدُ الإذنِ لا كتمانُه: المالكُ اختارَ الدمجَ صريحًا بعدَ إعلامِه أنَّ الحكمَ غيرُ مقروءٍ
+  3. قيدُ القياسِ الذي سبقَ الدمجَ لا القياسِ الذي يُرضي: ثلاثُ محاولاتٍ أُعيدَ تشغيلُها وكلُّها `with_steps=0`
+  4. إعلانُ أنَّ الدمجَ جرى **بلا شاهدٍ من CI** — واسمُ ذلك في هذا المستودعِ **حلقةٌ مفتوحةٌ** لا خُضرةٌ
+  5. بقاءُ `DISC-006` مفتوحًا موجَّهًا إلى المالكِ، وبقاءُ `RK-011` قائمًا
+الدليلُ المطلوب:
+  gh pr view 18 --json state,mergedAt,mergeCommit   # MERGED · 2026-08-26T22:58:20Z · f91da5d6
+  gh api .../actions/runs/32973894416 --jq .run_attempt            # 3 محاولاتٍ
+  gh api .../actions/runs/32973894416/attempts/3/jobs              # steps=0 · runner_id=0 في كلِّ وظيفةٍ
+  python tools/governance/check_work_governance.py --self-check
+  python tools/governance/check_completion_ledger.py --staged
+بدأ: 2026-08-26        ينتهي الحجز: 2026-09-02
+العائق: —
+الخطوةُ التالية: — (البندُ مُغلَقٌ بقيدِ W-050؛ وأوّلُ عملٍ يُشاهِدُ تشغيلًا نُفِّذَ فعلًا يُقيِّدُ حكمَ W-048 وW-049 وW-050)
+حدُّ الإغلاقِ — مُعلَنٌ لا مطويٌّ:
+  - أُغلِقَ في التغييرِ نفسِه الذي قيَّدَه لأنَّ البوّابةَ تُلزِمُ بـ`POST_MERGE_NOT_CLOSED` (سابقةُ `WI-002`/`W-047`)
+  - والإغلاقُ توثيقٌ لا مراجعةٌ — القرارُ `A-2` معلَّقٌ بيدِ المالك
+  - وحكمُ CI على دفعتِه لن يُقرأَ أيضًا ما لم يُصلَحْ حسابُ `Actions`
+قيدُ السجلّ: W-050
 ```
 
 ---
