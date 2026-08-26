@@ -128,10 +128,20 @@ def test_ignored_fields_are_justified(tool: Any) -> None:
 
 
 def test_strategies_are_known(tool: Any) -> None:
+    # W-048: صارَ في العقدِ وضعٌ محروسٌ بلا أمرِ قياسٍ في هذه البوّابةِ: `bound`،
+    # حرسُه قائمٌ في وظيفةٍ أخرى و**رباطُه يُقاسُ نصًّا**. فلم يُوسَّعِ
+    # الفحصُ بل تُركَ لـ`PROBING` أن تُسميَ من يلزمُه الأمرُ، وزيدَ أنَّ
+    # `bound` يلزمُه رباطٌ — فلا يصيرُ بابًا يُفلَتُ منه من أمرٍ ورباطٍ معًا.
     for entry in tool.REGISTRY:
         assert entry.strategy in tool.STRATEGIES, entry.strategy
-        if entry.strategy != "declared":
+        if entry.strategy in tool.PROBING:
             assert entry.probe, f"{entry.name}: وضعُه يقتضي أمرَ قياسٍ ولا أمرَ له."
+        elif entry.strategy == "bound":
+            assert entry.bound_workflow and entry.bound_commands, (
+                f"{entry.name}: محروسٌ بلا أمرٍ ولا رباطٍ — فما حرسُه؟"
+            )
+        else:
+            assert entry.strategy == "declared", entry.strategy
 
 
 # ---------------------------------------------------------------------------
@@ -246,10 +256,13 @@ def test_gate_is_green_when_the_published_measurement_is_fresh(
     assert breaches == [], breaches
     # W-038: زِيدَ في العدِّ حقلانِ يُظهِرانِ القسمةَ على الحزمِ اللازمةِ رقمًا،
     # ولم يُنقَصْ حقلٌ — فالتصحيحُ إضافةٌ لا محوٌ.
+    # W-048: وزِيدَ `bound` ليُقرأَ من المحروسِ ما حرسُه رباطٌ مقيسٌ لا
+    # إعادةُ قياسٍ — فلا يُقرأُ الرقمُ المجموعُ أكثرَ ممّا يقول. ولم يُنقَصْ حقلٌ.
     assert counts == {
         "registered": 1,
         "guarded": 1,
         "declared_only": 0,
+        "bound": 0,
         "needs_deps": 0,
         "deferred": 0,
     }

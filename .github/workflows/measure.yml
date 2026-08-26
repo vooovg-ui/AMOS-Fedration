@@ -79,8 +79,15 @@ jobs:
       - name: تشغيلُ المِسبارِ وتوليدُ القياس
         run: python tools/governance/restart_survival_probe.py
 
-      - name: عرضُ القياسِ في السجلّ
-        run: python tools/governance/restart_survival_probe.py --check || true
+      # W-048: كانتْ هذه الخطوةُ منزوعةَ الأثرِ بـ`|| true` ومُسمّاةً «عرضًا»،
+      # وكانَ عقدُ النَّسَبِ يعتذرُ عن إعلانِ `restart_survival.json` بلا حرسٍ
+      # بأنَّ «له فحصَه الخاصَّ في وظيفةٍ أخرى» — فكانَ يعتذرُ بفحصٍ لا يُسقِط.
+      # فأُعيدَ للحرسِ أثرُه، وصارَ رباطُه مقيسًا نصًّا في
+      # `measurement_provenance.py` (‏وضعُ `bound`) ومحروسًا بـ
+      # `tests/governance/test_w048_bound_provenance.py`. والمِسبارُ في وضعِ الحكمِ
+      # لا يكتبُ ملفَ القياسِ المنشور، فلا يحكمُ على ما يكتبُ.
+      - name: حكمُ المِسبارِ على الأسطحِ — مُلزِمٌ لا عرضٌ
+        run: python tools/governance/restart_survival_probe.py --check
 
       # ما يُتخطَّى في `بوابة 5` لنقصِ التبعيّاتِ يُقاسُ هنا كاملًا — لا حرسَ بلا موضِع.
       - name: حرسُ القياسِ الحيِّ (الخطوةُ 18)
