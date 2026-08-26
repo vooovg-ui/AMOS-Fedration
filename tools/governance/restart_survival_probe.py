@@ -818,10 +818,16 @@ def main(argv: list[str] | None = None) -> int:
                 f"    · {r.surface_id} ({r.service}) → {state} · {r.verdict} · {r.detail}"
             )
 
-    out = _write_json(results, summary)
-    print(f"[RESTART PROBE] كُتب: {out.relative_to(_REPO_ROOT)}")
+    # W-048: الحرسُ لا يكتبُ ما يحكمُ عليه. ففي وضعِ `--check` يُحكَمُ ولا
+    # يُنشَرُ: ولو كتبَ الملفَ ثمَّ حكمَ عليه لكانَ شاهدًا وقاضيًا وموضوعًا — وهي
+    # العلّةُ نفسُها التي أُصلِحتْ لمِسبارَيِ القضاءِ والخزانةِ في W-038.
+    # والنشرُ باقٍ على حالِه في خطوةِ التوليدِ من `measure.yml`.
+    if not args.check:
+        out = _write_json(results, summary)
+        print(f"[RESTART PROBE] كُتب: {out.relative_to(_REPO_ROOT)}")
 
     if args.check:
+        print("[RESTART PROBE] وضعُ حكمٍ بلا نشرٍ — لم يُكتبْ ملفُّ القياسِ المنشور.")
         if summary["contradicts_declaration"] or summary["unmeasured"]:
             print("[RESTART PROBE] ✗ قياسٌ يخالفُ التصريحَ أو سطحٌ لم يُقَسْ.")
             return 1

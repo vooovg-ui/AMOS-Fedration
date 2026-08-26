@@ -112,12 +112,19 @@ def test_probe_entries_are_guarded_now(name: str) -> None:
     assert entry.needs == ("cryptography",)
 
 
-def test_guarded_count_is_seven_of_ten() -> None:
-    """العددُ المنشورُ في الوثائقِ يُطابِقُ السجلَّ حرفًا."""
+def test_guarded_count_matches_the_registry() -> None:
+    """العددُ المنشورُ في الوثائقِ يُطابِقُ السجلَّ حرفًا.
+
+    كانَ 7 من 10 في W-038، وصارَ **8 من 10** في W-048 حينَ خرجَ
+    `restart_survival.json` من الإعلانِ إلى رباطٍ مقيسٍ (‏وضعُ `bound`).
+    والرقمُ يُقاسُ هنا ويُحرسُ تفصيلُه في `test_w048_bound_provenance.py`.
+    """
     guarded = [e for e in MP.REGISTRY if e.strategy != "declared"]
+    bound = [e for e in MP.REGISTRY if e.strategy == "bound"]
     assert len(MP.REGISTRY) == 10
-    assert len(guarded) == 7
-    assert len(MP.REGISTRY) - len(guarded) == 3
+    assert len(guarded) == 8
+    assert len(bound) == 1
+    assert len(MP.REGISTRY) - len(guarded) == 2
 
 
 # ───────────────────────── ٣) القسمةُ مُعلَنةٌ ومعدودةٌ ─────────────────────────
@@ -159,13 +166,17 @@ def test_flags_are_mutually_exclusive() -> None:
 
 
 def test_needs_is_not_a_backdoor_to_exemption() -> None:
-    """`needs` قسمةٌ لا إعفاءٌ: مُعلَنٌ يزعمُ حزمًا لازمةً خَرْمٌ."""
-    entry = replace(_entry("restart_survival.json"), needs=("cryptography",))
+    """`needs` قسمةٌ لا إعفاءٌ: مُعلَنٌ يزعمُ حزمًا لازمةً خَرْمٌ.
+
+    وكانَ الموضوعُ `restart_survival.json` لأنَّه كانَ مُعلَنًا بلا حرسٍ، فلمّا
+    صارَ مربوطًا في W-048 نُقِلَ الفحصُ إلى مُعلَنٍ قائمٍ فعلًا — فالمقصودُ
+    الحكمُ لا اسمُ الملفِّ، ولو لم يُنقَلْ لمرَّ الفحصُ بلا أن يقيسَ شيئًا.
+    """
+    target = next(e.name for e in MP.REGISTRY if e.strategy == "declared")
+    entry = replace(_entry(target), needs=("cryptography",))
     original = MP.REGISTRY
     try:
-        MP.REGISTRY = tuple(
-            entry if e.name == "restart_survival.json" else e for e in original
-        )
+        MP.REGISTRY = tuple(entry if e.name == target else e for e in original)
         breaches, _ = MP.audit(ROOT, freshness=False)
     finally:
         MP.REGISTRY = original

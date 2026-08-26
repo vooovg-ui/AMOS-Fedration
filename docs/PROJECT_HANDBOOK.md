@@ -533,7 +533,7 @@ python tools/governance/truth_audit.py .                    # المتوقَّع
 python tools/governance/truth_audit.py . --ratchet            # المتوقَّع: ثابتٌ عندَ 63
 python tools/governance/in_memory_inventory.py . --check      # المتوقَّع: 0 غيرِ مُصرَّحٍ به
 python tools/governance/pricing_divergence.py . --check       # W-036 · المتوقَّع: طازجٌ ويُطابِقُ المصدرَ
-python tools/governance/measurement_provenance.py . --check   # W-037/W-038 · المتوقَّع: 10 مقيَّدًا · 7 محروسًا · 3 مُعلَنًا
+python tools/governance/measurement_provenance.py . --check   # W-037/W-038/W-048 · المتوقَّع: 10 مقيَّدًا · 8 محروسًا (‏منها 1 برباطٍ مقيسٍ) · 2 مُعلَنًا
 # وفي CI شطرانِ لا شطرٌ (W-038): `--without-deps` في truth-audit (بلا تنصيبٍ)
 # و`--only-deps` في constitutional-kernel (حيثُ `cryptography` مُنصَّبةٌ).
 # والمُؤَجَّلُ يُطبَعُ رقمًا، ورباطُ الشطرَينِ محروسٌ بفحصٍ يقرأُ ci.yml نصًّا.

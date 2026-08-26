@@ -58,8 +58,22 @@ PROSE_FILES = ("README.md",)
 #   delegate : يُشغَّلُ `--check` الخاصُّ بالمُولِّدِ وهو يحكمُ بنفسِه.
 #   stdout   : يُشغَّلُ أمرٌ يطبعُ القياسَ الطازجَ JSON على المخرَجِ القياسيّ.
 #   tmpfile  : يُشغَّلُ أمرٌ يكتبُ القياسَ الطازجَ إلى ملفٍّ مؤقَّتٍ خارجَ الشجرة.
-#   declared : لا إعادةَ قياسٍ ممكنةٌ في بوّابةٍ — يُعلَنُ السببُ ويُعَدُّ.
-STRATEGIES = ("delegate", "stdout", "tmpfile", "declared")
+#   bound    : لا يُعادُ قياسُه **هنا** لأنَّ ثمنَه دقائقُ وبيئةُ خدمةٍ كاملةٌ،
+#              وحرسُه قائمٌ في وظيفةٍ أخرى — و**رباطُه يُقاسُ هنا نصًّا** بقراءةِ
+#              ملفِّ الوقائعِ: الأمرُ موجودٌ، وغيرُ منزوعِ الأثرِ، ومسارُ مُولِّدِه
+#              في مُشغِّلاتِ الوظيفة. فالرباطُ مقيسٌ لا مزعوم (W-048).
+#   declared : لا إعادةَ قياسٍ ولا رباطَ يُقاسُ — يُعلَنُ السببُ ويُعَدُّ.
+STRATEGIES = ("delegate", "stdout", "tmpfile", "bound", "declared")
+
+#: أوضاعٌ تُشغِّلُ أمرَ قياسٍ فعليًّا في هذه البوّابةِ — دونَها لا `probe`.
+PROBING = ("delegate", "stdout", "tmpfile")
+
+#: صِيَغُ نزعِ الأثرِ: أمرٌ يُنتهي إليها لا يُسقِطُ وظيفةً أبدًا، فحرسُه صوريٌّ.
+#: و`|| true` في `measure.yml` هي عينُ العلّةِ التي كشفَها W-048.
+NEUTRALIZERS = ("|| true", "||true", "|| :", "|| exit 0", "| true")
+
+#: مدى الأسطرِ الذي يُفحَصُ حولَ الأمرِ المربوطِ بحثًا عن إعفاءٍ على مستوى الخطوة.
+NEUTRALIZER_WINDOW = 6
 
 
 @dataclass(frozen=True)
@@ -80,6 +94,12 @@ class Provenance:
     ignore: tuple[str, ...] = ()
     #: سببُ الإعلانِ بلا إعادةِ قياسٍ، أو سببُ الاستثناءِ. واجبٌ لغيرِ المُقاسِ.
     reason: str = ""
+    #: ملفُّ الوقائعِ الذي يحملُ حرسَ هذا القياسِ — واجبٌ لوضعِ `bound` وحدَه.
+    bound_workflow: str = ""
+    #: الأوامرُ التي يجبُ أن تُوجَدَ في ذاكَ الملفِّ حرفًا بحرفٍ وغيرَ منزوعةِ الأثر.
+    bound_commands: tuple[str, ...] = ()
+    #: ملفّاتُ فحصٍ تحرسُ **مضمونَ** القياسِ المنشورِ في كلِّ دفعةٍ — تُفحَصُ وجودًا.
+    bound_tests: tuple[str, ...] = ()
     #: حزمٌ خارجيّةٌ يلزمُ تنصيبُها لإعادةِ القياسِ (W-038). وجودُها ينقلُ القيدَ
     #: إلى الشطرِ الذي يُفحَصُ في وظيفةٍ مُنصِّبةٍ، ولا يُعفيه من الحرسِ:
     #: القسمةُ مُعلَنةٌ ومعدودةٌ ومربوطةٌ بفحصٍ يقرأُ ملفَّ CI — لا تخطٍّ صامتٍ.
@@ -182,11 +202,25 @@ REGISTRY: tuple[Provenance, ...] = (
         name="restart_survival.json",
         generator="tools/governance/restart_survival_probe.py",
         command="python tools/governance/restart_survival_probe.py",
-        strategy="declared",
+        strategy="bound",
+        bound_workflow=".github/workflows/measure.yml",
+        bound_commands=(
+            "python tools/governance/restart_survival_probe.py --check",
+            "python -m pytest tests/governance/test_step18_restart_survival.py -q",
+        ),
+        bound_tests=("tests/governance/test_step18_restart_survival.py",),
         reason=(
-            "يُولَّدُ بإطلاقِ خِدَمٍ حقيقيّةٍ وقتلِها وإعادةِ قراءتِها، فزمنُه دقائقُ "
-            "ويحتاجُ بيئةَ خدمةٍ كاملةً. وله فحصُه الخاصُّ `--check` يُشغَّلُ في "
-            "وظيفةٍ أخرى؛ فلا يُكرَّرُ هنا."
+            "يُولَّدُ بإطلاقِ خِدَمٍ حقيقيّةٍ وقتلِها وإعادةِ قراءتِها في عمليّاتٍ "
+            "مستقلّةٍ، فزمنُه دقائقُ ويحتاجُ بيئةَ خدمةٍ كاملةً، فلا يُعادُ قياسُه "
+            "في هذه البوّابة. وكانَ مُعلَنًا بلا حرسٍ إلى W-048 بحجّةِ أنَّ «له فحصَه "
+            "الخاصَّ في وظيفةٍ أخرى» — **وكانت حجّةً لا يقيسُها شيءٌ**، وكانَ الفحصُ "
+            "المزعومُ منزوعَ الأثرِ بـ`|| true` فلا يُسقِطُ وظيفةً أبدًا. فصارَ الرباطُ "
+            "**مقيسًا نصًّا** هنا على سابقةِ حارسِ `ci.yml` في W-038 وW-042: أمرانِ في "
+            "`measure.yml` غيرَ منزوعَيِ الأثرِ، ومسارُ المُولِّدِ في مُشغِّلاتِ الوظيفةِ "
+            "فتُعادُ الطزاجةُ حينَ يتغيَّرُ ما يقيسُه. والحدُّ مُعلَنٌ: هذا رباطٌ "
+            "يُقاسُ لا إعادةُ قياسٍ، و**مضمونُ** الملفِّ المنشورِ محروسٌ في كلِّ دفعةٍ "
+            "بـ`tests/governance/test_step18_restart_survival.py` (‏16 فحصًا تقرأُ المُخرَجَ "
+            "وتُسقِطُ على `unmeasured` أو `contradicts_declaration` أو سقوطِ شاهديّ الضبط)."
         ),
     ),
     Provenance(
@@ -248,6 +282,67 @@ def _machine_paths(payload: object) -> list[str]:
         if text.startswith(MACHINE_PREFIXES) or _DRIVE.match(text):
             hits.append(text)
     return hits
+
+
+def _binding_breaches(root: Path, entry: Provenance) -> list[str]:
+    """اقسِ رباطَ قيدٍ وضعُه `bound` — نصًّا لا تصديقًا (W-048).
+
+    الرباطُ المزعومُ ليسَ رباطًا. فأربعةُ أشياءَ تُقاسُ هنا:
+    ملفُّ الوقائعِ موجودٌ · والأمرُ فيه حرفًا بحرفٍ · وغيرُ منزوعِ الأثرِ
+    (‏`|| true` أو `continue-on-error` في نافذةِ الخطوة) · ومسارُ مُولِّدِه
+    في مُشغِّلاتِ الوظيفةِ فتُعادُ الطزاجةُ حينَ يتغيَّرُ ما يقيسُه.
+    """
+    breaches: list[str] = []
+    if not entry.bound_workflow:
+        breaches.append(
+            "وضعُه `bound` ولا ملفَّ وقائعَ مُعلَنًا يحملُ حرسَه — رباطٌ بلا موضِع."
+        )
+    if not entry.bound_commands:
+        breaches.append("وضعُه `bound` ولا أمرَ حرسٍ مُعلَنًا — رباطٌ بلا مربوط.")
+    if breaches:
+        return breaches
+
+    workflow_path = root / entry.bound_workflow
+    if not workflow_path.exists():
+        return [f"ملفُّ الوقائعِ المُعلَنُ مفقودٌ: {entry.bound_workflow}"]
+
+    lines = workflow_path.read_text(encoding="utf-8").splitlines()
+    for command in entry.bound_commands:
+        hits = [i for i, line in enumerate(lines) if command in line]
+        if not hits:
+            breaches.append(
+                f"الأمرُ المربوطُ غائبٌ عن {entry.bound_workflow}: «{command}» — "
+                "رباطٌ يُزعَمُ ولا يُوجَد."
+            )
+            continue
+        for index in hits:
+            for mark in NEUTRALIZERS:
+                if mark in lines[index]:
+                    breaches.append(
+                        f"الأمرُ المربوطُ منزوعُ الأثرِ بـ«{mark}» في "
+                        f"{entry.bound_workflow}:{index + 1} — حرسٌ لا يُسقِطُ ليسَ حرسًا."
+                    )
+            window = lines[max(0, index - NEUTRALIZER_WINDOW) : index + 1]
+            if any("continue-on-error: true" in line for line in window):
+                breaches.append(
+                    f"خطوةُ الأمرِ المربوطِ تحملُ `continue-on-error: true` في "
+                    f"{entry.bound_workflow} — إعفاءٌ على مستوى الخطوة."
+                )
+
+    # مُشغِّلاتُ الوظيفةِ تذكرُ مُولِّدَه: وإلّا فقد يتغيَّرُ المُولِّدُ ويبقى
+    # المنشورُ متقادمًا بلا أن يُشغَّلَ الحرسُ أصلًا — وهي علّةُ الطزاجةِ بعينِها.
+    if entry.generator and entry.generator not in "\n".join(lines):
+        breaches.append(
+            f"مسارُ المُولِّدِ ({entry.generator}) غائبٌ عن {entry.bound_workflow} — "
+            "فلا يُعادُ القياسُ حينَ يتغيَّرُ ما يقيسُه."
+        )
+
+    for test_path in entry.bound_tests:
+        if not (root / test_path).exists():
+            breaches.append(
+                f"ملفُّ الفحصِ المُعلَنُ حارسًا للمضمونِ مفقودٌ: {test_path}"
+            )
+    return breaches
 
 
 def _subset(payload: dict, entry: Provenance) -> dict:
@@ -378,14 +473,26 @@ def audit(
         # 5) ما لا يُعادُ قياسُه يجبُ أن يُعلِنَ سببَه؛ وما له استثناءُ حقلٍ كذلك.
         if entry.strategy == "declared" and not entry.reason.strip():
             breaches.append(f"{entry.name}: مُعلَنٌ بلا إعادةِ قياسٍ وبلا سببٍ مكتوبٍ.")
+        if entry.strategy == "bound" and not entry.reason.strip():
+            breaches.append(
+                f"{entry.name}: مربوطٌ بوظيفةٍ أخرى وبلا سببٍ مكتوبٍ — "
+                "والرباطُ يُعلَنُ حدُّه لا يُقالُ دونَه."
+            )
         if entry.ignore and not entry.reason.strip():
             breaches.append(f"{entry.name}: يستثني حقولًا بلا سببٍ مكتوبٍ: {entry.ignore}")
-        if entry.strategy != "declared" and not entry.probe:
+        if entry.strategy in PROBING and not entry.probe:
             breaches.append(f"{entry.name}: وضعُه يقتضي أمرَ قياسٍ ولا أمرَ له.")
+        if entry.strategy != "bound" and (
+            entry.bound_workflow or entry.bound_commands or entry.bound_tests
+        ):
+            breaches.append(
+                f"{entry.name}: يُعلِنُ حقولَ رباطٍ ووضعُه «{entry.strategy}» — "
+                "حقلٌ لا يُقاسُ في وضعِه زينةٌ تُوهِمُ حرسًا."
+            )
 
         # 6) الطزاجةُ نفسُها — لِمَن يُمكِنُ قياسُه بلا كتابةٍ في الشجرة.
         #    والقسمةُ على الحزمِ اللازمةِ: لا تخطٍّ صامتٌ بل تأجيلٌ مُعلَنٌ معدودٌ.
-        if freshness and entry.strategy != "declared" and entry.probe:
+        if freshness and entry.strategy in PROBING and entry.probe:
             if deps is None or bool(entry.needs) is deps:
                 breach = _freshness(root, entry)
                 if breach:
@@ -401,11 +508,18 @@ def audit(
                 f"مُعلَنٌ بلا حرسٍ — حقلُ `needs` قسمةٌ لا إعفاءٌ."
             )
 
+        # 8) الرباطُ يُقاسُ نصًّا ولا يُصدَّقُ (W-048): من عُدَّ محروسًا بحرسٍ
+        #    في موضِعٍ آخرَ، لزِمَ أن يُقاسَ أنَّ الموضِعَ قائمٌ وأنَّ الحرسَ يُسقِط.
+        if entry.strategy == "bound":
+            for breach in _binding_breaches(root, entry):
+                breaches.append(f"{entry.name}: {breach}")
+
     guarded = sum(1 for e in REGISTRY if e.strategy != "declared")
     counts = {
         "registered": len(REGISTRY),
         "guarded": guarded,
         "declared_only": len(REGISTRY) - guarded,
+        "bound": sum(1 for e in REGISTRY if e.strategy == "bound"),
         "needs_deps": sum(1 for e in REGISTRY if e.needs),
         "deferred": len(deferred),
     }
@@ -416,18 +530,29 @@ def report(root: Path) -> str:
     """اطبعِ العقدَ كما هو — ليُقرَأَ الباقي بلا حرسٍ رقمًا لا انطباعًا."""
     lines = ["# نَسَبُ القياساتِ المنشورةِ — W-037", ""]
     for entry in sorted(REGISTRY, key=lambda e: (e.strategy == "declared", e.name)):
-        mark = "مُعلَنٌ فقط" if entry.strategy == "declared" else f"محروسٌ ({entry.strategy})"
+        if entry.strategy == "declared":
+            mark = "مُعلَنٌ فقط"
+        elif entry.strategy == "bound":
+            mark = "محروسٌ برباطٍ مقيسٍ نصًّا (bound)"
+        else:
+            mark = f"محروسٌ ({entry.strategy})"
         lines.append(f"- {entry.name} — {mark}")
         lines.append(f"  المُولِّدُ: {entry.generator or '— لا مُولِّدَ برمجيًّا —'}")
         lines.append(f"  الأمرُ: {entry.command}")
+        if entry.bound_workflow:
+            lines.append(f"  موضِعُ الحرسِ: {entry.bound_workflow}")
+            for bound_command in entry.bound_commands:
+                lines.append(f"    مربوطٌ: {bound_command}")
         if entry.needs:
             lines.append(f"  يحتاجُ: {', '.join(entry.needs)} — يُفحَصُ بـ`--only-deps`")
         if entry.reason:
             lines.append(f"  السببُ: {entry.reason}")
     guarded = sum(1 for e in REGISTRY if e.strategy != "declared")
+    bound = sum(1 for e in REGISTRY if e.strategy == "bound")
     lines += [
         "",
-        f"المقيَّدُ: {len(REGISTRY)} · المحروسُ بإعادةِ قياسٍ: {guarded} · "
+        f"المقيَّدُ: {len(REGISTRY)} · المحروسُ: {guarded} — منه بإعادةِ قياسٍ "
+        f"{guarded - bound} وبرباطٍ مقيسٍ {bound} · "
         f"المُعلَنُ بلا حرسٍ: {len(REGISTRY) - guarded}",
     ]
     return "\n".join(lines)
@@ -467,7 +592,7 @@ def main(argv: list[str]) -> int:
         return 1
     line = (
         f"عقدُ نَسَبِ القياساتِ مستقيمٌ: {counts['registered']} قياسًا مقيَّدًا · "
-        f"{counts['guarded']} محروسًا بإعادةِ قياسٍ · "
+        f"{counts['guarded']} محروسًا (‏منها {counts['bound']} برباطٍ مقيسٍ نصًّا) · "
         f"{counts['declared_only']} مُعلَنًا بسببٍ مكتوبٍ."
     )
     if counts.get("deferred"):
