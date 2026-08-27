@@ -241,6 +241,32 @@ REGISTRY: tuple[Provenance, ...] = (
         ),
     ),
     Provenance(
+        name="ci_verdict_readability.json",
+        generator="tools/governance/ci_verdict_readability.py",
+        command=(
+            "python tools/governance/ci_verdict_readability.py "
+            "--repo zoorooz/AMOS-Fedration --run <ID> [--run <ID> …] "
+            "--json docs/audit/measurements/ci_verdict_readability.json"
+        ),
+        strategy="declared",
+        reason=(
+            "يُولَّدُ من واجهةٍ خارجيّةٍ حيّةٍ "
+            "(‏`GET /repos/{owner}/{repo}/actions/runs/{id}/jobs`) فيلزمُه شبكةٌ "
+            "وتوكنٌ في البيئة، ومُخرَجُه يتغيَّرُ بتغيُّرِ تاريخِ الوقائعِ لا "
+            "بتغيُّرِ الشجرةِ — فلو أُعيدَ قياسُه في بوّابةٍ لأَسقَطَها أوّلُ "
+            "تشغيلٍ جديدٍ بلا عطبٍ في المستودع. ولذا يحملُ الملفُّ "
+            "`measured_at`/`measured_by` كما يحملُهما `domain_truth_snapshot.json`: "
+            "طزاجتُه تاريخٌ مُعلَنٌ لا بوّابةٌ. و**معيارُ** الحكمِ محروسٌ "
+            "في كلِّ دفعةٍ بـ`tests/governance/test_w051_ci_verdict_readability.py` "
+            "(‏أربعةٌ وعشرونَ فحصًا تُسقِطُ على تخفيفِ المعيارِ وعلى ابتلاعِ "
+            "حِملٍ ناقصٍ وعلى إرجاعِ حكمٍ بلا توكنٍ)، والحدُّ مُعلَنٌ: حرسُ "
+            "معيارٍ لا إعادةُ قياسٍ. ولا يُربَطُ بـ`measure.yml` ولا بـ`ci.yml` "
+            "لأنَّ وقائعَ المستودعِ نفسَها لا تُنفِّذُ خطوةً منذُ "
+            "2026-08-25T22:00Z (‏`DISC-006`)، فربطُ حرسِ المقروئيّةِ بما لا "
+            "يُقرَأُ حكمُه دورٌ لا حرس."
+        ),
+    ),
+    Provenance(
         name="decision_gate_ledger.json",
         generator="tools/audit/decision_gate.py",
         command="python tools/audit/decision_gate.py --record Q-NN",

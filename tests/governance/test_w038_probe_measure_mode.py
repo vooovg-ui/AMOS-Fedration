@@ -115,16 +115,25 @@ def test_probe_entries_are_guarded_now(name: str) -> None:
 def test_guarded_count_matches_the_registry() -> None:
     """العددُ المنشورُ في الوثائقِ يُطابِقُ السجلَّ حرفًا.
 
-    كانَ 7 من 10 في W-038، وصارَ **8 من 10** في W-048 حينَ خرجَ
-    `restart_survival.json` من الإعلانِ إلى رباطٍ مقيسٍ (‏وضعُ `bound`).
-    والرقمُ يُقاسُ هنا ويُحرسُ تفصيلُه في `test_w048_bound_provenance.py`.
+    كانَ 7 من 10 في W-038، وصارَ 8 من 10 في W-048 حينَ خرجَ
+    `restart_survival.json` من الإعلانِ إلى رباطٍ مقيسٍ (‏وضعُ `bound`)،
+    وصارَ **8 من 11** في W-051 حينَ أُضيفَ `ci_verdict_readability.json`
+    مُعلَنًا بسببٍ مكتوبٍ (‏واجهةٌ حيّةٌ تلزمُها شبكةٌ وتوكنٌ).
+
+    والمساواةُ على العددِ الكلِّيِّ كانت تُسقِطُ هذا الفحصَ على **إضافةِ
+    قياسٍ مشروعٍ** لا على تخفيفِ حرسٍ، فصارَ **ترباسًا**: الكلُّ يرتفعُ،
+    والمحروسُ لا ينقُصُ، والمُعلَنُ بلا حرسٍ لا يتكاثرُ. وتفصيلُ الأرقامِ
+    يُحرَسُ في `test_w048_bound_provenance.py`.
     """
     guarded = [e for e in MP.REGISTRY if e.strategy != "declared"]
     bound = [e for e in MP.REGISTRY if e.strategy == "bound"]
-    assert len(MP.REGISTRY) == 10
-    assert len(guarded) == 8
+    declared = [e for e in MP.REGISTRY if e.strategy == "declared"]
+    assert len(MP.REGISTRY) >= 11
+    assert len(guarded) >= 8
     assert len(bound) == 1
-    assert len(MP.REGISTRY) - len(guarded) == 2
+    assert len(declared) <= 3
+    assert len(MP.REGISTRY) == len(guarded) + len(declared)
+    assert all(e.reason for e in declared), "مُعلَنٌ بلا سببٍ مكتوبٍ — خَرْمٌ لا قيد."
 
 
 # ───────────────────────── ٣) القسمةُ مُعلَنةٌ ومعدودةٌ ─────────────────────────
