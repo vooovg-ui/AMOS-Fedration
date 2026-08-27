@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -96,6 +97,69 @@ def _require_live_stack() -> None:
             "القياسُ الحيُّ يلزمُه طبقةُ الخدماتِ وهي غائبةٌ هنا بإعلانٍ لا بسهوٍ "
             f"(الناقصُ: {', '.join(missing)}). والقياسُ يجري في "
             ".github/workflows/measure.yml حيثُ التبعيّاتُ كاملة."
+        )
+
+
+#: جذرُ حزمةِ الخدمةِ **في شجرةِ المستودعِ**. المِسبارُ يحقِنُه في `PYTHONPATH` لكلِّ
+#: مرحلةٍ (`restart_survival_probe.py` — حقنُ `_SERVICES_SRC`)، فما تحتَه شِفرةُ
+#: المستودعِ لا توزيعٌ خارجيّ. وهذا الفرقُ هو الفرقُ بينَ «بيئةٌ ناقصةٌ» و«شِفرةٌ
+#: مفقودةٌ»، ولا يُخلَطانِ: الأوّلُ لا يُقاسُ، والثاني عطبٌ يُقالُ بصوتٍ.
+SERVICES_SRC = REPO_ROOT / "federal" / "executive" / "services" / "src"
+
+#: نصُّ العجزِ الذي يُخرِجُه المِسبارُ في `detail` حينَ تسقُطُ مرحلةٌ لغيابِ وحدةٍ.
+#: يُقرأُ من **مُخرَجِ المِسبارِ نفسِه** لا من قائمةٍ مكتوبةٍ بيدٍ، فلا يتقادَمُ بنموِّ
+#: ما تستوردُه الطبقةُ المقيسة.
+_MODULE_NOT_FOUND = re.compile(r"No module named '([^']+)'")
+
+
+def _missing_third_party_module(results: Any) -> str | None:
+    """اسمُ توزيعٍ خارجيٍّ غائبٍ أوقفَ القياسَ — أو `None` إن لم يكن العجزُ بيئيًّا.
+
+    ولماذا لا يكفي `_require_live_stack` وحدَه (عطبٌ مقيسٌ لا مفترَضٌ): تلك الدالّةُ
+    تفحصُ **قائمةً مكتوبةً بيدٍ** فيها اسمانِ (`fastapi` · `sqlalchemy`)، ومراحلُ
+    المِسبارِ تبلُغُ عبورًا `amos_federation.common.auth` فتستوردُ `jwt` و`structlog`
+    و`pydantic_settings`. فبيئةٌ فيها الاسمانِ وليس فيها البقيّةُ **لا تُتخطَّى**: تُقاسُ،
+    فيعودُ `verdict="UNMEASURED"` و`survived=None` و`detail="ModuleNotFoundError: No
+    module named 'jwt'"`، ثمَّ تُقرأُ تلك النتيجةُ فقدَ إدامةٍ فيُعلَنُ «مفتاحُ الإيقافِ
+    لم ينجُ» و«التوجيهُ مُعطَّلٌ» — **وذاك بعينِه الكذبُ المُوثَّقُ المعكوسُ** الذي
+    تُعلِنُ ترويسةُ هذا الملفِّ أنَّها أُنشِئَت لمنعِه (الصورةُ الثالثةُ في § الهدف).
+
+    ولا يُوسَّعُ `LIVE_STACK_MODULES` بـ`amos_federation` دواءً: المِسبارُ يحقِنُ
+    `_SERVICES_SRC` في بيئةِ المرحلةِ ولا يضعُه في `sys.path` للعمليّةِ الأمِّ، فـ
+    `find_spec` هنا لا يراه ولو كانَ القياسُ مُستطاعًا — فيصيرُ الحرسُ متخطًّى دائمًا،
+    وذاك إخفاءٌ لا صدق.
+
+    والحدُّ مقصودٌ ومحروسٌ: **لا يُبتلَعُ إلّا نقصُ توزيعٍ خارجيٍّ**. فوحدةٌ غائبةٌ
+    يُحَلُّ اسمُها الأعلى تحتَ `SERVICES_SRC` شِفرةُ المستودعِ — نقصُها عطبٌ حقيقيٌّ
+    يبقى أحمرَ. وكذا كلُّ عجزٍ ليس `No module named` (مهلةٌ · رمزُ خروجٍ · قاعدةٌ
+    مقفولةٌ) يبقى أحمرَ، وكلُّ حكمٍ غيرِ `UNMEASURED` لا يُنظَرُ فيه أصلًا — فمخالفةُ
+    التصريحِ (`CONTRADICTS_DECLARATION`) لا تُخفى بهذا البابِ أبدًا.
+    """
+    for result in results:
+        if result.verdict != "UNMEASURED":
+            continue
+        match = _MODULE_NOT_FOUND.search(result.detail or "")
+        if not match:
+            continue
+        top = match.group(1).split(".")[0]
+        in_tree = (SERVICES_SRC / top).is_dir() or (
+            SERVICES_SRC / f"{top}.py"
+        ).is_file()
+        if in_tree:
+            continue
+        return match.group(1)
+    return None
+
+
+def _skip_if_the_environment_is_incomplete(results: Any) -> None:
+    """لا يُنسَبُ نقصُ بيئةٍ إلى الحالةِ: يُسمَّى الناقصُ بالمقيسِ ويُتخطَّى القياس."""
+    missing = _missing_third_party_module(results)
+    if missing:
+        pytest.skip(
+            "القياسُ الحيُّ لم يُجرَ: مرحلةُ المِسبارِ سقطَت لغيابِ توزيعٍ خارجيٍّ "
+            f"مقيسٍ في مُخرَجِها لا مفترَضٍ (الناقصُ: {missing}). وهذا عجزُ بيئةٍ "
+            "لا عجزُ إدامةٍ، فلا يُقرأُ فقدَ حالةٍ. والبيئةُ الكاملةُ في "
+            "tools/dev/bootstrap.sh و.github/workflows/measure.yml."
         )
 
 
@@ -315,6 +379,8 @@ def test_live_control_pair_still_behaves_as_recorded(probe: Any) -> None:
     finally:
         probe.SURFACES = original
 
+    _skip_if_the_environment_is_incomplete(results.values())
+
     assert (
         results["canary"].survived is False
     ), f"الكنارُ نجا خلافًا للتصريحِ: {results['canary'].detail}"
@@ -345,7 +411,8 @@ def test_the_probe_does_not_pollute_the_measured_tree(probe: Any) -> None:
     try:
         with tempfile.TemporaryDirectory(prefix="amos_step18_clean_") as tmp:
             tmp_root = Path(tmp)
-            list(probe.measure(tmp_root / "probe.db"))
+            results = probe.measure(tmp_root / "probe.db")
+            _skip_if_the_environment_is_incomplete(results)
             assert (tmp_root / "sovereignty").exists(), (
                 "سجلُّ الذرّيّةِ لم يُكتَبْ في موضعِ القياسِ — فالتوجيهُ مُعطَّلٌ "
                 "وقد يعودُ التلويثُ إلى الشجرةِ صامتًا."

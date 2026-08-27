@@ -105,7 +105,7 @@
       "secret_hits": 0,
       "observed_hits": 151,
       "api_routes": 182,
-      "test_refs": 194,
+      "test_refs": 196,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -126,7 +126,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 194
+        "TEST_NAME_MENTIONS": 196
       },
       "maturity": "UNIT_TESTED",
       "findings_count": 61
@@ -277,7 +277,7 @@
       "secret_hits": 0,
       "observed_hits": 9,
       "api_routes": 1,
-      "test_refs": 246,
+      "test_refs": 248,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -298,7 +298,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 246
+        "TEST_NAME_MENTIONS": 248
       },
       "maturity": "INTEGRATED",
       "findings_count": 1
@@ -478,21 +478,21 @@
     "tests": {
       "domain": "tests",
       "md_files": 14,
-      "py_files": 67,
+      "py_files": 68,
       "yaml_files": 0,
-      "code_lines": 20613,
+      "code_lines": 20864,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
       },
       "has_readme": true,
-      "real_source_hits": 24,
+      "real_source_hits": 27,
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,
-      "observed_hits": 0,
+      "observed_hits": 2,
       "api_routes": 0,
-      "test_refs": 178,
+      "test_refs": 181,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -505,7 +505,7 @@
         "INTEGRATED": true,
         "TESTED": true,
         "SECURED": true,
-        "OBSERVED": false,
+        "OBSERVED": true,
         "DEPLOYED": false,
         "PROVEN": false,
         "EVIDENCE": {
@@ -513,7 +513,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 178
+        "TEST_NAME_MENTIONS": 181
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
