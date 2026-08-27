@@ -71,11 +71,69 @@ tools = [
 out["missing_tools"] = [t for t in tools if not (ROOT / t).exists()]
 
 # 6) الهاشاتُ المذكورةُ في الوثيقةِ: أموجودةٌ في تاريخِ الفرع؟
-hashes = sorted(set(re.findall(r"`([0-9a-f]{7})`", prog)))
-log = subprocess.run(["git", "log", "--format=%h", "-n", "400"], cwd=ROOT,
-                     capture_output=True, text=True).stdout.split()
+#
+# ثلاثةُ أعطابٍ قِيسَت في W-052 وأُصلِحَت هنا، وكانت كلُّها تكذبُ في الاتّجاهِ
+# المُطمئِنِ أو تشتكي بلا حقيقة:
+#
+# ١) نافذةٌ مقطوعةٌ: كانَ الحكمُ يُبنى على `git log -n 400`، فبصمةٌ أقدمُ من
+#    أحدثِ 400 التزامٍ تُعَدُّ «ليست في السجلِّ» وهي فيه. وهذه الهشاشةُ كانت
+#    **مُعلَنةً** في قيدِ نَسَبِ هذا القياسِ منذُ W-037 («عندَها تُوسَّعُ النافذةُ
+#    أو يُراجَعُ تعريفُ الحقلِ، والعدُّ يومَ القيدِ 243 التزامًا»). فلا تُوسَّعُ
+#    النافذةُ إلى رقمٍ أكبرَ — لأنَّ رقمًا أكبرَ يُؤجِّلُ الكذبَ ولا يمنعُه — بل
+#    تُرفَعُ النافذةُ كلُّها: السجلُّ يُقرَأُ بعمقِه التامّ.
+# ٢) طولُ الاختصارِ ليس عقدًا: `%h` يُختصَرُ بطولٍ يزيدُ بنموِّ عددِ الكائناتِ
+#    (`core.abbrev=auto`)، وكانَ الحكمُ مُطابَقةً نصّيّةً تامّةً بسبعةِ محارفَ.
+#    فيومَ يُختصِرُ git بثمانيةٍ، تُعَدُّ **كلُّ** بصمةٍ في الوثيقةِ مفقودةً. فصارَ
+#    السجلُّ يُقرَأُ بالبصمةِ التامّةِ (`%H`) والحكمُ بالبادئة.
+# ٣) قاعدةُ الاستخراجِ كانت تُلزِمُ سبعةَ محارفَ **بالضبط**، فبصمةٌ تامّةٌ (40)
+#    مذكورةٌ في الوثيقةِ لا تُفحَصُ أصلًا. وقِيسَ في W-052 أنَّ في الوثيقةِ
+#    بصمتَينِ تامّتَينِ (رأسُ `origin/main` ورأسُ الشجرةِ المحلّيّةِ قبلَ المواءمة)
+#    كانتا خارجَ القياسِ كلِّه: 41 مفحوصةً من 43 مذكورة.
+HASH_IN_DOC_RE = re.compile(r"`([0-9a-f]{7,40})`")
+hashes = sorted(set(HASH_IN_DOC_RE.findall(prog)))
+
+
+def _refuse(reason: str) -> None:
+    """لا يُطبَعُ قياسٌ لم يُقَسْ: الرفضُ يُعلَنُ ويُخرَجُ به بالرمز 2.
+
+    قياسٌ يعتمدُ على سجلٍّ غائبٍ أو منقوصٍ فيُخرِجُ قائمةً فارغةً — يُقرَأُ
+    «لا بصمةَ مفقودةً» وحقيقتُه «لم تُقَسْ بصمةٌ». وهذا هو الابتلاعُ الصامتُ
+    الذي مُنِعَ في W-027، فلا يُكرَّرُ في أداةِ قياسٍ.
+    """
+    print(f"REFUSED: {reason}", file=sys.stderr)
+    raise SystemExit(2)
+
+
+_shallow = subprocess.run(["git", "rev-parse", "--is-shallow-repository"],
+                          cwd=ROOT, capture_output=True, text=True)
+if _shallow.returncode != 0:
+    _refuse(
+        f"لم يُقرأْ سجلُّ git في {ROOT}: "
+        f"{_shallow.stderr.strip() or 'رمزُ خروجٍ ' + str(_shallow.returncode)}"
+        " — الحكمُ على البصماتِ يحتاجُ سجلًّا، ولا يُستنتَجُ من غيابِه."
+    )
+if _shallow.stdout.strip() == "true":
+    _refuse(
+        "السجلُّ مبتورٌ (استنساخٌ ضحلٌ) — كلُّ بصمةٍ ستُعَدُّ مفقودةً بلا حقيقة. "
+        "يُستنسَخُ بعمقٍ تامٍّ (`fetch-depth: 0`) ثمَّ يُعادُ القياس."
+    )
+
+_log = subprocess.run(["git", "log", "--format=%H"], cwd=ROOT,
+                      capture_output=True, text=True)
+if _log.returncode != 0:
+    _refuse(
+        "فشلَ `git log`: "
+        f"{_log.stderr.strip() or 'رمزُ خروجٍ ' + str(_log.returncode)}"
+    )
+# ولا يُزادُ حرسٌ لسجلٍّ فارغٍ: جُرِّبَ في W-052 فكانَ فرعًا لا يُبلَغُ — `git log`
+# نفسُه يُخرِجُ برمزٍ غيرِ صفرٍ على مستودعٍ بلا التزامٍ، فالرفضُ قائمٌ أعلاه.
+# وحرسٌ لا يُبلَغُ فرعُه زينةٌ تُوهِمُ حمايةً (سابقةُ W-051).
+history = _log.stdout.split()
+
 out["hashes_in_doc"] = hashes
-out["hashes_not_in_history"] = [h for h in hashes if h not in log]
+out["hashes_not_in_history"] = [
+    h for h in hashes if not any(full.startswith(h) for full in history)
+]
 
 # 7) سلسلةُ الدليلِ: أسليمةٌ ولم تُمَسّ؟
 lines = [json.loads(x) for x in (D / "evidence/evidence_registry.jsonl").read_text(

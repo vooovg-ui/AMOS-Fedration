@@ -19,7 +19,7 @@
       "secret_hits": 0,
       "observed_hits": 3,
       "api_routes": 0,
-      "test_refs": 474,
+      "test_refs": 476,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -40,7 +40,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 474
+        "TEST_NAME_MENTIONS": 476
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -105,7 +105,7 @@
       "secret_hits": 0,
       "observed_hits": 151,
       "api_routes": 182,
-      "test_refs": 193,
+      "test_refs": 194,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -126,7 +126,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 193
+        "TEST_NAME_MENTIONS": 194
       },
       "maturity": "UNIT_TESTED",
       "findings_count": 61
@@ -265,7 +265,7 @@
       "md_files": 41,
       "py_files": 32,
       "yaml_files": 2,
-      "code_lines": 9511,
+      "code_lines": 9541,
       "nucleus_count": 12,
       "nucleus_status": {
         "unspecified": 12
@@ -277,7 +277,7 @@
       "secret_hits": 0,
       "observed_hits": 7,
       "api_routes": 1,
-      "test_refs": 173,
+      "test_refs": 181,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -298,7 +298,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 173
+        "TEST_NAME_MENTIONS": 181
       },
       "maturity": "INTEGRATED",
       "findings_count": 1
@@ -406,7 +406,7 @@
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 56,
+      "test_refs": 73,
       "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
@@ -427,7 +427,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 56
+        "TEST_NAME_MENTIONS": 73
       },
       "maturity": "IMPLEMENTED",
       "findings_count": 0
@@ -478,9 +478,9 @@
     "tests": {
       "domain": "tests",
       "md_files": 14,
-      "py_files": 61,
+      "py_files": 62,
       "yaml_files": 0,
-      "code_lines": 18752,
+      "code_lines": 19083,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
