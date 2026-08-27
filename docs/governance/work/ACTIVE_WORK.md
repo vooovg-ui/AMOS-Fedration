@@ -4,7 +4,7 @@
 ## النطاق: البنودُ المفتوحةُ وحدَها (`PROPOSED` → `VERIFIED`) والمُغلَقةُ حديثًا. **لا يُسجَّلُ هنا تاريخُ ما أُنجِز** — ذاك في [`COMPLETION_LEDGER.md`](../../audit/COMPLETION_LEDGER.md)، ولا حالةُ القدرةِ — تلك في [`TRUTH_MATRIX.md`](../../audit/TRUTH_MATRIX.md)
 ## المالك: قائدُ التنفيذِ، بتفويضٍ من المجلس التأسيسي
 ## تاريخ الإنشاء: 2026-08-25
-## تاريخ آخر تعديل: 2026-08-27
+## تاريخ آخر تعديل: 2026-08-27 (‏`WI-009` · وتعارُضُ `DISC-012` يحبِسُ `WI-006`…`WI-008` مفتوحةً)
 
 > يحكمُ هذا السجلَّ [`THE_ROADMAP.md`](THE_ROADMAP.md): الحقولُ في § 4.2، والحالاتُ
 > والانتقالاتُ في § 4.3، وقفلُ النطاقِ في § 6، وواجبُ ما بعدَ الدمجِ في § 7.
@@ -24,9 +24,10 @@
 | WI-005 | audit-truth | T0 | Driving H | المجلس التأسيسي | CLOSED | docs/governance/work/ACTIVE_WORK.md · docs/governance/work/DISCOVERIES.md · docs/audit/COMPLETION_LEDGER.md · docs/audit/ACTIVE_EXECUTION_STATE.md | 2026-08-26 | 2026-09-02 | — | — (مُغلَقٌ بقيدِ W-050 · وDISC-006 ما زالَ مفتوحًا بيدِ المالكِ) | W-050 |
 | WI-004 | audit-truth | T0 | Driving H | المجلس التأسيسي | CLOSED | docs/governance/work/DISCOVERIES.md · docs/governance/work/RISK_REGISTER.md · docs/governance/work/ACTIVE_WORK.md · docs/audit/COMPLETION_LEDGER.md · docs/audit/ACTIVE_EXECUTION_STATE.md | 2026-08-26 | 2026-09-02 | — | — (مُغلَقٌ بقيدِ W-049 · وإصلاحُ حسابِ Actions بيدِ المالكِ — DISC-006 مفتوحٌ عليه) | W-049 |
 | WI-002 | audit-truth | T0 / T2 | Driving H | المجلس التأسيسي | CLOSED | docs/audit/COMPLETION_LEDGER.md · EXECUTION_PLAN.md · docs/governance/work/DISCOVERIES.md · docs/governance/work/THE_ROADMAP.md · PROJECT_STATE.md · docs/audit/ACTIVE_EXECUTION_STATE.md · docs/governance/work/ACTIVE_WORK.md | 2026-08-26 | 2026-09-02 | — | — (مُغلَق) | W-047 |
-| WI-006 | tooling-gates | T0 / T2 | Driving H | المجلس التأسيسي | IN_REVIEW | tools/governance/ci_verdict_readability.py · tests/governance/test_w051_ci_verdict_readability.py · tools/governance/measurement_provenance.py · tests/governance/test_w038_probe_measure_mode.py · tests/governance/test_w048_bound_provenance.py · docs/audit/measurements/ci_verdict_readability.json · docs/audit/measurements/README.md · docs/governance/work/ACTIVE_WORK.md · docs/governance/work/DISCOVERIES.md · docs/governance/work/RISK_REGISTER.md · docs/audit/COMPLETION_LEDGER.md · docs/audit/ACTIVE_EXECUTION_STATE.md | 2026-08-27 | 2026-09-03 | — (لا عائقَ على البندِ نفسِه؛ والعطبُ المقيسُ عائقٌ على `T0.4ب` لا عليه) | يُنقَلُ إلى `CLOSED` بقيدِ `W-051` ورقمِ الدمجِ بعدَ أن يدمجَ المالكُ — § 7 | — (يُكتَبُ بعدَ دمجِ المالك) |
-| WI-007 | tooling-gates | T0 | Driving H | المجلس التأسيسي | IN_REVIEW | tools/audit/final_audit.py · tests/governance/test_w052_history_hash_probe.py · docs/governance/work/OWNERSHIP.md | 2026-08-27 | 2026-09-03 | — (لا عائقَ على البندِ نفسِه) | يُنقَلُ إلى `CLOSED` بقيدِ `W-052` ورقمِ الدمجِ بعدَ أن يدمجَ المالكُ — § 7 | — (يُكتَبُ بعدَ دمجِ المالك) |
-| WI-008 | tooling-gates | T0 | Driving H | المجلس التأسيسي | IN_REVIEW | tools/governance/gate_dependency_closure.py · tests/governance/test_w053_gate_dependency_closure.py | 2026-08-27 | 2026-09-03 | — (لا عائقَ على البندِ نفسِه؛ والعطبُ المقيسُ عائقٌ على `sovereignty-kernel` لا عليه) | يُنقَلُ إلى `CLOSED` بقيدِ `W-053` ورقمِ الدمجِ بعدَ أن يدمجَ المالكُ — § 7 | — (يُكتَبُ بعدَ دمجِ المالك) |
+| WI-006 | tooling-gates | T0 / T2 | Driving H | المجلس التأسيسي | IN_REVIEW | tools/governance/ci_verdict_readability.py · tests/governance/test_w051_ci_verdict_readability.py · tools/governance/measurement_provenance.py · tests/governance/test_w038_probe_measure_mode.py · tests/governance/test_w048_bound_provenance.py · docs/audit/measurements/ci_verdict_readability.json · docs/audit/measurements/README.md · docs/governance/work/ACTIVE_WORK.md · docs/governance/work/DISCOVERIES.md · docs/governance/work/RISK_REGISTER.md · docs/audit/COMPLETION_LEDGER.md · docs/audit/ACTIVE_EXECUTION_STATE.md | 2026-08-27 | 2026-09-03 | — (لا عائقَ على البندِ نفسِه؛ والعطبُ المقيسُ عائقٌ على `T0.4ب` لا عليه) | **دُمِجَ ولم يُغلَقْ**: قيدُ `W-051` صارَ حالةَ الدولةِ (‏دمجٌ واقعٌ)، والإغلاقُ موقوفٌ على قرارِ `A-2` لأنَّ § 4.3 لا يُجيزُ `IN_REVIEW → CLOSED` — `DISC-012` | — (يُكتَبُ بعدَ دمجِ المالك) |
+| WI-007 | tooling-gates | T0 | Driving H | المجلس التأسيسي | IN_REVIEW | tools/audit/final_audit.py · tests/governance/test_w052_history_hash_probe.py · docs/governance/work/OWNERSHIP.md | 2026-08-27 | 2026-09-03 | — (لا عائقَ على البندِ نفسِه) | **دُمِجَ ولم يُغلَقْ**: قيدُ `W-052` صارَ حالةَ الدولةِ (‏دمجٌ واقعٌ)، والإغلاقُ موقوفٌ على قرارِ `A-2` لأنَّ § 4.3 لا يُجيزُ `IN_REVIEW → CLOSED` — `DISC-012` | — (يُكتَبُ بعدَ دمجِ المالك) |
+| WI-008 | tooling-gates | T0 | Driving H | المجلس التأسيسي | IN_REVIEW | tools/governance/gate_dependency_closure.py · tests/governance/test_w053_gate_dependency_closure.py | 2026-08-27 | 2026-09-03 | — (لا عائقَ على البندِ نفسِه؛ والعطبُ المقيسُ عائقٌ على `sovereignty-kernel` لا عليه) | **دُمِجَ ولم يُغلَقْ**: قيدُ `W-053` صارَ حالةَ الدولةِ (‏دمجٌ واقعٌ)، والإغلاقُ موقوفٌ على قرارِ `A-2` لأنَّ § 4.3 لا يُجيزُ `IN_REVIEW → CLOSED` — `DISC-012` | — (يُكتَبُ بعدَ دمجِ المالك) |
+| WI-009 | tooling-gates | T0 / T2 | Driving H | المجلس التأسيسي | IN_REVIEW | tools/governance/check_work_governance.py · tests/governance/test_w054_post_merge_reverse_link.py · docs/governance/work/THE_ROADMAP.md | 2026-08-27 | 2026-09-03 | — (لا عائقَ على البندِ نفسِه؛ والتعارُضُ المقيسُ `DISC-012` عائقٌ على إغلاقِ `WI-006`…`WI-008` لا عليه) | يُنقَلُ إلى `CLOSED` بقيدِ `W-054` ورقمِ الدمجِ بعدَ أن يدمجَ المالكُ — § 7، إن أمكنَ الطريقُ (`DISC-012`) | — (يُكتَبُ بعدَ دمجِ المالك) |
 
 ---
 
@@ -372,6 +373,55 @@
   - **والقياسُ لم يُقَدْ بـCI**: لا تشغيلَ منفَّذًا في المستودعِ منذُ 2026-08-26T23:05:02Z (`DISC-006` بيدِ المالكِ) — **فلا يُدَّعى أنَّ الشجرةَ خضراءُ**
   - `VERIFIED` غيرُ مُتاحٍ: يلزمُه مراجعٌ مستقلٌّ وتسميتُه قرارٌ سياديٌّ معلَّقٌ (`A-2`)، و`CLOSED` قبلَ الدمجِ دعوى لا قيدٌ
   - **وتسجيلُ `tools/audit` في `OWNERSHIP.md` فعلٌ إداريٌّ تأمرُ به القاعدةُ 3 لا اجتهادٌ منِّي**، وأُلحِقَ بأقربِ نطاقٍ جنسًا لا بنطاقٍ مُبتدَعٍ — **وللمالكِ نقضُه وإعادةُ توزيعِه**
+قيدُ السجلّ: — (يُكتَبُ بعدَ دمجِ المالك)
+```
+
+---
+
+### WI-009 — حرسُ ما بعدَ الدمجِ يُقاسُ من خارجِ يدِ المحروس، وحدُّه يُكتَبُ حيثُ أُحيلَ إليه
+
+```text
+النطاق: tooling-gates
+المسار/المرحلة: T0 / T2 (صدقُ الشاهدِ · حرسٌ مُنفَّذٌ لا وثيقةٌ)
+المالك: Driving H            المراجع: المجلس التأسيسي
+الحالة: IN_REVIEW
+المسارات:
+  tools/governance/check_work_governance.py                     (القياسُ العكسيُّ: قيدٌ ← بند)
+  tests/governance/test_w054_post_merge_reverse_link.py         (حرسُ المعيارِ: 11 فحصًا · نجاحٌ ورفضٌ وإضعافٌ يُسقِط)
+  docs/governance/work/THE_ROADMAP.md § 13.3                    (الحدُّ المُعلَنُ — إحالةٌ كانت مُعلَّقةً على قسمٍ غيرِ موجود)
+خارجَ النطاق:
+  - لا يُلمَسُ `.github/**`: ربطُ الإسقاطِ بالتكاملِ قرارُ تصميمٍ، والقرارُ للمالكِ (`A-3`)
+  - لا يُعدَّلُ § 4.3 ولا آلةُ الحالاتِ: تعديلُ القانونِ لِيوافقَ عملًا خُرِقَت فيه ممنوعٌ نصًّا (§ 16.3)
+  - لا يُغلَقُ `WI-006`/`WI-007`/`WI-008`: طريقُ الإغلاقِ مقطوعٌ ما دامَ `A-2` معلَّقًا — `DISC-012`
+  - لا تُنشَرُ الحِملةُ الجديدةُ في `docs/audit/measurements/ci_verdict_readability.json`: مسارٌ محجوزٌ لـ`WI-006`
+    وهو مفتوحٌ — فالقياسُ يُكتَبُ في قيدِ السجلِّ ويُنشَرُ عندَ تحرُّرِ حجزِه
+  - لا يُدَّعى أنَّ CI أخضرُ ولا أحمرُ: أحكامُ التشغيلاتِ العشرةِ **غيرُ مقروءةٍ** بقياسِ أداةِ `W-051`
+  - لا يُلمَسُ كودُ التطبيقِ في core/ federal/ states/ agents/ runtime/
+  - لا يُدمَجُ هذا العملُ بيدِ المنفِّذِ: الدمجُ للمالكِ
+معيارُ القبول:
+  1. يُقرأُ سجلُّ الإكمالِ **من `origin/main`** فيُبنى فهرسُ `W-### → WI-###` من الإعلانِ الصريحِ (رابطٌ إلى ACTIVE_WORK.md)
+  2. كلُّ بندٍ يُعلِنُه قيدٌ مدموجٌ وحالتُه ليست `CLOSED` يُرصَدُ `POST_MERGE_NOT_CLOSED`
+  3. الدفعُ المشروعُ قبلَ الدمجِ (قيدٌ في الفرعِ لا في `main`) **لا يُحمَّرُ**، والذكرُ العارضُ لا يُحمَّرُ
+  4. تعذُّرُ قراءةِ الأساسِ **يُعلَنُ** على stderr، ويُرفَضُ برمزِ 2 مع `--require-merge-base`؛ ومرجعٌ مُمَرَّرٌ صراحةً لا يُتجاوَزُ
+  5. الإسقاطُ موقوفٌ على `--enforce-post-merge` حتّى يُعتمَدَ `A-2`/`A-3` — والإبلاغُ لا يُطوى
+  6. الفحصُ يسقُطُ إن أُضعِفَ الحرسُ (طُبِّقَ تحويرٌ متعمَّدٌ فسقطَت 3 فحوصٍ ثمَّ رُدَّ)
+  7. § 13.3 مكتوبٌ ويُطابِقُ سلوكَ الأداةِ، وإحالةُ § 7 لم تبقَ مُعلَّقةً على قسمٍ غيرِ موجود
+الدليلُ المطلوب:
+  pytest tests/governance/test_w054_post_merge_reverse_link.py -q                      # 11 passed
+  python tools/governance/check_work_governance.py --self-check                        # إبلاغٌ: 3 بنودٍ محبوسة
+  python tools/governance/check_work_governance.py --self-check --enforce-post-merge   # إسقاطٌ: رمز 1
+  python tools/governance/check_work_governance.py --self-check --merge-base لا-وجود-له --require-merge-base  # رفضٌ: رمز 2
+  pytest tests/governance/test_work_governance_gate.py -q
+  python tools/governance/check_repository_identity.py .
+بدأ: 2026-08-27        ينتهي الحجز: 2026-09-03
+العائق: —
+الخطوةُ التالية: بعدَ أن يدمجَ المالكُ، يُنقَلُ البندُ إلى `CLOSED` بقيدِ `W-054` ورقمِ الدمجِ — إن فُتِحَ طريقُ الإغلاقِ بقرارِ `A-2`
+حدُّ البندِ — مُعلَنٌ لا مطويٌّ:
+  - **الحرسُ يقيسُ حضورَ القيدِ في فرعِ الدولةِ لا واقعةَ الدمجِ**: دمجٌ بلا قيدٍ لا يُدرِكُه هذا الحرسُ (وذاك لـ`ledger-gate`)
+  - **القيودُ التي لا تُعلِنُ بندَها رابطًا خارجَ القياسِ**: `W-046`…`W-050` مثلًا. وجعلُ الإعلانِ إلزامًا يلزمُه تصحيحُ قيودٍ ماضيةٍ — قرارُ المالكِ لا فعلُ منفِّذٍ (`DISC-010`)
+  - **الإسقاطُ لم يُفعَّلْ**: لأنَّ الواجبَ نفسَه غيرُ مُستطاعٍ الآنَ (`DISC-012`)، وإسقاطٌ على ما لا يُستطاعُ عقوبةٌ لا حرسٌ. والإبلاغُ مسموعٌ في كلِّ تشغيلٍ
+  - **إصلاحُ ختمِ `docs/audit/measurements/README.md`** جرى في هذا العملِ (مسارٌ مُعفًى من الحجزِ ومولَّدٌ آليًّا) وهو **مذكورٌ في مساراتِ `WI-006` المحجوزةِ** — فلم يُطلَبْ له حجزٌ ولم يُنقَلْ إلى هذا البندِ: أُصلِحَ ختمٌ ولم يُكتَبْ مضمونٌ (`DISC-011`)
+  - **أحكامُ CI على الدمجاتِ لم تُشاهَدْ**: عشرةُ تشغيلاتٍ لدمجاتِ `#20`…`#24` كلُّها `UNREADABLE` بقياسِ `ci_verdict_readability.py` — فواجبُ § 7 (6) يبقى مفتوحًا لا مُؤدًّى، وسببُه `DISC-006` بيدِ المالك
 قيدُ السجلّ: — (يُكتَبُ بعدَ دمجِ المالك)
 ```
 

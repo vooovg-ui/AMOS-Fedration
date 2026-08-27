@@ -12,7 +12,7 @@
         المستقلِّ وديوانِ التدقيق، كما في `THE_ROADMAP.md § 13`.
 المالك: tools/governance — ديوان التدقيق، بتفويضٍ من المجلس التأسيسي
 تاريخ الإنشاء: 2026-08-25
-تاريخ آخر تعديل: 2026-08-25
+تاريخ آخر تعديل: 2026-08-27
 
 لماذا أداةٌ لا فقرةٌ في وثيقة
 -----------------------------
@@ -35,6 +35,8 @@
   PATH_UNCLAIMED            تغيَّرَ مسارٌ لا يملكُه بندٌ نشِط
   RESERVATION_EXPIRED       مرَّ تاريخُ الحجزِ والبندُ ما زال نشِطًا
   POST_MERGE_NOT_CLOSED     قُيِّدَ عملُ بندٍ في سجلِّ الإكمالِ وبقيَ بندُه غيرَ CLOSED
+                            يُقاسُ باتِّجاهَينِ: من البندِ إلى قيدِه في مجموعةِ التغيير،
+                            ومن القيدِ المدموجِ في `main` إلى بندِه (‏§ 13.3)
   MISSING_LEDGER_LINK       بندٌ CLOSED بلا قيدِ W-###
   UNROUTED_DISCOVERY        اكتشافٌ بلا وجهةٍ مُعلَنة
 
@@ -50,6 +52,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import subprocess
 import sys
@@ -128,6 +131,18 @@ SCOPE_RE = re.compile(r"^\|\s*([a-z][a-z0-9-]{2,})\s*\|")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 ADDED_WORK_ID_RE = re.compile(r"^\+\|\s*(W-\d{3})\s*\|", re.MULTILINE)
 WORK_ID_IN_TEXT_RE = re.compile(r"W-\d{3}")
+
+# صفُّ قيدٍ في سجلِّ الإكمالِ: معرِّفُه ثمَّ بقيّةُ الصفِّ نصًّا (الصفُّ سطرٌ واحد).
+LEDGER_ROW_RE = re.compile(r"^\|\s*(W-\d{3})\s*\|(.*)$", re.MULTILINE)
+# **الإعلانُ الصريحُ** لبندِ القيد: `WI-###` مكتوبًا رابطًا إلى `ACTIVE_WORK.md`.
+# ولا يُقاسُ الذكرُ العارضُ (‏قيدٌ يذكرُ بندَ غيرِه ليقولَ «لم أمسَّ محجوزَه»)،
+# لأنَّ حرسًا يُحمِّرُ على ذكرٍ عارضٍ يُعلِّمُ الناسَ ألّا يذكروا — وذاك خسرانُ صدقٍ
+# أكبرُ من الخرقِ الذي يمنعُه. والحدُّ مُعلَنٌ في THE_ROADMAP § 13.3.
+LEDGER_ITEM_LINK_RE = re.compile(r"\[`?(WI-[A-Z]?\d{2,3})`?\]\([^)]*ACTIVE_WORK\.md[^)]*\)")
+
+# أساسُ قياسِ ما بعدَ الدمج: الفرعُ الذي يصيرُ العملُ فيه حالةَ الدولة.
+MERGE_BASE_ENV = "AMOS_WORK_GATE_MERGE_BASE"
+MERGE_BASE_CANDIDATES = ("origin/main", "main")
 
 EMPTY_MARKS = frozenset({"", "—", "-", "–", "لا شيء", "غير معين", "(غير معين)"})
 
@@ -490,6 +505,69 @@ def base_items(mode: str, ref: str | None) -> list[dict[str, object]] | None:
     return items
 
 
+def ledger_reverse_links(text: str) -> dict[str, set[str]]:
+    """قيدُ `W-###` ← البنودُ التي **يُعلِنُها** صفُّه رابطًا (القياسُ العكسيّ).
+
+    القياسُ القائمُ في `check_change_set` يقرأُ الرابطَ من **البندِ إلى القيدِ**
+    (‏خليّةُ «قيدُ السجلّ»)، وتلك الخليّةُ يكتبُها من يجبُ عليه الإغلاقُ — فتكونُ
+    فارغةً بعينِ الحالةِ التي بُنِيَ الحرسُ لها. فيُقاسُ هنا الاتِّجاهُ المقابلُ:
+    من **القيدِ إلى البند**.
+    """
+    links: dict[str, set[str]] = {}
+    for work_id, body in LEDGER_ROW_RE.findall(text):
+        declared = set(LEDGER_ITEM_LINK_RE.findall(body))
+        if declared:
+            links.setdefault(work_id, set()).update(declared)
+    return links
+
+
+def _has_ledger_at(ref: str) -> bool:
+    probe = subprocess.run(
+        ["git", "rev-parse", "--verify", "--quiet", f"{ref}:{LEDGER_PATH}"],
+        cwd=REPO_ROOT, capture_output=True, text=True, check=False,
+    )
+    return probe.returncode == 0
+
+
+def resolve_merge_base(explicit: str | None = None) -> str | None:
+    """مرجعُ الفرعِ المدموجِ إليه، أو `None` إن لم يُقرَأْ منه سجلُّ الإكمال.
+
+    ومرجعٌ مُمَرَّرٌ صراحةً لا يُتجاوَزُ إلى غيرِه: من طلبَ أساسًا بعينِه يلزمُه
+    جوابٌ عنه لا قياسٌ عن أساسٍ أخرَ في زيِّ جوابِه.
+    """
+    if explicit:
+        return explicit if _has_ledger_at(explicit) else None
+    for ref in (os.environ.get(MERGE_BASE_ENV), *MERGE_BASE_CANDIDATES):
+        if ref and _has_ledger_at(ref):
+            return ref
+    return None
+
+
+def check_post_merge_closure(
+    items: list[dict[str, object]], base: str
+) -> list[dict[str, str]]:
+    """بندٌ قُيِّدَ عملُه في سجلِّ الإكمالِ **المدموجِ** وبقيَ غيرَ `CLOSED` (§ 7)."""
+    links = ledger_reverse_links(_git("show", f"{base}:{LEDGER_PATH}"))
+    owner: dict[str, set[str]] = {}
+    for work_id, declared in links.items():
+        for item_id in declared:
+            owner.setdefault(item_id, set()).add(work_id)
+
+    violations: list[dict[str, str]] = []
+    for it in items:
+        item_id = str(it["id"])
+        status = str(it["status"])
+        if status == "CLOSED" or item_id not in owner:
+            continue
+        violations.append(_v(
+            "POST_MERGE_NOT_CLOSED",
+            f"{item_id}: قيدُه ({'، '.join(sorted(owner[item_id]))}) مدموجٌ في «{base}» "
+            f"وحالتُه ما زالت {status} — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### "
+            f"ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2)",
+        ))
+    return violations
+
+
 def requires_claim(path: str) -> bool:
     if path in EXEMPT_EXACT or path.startswith(EXEMPT_PREFIXES):
         return False
@@ -552,7 +630,15 @@ def _covers(claim: str, path: str) -> bool:
 # ── التشغيل ─────────────────────────────────────────────────────────────────
 
 
-def run(mode: str, ref: str | None, shape_only: bool, today: date) -> list[dict[str, str]]:
+def run(
+    mode: str,
+    ref: str | None,
+    shape_only: bool,
+    today: date,
+    merge_base: str | None = None,
+    notes: list[str] | None = None,
+    enforce_post_merge: bool = False,
+) -> list[dict[str, str]]:
     missing = check_registers_exist()
     if missing:
         return missing
@@ -569,6 +655,28 @@ def run(mode: str, ref: str | None, shape_only: bool, today: date) -> list[dict[
     violations += check_discoveries(texts[DISCOVERIES_PATH])
     if not shape_only:
         violations += check_change_set(mode, ref, items)
+
+    # واجبُ ما بعدَ الدمجِ يُقاسُ بأساسِ الدمجِ لا بمجموعةِ التغيير، لأنَّ القيدَ
+    # يُدفَعُ معَ العملِ قبلَ الدمجِ والبندُ يومَها `IN_REVIEW` بحقٍ، وإنما يلزمُ
+    # الإغلاقُ متى صارَ القيدُ حالةَ الدولةِ في `main`.
+    base = resolve_merge_base(merge_base)
+    if base:
+        overdue = check_post_merge_closure(items, base)
+        # إسقاطٌ أم إبلاغٌ؟ ما دام `A-2` معلّقًا (لا مراجعَ مستقلًّا) فطريقُ
+        # `IN_REVIEW → VERIFIED → CLOSED` مقطوعٌ بنصِّ § 4.3 نفسِه، فإسقاطٌ على
+        # واجبٍ لا يُستطاعُ أداءُه عقوبةٌ لا حرسٌ. فيُقاسُ وُيُعلَنُ دائمًا،
+        # ويُسقِطُ بـ`--enforce-post-merge` أو بعدَ اعتمادِ `A-2`/`A-3` (§ 13.3 · § 16.4).
+        if enforce_post_merge:
+            violations += overdue
+        elif notes is not None:
+            for v in overdue:
+                notes.append(f"{v['kind']}: {v['detail']} — إبلاغٌ بلا إسقاطٍ: طريقُ الإغلاقِ مقطوعٌ ما دام `A-2` معلّقًا (§ 13.3)")
+    elif notes is not None:
+        notes.append(
+            "حرسُ ما بعدَ الدمجِ **لم يُقَسْ**: لا يُقرأُ سجلُّ الإكمالِ من "
+            f"«{merge_base or ' أو '.join(MERGE_BASE_CANDIDATES)}» في هذه الشجرةِ — يُمرَّرُ الأساسُ "
+            f"بـ`--merge-base REF` أو بمتغيّرِ البيئةِ {MERGE_BASE_ENV}"
+        )
     return violations
 
 
@@ -591,6 +699,21 @@ def main() -> int:
     parser.add_argument(
         "--today", metavar="YYYY-MM-DD", help="تاريخُ المرجعِ لفحصِ انتهاءِ الحجز (للاختبار)"
     )
+    parser.add_argument(
+        "--merge-base",
+        metavar="REF",
+        help="مرجعُ الفرعِ المدموجِ إليه لقياسِ واجبِ ما بعدَ الدمج (الافتراضيّ: origin/main ثمَّ main)",
+    )
+    parser.add_argument(
+        "--require-merge-base",
+        action="store_true",
+        help="رفضٌ (رمز 2) إن لم يُقرأْ أساسُ الدمج — لمنعِ مرورٍ صامتٍ في التكامل",
+    )
+    parser.add_argument(
+        "--enforce-post-merge",
+        action="store_true",
+        help="جعلُ POST_MERGE_NOT_CLOSED مُسقِطًا (الافتراضيُّ: إبلاغٌ حتّى يُعتمَدَ A-2/A-3)",
+    )
     args = parser.parse_args()
 
     if args.rng:
@@ -609,10 +732,26 @@ def main() -> int:
         )
         return 2
 
+    notes: list[str] = []
     try:
-        violations = run(mode, ref, shape_only=bool(args.self_check), today=today)
+        violations = run(
+            mode,
+            ref,
+            shape_only=bool(args.self_check),
+            today=today,
+            merge_base=args.merge_base,
+            notes=notes,
+            enforce_post_merge=bool(args.enforce_post_merge),
+        )
     except RuntimeError as exc:
         print(f"[WORK GATE] تعذّرت القراءةُ من git: {exc}", file=sys.stderr)
+        return 2
+
+    # حدُّ القياسِ يُعلَنُ دائمًا: ما لم يُقَسْ لا يُسكَتُ عنه.
+    for note in notes:
+        print(f"[WORK GATE] ⚠ {note}", file=sys.stderr)
+    if args.require_merge_base and resolve_merge_base(args.merge_base) is None:
+        print("[WORK GATE] رفضٌ: طُلِبَ أساسُ الدمجِ ولم يُقرأْ.", file=sys.stderr)
         return 2
 
     if not violations:
