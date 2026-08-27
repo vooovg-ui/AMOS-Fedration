@@ -26,6 +26,7 @@
 | WI-002 | audit-truth | T0 / T2 | Driving H | المجلس التأسيسي | CLOSED | docs/audit/COMPLETION_LEDGER.md · EXECUTION_PLAN.md · docs/governance/work/DISCOVERIES.md · docs/governance/work/THE_ROADMAP.md · PROJECT_STATE.md · docs/audit/ACTIVE_EXECUTION_STATE.md · docs/governance/work/ACTIVE_WORK.md | 2026-08-26 | 2026-09-02 | — | — (مُغلَق) | W-047 |
 | WI-006 | tooling-gates | T0 / T2 | Driving H | المجلس التأسيسي | IN_REVIEW | tools/governance/ci_verdict_readability.py · tests/governance/test_w051_ci_verdict_readability.py · tools/governance/measurement_provenance.py · tests/governance/test_w038_probe_measure_mode.py · tests/governance/test_w048_bound_provenance.py · docs/audit/measurements/ci_verdict_readability.json · docs/audit/measurements/README.md · docs/governance/work/ACTIVE_WORK.md · docs/governance/work/DISCOVERIES.md · docs/governance/work/RISK_REGISTER.md · docs/audit/COMPLETION_LEDGER.md · docs/audit/ACTIVE_EXECUTION_STATE.md | 2026-08-27 | 2026-09-03 | — (لا عائقَ على البندِ نفسِه؛ والعطبُ المقيسُ عائقٌ على `T0.4ب` لا عليه) | يُنقَلُ إلى `CLOSED` بقيدِ `W-051` ورقمِ الدمجِ بعدَ أن يدمجَ المالكُ — § 7 | — (يُكتَبُ بعدَ دمجِ المالك) |
 | WI-007 | tooling-gates | T0 | Driving H | المجلس التأسيسي | IN_REVIEW | tools/audit/final_audit.py · tests/governance/test_w052_history_hash_probe.py · docs/governance/work/OWNERSHIP.md | 2026-08-27 | 2026-09-03 | — (لا عائقَ على البندِ نفسِه) | يُنقَلُ إلى `CLOSED` بقيدِ `W-052` ورقمِ الدمجِ بعدَ أن يدمجَ المالكُ — § 7 | — (يُكتَبُ بعدَ دمجِ المالك) |
+| WI-008 | tooling-gates | T0 | Driving H | المجلس التأسيسي | IN_REVIEW | tools/governance/gate_dependency_closure.py · tests/governance/test_w053_gate_dependency_closure.py | 2026-08-27 | 2026-09-03 | — (لا عائقَ على البندِ نفسِه؛ والعطبُ المقيسُ عائقٌ على `sovereignty-kernel` لا عليه) | يُنقَلُ إلى `CLOSED` بقيدِ `W-053` ورقمِ الدمجِ بعدَ أن يدمجَ المالكُ — § 7 | — (يُكتَبُ بعدَ دمجِ المالك) |
 
 ---
 
@@ -371,6 +372,61 @@
   - **والقياسُ لم يُقَدْ بـCI**: لا تشغيلَ منفَّذًا في المستودعِ منذُ 2026-08-26T23:05:02Z (`DISC-006` بيدِ المالكِ) — **فلا يُدَّعى أنَّ الشجرةَ خضراءُ**
   - `VERIFIED` غيرُ مُتاحٍ: يلزمُه مراجعٌ مستقلٌّ وتسميتُه قرارٌ سياديٌّ معلَّقٌ (`A-2`)، و`CLOSED` قبلَ الدمجِ دعوى لا قيدٌ
   - **وتسجيلُ `tools/audit` في `OWNERSHIP.md` فعلٌ إداريٌّ تأمرُ به القاعدةُ 3 لا اجتهادٌ منِّي**، وأُلحِقَ بأقربِ نطاقٍ جنسًا لا بنطاقٍ مُبتدَعٍ — **وللمالكِ نقضُه وإعادةُ توزيعِه**
+قيدُ السجلّ: — (يُكتَبُ بعدَ دمجِ المالك)
+```
+
+---
+
+### WI-008 — بوّابةٌ لا تستوردُ ما لا يُثبَّتُ لها: إغلاقُ التبعيّاتِ يُقاسُ بالوظيفةِ لا بالنيّة
+
+```text
+النطاق: tooling-gates
+المسار/المرحلة: T0 (صدقُ القياسِ نفسِه · تخفيفُ `RK-010` يُنفَّذُ شِفرةً)
+المالك: Driving H            المراجع: المجلس التأسيسي
+الحالة: IN_REVIEW
+المسارات:
+  tools/governance/gate_dependency_closure.py                  (الحرسُ — بالمكتبةِ القياسيّةِ وحدَها ورفضٌ مُصنَّفٌ برمزِ 2)
+  tests/governance/test_w053_gate_dependency_closure.py         (حرسُ الحرسِ: تجهيزاتٌ محكمةٌ موقوتةٌ + طفراتٌ تُثبِتُ أنَّه يعضُّ)
+  وملفّاتٌ مُعفاةٌ من الحجزِ تُمَسُّ ولا تُدَّعى مِلكًا — مُعلَنٌ لا مطويّ: ACTIVE_WORK.md · DISCOVERIES.md · RISK_REGISTER.md · COMPLETION_LEDGER.md
+  وسببُ تركِها غيرَ مُعلَنةٍ في عمودِ المساراتِ واحدٌ: `WI-006` و`WI-007` حاجزانِ عليها وهما `IN_REVIEW`، فالدّعوى تُسقِطُ `CLAIM_CONFLICT` بحقٍّ
+خارجَ النطاق:
+  - **لا يُصلَحُ العطبُ المقيسُ في `sovereignty-kernel`**: تركيبُ الحزمةِ في الوظيفةِ أو نقلُ الفحوصِ أو إعلانُ التبعيّةِ ثلاثةُ حلولٍ مختلفةِ الأثرِ على معنى الوظيفةِ — والاختيارُ قرارُ المالكِ (`DISC-009` · `RK-013`)
+  - لا يُمَسُّ `.github/workflows/ci.yml`: تعديلُه هو الإصلاحُ نفسُه، وهو قرارٌ لم يُحسَمْ
+  - لا يُمَسُّ `docs/audit/ACTIVE_EXECUTION_STATE.md` ولا `tools/governance/measurement_provenance.py`: محجوزانِ لـ`WI-006`
+  - لا يُسجَّلُ الحرسُ في `measure.yml` ولا في `ci.yml`: إضافةُ خطوةٍ إلى مسارٍ تعديلُ عقدِ CI — يُقتَرَحُ على المالكِ ولا يُنفَّذُ ذاتيًّا
+  - لا تُوسَّعُ الأداةُ إلى وظيفتَي `lint` و`lockfile-check`: لا تُشغِّلانِ مدخلَ بايثونَ يُقاسُ (‏`ruff` و`pip` وحدَهما) — **والعددُ مُعلَنٌ: 13 من 15 مقيسةٌ**، لا «كلُّ الوظائفِ»
+  - ولا يُدمَجُ هذا العملُ بيدِ المنفِّذِ: الدمجُ للمالكِ
+معيارُ القبول:
+  1. يُقاسُ الاتِّجاهُ **المقابلُ** للحرسِ القائمِ: `test_root_dependencies_declared.py` يقيسُ أنَّ الإعلاناتَ قائمةٌ وألّا يُبَثَّ اسمٌ عاريًا؛ وهذا يقيسُ أنَّ **ما تستوردُه بوّابةٌ مُثبَّتٌ في الوظيفةِ التي تُشغِّلُها** — ولا تكرارَ
+  2. بالمكتبةِ القياسيّةِ وحدَها (`ast` · `re` · `tomllib` · `json`): أداةٌ تحرسُ إعلانَ التبعيّاتِ ثمَّ تلزمُها تبعيّةٌ غيرُ مُعلَنةٍ هي مثالُ العطبِ الذي تحرسُ منه
+  3. الاستيراداتُ تُتبَّعُ **عبورًا** لا في الملفِّ الأوّلِ وحدَه، وتُحَلُّ الوحداتُ المحليّةُ بأبوابِها الحقيقيّةِ الثلاثةِ: جذرُ المستودعِ · دليلُ عملِ الوظيفةِ · دليلُ النَّصِّ المُشغَّلِ و`sys.path.insert` الصريحُ
+  4. الاستيرادُ المحروسُ لا يُعَدُّ نقصًا: `try` يمسِكُ `ImportError` أو `Exception` يُترجِمُ الفقدانَ إلى تخطٍّ مُعلَنٍ — وعدُّه نقصًا يُحمِّرُ بوّابةً بسببٍ غيرِ حقيقيٍّ، وذاك عينُ `RK-010`
+  5. حينَ لا تملكُ ما تقيسُ به **ترفضُ ولا تحكُمُ**: خروجٌ 2 و`REFUSED:` — ومن أبوابِه **وحدةٌ لا يُعرَفُ اسمُ توزيعِها**، فتخمينُه يُنتِجُ نقصًا كاذبًا
+  6. الأساسُ `KNOWN_OPEN` **ترباسٌ لا رخصةٌ**: يلزمُ كلَّ مدخلٍ فيه مُوجِّهٌ (`DISC-009`)، وإن أُصلِحَ العطبُ وبقيَ الاسمُ سقطَتِ الأداةُ بـ`أساسٌ تقادمَ`
+  7. الأداةُ تقيسُ ولا تكتبُ: لا تُعدِّلُ ملفًّا ولا تُثبِّتُ حزمةً ولا تُصلِحُ مسارًا
+  8. والفحصُ يُثبِتُ **أنَّ الحرسَ يعضُّ**: طفراتٌ مقصودةٌ في الشِفرةِ كلٌّ منها يُمسَكُ، وتجهيزاتٌ محكمةٌ تُبنى في دليلٍ موقوتٍ بلا شبكةٍ
+الدليلُ المطلوب:
+  python tools/governance/gate_dependency_closure.py . --check      # 12 من 13 مُغلَقةٌ · 1 مفتوحةٌ مُقيَّدةٌ · خروجٌ 0
+  pytest tests/governance/test_w053_gate_dependency_closure.py -q
+  طفراتٌ مقصودةٌ في الشِفرةِ — وكلُّ واحدةٍ أُمسِكَت
+  python tools/governance/check_work_governance.py --self-check · --staged
+  python tools/governance/check_completion_ledger.py --self-check · --staged
+  python tools/governance/check_repository_identity.py .
+  python tools/governance/check_root_file_names.py . --source disk
+  python tools/governance/measurement_provenance.py . --check --contract-only
+  python tools/governance/truth_audit.py
+  ruff check .
+بدأ: 2026-08-27        ينتهي الحجز: 2026-09-03
+العائق: —
+الخطوةُ التالية: بعدَ أن يدمجَ المالكُ، يُنقَلُ البندُ إلى `CLOSED` ويُكتَبُ في `قيدِ السجلّ`: `W-053` ورقمُ الدمجِ وعقدتُه — § 7؛ ويُرفَعُ إلى المالكِ اختيارُ حلٍّ لـ`DISC-009`
+حدُّ البندِ — مُعلَنٌ لا مطويّ:
+  - **هذا حرسُ قياسٍ لا إصلاحُ عطبٍ**: العطبُ الذي كشفَه ما زالَ قائمًا في `ci.yml` — والأداةُ تُبقي الشجرةَ خضراءَ لأنَّه **مُقيَّدٌ في أساسٍ مُوجَّهٍ**، لا لأنَّه زالَ
+  - **والعطبُ مقيسٌ لا مُستنتَجٌ**: `python -m pytest tests/sovereignty/ -q` عندي = `43 passed · 3 errors` بـ`ModuleNotFoundError: amos_federation` في تجهيزِ `مُصرِّح`؛ ووظيفةُ `sovereignty-kernel` تُثبِّتُ `requirements-dev.txt` وحدَه
+  - **وقد وقعَ من جنسِه عطبٌ قبلَ اليومِ**: مكتوبٌ في `tests/governance/test_w036_pricing_divergence.py` أنَّ فحصًا سقطَ في وظيفةِ الهويّةِ بـ`ModuleNotFoundError: sqlalchemy` — فالخطرُ `RK-010` **متحقِّقٌ مرّتَينِ** لا مفترَضٌ
+  - **وتصحيحٌ لقياسٍ سابقٍ لي في هذه الجلسةِ**: عددُ وظائفِ CI **15** لا 21 (‏`ci.yml` 13 · `measure.yml` 1 · `truth-matrix.yml` 1) — قِيسَ بالأداةِ وبـ`awk` مستقلًّا
+  - **ولا قدرةَ جديدةَ في المنتَجِ**: عدّادُ الدَّينِ 182 كما كانَ، والمخالفاتُ 63 كما كانَت
+  - **والقياسُ لم يُقَدْ بـCI**: لا تشغيلَ منفَّذًا في المستودعِ منذُ 2026-08-26T23:05:02Z (`DISC-006` بيدِ المالكِ) — فلا يُدَّعى أنَّ الشجرةَ خضراءُ
+  - `VERIFIED` غيرُ مُتاحٍ: يلزمُه مراجعٌ مستقلٌّ وتسميتُه قرارٌ سياديٌّ معلَّقٌ (`A-2`)، و`CLOSED` قبلَ الدمجِ دعوى لا قيدٌ
 قيدُ السجلّ: — (يُكتَبُ بعدَ دمجِ المالك)
 ```
 
