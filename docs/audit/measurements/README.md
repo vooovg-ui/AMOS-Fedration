@@ -22,6 +22,7 @@
 | `decision_wave_map.json` | `tools/audit/decision_gate.py --map` | تقسيمُ الدَّينِ 168 على موجاتِ القرارِ (52 + 34 + 82) بلا تكرارٍ ولا متروك (P15) |
 | `decision_gate_ledger.json` | `tools/audit/decision_gate.py --record` | لقطةُ جردٍ بعدَ كلِّ قرارٍ بشريٍّ يُغلَق · **مخزنُ قياسٍ لا مصدرُ حقيقةٍ للقرارات** · يُنشَأُ عندَ أوّلِ قرارٍ (P15) |
 | `restart_survival.json` | `tools/governance/restart_survival_probe.py` | ما ينجو من حالةِ الخدماتِ عبرَ إعادةِ تشغيلٍ حقيقيّةٍ — عمليّةٌ تكتبُ وعمليّةٌ أخرى تقرأُ (11 سطحًا · 8 فُقِدَ · شاهدا ضبطٍ) (T3.6 · W-030) |
+| `ci_verdict_readability.json` | `tools/governance/ci_verdict_readability.py` | مقروئيّةُ حكمِ CI: تُعَدُّ الخطواتُ المنفَّذةُ لا النتيجةُ المُعلَنة — ثمانيةُ تشغيلاتٍ: سبعةٌ `UNREADABLE` وواحدٌ `PARTIALLY_READABLE` ولا واحدَ مقروءًا كلًّا (`RK-011` · `DISC-006` · W-051) |
 | `in_memory_inventory.json` | `tools/governance/in_memory_inventory.py` | تصنيفُ ورودِ `IN_MEMORY_STORE` الستّينَ من المصدرِ (اختبارٌ · موصولٌ متطايرٌ · بديلٌ غيرُ موصولٍ) + مخازنُ حالةِ وحدةٍ **لا يراها العدّادُ** (T3.6 · W-029) |
 
 ## الحدّ
@@ -103,6 +104,7 @@
 
 ## المحتويات
 - `README.md` — بطاقة هوية هذا المجلد (المادة التاسعة)
+- `ci_verdict_readability.json` — مقروئيّةُ حكمِ CI مقيسةً بالخطواتِ (W-051) · مُعلَنٌ: يلزمُه واجهةٌ حيّةٌ وتوكنٌ — و**معيارُه** محروسٌ في كلِّ دفعةٍ (`test_w051_ci_verdict_readability.py`)
 - `decision_gate_ledger.json` — سجلٌّ تراكميٌّ لتشغيلاتِ بوّابةِ القرار · مُعلَنٌ بلا إعادةِ توليدٍ (محوُ تاريخٍ)
 - `decision_wave_map.json` — خريطةُ موجاتِ الهجرةِ · محروسٌ (`decision_gate.py --measure`)
 - `domain_truth_snapshot.json` — قياسُ بشرٍ بـSQL على قاعدةٍ حيّةٍ (W-025) · مُعلَنٌ: لا مُولِّدَ له

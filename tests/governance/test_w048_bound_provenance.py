@@ -98,13 +98,25 @@ def test_restart_survival_is_bound_not_declared(tool: Any) -> None:
     assert entry.reason.strip(), "الرباطُ يُعلَنُ حدُّه لا يُقالُ دونَه."
 
 
-def test_guarded_count_is_eight_of_ten(tool: Any) -> None:
-    """الرقمُ يُقاسُ من العقدِ لا يُنقَلُ من نصٍّ: 8 محروسًا · 2 مُعلَنًا."""
+def test_guarded_count_is_a_ratchet_not_a_transcript(tool: Any) -> None:
+    """الحرسُ لا يتراجعُ، والمُعلَنُ بلا حرسٍ لا يتكاثرُ.
+
+    كانَ هذا الفحصُ يُثبِّتُ «10 مقيَّدًا · 8 محروسًا · 2 مُعلَنًا» بالمساواةِ،
+    فكانَ يسقُطُ على **إضافةِ قياسٍ مشروعٍ** لا على تخفيفِ حرسٍ — وذاك عيبٌ
+    في الفحصِ لا في العمل. فصارَ **ترباسًا**: العددُ الكلِّيُّ يجوزُ أن يرتفعَ،
+    و`المحروسُ` لا يجوزُ أن ينقُصَ، و`المُعلَنُ بلا حرسٍ` لا يجوزُ أن يرتفعَ
+    فوقَ أرضِيّتِه المُعلَنةِ — وكلُّ واحدٍ منها له **سببٌ مكتوبٌ** تُلزِمُ به
+    البوّابةُ نفسُها.
+
+    الأرضيّةُ المُعلَنةُ (‏W-051 · 2026-08-27): 11 مقيَّدًا · 8 محروسًا ·
+    3 مُعلَنًا بسببٍ · 1 برباطٍ مقيسٍ.
+    """
     _, counts = tool.audit(REPO, freshness=False)
-    assert counts["registered"] == 10, counts
-    assert counts["guarded"] == 8, counts
-    assert counts["declared_only"] == 2, counts
+    assert counts["registered"] >= 11, counts
+    assert counts["guarded"] >= 8, counts
+    assert counts["declared_only"] <= 3, counts
     assert counts["bound"] == 1, counts
+    assert counts["registered"] == counts["guarded"] + counts["declared_only"], counts
 
 
 def test_contract_holds_on_the_repository_as_pushed(tool: Any) -> None:

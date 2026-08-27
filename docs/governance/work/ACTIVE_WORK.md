@@ -4,7 +4,7 @@
 ## النطاق: البنودُ المفتوحةُ وحدَها (`PROPOSED` → `VERIFIED`) والمُغلَقةُ حديثًا. **لا يُسجَّلُ هنا تاريخُ ما أُنجِز** — ذاك في [`COMPLETION_LEDGER.md`](../../audit/COMPLETION_LEDGER.md)، ولا حالةُ القدرةِ — تلك في [`TRUTH_MATRIX.md`](../../audit/TRUTH_MATRIX.md)
 ## المالك: قائدُ التنفيذِ، بتفويضٍ من المجلس التأسيسي
 ## تاريخ الإنشاء: 2026-08-25
-## تاريخ آخر تعديل: 2026-08-26
+## تاريخ آخر تعديل: 2026-08-27
 
 > يحكمُ هذا السجلَّ [`THE_ROADMAP.md`](THE_ROADMAP.md): الحقولُ في § 4.2، والحالاتُ
 > والانتقالاتُ في § 4.3، وقفلُ النطاقِ في § 6، وواجبُ ما بعدَ الدمجِ في § 7.
@@ -24,6 +24,7 @@
 | WI-005 | audit-truth | T0 | Driving H | المجلس التأسيسي | CLOSED | docs/governance/work/ACTIVE_WORK.md · docs/governance/work/DISCOVERIES.md · docs/audit/COMPLETION_LEDGER.md · docs/audit/ACTIVE_EXECUTION_STATE.md | 2026-08-26 | 2026-09-02 | — | — (مُغلَقٌ بقيدِ W-050 · وDISC-006 ما زالَ مفتوحًا بيدِ المالكِ) | W-050 |
 | WI-004 | audit-truth | T0 | Driving H | المجلس التأسيسي | CLOSED | docs/governance/work/DISCOVERIES.md · docs/governance/work/RISK_REGISTER.md · docs/governance/work/ACTIVE_WORK.md · docs/audit/COMPLETION_LEDGER.md · docs/audit/ACTIVE_EXECUTION_STATE.md | 2026-08-26 | 2026-09-02 | — | — (مُغلَقٌ بقيدِ W-049 · وإصلاحُ حسابِ Actions بيدِ المالكِ — DISC-006 مفتوحٌ عليه) | W-049 |
 | WI-002 | audit-truth | T0 / T2 | Driving H | المجلس التأسيسي | CLOSED | docs/audit/COMPLETION_LEDGER.md · EXECUTION_PLAN.md · docs/governance/work/DISCOVERIES.md · docs/governance/work/THE_ROADMAP.md · PROJECT_STATE.md · docs/audit/ACTIVE_EXECUTION_STATE.md · docs/governance/work/ACTIVE_WORK.md | 2026-08-26 | 2026-09-02 | — | — (مُغلَق) | W-047 |
+| WI-006 | tooling-gates | T0 / T2 | Driving H | المجلس التأسيسي | IN_REVIEW | tools/governance/ci_verdict_readability.py · tests/governance/test_w051_ci_verdict_readability.py · tools/governance/measurement_provenance.py · tests/governance/test_w038_probe_measure_mode.py · tests/governance/test_w048_bound_provenance.py · docs/audit/measurements/ci_verdict_readability.json · docs/audit/measurements/README.md · docs/governance/work/ACTIVE_WORK.md · docs/governance/work/DISCOVERIES.md · docs/governance/work/RISK_REGISTER.md · docs/audit/COMPLETION_LEDGER.md · docs/audit/ACTIVE_EXECUTION_STATE.md | 2026-08-27 | 2026-09-03 | — (لا عائقَ على البندِ نفسِه؛ والعطبُ المقيسُ عائقٌ على `T0.4ب` لا عليه) | يُنقَلُ إلى `CLOSED` بقيدِ `W-051` ورقمِ الدمجِ بعدَ أن يدمجَ المالكُ — § 7 | — (يُكتَبُ بعدَ دمجِ المالك) |
 
 ---
 
@@ -254,6 +255,66 @@
   - والإغلاقُ توثيقٌ لا مراجعةٌ — القرارُ `A-2` معلَّقٌ بيدِ المالك
   - وحكمُ CI على دفعتِه لن يُقرأَ أيضًا ما لم يُصلَحْ حسابُ `Actions`
 قيدُ السجلّ: W-050
+```
+
+---
+
+### WI-006 — مقروئيّةُ حكمِ CI تُقاسُ بالخطواتِ لا بالنتيجةِ (حرسُ `RK-011` شِفرةً)
+
+```text
+النطاق: tooling-gates
+المسار/المرحلة: T0 / T2 (صدقُ الشاهدِ · حرسٌ مُنفَّذٌ لا وثيقةٌ)
+المالك: Driving H            المراجع: المجلس التأسيسي
+الحالة: IN_REVIEW
+المسارات:
+  tools/governance/ci_verdict_readability.py            (القدرةُ الجديدةُ — أداةٌ بمخرَجِ خروجٍ)
+  tests/governance/test_w051_ci_verdict_readability.py  (حرسُ المعيارِ: 24 فحصًا · نجاحٌ ورفضٌ)
+  tools/governance/measurement_provenance.py            (قيدُ القياسِ المنشورِ — سطرٌ في `REGISTRY`)
+  tests/governance/test_w038_probe_measure_mode.py      (فحصُ عدٍّ حُوِّلَ من مساواةٍ إلى ترباسٍ — مُعلَنٌ في حدِّ البند)
+  tests/governance/test_w048_bound_provenance.py        (فحصُ عدٍّ حُوِّلَ من مساواةٍ إلى ترباسٍ — مُعلَنٌ في حدِّ البند)
+  docs/audit/measurements/ci_verdict_readability.json   (الحِملُ المنشورُ · وضعُ `declared` بسببٍ مكتوب)
+  docs/audit/measurements/README.md                     (صفُّ فهرسٍ وسطرُ محتوياتٍ لا حقيقةٌ جديدة)
+  docs/governance/work/DISCOVERIES.md                   (`DISC-006`: قياسٌ ثالثٌ يُضافُ لا استنتاجٌ)
+  docs/governance/work/RISK_REGISTER.md                 (`RK-011`: تخفيفُه صارَ محروسًا بشِفرةٍ)
+  docs/governance/work/ACTIVE_WORK.md                   (هذا البندُ نفسُه)
+  docs/audit/COMPLETION_LEDGER.md § 8                   (قيدُ W-051 — واجبُ الدفعِ لا مِلكيّةُ نطاق)
+  docs/audit/ACTIVE_EXECUTION_STATE.md                  (حالةُ اللحظةِ لا تاريخٌ جديد)
+  docs/audit/TRUTH_MATRIX.md · docs/audit/truth_matrix.json  (مُولَّدانِ آليًّا: الملفّاتُ المُضافةُ تُغيِّرُ عدَّادَ الجردِ — ولم يُمَسَّ عدَّادُ المخالفات: 63 قبلَ العملِ و63 بعدَه)
+خارجَ النطاق:
+  - لا وظيفةَ CI جديدةً ولا تعديلَ في `.github/**`: ربطُ حرسٍ بشبكةٍ وتوكنٍ قرارُ تصميمٍ، وقرارُ التصميمِ للمالكِ
+  - لا يُلمَسُ كودُ التطبيقِ في core/ federal/ states/ agents/ runtime/
+  - لا يُمَسُّ عدّادُ المخالفاتِ ولا حالةُ إقليمٍ في مصفوفةِ الحقيقة
+  - لا يُدَّعى أنَّ الشجرةَ خضراءُ ولا حمراءُ في CI: الأداةُ تقولُ «غيرُ مقروءٍ» ولا تقولُ أكثر
+  - لا يُصلَحُ حسابُ `Actions` (‏دقائقُ · حدُّ إنفاقٍ · وسيلةُ دفعٍ): بيدِ المالكِ وحدَه — `DISC-006`
+  - لا يُغلَقُ `DISC-006` ولا `RK-011`: القياسُ ليس دواءً
+  - لا يُدمَجُ هذا العملُ بيدِ المنفِّذِ: الدمجُ للمالكِ
+معيارُ القبول:
+  1. الأداةُ تُصنِّفُ كلَّ وظيفةٍ من حِملِ `runs/{id}/jobs`: `EXECUTED` (بدأت خطوةٌ) · `NOT_DISPATCHED` (لا خطواتٍ ولا عاملٌ) · `SKIPPED` (خارجَ المقامِ) · `AMBIGUOUS`
+  2. حكمُ التشغيلِ يُبنى على الخطواتِ لا على `conclusion`، و`conclusion_quotable` لا يصدُقُ إلّا مع `READABLE`
+  3. تُعيدُ الأداةُ **رفضًا** (خروجٌ 2 · `MeasurementRefused`) حينَ لا تملكُ ما تقيسُ به — والرفضُ ليس حكمًا
+  4. الأداةُ تُعادُ حيًّا (`--repo/--run`) وبلا شبكةٍ (`--from-json`) بالنتيجةِ نفسِها على الحِملِ نفسِه
+  5. تُصدِّقُ الأداةُ قياسَ اليدِ في `W-049`: تشغيلُ `32903824510` → 12/13 وظيفةً منفَّذةً حرفًا بحرفٍ
+  6. لا `except` صامتٌ ولا سرٌّ في الشِفرةِ: التوكنُ من البيئةِ وحدَها ولا يُطبَعُ ولا يُقيَّدُ
+  7. البوّاباتُ الستُّ وعقدُ نسبِ القياساتِ تبقى خضراءَ كما كانت، وعدّادُ المخالفاتِ 63 لم يتغيَّر
+الدليلُ المطلوب:
+  pytest tests/governance/test_w051_ci_verdict_readability.py -q          # 24 passed
+  python tools/governance/ci_verdict_readability.py --repo zoorooz/AMOS-Fedration --run 32903824510
+  python tools/governance/measurement_provenance.py . --check --contract-only
+  python tools/governance/check_work_governance.py --self-check
+  python tools/governance/check_completion_ledger.py --staged
+  python tools/governance/check_repository_identity.py .
+  ruff check .
+بدأ: 2026-08-27        ينتهي الحجز: 2026-09-03
+العائق: —
+الخطوةُ التالية: بعدَ أن يدمجَ المالكُ، يُنقَلُ البندُ إلى `CLOSED` ويُكتَبُ في `قيدُ السجلّ`: `W-051` ورقمُ الدمجِ وعقدتُه — § 7
+حدُّ البندِ — مُعلَنٌ لا مطويٌّ:
+  - `IN_REVIEW` لا `CLOSED`: لم يُدمَجْ بعدُ، وإغلاقُه قبلَ الدمجِ دعوى لا قيد (‏وهو خلافُ ما فعلَه `WI-003`/`WI-004`/`WI-005` — أُغلِقت في دفعتِها لأنَّ القيدَ كان قيدَ دمجٍ قد وقع)
+  - `VERIFIED` غيرُ مُتاحٍ: يلزمُه مراجعٌ مستقلٌّ، وتسميتُه قرارٌ سياديٌّ معلَّقٌ (`A-2`)
+  - `الأداةُ تحرسُ **معيارَ** القراءةِ لا **حالةَ** CI: ولا تُنشِئُ شاهدًا، ولا تُغني عن تشغيلٍ يُنفَّذُ فعلًا
+  - **فحصانِ قائمانِ حُوِّلا بصدقٍ ولم يُحذَفا ولم يُضعَّفا**: `test_guarded_count_is_eight_of_ten` و`test_guarded_count_matches_the_registry` كانا يُثبِّتانِ «10 مقيَّدًا · 2 مُعلَنًا» **بالمساواةِ**، فكانا يسقُطانِ على إضافةِ قياسٍ مشروعٍ لا على تخفيفِ حرسٍ. فصارا **ترباسًا**: الكلُّ يرتفعُ · والمحروسُ لا ينقُصُ (≥ 8) · والمُعلَنُ بلا حرسٍ لا يتكاثرُ (≤ 3) · وكلُّ مُعلَنٍ له سببٌ مكتوبٌ
+  - **والثمنُ يُعلَنُ لا يُطوى**: المُعلَنُ بلا حرسٍ ارتفعَ **من 2 إلى 3** — وذاك ثمنُ قياسٍ يلزمُه واجهةٌ حيّةٌ، لا رخصةٌ لرابعٍ
+  - واجبُ ما بعدَ الدمجِ لـ`W-048`/`W-049`/`W-050` **يبقى مفتوحًا**: أوّلُ عملٍ يُشاهِدُ تشغيلًا نُفِّذَ فعلًا يُقيِّدُ حكمَه
+قيدُ السجلّ: — (يُكتَبُ بعدَ دمجِ المالك)
 ```
 
 ---

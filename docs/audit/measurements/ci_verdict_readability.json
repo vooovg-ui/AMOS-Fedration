@@ -1,0 +1,800 @@
+{
+  "$comment": "الهدف: قياسُ مقروئيّةِ حكمِ CI بالخطواتِ المنفَّذةِ لا بالنتيجةِ المُعلَنةِ: لا يُقرَأُ `conclusion` حكمًا على الشجرةِ ما لم تُنفَّذْ خطوةٌ فعلًا (‏`RK-011` · `DISC-006`). النطاق: وقائعُ تشغيلاتِ GitHub Actions في هذا المستودعِ وحدَه — لا حكمَ على صحّةِ الشجرةِ ولا دعوى خُضرةٍ أو حُمرةٍ. المالك: tools/governance. تاريخ الإنشاء: 2026-08-27. تاريخ آخر تعديل: 2026-08-27. المُولِّد: tools/governance/ci_verdict_readability.py.",
+  "schema_version": 1,
+  "measurement": "ci_verdict_readability",
+  "repository": "zoorooz/AMOS-Fedration",
+  "measured_at": "2026-08-27T10:37:58Z",
+  "measured_by": "tools/governance/ci_verdict_readability.py",
+  "rule": "لا يُقرأُ conclusion حكمًا إلّا إذا نُفِّذَت خطوةٌ فعلًا — RK-011 · DISC-006",
+  "runs_total": 8,
+  "runs_readable": 0,
+  "runs_unreadable": 7,
+  "runs_partially_readable": 1,
+  "runs_undetermined": 0,
+  "runs": [
+    {
+      "run_id": "32903824510",
+      "jobs_total": 13,
+      "jobs_considered": 13,
+      "jobs_executed": 12,
+      "jobs_not_dispatched": 1,
+      "jobs_skipped": 0,
+      "jobs_ambiguous": 0,
+      "verdict": "PARTIALLY_READABLE",
+      "conclusion_quotable": false,
+      "jobs": [
+        {
+          "name": "Constitutional Kernel (E1 — بوابات الدستور)",
+          "job_id": 97983335157,
+          "conclusion": "success",
+          "status": "completed",
+          "runner_id": 1000002016,
+          "steps_total": 13,
+          "steps_started": 13,
+          "classification": "EXECUTED"
+        },
+        {
+          "name": "Identity Law (E3 — بوابات المادة التاسعة)",
+          "job_id": 97983335308,
+          "conclusion": "success",
+          "status": "completed",
+          "runner_id": 1000002019,
+          "steps_total": 15,
+          "steps_started": 15,
+          "classification": "EXECUTED"
+        },
+        {
+          "name": "Crown Root of Trust (E2.2 — بوابات جذر ثقة التاج)",
+          "job_id": 97983335321,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 1000002017,
+          "steps_total": 19,
+          "steps_started": 19,
+          "classification": "EXECUTED"
+        },
+        {
+          "name": "Smoke Tests (12 domains)",
+          "job_id": 97983335340,
+          "conclusion": "success",
+          "status": "completed",
+          "runner_id": 1000002018,
+          "steps_total": 7,
+          "steps_started": 7,
+          "classification": "EXECUTED"
+        },
+        {
+          "name": "Work Governance (الخارطةُ الحاكمة — لا عملَ غيرُ مُسجَّل)",
+          "job_id": 97983335383,
+          "conclusion": "success",
+          "status": "completed",
+          "runner_id": 1000002025,
+          "steps_total": 10,
+          "steps_started": 10,
+          "classification": "EXECUTED"
+        },
+        {
+          "name": "Sovereignty Kernel (E2 — بوابات السيادة الملكية)",
+          "job_id": 97983335391,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 1000002021,
+          "steps_total": 18,
+          "steps_started": 18,
+          "classification": "EXECUTED"
+        },
+        {
+          "name": "Completion Ledger (القاعدة الملزمة — التوثيقُ قبلَ الدفع)",
+          "job_id": 97983335400,
+          "conclusion": "success",
+          "status": "completed",
+          "runner_id": 1000002020,
+          "steps_total": 10,
+          "steps_started": 10,
+          "classification": "EXECUTED"
+        },
+        {
+          "name": "Truth Audit (E0 — Ratchet Gate)",
+          "job_id": 97983335425,
+          "conclusion": "success",
+          "status": "completed",
+          "runner_id": 1000002022,
+          "steps_total": 12,
+          "steps_started": 12,
+          "classification": "EXECUTED"
+        },
+        {
+          "name": "Lint (ruff)",
+          "job_id": 97983335441,
+          "conclusion": "success",
+          "status": "completed",
+          "runner_id": 1000002023,
+          "steps_total": 10,
+          "steps_started": 10,
+          "classification": "EXECUTED"
+        },
+        {
+          "name": "Lockfile Consistency",
+          "job_id": 97983335477,
+          "conclusion": "success",
+          "status": "completed",
+          "runner_id": 1000002024,
+          "steps_total": 8,
+          "steps_started": 8,
+          "classification": "EXECUTED"
+        },
+        {
+          "name": "Tests",
+          "job_id": 97983380392,
+          "conclusion": "success",
+          "status": "completed",
+          "runner_id": 1000002026,
+          "steps_total": 9,
+          "steps_started": 9,
+          "classification": "EXECUTED"
+        },
+        {
+          "name": "Coverage (≥80%, L5)",
+          "job_id": 97983395625,
+          "conclusion": "success",
+          "status": "completed",
+          "runner_id": 1000002027,
+          "steps_total": 10,
+          "steps_started": 10,
+          "classification": "EXECUTED"
+        },
+        {
+          "name": "Cross-System Suites (E2.2-G — SQLite + PostgreSQL)",
+          "job_id": 97985659662,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        }
+      ]
+    },
+    {
+      "run_id": "32908448189",
+      "jobs_total": 13,
+      "jobs_considered": 10,
+      "jobs_executed": 0,
+      "jobs_not_dispatched": 10,
+      "jobs_skipped": 3,
+      "jobs_ambiguous": 0,
+      "verdict": "UNREADABLE",
+      "conclusion_quotable": false,
+      "jobs": [
+        {
+          "name": "Lint (ruff)",
+          "job_id": 97997482558,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Lockfile Consistency",
+          "job_id": 97997482697,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Work Governance (الخارطةُ الحاكمة — لا عملَ غيرُ مُسجَّل)",
+          "job_id": 97997482710,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Sovereignty Kernel (E2 — بوابات السيادة الملكية)",
+          "job_id": 97997482770,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Truth Audit (E0 — Ratchet Gate)",
+          "job_id": 97997482780,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Crown Root of Trust (E2.2 — بوابات جذر ثقة التاج)",
+          "job_id": 97997482783,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Identity Law (E3 — بوابات المادة التاسعة)",
+          "job_id": 97997482794,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Constitutional Kernel (E1 — بوابات الدستور)",
+          "job_id": 97997482839,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Smoke Tests (12 domains)",
+          "job_id": 97997482873,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Completion Ledger (القاعدة الملزمة — التوثيقُ قبلَ الدفع)",
+          "job_id": 97997482941,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Tests",
+          "job_id": 97997493263,
+          "conclusion": "skipped",
+          "status": "completed",
+          "runner_id": null,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "SKIPPED"
+        },
+        {
+          "name": "Coverage (≥80%, L5)",
+          "job_id": 97997493681,
+          "conclusion": "skipped",
+          "status": "completed",
+          "runner_id": null,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "SKIPPED"
+        },
+        {
+          "name": "Cross-System Suites (E2.2-G — SQLite + PostgreSQL)",
+          "job_id": 97997494017,
+          "conclusion": "skipped",
+          "status": "completed",
+          "runner_id": null,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "SKIPPED"
+        }
+      ]
+    },
+    {
+      "run_id": "33021541596",
+      "jobs_total": 13,
+      "jobs_considered": 10,
+      "jobs_executed": 0,
+      "jobs_not_dispatched": 10,
+      "jobs_skipped": 3,
+      "jobs_ambiguous": 0,
+      "verdict": "UNREADABLE",
+      "conclusion_quotable": false,
+      "jobs": [
+        {
+          "name": "Lint (ruff)",
+          "job_id": 98352838773,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Completion Ledger (القاعدة الملزمة — التوثيقُ قبلَ الدفع)",
+          "job_id": 98352838931,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Work Governance (الخارطةُ الحاكمة — لا عملَ غيرُ مُسجَّل)",
+          "job_id": 98352838954,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Constitutional Kernel (E1 — بوابات الدستور)",
+          "job_id": 98352838982,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Lockfile Consistency",
+          "job_id": 98352838988,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Crown Root of Trust (E2.2 — بوابات جذر ثقة التاج)",
+          "job_id": 98352838995,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Smoke Tests (12 domains)",
+          "job_id": 98352838997,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Identity Law (E3 — بوابات المادة التاسعة)",
+          "job_id": 98352839009,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Truth Audit (E0 — Ratchet Gate)",
+          "job_id": 98352839052,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Sovereignty Kernel (E2 — بوابات السيادة الملكية)",
+          "job_id": 98352839137,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Coverage (≥80%, L5)",
+          "job_id": 98352847809,
+          "conclusion": "skipped",
+          "status": "completed",
+          "runner_id": null,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "SKIPPED"
+        },
+        {
+          "name": "Tests",
+          "job_id": 98352850577,
+          "conclusion": "skipped",
+          "status": "completed",
+          "runner_id": null,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "SKIPPED"
+        },
+        {
+          "name": "Cross-System Suites (E2.2-G — SQLite + PostgreSQL)",
+          "job_id": 98352851010,
+          "conclusion": "skipped",
+          "status": "completed",
+          "runner_id": null,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "SKIPPED"
+        }
+      ]
+    },
+    {
+      "run_id": "33021541634",
+      "jobs_total": 1,
+      "jobs_considered": 1,
+      "jobs_executed": 0,
+      "jobs_not_dispatched": 1,
+      "jobs_skipped": 0,
+      "jobs_ambiguous": 0,
+      "verdict": "UNREADABLE",
+      "conclusion_quotable": false,
+      "jobs": [
+        {
+          "name": "Truth Matrix Regeneration",
+          "job_id": 98352838788,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        }
+      ]
+    },
+    {
+      "run_id": "33021734734",
+      "jobs_total": 1,
+      "jobs_considered": 1,
+      "jobs_executed": 0,
+      "jobs_not_dispatched": 1,
+      "jobs_skipped": 0,
+      "jobs_ambiguous": 0,
+      "verdict": "UNREADABLE",
+      "conclusion_quotable": false,
+      "jobs": [
+        {
+          "name": "Truth Matrix Regeneration",
+          "job_id": 98353482606,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        }
+      ]
+    },
+    {
+      "run_id": "33021924845",
+      "jobs_total": 13,
+      "jobs_considered": 10,
+      "jobs_executed": 0,
+      "jobs_not_dispatched": 10,
+      "jobs_skipped": 3,
+      "jobs_ambiguous": 0,
+      "verdict": "UNREADABLE",
+      "conclusion_quotable": false,
+      "jobs": [
+        {
+          "name": "Sovereignty Kernel (E2 — بوابات السيادة الملكية)",
+          "job_id": 98354127092,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Lint (ruff)",
+          "job_id": 98354127236,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Identity Law (E3 — بوابات المادة التاسعة)",
+          "job_id": 98354127238,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Smoke Tests (12 domains)",
+          "job_id": 98354127259,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Crown Root of Trust (E2.2 — بوابات جذر ثقة التاج)",
+          "job_id": 98354127273,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Lockfile Consistency",
+          "job_id": 98354127281,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Truth Audit (E0 — Ratchet Gate)",
+          "job_id": 98354127288,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Work Governance (الخارطةُ الحاكمة — لا عملَ غيرُ مُسجَّل)",
+          "job_id": 98354127359,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Constitutional Kernel (E1 — بوابات الدستور)",
+          "job_id": 98354127373,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Completion Ledger (القاعدة الملزمة — التوثيقُ قبلَ الدفع)",
+          "job_id": 98354127410,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Coverage (≥80%, L5)",
+          "job_id": 98354134786,
+          "conclusion": "skipped",
+          "status": "completed",
+          "runner_id": null,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "SKIPPED"
+        },
+        {
+          "name": "Cross-System Suites (E2.2-G — SQLite + PostgreSQL)",
+          "job_id": 98354136453,
+          "conclusion": "skipped",
+          "status": "completed",
+          "runner_id": null,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "SKIPPED"
+        },
+        {
+          "name": "Tests",
+          "job_id": 98354136458,
+          "conclusion": "skipped",
+          "status": "completed",
+          "runner_id": null,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "SKIPPED"
+        }
+      ]
+    },
+    {
+      "run_id": "33021924849",
+      "jobs_total": 1,
+      "jobs_considered": 1,
+      "jobs_executed": 0,
+      "jobs_not_dispatched": 1,
+      "jobs_skipped": 0,
+      "jobs_ambiguous": 0,
+      "verdict": "UNREADABLE",
+      "conclusion_quotable": false,
+      "jobs": [
+        {
+          "name": "Truth Matrix Regeneration",
+          "job_id": 98354126699,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        }
+      ]
+    },
+    {
+      "run_id": "33021974329",
+      "jobs_total": 13,
+      "jobs_considered": 10,
+      "jobs_executed": 0,
+      "jobs_not_dispatched": 10,
+      "jobs_skipped": 3,
+      "jobs_ambiguous": 0,
+      "verdict": "UNREADABLE",
+      "conclusion_quotable": false,
+      "jobs": [
+        {
+          "name": "Lint (ruff)",
+          "job_id": 98354298347,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Smoke Tests (12 domains)",
+          "job_id": 98354298451,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Constitutional Kernel (E1 — بوابات الدستور)",
+          "job_id": 98354298490,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Lockfile Consistency",
+          "job_id": 98354298520,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Crown Root of Trust (E2.2 — بوابات جذر ثقة التاج)",
+          "job_id": 98354298526,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Work Governance (الخارطةُ الحاكمة — لا عملَ غيرُ مُسجَّل)",
+          "job_id": 98354298527,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Truth Audit (E0 — Ratchet Gate)",
+          "job_id": 98354298533,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Identity Law (E3 — بوابات المادة التاسعة)",
+          "job_id": 98354298561,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Sovereignty Kernel (E2 — بوابات السيادة الملكية)",
+          "job_id": 98354298653,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Completion Ledger (القاعدة الملزمة — التوثيقُ قبلَ الدفع)",
+          "job_id": 98354298777,
+          "conclusion": "failure",
+          "status": "completed",
+          "runner_id": 0,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "NOT_DISPATCHED"
+        },
+        {
+          "name": "Coverage (≥80%, L5)",
+          "job_id": 98354307167,
+          "conclusion": "skipped",
+          "status": "completed",
+          "runner_id": null,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "SKIPPED"
+        },
+        {
+          "name": "Tests",
+          "job_id": 98354307553,
+          "conclusion": "skipped",
+          "status": "completed",
+          "runner_id": null,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "SKIPPED"
+        },
+        {
+          "name": "Cross-System Suites (E2.2-G — SQLite + PostgreSQL)",
+          "job_id": 98354308177,
+          "conclusion": "skipped",
+          "status": "completed",
+          "runner_id": null,
+          "steps_total": 0,
+          "steps_started": 0,
+          "classification": "SKIPPED"
+        }
+      ]
+    }
+  ]
+}
