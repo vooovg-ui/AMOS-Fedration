@@ -205,48 +205,100 @@ def test_أساسٌ_مُمَرَّرٌ_صراحةً_لا_يُتجاوَزُ_إل
     assert gate.resolve_merge_base("لا-وجود-له") is None, "لا قياسٌ عن أساسٍ في زيِّ آخر"
 
 
-def test_رفضٌ_مُعلَنٌ_حينَ_يُطلَبُ_الأساسُ_ولا_يُقرَأ(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """`--require-merge-base` يرفضُ (رمز 2) ولا يمرُّ مرورًا صامتًا."""
-    repo = _mkrepo(tmp_path, merged_ledger=LEDGER_LINKED)
-    monkeypatch.setattr(gate, "REPO_ROOT", repo)
-    out = subprocess.run(
-        [
-            sys.executable,
-            str(TOOL_PATH),
-            "--self-check",
-            "--merge-base",
-            "لا-وجود-له",
-            "--require-merge-base",
-        ],
-        cwd=repo,
+def _run_tool(repo: Path, *extra: str, cwd: Path | None = None):
+    """تشغيلُ الأداةِ على شجرةِ الاختبارِ وحدها (DISC-022).
+
+    الجذرُ يُمَرَّرُ صراحةً، فلا تقعُ العمليةُ الفرعيةُ على المستودعِ الحقيقيِّ: ترقيعُ
+    `gate.REPO_ROOT` لا يبلغُ عمليةً أخرى، وكانت الأداةُ تشتقُّ جذرَها من موقعِ ملفِّها.
+    """
+    return subprocess.run(
+        [sys.executable, str(TOOL_PATH), "--repo-root", str(repo), *extra],
+        cwd=cwd or repo,
         capture_output=True,
         text=True,
         check=False,
+    )
+
+
+def test_رفضٌ_مُعلَنٌ_حينَ_يُطلَبُ_الأساسُ_ولا_يُقرَأ(tmp_path: Path) -> None:
+    """`--require-merge-base` يرفضُ (رمز 2) ولا يمرُّ مرورًا صامتًا."""
+    repo = _mkrepo(tmp_path, merged_ledger=LEDGER_LINKED)
+    out = _run_tool(
+        repo, "--self-check", "--merge-base", "لا-وجود-له", "--require-merge-base"
     )
     assert out.returncode == 2, out.stdout + out.stderr
 
 
-def test_الإسقاطُ_يُطلَبُ_فيسقُط(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+# ── W-054 · أ) الإسقاطُ يُطلَبُ فيسقُط ───────────────────────────────────
+
+
+def test_الإسقاطُ_يُطلَبُ_فيسقُط(tmp_path: Path) -> None:
     repo = _mkrepo(tmp_path, merged_ledger=LEDGER_LINKED)
-    monkeypatch.setattr(gate, "REPO_ROOT", repo)
-    out = subprocess.run(
-        [
-            sys.executable,
-            str(TOOL_PATH),
-            "--self-check",
-            "--merge-base",
-            "main",
-            "--enforce-post-merge",
-        ],
-        cwd=repo,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    out = _run_tool(repo, "--self-check", "--merge-base", "main", "--enforce-post-merge")
     assert out.returncode == 1, out.stdout + out.stderr
     assert "POST_MERGE_NOT_CLOSED" in out.stdout
+    assert "WI-006" in out.stdout, "المخالفةُ تُسمّي بندَ الشجرةِ المقيسةِ"
+    assert "لم يُقَسْ" not in out.stderr, "الأساسُ مقروءٌ من شجرةِ الاختبارِ"
+
+
+# ── W-054 · ب) الإغلاقُ الحقيقيُّ يُمرِّرُ البوّابة ───────────────────────────
+
+
+def test_الإغلاقُ_الحقيقيُّ_يُمرِّرُ_الإسقاطَ(tmp_path: Path) -> None:
+    """لا تُقاسُ الحمرةُ وحدها: إغلاقٌ معَ قيدٍ يُسكِتُ الحرسَ برمزِ صفرٍ."""
+    repo = _mkrepo(
+        tmp_path,
+        merged_ledger=LEDGER_LINKED,
+        status="CLOSED",
+        ledger_cell="W-051 · دمج #20",
+    )
+    out = _run_tool(repo, "--self-check", "--merge-base", "main", "--enforce-post-merge")
+    assert out.returncode == 0, out.stdout + out.stderr
+    assert "POST_MERGE_NOT_CLOSED" not in out.stdout
+
+
+# ── W-054 · ج) لا يعتمدُ على حالةِ المستودعِ الحقيقيِّ ───────────────────────
+
+
+def test_الحكمُ_يتبعُ_شجرةَ_الاختبارِ_لا_المستودعَ(tmp_path: Path) -> None:
+    """شجرتانِ لا تختلفانِ إلّا في الإغلاقِ تُعطيانِ حكمَينِ مختلفَينِ.
+
+    والمستودعُ الحقيقيُّ لم يُمَسّ، فلو كانَ هو المقروءَ لما اختلفَ الحكمان.
+    """
+    for اسم in ("مفتوح", "مغلق"):
+        (tmp_path / اسم).mkdir()
+    مفتوح = _mkrepo(tmp_path / "مفتوح", merged_ledger=LEDGER_LINKED)
+    مغلق = _mkrepo(
+        tmp_path / "مغلق",
+        merged_ledger=LEDGER_LINKED,
+        status="CLOSED",
+        ledger_cell="W-051 · دمج #20",
+    )
+    حجة = ("--self-check", "--merge-base", "main", "--enforce-post-merge")
+    assert _run_tool(مفتوح, *حجة).returncode == 1
+    assert _run_tool(مغلق, *حجة).returncode == 0
+
+
+def test_القياسُ_لا_يتغيرُ_بموضعِ_التشغيلِ(tmp_path: Path) -> None:
+    """جذرٌ مُمَرَّرٌ يُقاسُ منهُ وإن كانَ موضعُ التشغيلِ جوفَ المستودعِ الحقيقيِّ."""
+    repo = _mkrepo(tmp_path, merged_ledger=LEDGER_LINKED)
+    حجة = ("--self-check", "--merge-base", "main", "--enforce-post-merge")
+    من_الشجرة = _run_tool(repo, *حجة)
+    من_المستودع = _run_tool(repo, *حجة, cwd=REPO_ROOT)
+    assert من_الشجرة.returncode == من_المستودع.returncode == 1
+    assert "WI-006" in من_المستودع.stdout
+
+
+def test_أساسٌ_محليٌّ_غائبٌ_يُعلَنُ_ولا_يُطوَى(tmp_path: Path) -> None:
+    """علّةُ الحُمرةِ في التكاملِ تُقاسُ لا تُحكى: شجرةٌ بلا `main` تُعلِنُ أنّه لم يُقَس.
+
+    فبـ`--repo-root` يصيرُ الحدُّ مقيسًا في اختبارٍ، لا مفاجأةً تقعُ في عاملِ التكامل.
+    """
+    repo = _mkrepo(tmp_path, merged_ledger=LEDGER_LINKED)
+    subprocess.run(["git", "branch", "-m", "main", "فرع"], cwd=repo, check=True)
+    out = _run_tool(repo, "--self-check", "--merge-base", "main", "--enforce-post-merge")
+    assert out.returncode == 0
+    assert "لم يُقَسْ" in out.stderr, "حدُّ القياسِ يُعلَنُ على كلِّ حال"
 
 
 # ── المستودعُ الحقيقيُّ: الواجبُ المُهمَلُ يُقاسُ فعلًا ─────────────────────────

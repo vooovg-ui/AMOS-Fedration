@@ -8,7 +8,7 @@
 النطاق: المستودع كله فيما يخصّ الأسرار، ونطاق التاج فيما يخصّ السيادة.
 المالك: التاج
 تاريخ الإنشاء: 2026-08-16
-تاريخ آخر تعديل: 2026-08-16
+تاريخ آخر تعديل: 2026-08-28
 """
 
 from __future__ import annotations
@@ -44,6 +44,68 @@ SCANNER_FILES = {
     "tools/governance/truth_audit.py",
     ".github/workflows/ci.yml",
 }
+
+# ── الإعفاء المُعلَن (DISC-021) ─────────────────────────────────────────────
+# العلامة عينها التي يعرفها `truth_audit`، فمصدر الحقيقة في معنى «ليست سرًّا»
+# واحد لا ثانيَ له. وهذا الحدّ يُضيَّق بثلاثة قيود مجتمعة، فلا يستطيع إعفاءٌ
+# مُعلَن أن يستر سرًّا صالحًا للاستعمال:
+#   1. الموضع في شجرة الاختبار وحدها.
+#   2. الإعلان في الفقرة التي يعلوها الموضع — تقطعها أول سطر خالٍ.
+#   3. الموضع ليس مادة مفتاح: لا خاتمة END ولا جسد base64 بعده. ومفتاح بلا
+#      جسد ولا خاتمة لا يفتح شيئًا، فذكرُه ذكرُ نمطٍ لا حملُ سرّ.
+DECLARATION_MARKER = "truth-audit: not-a-secret"
+DECLARABLE_ROOTS = ("tests/",)
+PARAGRAPH_LIMIT = 20  # حدُّ الصعود، كي لا يُطلَب الإعلانُ من مسافةٍ بعيدة
+KEY_BODY_LOOKAHEAD = 40  # أسطرٌ بعد البداية يُفتَّش فيها جسدُ المفتاح وخاتمتُه
+PEM_END = re.compile(_DASHES + r"END [A-Z ]*PRIVATE KEY" + _DASHES)
+B64_BODY = re.compile(r"^[A-Za-z0-9+/=]{40,}$")
+
+
+def _is_key_material_at(lines: list[str], idx: int) -> bool:
+    """أمادةُ مفتاحٍ حقيقيّةٌ في هذا الموضع، أم ذكرٌ لنمطها في سطرٍ واحد؟
+
+    المفتاح الصالح يلزمه جسدٌ من base64 وخاتمةُ END. فإن وُجد أحدهما فالموضع
+    مادةُ مفتاح ولا يُعفى وإن أُعلن، وإلّا فهو نصٌّ يحمل شكلَ البداية وحدها.
+    """
+    if PEM_END.search(lines[idx]):
+        return True
+    for line in lines[idx + 1 : idx + 1 + KEY_BODY_LOOKAHEAD]:
+        if PEM_END.search(line):
+            return True
+        if B64_BODY.match(line.strip()):
+            return True
+    return False
+
+
+def _declared_not_secret_at(rel: str, lines: list[str], idx: int) -> bool:
+    """أُعلن صراحةً — في فقرة الموضع نفسها — أنّ هذا ليس سرًّا؟
+
+    الفقرة تُقرأ صعودًا من الموضع حتى أول سطر خالٍ، فالإعلان لا يمتدّ إلى ما
+    لا يعلوه مباشرةً، ولا يُصبح إعفاءً لملفٍّ كامل.
+    """
+    if not rel.startswith(DECLARABLE_ROOTS):
+        return False
+    for step in range(min(idx, PARAGRAPH_LIMIT) + 1):
+        line = lines[idx - step]
+        if step and not line.strip():
+            return False
+        if DECLARATION_MARKER in line:
+            return True
+    return False
+
+
+def _pem_hits(rel: str, text: str) -> list[int]:
+    """أرقامُ الأسطر التي تحمل بدايةَ مفتاحٍ خاصٍّ ولم تُعفَ إعفاءً مُعلَنًا."""
+    lines = text.splitlines()
+    return [
+        idx
+        for idx, line in enumerate(lines)
+        if PEM_PRIVATE.search(line)
+        and not (
+            _declared_not_secret_at(rel, lines, idx) and not _is_key_material_at(lines, idx)
+        )
+    ]
+
 
 failures: list[str] = []
 passed: list[str] = []
@@ -87,17 +149,42 @@ def iter_text_files():
         yield rel, raw.decode("utf-8", errors="ignore")
 
 
+def declared_exempt_lines() -> list[str]:
+    """نصوصُ الأسطر المُعفاة إعفاءً مُعلَنًا في الشجرة — تُعَدُّ وتُعلَن لا تُخفى."""
+    found: list[str] = []
+    for rel, text in iter_text_files():
+        if rel in SCANNER_FILES or not rel.startswith(DECLARABLE_ROOTS):
+            continue
+        lines = text.splitlines()
+        for idx, line in enumerate(lines):
+            if (
+                PEM_PRIVATE.search(line)
+                and _declared_not_secret_at(rel, lines, idx)
+                and not _is_key_material_at(lines, idx)
+            ):
+                found.append(line.strip())
+    return found
+
+
 # ── 1. لا مادة مفتاح خاص في الشجرة ──────────────────────────────────────────
 
 
 def gate_no_private_key_in_tree() -> None:
-    hits = [rel for rel, text in iter_text_files()
-            if rel not in SCANNER_FILES and PEM_PRIVATE.search(text)]
+    hits = [
+        f"{rel}:{idx + 1}"
+        for rel, text in iter_text_files()
+        if rel not in SCANNER_FILES
+        for idx in _pem_hits(rel, text)
+    ]
+    exempt = declared_exempt_lines()
     check(
         "لا مادة مفتاح خاص في شجرة العمل",
         not hits,
-        f"ملفات تحمل كتلة مفتاح خاص: {hits[:5]}",
-        evidence="فُحص كل ملف نصّي بنمط كتلة PEM الخاصة",
+        f"مواضع تحمل كتلة مفتاح خاص: {hits[:5]}",
+        evidence=(
+            "فُحص كل ملف نصّي بنمط كتلة PEM الخاصة؛ وإعفاءات مُعلَنة لا تحمل مادة مفتاح: "
+            f"{len(exempt)}"
+        ),
     )
 
 
@@ -139,8 +226,16 @@ def gate_no_private_key_in_history() -> None:
         check("لا مادة مفتاح خاص في التاريخ", False,
               f"تعذّرت قراءة التاريخ: {result.stderr.strip()[:120]}")
         return
-    added = [line for line in result.stdout.splitlines()
-             if line.startswith("+") and PEM_PRIVATE.search(line)]
+    # الإعفاء في التاريخ مشدود إلى إعلانٍ حَيٍّ في الشجرة: فمتى حُذف الإعلان عاد
+    # السطر مخالفًا. فلا يستر التاريخ ما لا تستره الشجرة.
+    exempt = set(declared_exempt_lines())
+    added = [
+        line
+        for line in result.stdout.splitlines()
+        if line.startswith("+")
+        and PEM_PRIVATE.search(line)
+        and line[1:].strip() not in exempt
+    ]
     check(
         "لا مادة مفتاح خاص في التاريخ المنشور",
         not added,
@@ -351,10 +446,18 @@ GATES = (
 )
 
 
-def main() -> int:
-    print("بوابة حدود الأسرار والثقة (E2.2-E)")
+def main(argv: list[str] | None = None) -> int:
+    args = sys.argv[1:] if argv is None else argv
+    # `--tree-pem-only`: بوّابة الشجرة وحدها، لتستدعيها بوّابة السيادة 6 في التكامل
+    # فلا يبقى في المشروع ماسحان للمفتاح الخاصّ يختلفان في معرفة الإعفاء المُعلَن.
+    tree_pem_only = "--tree-pem-only" in args
+    gates = (gate_no_private_key_in_tree,) if tree_pem_only else GATES
+    if tree_pem_only:
+        print("بوابة لا مفتاح خاص في الشجرة")
+    else:
+        print("بوابة حدود الأسرار والثقة (E2.2-E)")
     print("=" * 62)
-    for gate in GATES:
+    for gate in gates:
         gate()
     print("=" * 62)
     if UNREADABLE:
@@ -363,11 +466,11 @@ def main() -> int:
         for entry in UNREADABLE[:10]:
             print(f"  - {entry}")
     if failures:
-        print(f"BLOCKED: {len(failures)} مخالفة من {len(GATES)} بوابة")
+        print(f"BLOCKED: {len(failures)} مخالفة من {len(gates)} بوابة")
         for failure in failures:
             print(f"  - {failure}")
         return 1
-    print(f"PASS: {len(passed)}/{len(GATES)} بوابة — لا سرّ مكشوف ولا سلطة فوق الملك")
+    print(f"PASS: {len(passed)}/{len(gates)} بوابة — لا سرّ مكشوف ولا سلطة فوق الملك")
     return 0
 
 

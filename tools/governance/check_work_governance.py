@@ -529,6 +529,16 @@ def _has_ledger_at(ref: str) -> bool:
     return probe.returncode == 0
 
 
+def set_repo_root(path: Path) -> None:
+    """تعيينُ جذرِ الشجرةِ المقيسةِ تعيينًا صريحًا (DISC-022).
+
+    وليسَ هذا رايةَ تخطٍِّ: البوّابةُ تعملُ بتمامِها، وإنما يُعَلَنُ محلُّ
+    القياسِ فلا يُخمَّن. ومن لم يُمَرِّرهُ فالجذرُ موقعُ الأداةِ كما كان.
+    """
+    global REPO_ROOT  # noqa: PLW0603
+    REPO_ROOT = path
+
+
 def resolve_merge_base(explicit: str | None = None) -> str | None:
     """مرجعُ الفرعِ المدموجِ إليه، أو `None` إن لم يُقرَأْ منه سجلُّ الإكمال.
 
@@ -700,6 +710,14 @@ def main() -> int:
         "--today", metavar="YYYY-MM-DD", help="تاريخُ المرجعِ لفحصِ انتهاءِ الحجز (للاختبار)"
     )
     parser.add_argument(
+        "--repo-root",
+        metavar="PATH",
+        help=(
+            "جذرُ الشجرةِ المقيسةِ — يُمَرَّرُ صراحةً ليُقاسَ منهُ لا من موقعِ الأداةِ. "
+            "ليسَ تخطِيًّا للبوّابةِ: الفحوصُ عينُها تُجرَى كاملةً على الجذرِ المُمَرَّرِ"
+        ),
+    )
+    parser.add_argument(
         "--merge-base",
         metavar="REF",
         help="مرجعُ الفرعِ المدموجِ إليه لقياسِ واجبِ ما بعدَ الدمج (الافتراضيّ: origin/main ثمَّ main)",
@@ -715,6 +733,16 @@ def main() -> int:
         help="جعلُ POST_MERGE_NOT_CLOSED مُسقِطًا (الافتراضيُّ: إبلاغٌ حتّى يُعتمَدَ A-2/A-3)",
     )
     args = parser.parse_args()
+
+    # جذرٌ مُمَرَّرٌ صراحةً يُعينُ محلَّ القياسِ (DISC-022): كانَ الجذرُ يُشتَقُّ من
+    # موقعِ هذا الملفِ وحده، فكانَ من يُشغِّلُ الأداةَ على شجرةٍ أخرى يُقاسُ لهُ
+    # المستودعُ الحقيقيُّ لا شجرتُهُ — قياسٌ يُجيبُ عن غيرِ ما سُئِلَ عنه.
+    if args.repo_root:
+        root = Path(args.repo_root).resolve()
+        if not root.is_dir():
+            print(f"[WORK GATE] --repo-root ليسَ مجلَّدًا: {root}", file=sys.stderr)
+            return 2
+        set_repo_root(root)
 
     if args.rng:
         mode, ref = "range", args.rng
