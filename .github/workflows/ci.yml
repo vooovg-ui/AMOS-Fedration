@@ -400,13 +400,15 @@ jobs:
 
       - name: بوابة 5 — لا مادة مفتاح خاص ولا حصة استرداد في المستودع
         run: |
+          # DISC-025 · الخيارُ (1) بأمرِ المالكِ: كانَ هنا ماسحٌ سطريٌّ مستقلٌّ لمادةِ
+          # المفتاحِ بنمطِ ترويسةٍ وحدَها، يُستثني ملفَّينِ بالاسمِ ولا يعرفُ علامةَ
+          # «truth-audit: not-a-secret»، فكانَ يُسقِطُ قيمةَ اختبارٍ سلبيّةً مُعلَنةً في
+          # tests/sovereignty/test_outbox.py ويحكمُ على الملفِّ الواحدِ ضدَّ حكمِ الحارسِ.
+          # فصارَ الشقُّ يُنادي الحارسَ نفسَه كما فعلَت بوّابةُ السيادةِ 6 — مصدرُ حقيقةٍ
+          # واحدٌ، وأشدُّ لا أضعفُ: يقرأُ كتلةَ PEM كاملةً (ترويسةً وخاتمةً وجسمًا) ولا
+          # يُعفي مادةَ مفتاحٍ ولو أُعلِنَت. والنطاقُ شجرةُ العملِ كما كانَ.
+          python tools/crown/verify_secret_boundaries.py --tree-pem-only
           set +e
-          pattern='BEGIN (OPENSSH |EC |RSA |DSA |PGP |ENCRYPTED |)PRIVATE KEY'
-          hits=$(grep -rlE "$pattern" --exclude-dir=.git --exclude-dir=node_modules \
-            --exclude=ci.yml --exclude=verify_crown_root_of_trust.py . )
-          if [ -n "$hits" ]; then
-            echo "::error::مادة مفتاح خاص مُسرَّبة:"; echo "$hits"; exit 1
-          fi
           share=$(grep -rniE '(recovery|crown|root)_(share|seed|secret) *= *["'"'"'][^"'"'"']{6,}' \
             --include='*.py' --include='*.json' --include='*.yaml' --include='*.yml' \
             --exclude-dir=.git core/ tests/ tools/ docs/ )
