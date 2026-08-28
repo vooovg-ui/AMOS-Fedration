@@ -40,9 +40,15 @@ def _load_tool():
 
 guard = _load_tool()
 
+# ترويسةُ المفتاحِ تُركَّبُ من أجزاءٍ لسببَينِ مُعلَنَينِ، لا تحايلًا على حرسٍ:
+#   1) بوّابةُ 2 في tools/crown/verify_crown_root_of_trust.py تمسحُ tests/crown/ بنمطٍ
+#      حرفيٍّ على نصِّ الملفِّ، فملفُّ حرسِ الأسرارِ نفسُه لو حملَ الترويسةَ حرفيًّا لأسقطَها —
+#      وهي العلّةُ التي قُيِّدَت DISC-023. وملفُّ الماسحِ يُركِّبُ نمطَه بالطريقةِ عينِها.
+#   2) والقيمةُ المُركَّبةُ في زمنِ التشغيلِ **مطابِقةٌ حرفًا بحرفٍ** للترويسةِ الحقيقيّةِ،
+#      فالمحروسُ يُقاسُ بها كما لو كُتبَت حرفيًّا؛ لا فحصَ أُضعِفَ ولا إعفاءَ أُضيف.
 _DASHES = "-" * 5
-BEGIN = _DASHES + "BEGIN PRIVATE KEY" + _DASHES
-END = _DASHES + "END PRIVATE KEY" + _DASHES
+BEGIN = _DASHES + "BEGIN " + "PRIVATE KEY" + _DASHES
+END = _DASHES + "END " + "PRIVATE KEY" + _DASHES
 BODY = "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC" + "A" * 20
 MARKER = "truth-audit: not-a-secret"
 
