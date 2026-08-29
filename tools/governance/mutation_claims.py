@@ -16,9 +16,16 @@
 
 الحدُّ المُعلَنُ — لا مطويٌّ:
     هذا المِلَفُّ **لا يُثبِتُ أنَّ كلَّ دعوى حرسٍ في المستودعِ مُجرَّبةٌ**؛ يُثبِتُ
-    أنَّ الدعاوى **المُسجَّلةَ فيه** مُجرَّبةٌ بأمرٍ يُعادُ. والدعاوى المكتوبةُ في
-    قيودٍ سابقةٍ (`W-060` وما قبلَه) قِيسَت بيدٍ ولم تُسجَّلْ هنا بعدُ — وذاك
-    نقصٌ **مُعلَنٌ** يُسَدُّ قيدًا بعدَ قيدٍ، لا صمتٌ يُقرأُ اكتمالًا.
+    أنَّ الدعاوى **المُسجَّلةَ فيه** مُجرَّبةٌ بأمرٍ يُعادُ.
+    والمُسجَّلُ اليومَ ستّةُ قيودٍ: `W-055` · `W-056` · `W-059` · `W-061` · `W-062` · `W-063`
+    (وفيها دعوى هذا المِلَفِّ نفسِه: من يحرسُ السجلَّ سؤالٌ مُجابٌ برقمٍ لا بثقةٍ).
+    **والباقي غيرُ مُسجَّلٍ ومُسمّى لا مسكوتٌ عنه**: `W-029` · `W-030` · `W-051` ·
+    `W-052` · `W-053` · `W-054` · `W-057` · `W-058` · `W-060` — وقِيدَ أنَّ
+    `W-029` و`W-030` كشفَهما حرسُ هذا القيدِ لا ذاكرةُ كاتبِه (كانا خارجَ
+    القائمةِ الأولى فأسقطَ الفحصُ الدعوى) — دعاويها قِيسَت بيدٍ في قيودِها ولم
+    تُصِرْ بعدُ أمرًا يُعادُ، وذاك نقصٌ **مُعلَنٌ** يُسَدُّ قيدًا بعدَ قيدٍ، لا
+    صمتٌ يُقرأُ اكتمالًا. وقائمةُ الباقي محروسةٌ في
+    `tests/governance/test_w063_registered_claims.py` فلا تُقرأُ اكتمالًا بالنسيانِ.
 """
 
 from __future__ import annotations
@@ -27,6 +34,19 @@ from dataclasses import dataclass, field
 
 #: أقلُّ ما يجوزُ أن تُسقِطَهُ طفرةٌ حتى تُقبَلَ دعوى الحرسِ.
 MINIMUM_FAILURES = 1
+
+#: قيودٌ دعاويها مكتوبةٌ في السجلِّ ولم تُسجَّلْ هنا بعدُ — نقصٌ مُعلَنٌ يُقاسُ.
+UNREGISTERED_WORK: tuple[str, ...] = (
+    "W-029",
+    "W-030",
+    "W-051",
+    "W-052",
+    "W-053",
+    "W-054",
+    "W-057",
+    "W-058",
+    "W-060",
+)
 
 
 @dataclass(frozen=True)
@@ -193,9 +213,183 @@ W062 = Claim(
     ),
 )
 
+#: دعوى `W-055`: حرسُ افتراقِ جردِ المخطَّطِ. أرقامُها المنشورةُ في القيدِ 1·1·4·1.
+W055 = Claim(
+    work="W-055",
+    item="WI-010",
+    tests=("tests/governance/test_w055_schema_inventory_drift.py",),
+    mutations=(
+        Mutation(
+            kind="SUM_CHECK_DISABLED",
+            target="tools/governance/schema_inventory_drift.py",
+            old="if declared.breakdown_total and declared.breakdown_total != declared.breakdown_sum:",
+            new="if False:",
+            expected_failures=1,
+            note="فحصُ مطابقةِ المجموعِ لتفصيلِه يُعطَّلُ.",
+        ),
+        Mutation(
+            kind="REFUSAL_CODE_FLIPPED",
+            target="tools/governance/schema_inventory_drift.py",
+            old="return 2",
+            new="return 1",
+            expected_failures=1,
+            note="رمزُ الرفضِ المُصنَّفِ يصيرُ رمزَ مخالفةٍ فيُقرأُ الرفضُ حكمًا.",
+        ),
+        Mutation(
+            kind="DRIFT_READ_AS_MATCH",
+            target="tools/governance/schema_inventory_drift.py",
+            old='return self.state != "MATCH"',
+            new="return False",
+            expected_failures=4,
+            note="الافتراقُ يُقرأُ مطابقةً فلا يُشعِلُ.",
+        ),
+        Mutation(
+            kind="FUTURE_DATE_UNCHECKED",
+            target="tools/governance/schema_inventory_drift.py",
+            old="if declared.measured_on > today:",
+            new="if False:",
+            expected_failures=1,
+            note="قياسٌ مؤرَّخٌ في المستقبلِ يُقبَلُ حاصلًا.",
+        ),
+    ),
+)
+
+
+#: دعوى `W-056`: حرسُ حالةِ القراراتِ السياديّةِ. أرقامُها المنشورةُ 2·1·2·4·1·1·1.
+W056 = Claim(
+    work="W-056",
+    item="WI-011",
+    tests=("tests/governance/test_w056_sovereign_decision_status.py",),
+    mutations=(
+        Mutation(
+            kind="EXPIRY_UNDETECTED",
+            target="tools/governance/sovereign_decision_status.py",
+            old="if basis and state != basis:",
+            new="if False:",
+            expected_failures=2,
+            note="انقضاءُ سندِ وضعِ الإبلاغِ لا يُرصَدُ.",
+        ),
+        Mutation(
+            kind="REFUSAL_CODE_FLIPPED",
+            target="tools/governance/sovereign_decision_status.py",
+            old="return 2",
+            new="return 1",
+            expected_failures=1,
+            note="رمزُ الرفضِ 2 يصيرُ 1.",
+        ),
+        Mutation(
+            kind="SELF_COUNTED",
+            target="tools/governance/sovereign_decision_status.py",
+            old="""    "tools/governance/sovereign_decision_status.py",
+    "tests/governance/test_w056_sovereign_decision_status.py",""",
+            new='    "tools/governance/__never_excluded__.py",',
+            expected_failures=1,
+            note=(
+                "الأداةُ تعُدُّ إشاراتِ نفسِها فتُنفِّخُ الرقمَ الذي تقيسُه. "
+                "وقيدُ `W-056` نشرَ «فحصانِ» والمقيسُ اليومَ **فحصٌ واحدٌ** "
+                "بالطفرتَينِ المُجرَّبتَينِ (استثناءُ الأداةِ وحدَها · واستثناؤها "
+                "مع فحصِها) — والرقمُ هنا مقيسٌ لا منقولٌ، والفرقُ مقيَّدٌ في "
+                "`DISC-022` ولم يُوسَّعْ حرسٌ ولا خُفِّفَ حدٌّ لتسويتِه."
+            ),
+        ),
+        Mutation(
+            kind="PENDING_NOT_BLOCKING",
+            target="tools/governance/sovereign_decision_status.py",
+            old='BLOCKING_STATUSES = frozenset({"PENDING", "DEFERRED"})',
+            new="BLOCKING_STATUSES = frozenset()",
+            expected_failures=4,
+            note="«المعلَّقُ ليس حاجبًا» فيُقرأُ الحجبُ طريقًا.",
+        ),
+        Mutation(
+            kind="EMPTY_TABLE_ACCEPTED",
+            target="tools/governance/sovereign_decision_status.py",
+            old="    if not out:",
+            new="    if False:",
+            expected_failures=1,
+            note="جدولٌ لا يُقرَأُ فيه صفٌّ يُقالُ عنه «لا مخالفة».",
+        ),
+        Mutation(
+            kind="UNREADABLE_SWALLOWED",
+            target="tools/governance/sovereign_decision_status.py",
+            old="    if unreadable:",
+            new="    if False:",
+            expected_failures=1,
+            note="ملفٌّ لم يُقرَأْ يُبتلَعُ فيُقرأُ النقصُ اكتمالًا.",
+        ),
+        Mutation(
+            kind="WORK_REGISTER_ASSUMED_READ",
+            target="tools/governance/sovereign_decision_status.py",
+            old="    if not work_read:",
+            new="    if False:",
+            expected_failures=1,
+            note="غيابُ سجلِّ العملِ يُقرأُ صفرًا مقيسًا.",
+        ),
+    ),
+)
+
+
+#: دعوى `W-059`: حرسُ إرساءِ القيودِ المفتوحةِ. أرقامُها **لم تُنشَرْ** في قيدِها،
+#: فقِيسَت هنا بالمِسبارِ وسُجِّلَت بالمقيسِ لا بالمُقدَّرِ.
+W059 = Claim(
+    work="W-059",
+    item="WI-014",
+    tests=("tests/governance/test_w059_open_record_accountability.py",),
+    mutations=(
+        Mutation(
+            kind="DIACRITIC_RANGE_TOO_WIDE",
+            target="tools/governance/open_record_accountability.py",
+            old="[*range(0x064B, 0x0653), 0x0640, 0x0670, 0x06D6, 0x0653, 0x0654, 0x0655]",
+            new="[*range(0x0600, 0x0700)]",
+            expected_failures=11,
+            note="مدًى واسعٌ لنزعِ التشكيلِ يبتلعُ الأبجديّةَ فيُقرأُ المُعالَجُ مفتوحًا.",
+        ),
+        Mutation(
+            kind="ANCHOR_FROM_WHOLE_ROW",
+            target="tools/governance/open_record_accountability.py",
+            old='anchor_text = f"{cells[6]} {cells[7]}"',
+            new='anchor_text = " ".join(cells)',
+            expected_failures=1,
+            note="المِرساةُ تُقرأُ من الصفِّ كلِّهِ فيصيرُ موضِعُ العَطبِ حرسَه.",
+        ),
+    ),
+)
+
+#: دعوى `W-063`: حرسُ صدقِ هذا السجلِّ نفسِه — من يحرسُ السجلَّ سؤالٌ يُجابُ برقمٍ.
+W063 = Claim(
+    work="W-063",
+    item="WI-018",
+    tests=("tests/governance/test_w063_registered_claims.py",),
+    mutations=(
+        Mutation(
+            kind="GAP_LIST_SHRUNK",
+            target="tools/governance/mutation_claims.py",
+            old='    "W-030",\n',
+            new="",
+            expected_failures=2,
+            note="قيدٌ يدَّعي طفرةً يُحذَفُ من قائمةِ النقصِ فيُقرأُ صمتُه اكتمالًا.",
+        ),
+        Mutation(
+            kind="NUMBER_NOT_MEASURED",
+            target="tools/governance/mutation_claims.py",
+            old="            expected_failures=1,\n            note=(\n",
+            new="            expected_failures=2,\n            note=(\n",
+            expected_failures=2,
+            note="رقمٌ منشورٌ يُعادُ نقلُه مكانَ المقيسِ فيصيرُ السجلُّ ناقلًا لا قائسًا.",
+        ),
+        Mutation(
+            kind="ITEM_ID_INVENTED",
+            target="tools/governance/mutation_claims.py",
+            old='    work="W-059",\n    item="WI-014",',
+            new='    work="W-059",\n    item="WI-999",',
+            expected_failures=2,
+            note="دعوى تُنسَبُ إلى بندٍ لا وجودَ له في سجلِّ العملِ.",
+        ),
+    ),
+)
+
 
 #: كلُّ الدعاوى المُسجَّلةِ — بالترتيبِ الذي سُجِّلَت به.
-CLAIMS: tuple[Claim, ...] = (W061, W062)
+CLAIMS: tuple[Claim, ...] = (W055, W056, W059, W061, W062, W063)
 
 
 def claims_for(work: str | None = None) -> tuple[Claim, ...]:
