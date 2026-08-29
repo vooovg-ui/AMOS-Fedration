@@ -263,9 +263,9 @@
     "tools": {
       "domain": "tools",
       "md_files": 41,
-      "py_files": 40,
+      "py_files": 41,
       "yaml_files": 2,
-      "code_lines": 12817,
+      "code_lines": 12930,
       "nucleus_count": 12,
       "nucleus_status": {
         "unspecified": 12
@@ -277,7 +277,7 @@
       "secret_hits": 0,
       "observed_hits": 9,
       "api_routes": 1,
-      "test_refs": 273,
+      "test_refs": 278,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -298,7 +298,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 273
+        "TEST_NAME_MENTIONS": 278
       },
       "maturity": "INTEGRATED",
       "findings_count": 1
@@ -478,9 +478,9 @@
     "tests": {
       "domain": "tests",
       "md_files": 14,
-      "py_files": 72,
+      "py_files": 73,
       "yaml_files": 0,
-      "code_lines": 21978,
+      "code_lines": 22087,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
@@ -492,7 +492,7 @@
       "secret_hits": 0,
       "observed_hits": 2,
       "api_routes": 0,
-      "test_refs": 199,
+      "test_refs": 200,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -513,7 +513,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 199
+        "TEST_NAME_MENTIONS": 200
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -995,7 +995,7 @@
     },
     {
       "path": "tests/sovereignty/test_outbox.py",
-      "line": 1083,
+      "line": 1097,
       "key": "api_key"
     }
   ],

@@ -8,11 +8,12 @@
 النطاق: المستودع كله فيما يخصّ الأسرار، ونطاق التاج فيما يخصّ السيادة.
 المالك: التاج
 تاريخ الإنشاء: 2026-08-16
-تاريخ آخر تعديل: 2026-08-16
+تاريخ آخر تعديل: 2026-08-29
 """
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import re
 import subprocess
@@ -23,6 +24,14 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
 SERVICES_SRC = REPO_ROOT / "federal" / "executive" / "services" / "src"
+
+sys.path.insert(0, str(REPO_ROOT / "tools" / "crown"))
+from secret_scan_exceptions import (  # noqa: E402
+    DECLARED_HISTORY_LINES,
+    classify,
+    line_digest,
+    stale_exceptions,
+)
 
 # النمط مُركَّب من أجزاء كي لا يحمل هذا الملف نفسه مادة مفتاح ولا يُسقِط بوابته.
 _DASHES = "-" * 5
@@ -40,6 +49,7 @@ SKIP_DIRS = {".git", "__pycache__", ".venv", "node_modules", ".pytest_cache", ".
 # ملفات تُذكر فيها هذه الأنماط بوصفها **أنماط فحص** لا مادة سرّ.
 SCANNER_FILES = {
     "tools/crown/verify_secret_boundaries.py",
+    "tools/crown/secret_scan_exceptions.py",
     "tools/crown/verify_crown_root_of_trust.py",
     "tools/governance/truth_audit.py",
     ".github/workflows/ci.yml",
@@ -129,23 +139,58 @@ def gate_no_private_seed_literal() -> None:
 # ── 2. لا مادة مفتاح في التاريخ المنشور ─────────────────────────────────────
 
 
-def gate_no_private_key_in_history() -> None:
-    """التاريخ ذاكرة لا تُمحى: سرٌّ التُزم مرة يبقى مكشوفًا وإن حُذف لاحقًا."""
+@functools.lru_cache(maxsize=1)
+def _added_key_lines() -> tuple[str, ...] | None:
+    """كلُّ سطرٍ مُضافٍ في التاريخِ يحملُ كتلةَ مفتاحٍ — و`None` إن تعذَّرَت القراءةُ."""
     result = subprocess.run(
         ["git", "log", "--all", "-p", "--no-color"],
         cwd=REPO_ROOT, capture_output=True, text=True, check=False,
     )
     if result.returncode != 0:
-        check("لا مادة مفتاح خاص في التاريخ", False,
-              f"تعذّرت قراءة التاريخ: {result.stderr.strip()[:120]}")
+        return None
+    return tuple(line for line in result.stdout.splitlines()
+                 if line.startswith("+") and PEM_PRIVATE.search(line))
+
+
+def gate_no_private_key_in_history() -> None:
+    """التاريخ ذاكرة لا تُمحى: سرٌّ التُزم مرة يبقى مكشوفًا وإن حُذف لاحقًا.
+
+    ومنذُ `W-064` تُقرأُ الأسطرُ المُضافةُ على سجلِّ استثناءاتٍ مُعلَنٍ ببصمةِ النصِّ
+    (`tools/crown/secret_scan_exceptions.py`): ما رُوجِعَ فردًا فردًا وثبتَ أنَّه ليس
+    مادّةَ مفتاحٍ يُعلَنُ في الدليلِ ولا يُسكَتُ عنه، وما سواه مخالفةٌ كما كانَ.
+    ولم يُوسَّعِ النمطُ ولم يُعفَ مسارٌ ولا مجلَّدُ اختباراتٍ.
+    """
+    cached = _added_key_lines()
+    if cached is None:
+        check("لا مادة مفتاح خاص في التاريخ", False, "تعذّرت قراءة تاريخ git")
         return
-    added = [line for line in result.stdout.splitlines()
-             if line.startswith("+") and PEM_PRIVATE.search(line)]
+    added = list(cached)
+    undeclared, accounted = classify(added)
+    مُعلَنٌ = {line_digest(line) for line in accounted}
+    نسبةٌ = " · ".join(f"{item.record} ({item.first_seen_commit})"
+                      for item in DECLARED_HISTORY_LINES if item.digest in مُعلَنٌ)
     check(
         "لا مادة مفتاح خاص في التاريخ المنشور",
-        not added,
-        f"{len(added)} سطرًا مُضافًا يحمل كتلة مفتاح خاص",
-        evidence=f"فُحصت كل الأسطر المُضافة في {_commit_count()} التزامًا",
+        not undeclared,
+        f"{len(undeclared)} سطرًا مُضافًا يحمل كتلة مفتاح خاص بلا مراجعة معلنة",
+        evidence=(f"فُحصت كل الأسطر المُضافة في {_commit_count()} التزامًا · "
+                  + (f"ومنها {len(accounted)} سطرًا مُراجَعًا مُعلَنًا: {نسبةٌ}"
+                     if accounted else "ولا سطر مُعفًى")),
+    )
+
+
+def gate_no_stale_secret_exception() -> None:
+    """إعفاءٌ لا يقابلُه سطرٌ في التاريخِ ثقبٌ ينمو بلا رقيبٍ، فيُعلَنُ ويُسقِطُ."""
+    cached = _added_key_lines()
+    if cached is None:
+        check("لا استثناء ميت في سجل الاستثناءات", False, "تعذّرت قراءة تاريخ git")
+        return
+    stale = stale_exceptions(list(cached))
+    check(
+        "لا استثناء ميت في سجل الاستثناءات",
+        not stale,
+        f"استثناءات لا يقابلها سطر في التاريخ: {[item.record for item in stale]}",
+        evidence=f"{len(DECLARED_HISTORY_LINES)} استثناءً مُعلَنًا، ولكلٍّ سطرٌ قائمٌ",
     )
 
 
@@ -341,6 +386,7 @@ GATES = (
     gate_no_key_files,
     gate_no_private_seed_literal,
     gate_no_private_key_in_history,
+    gate_no_stale_secret_exception,
     gate_secret_fields_have_no_defaults,
     gate_production_refuses_missing_secrets,
     gate_no_king_secret_literal,

@@ -67,12 +67,12 @@
 | `states/` | 47 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
 | `institutions/` | 19 | 2 | 0 | 38 | 6 | 0 | unspecified=6 |
 | `agents/` | 601 | 4 | 283 | 532 | 11 | 0 | unspecified=11 |
-| `tools/` | 41 | 40 | 2 | 12817 | 12 | 0 | unspecified=12 |
+| `tools/` | 41 | 41 | 2 | 12930 | 12 | 0 | unspecified=12 |
 | `interfaces/` | 14 | 2 | 0 | 38 | 4 | 0 | unspecified=4 |
 | `runtime/` | 20 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
 | `docs/` | 98 | 2 | 0 | 100 | 7 | 0 | unspecified=7 |
 | `ops/` | 38 | 2 | 0 | 38 | 12 | 0 | unspecified=12 |
-| `tests/` | 14 | 72 | 0 | 21978 | 5 | 0 | unspecified=5 |
+| `tests/` | 14 | 73 | 0 | 22087 | 5 | 0 | unspecified=5 |
 
 ---
 
@@ -163,7 +163,7 @@
 | `federal/executive/services/tests/test_r5_multi_provider_sandbox.py:560` | `JWT_SECRET` |
 | `federal/executive/services/tests/test_r5_multi_provider_sandbox.py:560` | `KING_LOGIN_SECRET` |
 | `federal/executive/services/tests/test_r5_multi_provider_sandbox.py:560` | `MODAL_TOKEN_SECRET` |
-| `tests/sovereignty/test_outbox.py:1083` | `api_key` |
+| `tests/sovereignty/test_outbox.py:1097` | `api_key` |
 
 ---
 
