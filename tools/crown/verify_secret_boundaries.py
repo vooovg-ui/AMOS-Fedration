@@ -57,6 +57,7 @@ SCANNER_FILES = {
 
 failures: list[str] = []
 passed: list[str] = []
+unmeasured: list[str] = []
 
 
 def check(name: str, ok: bool, detail: str = "", *, evidence: str = "") -> None:
@@ -70,6 +71,33 @@ def check(name: str, ok: bool, detail: str = "", *, evidence: str = "") -> None:
     else:
         failures.append(f"{name} — {detail}")
         print(f"✗ {name} — {detail}")
+
+
+def not_measured(name: str, why: str) -> None:
+    """بوّابةٌ لا تُقاسُ في هذه البيئةِ تُعلَنُ غيرَ مقيسةٍ — لا ناجحةً ولا ساقطةً.
+
+    سكوتُ بوّابةٍ عن عجزِها أخطرُ من سقوطِها: يُقرأُ الأخضرُ شهادةً لم تُقَلْ.
+    """
+    unmeasured.append(f"{name} — {why}")
+    print(f"⊘ {name} — غير مقيسة: {why}")
+
+
+@functools.lru_cache(maxsize=1)
+def _history_is_truncated() -> bool:
+    """هل النسخةُ ضحلةٌ؟ فـ`git log --all` فيها يقرأُ لقطةً لا تاريخًا."""
+    result = subprocess.run(
+        ["git", "rev-parse", "--is-shallow-repository"],
+        cwd=REPO_ROOT, capture_output=True, text=True, check=False,
+    )
+    if result.returncode != 0:
+        return True
+    if result.stdout.strip() == "true":
+        return True
+    count = subprocess.run(
+        ["git", "rev-list", "--all", "--count"],
+        cwd=REPO_ROOT, capture_output=True, text=True, check=False,
+    )
+    return count.returncode != 0 or count.stdout.strip() in ("", "0", "1")
 
 
 UNREADABLE: list[str] = []
@@ -173,7 +201,9 @@ def gate_no_private_key_in_history() -> None:
         "لا مادة مفتاح خاص في التاريخ المنشور",
         not undeclared,
         f"{len(undeclared)} سطرًا مُضافًا يحمل كتلة مفتاح خاص بلا مراجعة معلنة",
-        evidence=(f"فُحصت كل الأسطر المُضافة في {_commit_count()} التزامًا · "
+        evidence=(("**التاريخُ مقطوعٌ في هذه البيئةِ (نسخةٌ ضحلةٌ) فالمفحوصُ لقطتُها لا التاريخُ كلُّه** · "
+                   if _history_is_truncated() else "")
+                  + f"فُحصت كل الأسطر المُضافة في {_commit_count()} التزامًا · "
                   + (f"ومنها {len(accounted)} سطرًا مُراجَعًا مُعلَنًا: {نسبةٌ}"
                      if accounted else "ولا سطر مُعفًى")),
     )
@@ -184,6 +214,13 @@ def gate_no_stale_secret_exception() -> None:
     cached = _added_key_lines()
     if cached is None:
         check("لا استثناء ميت في سجل الاستثناءات", False, "تعذّرت قراءة تاريخ git")
+        return
+    if _history_is_truncated():
+        not_measured(
+            "لا استثناء ميت في سجل الاستثناءات",
+            "النسخةُ ضحلةٌ فلا يُرى التاريخُ كلُّه؛ وإعلانُ إعفاءٍ ميتًا هنا حكمٌ على "
+            "ما لم يُقرأْ. تُقاسُ هذه البوّابةُ على نسخةٍ كاملةٍ (‏fetch-depth: 0)",
+        )
         return
     stale = stale_exceptions(list(cached))
     check(
@@ -408,12 +445,17 @@ def main() -> int:
         print(f"تنبيه: {len(UNREADABLE)} ملفًا تعذّرت قراءته:")
         for entry in UNREADABLE[:10]:
             print(f"  - {entry}")
+    if unmeasured:
+        print(f"غيرُ مقيسٍ في هذه البيئةِ: {len(unmeasured)} بوّابةً — تُعلَنُ ولا تُحسَبُ نجاحًا:")
+        for entry in unmeasured:
+            print(f"  - {entry}")
     if failures:
         print(f"BLOCKED: {len(failures)} مخالفة من {len(GATES)} بوابة")
         for failure in failures:
             print(f"  - {failure}")
         return 1
-    print(f"PASS: {len(passed)}/{len(GATES)} بوابة — لا سرّ مكشوف ولا سلطة فوق الملك")
+    ذيلٌ = f" · {len(unmeasured)} غير مقيسة" if unmeasured else ""
+    print(f"PASS: {len(passed)}/{len(GATES)} بوابة{ذيلٌ} — لا سرّ مكشوف ولا سلطة فوق الملك")
     return 0
 
 

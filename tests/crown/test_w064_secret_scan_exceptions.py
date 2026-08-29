@@ -127,3 +127,29 @@ def test_ملف_السجل_لا_يحمل_كتلة_مفتاح():
     """سجلُّ الاستثناءاتِ يحملُ بصماتٍ لا مفاتيحَ، وإلّا أسقطَ الماسحَ بنفسِه."""
     نصٌّ = MODULE_PATH.read_text(encoding="utf-8")
     assert ("-" * 5) + "BEGIN " not in نصٌّ
+
+
+def test_البوابة_تعلن_عجزها_على_تاريخ_مقطوع(tmp_path):
+    """في نسخةٍ ضحلةٍ لا يُحكَمُ بموتِ الإعفاءِ: تُعلَنُ البوّابةُ **غيرَ مقيسةٍ**.
+
+    ولا يُقاسُ هذا بقراءةِ الكودِ: تُستنسَخُ نسخةٌ بعمقٍ واحدٍ فعلًا وتُشغَّلُ
+    البوّابةُ فيها ويُقرأُ حكمُها. والسببُ أنَّ CI يستخرِجُ بعمقٍ واحدٍ في وظيفةِ
+    «جذرِ ثقةِ التاجِ» — فبوّابةٌ تُسقِطُ هناك تُسقِطُ لعجزِها لا لمخالفةٍ.
+    """
+    نسخةٌ = tmp_path / "shallow"
+    استنساخٌ = subprocess.run(
+        ["git", "clone", "--quiet", "--depth", "1", f"file://{REPO_ROOT}", str(نسخةٌ)],
+        capture_output=True, text=True, check=False,
+    )
+    if استنساخٌ.returncode != 0:
+        pytest.skip(f"تعذّر الاستنساخُ الضحلُ: {استنساخٌ.stderr.strip()[:120]}")
+    result = subprocess.run(
+        [sys.executable, "tools/crown/verify_secret_boundaries.py"],
+        cwd=نسخةٌ, capture_output=True, text=True, check=False,
+    )
+    مُخرَجٌ = result.stdout
+    assert "⊘ لا استثناء ميت في سجل الاستثناءات" in مُخرَجٌ, مُخرَجٌ[-1500:]
+    assert "غير مقيسة" in مُخرَجٌ
+    assert "PASS: 11/12" in مُخرَجٌ, "النجاحُ لا يُحسَبُ لبوّابةٍ لم تُقَسْ"
+    assert result.returncode == 0, مُخرَجٌ[-1500:]
+    assert "مقطوعٌ" in مُخرَجٌ, "تقصيرُ التاريخِ يُعلَنُ في دليلِ بوّابةِ التاريخِ"
