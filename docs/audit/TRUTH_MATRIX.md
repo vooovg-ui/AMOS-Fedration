@@ -72,7 +72,7 @@
 | `runtime/` | 20 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
 | `docs/` | 98 | 2 | 0 | 100 | 7 | 0 | unspecified=7 |
 | `ops/` | 38 | 2 | 0 | 38 | 12 | 0 | unspecified=12 |
-| `tests/` | 14 | 74 | 0 | 22190 | 5 | 0 | unspecified=5 |
+| `tests/` | 14 | 74 | 0 | 22215 | 5 | 0 | unspecified=5 |
 
 ---
 

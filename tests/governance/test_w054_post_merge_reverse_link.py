@@ -8,7 +8,7 @@
         لا يُقاسُ هنا صدقُ مضمونِ القيدِ — الحدُّ مُعلَنٌ في THE_ROADMAP § 13.3.
 المالك: tests/governance
 تاريخ الإنشاء: 2026-08-27
-تاريخ آخر تعديل: 2026-08-27
+تاريخ آخر تعديل: 2026-08-30 (W-065 · DISC-032)
 
 لماذا هذا الاختبار
 ------------------
@@ -228,13 +228,24 @@ def test_رفضٌ_مُعلَنٌ_حينَ_يُطلَبُ_الأساسُ_ولا_�
     assert out.returncode == 2, out.stdout + out.stderr
 
 
-def test_الإسقاطُ_يُطلَبُ_فيسقُط(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_الإسقاطُ_يُطلَبُ_فيسقُط(tmp_path: Path) -> None:
+    """وصلُ العلمِ بالمَخرَجِ يُقاسُ على شجرةِ الاختبارِ نفسِها لا على المستودعِ الحقيقيّ.
+
+    كان هذا الفحصُ يُشغِّلُ الأداةَ من مسارِها الحقيقيِّ، و`REPO_ROOT` فيها
+    مُشتَقٌّ من موضعِ الملفِّ لا من `cwd`، و`monkeypatch` لا يعبُرُ إلى عمليّةٍ
+    أخرى — فكانَ يقرأُ المستودعَ الحقيقيَّ ويخضَرُّ لأنَّ فيه أربعةَ عشرَ واجبًا
+    مُهمَلًا. فيومَ وُفِّيَ الواجبُ (`W-065`) احمَرَّ الفحصُ **من إصلاحٍ لا من
+    عَطبٍ** — وذاك مقيسٌ في `DISC-032`. فتُنسَخُ الأداةُ إلى العمقِ النسبيِّ
+    ذاتِه داخلَ الشجرةِ المؤقَّتةِ، فيصيرُ `REPO_ROOT` هو الشجرةَ المقصودةَ.
+    """
     repo = _mkrepo(tmp_path, merged_ledger=LEDGER_LINKED)
-    monkeypatch.setattr(gate, "REPO_ROOT", repo)
+    tool_copy = repo / "tools" / "governance" / TOOL_PATH.name
+    tool_copy.parent.mkdir(parents=True, exist_ok=True)
+    tool_copy.write_text(TOOL_PATH.read_text(encoding="utf-8"), encoding="utf-8")
     out = subprocess.run(
         [
             sys.executable,
-            str(TOOL_PATH),
+            str(tool_copy),
             "--self-check",
             "--merge-base",
             "main",
@@ -247,6 +258,23 @@ def test_الإسقاطُ_يُطلَبُ_فيسقُط(tmp_path: Path, monkeypatc
     )
     assert out.returncode == 1, out.stdout + out.stderr
     assert "POST_MERGE_NOT_CLOSED" in out.stdout
+
+
+def test_العلمُ_متروكًا_لا_يُسقِط(tmp_path: Path) -> None:
+    """وحدَّ الفحصِ أعلاه مُعلَنٌ: العلمُ هو ما يُسقِطُ، لا وجودُ الواجبِ المُهمَلِ."""
+    repo = _mkrepo(tmp_path, merged_ledger=LEDGER_LINKED)
+    tool_copy = repo / "tools" / "governance" / TOOL_PATH.name
+    tool_copy.parent.mkdir(parents=True, exist_ok=True)
+    tool_copy.write_text(TOOL_PATH.read_text(encoding="utf-8"), encoding="utf-8")
+    out = subprocess.run(
+        [sys.executable, str(tool_copy), "--self-check", "--merge-base", "main"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert out.returncode == 0, out.stdout + out.stderr
+    assert "POST_MERGE_NOT_CLOSED" in out.stdout + out.stderr, "يُعلَنُ إبلاغًا ولا يُطوى"
 
 
 # ── المستودعُ الحقيقيُّ: الواجبُ المُهمَلُ يُقاسُ فعلًا ─────────────────────────
