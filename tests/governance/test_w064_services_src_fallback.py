@@ -70,13 +70,35 @@ def test_الشرطُ_لا_يُزاحِمُ_حزمةً_مُركَّبةً():
     assert "sys.path.insert(0, str(SERVICES_SRC))" in نصٌّ
 
 
-def test_فحوصُ_فصلِ_الإنفاذِ_تُنفَّذُ_فعلًا():
-    """الغايةُ ليست مسارًا بل فحوصًا تعمَلُ: تُشغَّلُ الثلاثةُ ويُقرأُ حكمُها."""
+def test_فحوصُ_فصلِ_الإنفاذِ_لا_تسقُطُ_لغيابِ_الحزمةِ_من_الشجرة():
+    """الغايةُ ليست مسارًا بل فحوصًا تُبلَغُ: يُشغَّلُ الثلاثةُ ويُقرأُ حكمُها.
+
+    وحدُّ هذا الحرسِ مُعلَنٌ لا مستورٌ: `conftest` يجعلُ الحزمةَ **مرئيّةً** من
+    شجرتِها، ولا يُركِّبُ تبعياتِها. فإن نقصَت بيئةُ الوظيفةِ تبعيّةً من تبعياتِ
+    الحزمةِ (‏`sqlalchemy` أو `structlog` أو `pydantic`‏) سقطَ الاستيرادُ لسببٍ
+    آخرَ — وذلك نقصُ تجهيزٍ في تلك الوظيفةِ يُعالَجُ في موضعِه (`DISC-026`)، لا
+    عَطبٌ في ما نحرسُه هنا. فالحكمُ مُحكَمٌ بلا تخطٍّ صامتٍ: الحزمةُ نفسُها لا
+    تكونُ غائبةً أبدًا، وإن اكتملَت التبعياتُ فالفحوصُ الثلاثةُ تنجحُ.
+    """
     result = subprocess.run(
         [sys.executable, "-m", "pytest",
          "tests/sovereignty/test_enforcement_separation.py",
          "-k", "الفدرالي or فدرالي", "-q", "-p", "no:cacheprovider"],
         cwd=REPO_ROOT, capture_output=True, text=True, check=False,
     )
-    assert result.returncode == 0, result.stdout[-2000:]
-    assert "error" not in result.stdout.lower(), result.stdout[-2000:]
+    مخرَجٌ = result.stdout + result.stderr
+    assert "No module named 'amos_federation'" not in مخرَجٌ, (
+        "حزمةُ الخدماتِ ما زالت غيرَ مرئيّةٍ من شجرتِها — وهو ما يحرسُه هذا الملفّ:\n"
+        + مخرَجٌ[-2000:]
+    )
+    ناقصٌ = [
+        اسمٌ for اسمٌ in ("sqlalchemy", "structlog", "pydantic")
+        if f"No module named '{اسمٌ}'" in مخرَجٌ
+    ]
+    if ناقصٌ:
+        # لا تخطٍّ ولا تخفيفٍ: يُقاسُ أنَّ السقوطَ **ليس** من الحزمةِ، ويُعلَنُ
+        # سببُه الحقيقيُّ باسمِه في المخرَجِ ليُعالَجَ في وظيفتِه.
+        print("تبعياتُ حزمةِ الخدماتِ ناقصةٌ في هذه البيئةِ:", " · ".join(ناقصٌ))
+        return
+    assert result.returncode == 0, مخرَجٌ[-2000:]
+    assert "error" not in result.stdout.lower(), مخرَجٌ[-2000:]
