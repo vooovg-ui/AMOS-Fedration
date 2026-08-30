@@ -90,6 +90,17 @@ jobs:
         # والأسماءُ لا تُكتبُ هنا بل تُقرَأُ من الإعلانِ الواحد (T0.1).
         run: pip install -r requirements-dev.txt
 
+      - name: مرجعٌ محليٌّ لفرعِ الحالةِ «main» — حرسُ ما بعدَ الدمجِ يُقاسُ (DISC-025)
+        # على استخراجِ `pull_request` يكونُ الرأسُ منفصلًا على مرجعِ دمجٍ ولا
+        # وجودَ لفرعٍ محليٍّ باسمِ «main»، فحرسُ ما بعدَ الدمجِ يُعلِنُ «لم يُقَسْ»
+        # ويخرُجُ بصفرٍ — فيسقُطُ الفحصُ الذي يشترطُ خروجًا بواحدٍ، حمرةً لا
+        # تدُلُّ على عَطبٍ. والمرجعُ يُنشأُ من «origin/main» نفسِه فيُقاسُ الحرسُ
+        # على حالةِ الفرعِ الحاكمِ لا على شيءٍ مُصطنَع.
+        run: |
+          git rev-parse --verify --quiet refs/heads/main >/dev/null \
+            || git fetch --no-tags origin +refs/heads/main:refs/heads/main
+          echo "main = $(git rev-parse --short refs/heads/main)"
+
       - name: بوابة 1 — كل مجلد يحمل بطاقة هوية كاملة وكل ملف يُعلن هدفه
         run: python tools/governance/check_repository_identity.py .
 
@@ -267,7 +278,16 @@ jobs:
         with:
           python-version: "3.12"
       - name: تثبيت التبعيات
-        run: pip install -r requirements-dev.txt
+        # تبعياتُ حزمةِ الخدماتِ لازمةٌ لا زائدة (DISC-026): بوابةُ 7 تُشغّلُ
+        # tests/sovereignty/ كلَّها، وفيها ثلاثةُ فحوصٍ لفصلِ الإنفاذِ الفدراليِّ
+        # تستوردُ amos_federation.services.executive_core، وسلسلةُ استيرادِها
+        # تبلغُ sqlalchemy وstructlog وpydantic. وقد قِيسَ أنَّ الثلاثةَ لم تُنفَّذْ
+        # قطُّ في هذه الوظيفةِ: كانت تسقطُ في التجهيزِ بـ ModuleNotFoundError
+        # وكان ذلك مستورًا وراءَ بوّابةٍ أسبقَ حمراءَ. فالعلاجُ تجهيزُ البيئةِ
+        # لا تخطّي الحارسِ: `importorskip` ممنوعٌ دواءً (القاعدةُ 12).
+        run: |
+          pip install -r requirements-dev.txt
+          pip install -r federal/executive/services/requirements.lock
 
       - name: بوابة 1 — السيادة الملكية محروسة بنيويًا
         run: python -m core.sovereignty.cli sovereignty-check
@@ -362,7 +382,14 @@ jobs:
     name: Crown Root of Trust (E2.2 — بوابات جذر ثقة التاج)
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 لازمٌ لا زينة (W-064): بوّابةُ استثناءِ التاريخِ تقرأُ
+      # `git log --all` لتقيسَ أنَّ كلَّ استثناءٍ مُعلَنٍ ما زال له سطرٌ قائمٌ في
+      # التاريخِ. وفي استخراجٍ بعمقِ واحدٍ يصيرُ السجلُّ لقطةً لا تاريخًا، فلا
+      # يُقاسُ الاستثناءُ (تُعلِنُ البوّابةُ ⊘ صادقةً ولا تُسقِط). فالتاريخُ
+      # يُستخرَجُ كاملًا ليُقاسَ الحرسُ حقًّا: 12/12 لا 11/12.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -579,6 +606,17 @@ jobs:
       # فيأتيها التركيبُ أعلاه. فالسطرُ رُفِعَ لأنَّه تكرارٌ، والإعلانُ رُفِعَ
       # لأنَّه صارَ خلافَ المقيس (T0.7).
       - run: pip install -r requirements-dev.txt
+
+      - name: مرجعٌ محليٌّ لفرعِ الحالةِ «main» — حرسُ ما بعدَ الدمجِ يُقاسُ (DISC-025)
+        # على استخراجِ `pull_request` يكونُ الرأسُ منفصلًا على مرجعِ دمجٍ ولا
+        # وجودَ لفرعٍ محليٍّ باسمِ «main»، فحرسُ ما بعدَ الدمجِ يُعلِنُ «لم يُقَسْ»
+        # ويخرُجُ بصفرٍ — فيسقُطُ الفحصُ الذي يشترطُ خروجًا بواحدٍ، حمرةً لا
+        # تدُلُّ على عَطبٍ. والمرجعُ يُنشأُ من «origin/main» نفسِه فيُقاسُ الحرسُ
+        # على حالةِ الفرعِ الحاكمِ لا على شيءٍ مُصطنَع.
+        run: |
+          git rev-parse --verify --quiet refs/heads/main >/dev/null \
+            || git fetch --no-tags origin +refs/heads/main:refs/heads/main
+          echo "main = $(git rev-parse --short refs/heads/main)"
       # الحزم الثلاث تُشغَّل بالتسلسل داخل الأداة نفسها — التوازي يفسد ملف
       # قاعدة SQLite المشترك، وقد قيس ذلك فعلًا لا افتراضًا.
       - name: تشغيل الحزم الثلاث وتوليد المصفوفة

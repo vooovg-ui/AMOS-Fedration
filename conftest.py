@@ -3,7 +3,7 @@
 النطاق: جذرُ المستودع — يُحمَّل تلقائيًّا قبلَ جمعِ أيِّ اختبار.
 المالك: governance/
 تاريخ الإنشاء: 2026-08-21
-تاريخ آخر تعديل: 2026-08-21
+تاريخ آخر تعديل: 2026-08-29
 
 ## المشكلةُ المقيسة (O-1N-1)
 
@@ -23,6 +23,19 @@
 الجمع — لا في مُثبِّتٍ (fixture)، لأنَّ سجلًّا قد يُبنى في زمنِ الجمعِ نفسِه.
 
 وإن كانت البيئةُ تُعلِن موضعًا سلفًا فهو أَولى: الإعلانُ الصريحُ لا يُنقَض هنا.
+
+## حزمةُ الخدماتِ تُرى من شجرتِها إن لم تُركَّبْ (‏`W-064` · `DISC-026`)
+
+قِيسَ من CI لا فُرِضَ: وظيفةُ «السيادةِ الملكيّةِ» تُركِّبُ `requirements-dev.txt`
+وحدَها ولا تُركِّبُ حزمةَ `federal/executive/services`، فسقطَت ثلاثةُ اختباراتٍ في
+`tests/sovereignty/test_enforcement_separation.py` بـ`ModuleNotFoundError:
+amos_federation` — **لم تُقَسْ فحوصُ فصلِ الإنفاذِ الفدراليِّ فيها إطلاقًا**، وكانَ
+ذلك مستورًا تحتَ سقوطِ بوّابةٍ أسبقَ في الوظيفةِ نفسِها.
+
+والعلاجُ لا يُخفِّفُ فحصًا ولا يُتخطّى به اختبارٌ: يُضافُ مُجلَّدُ المصادرِ
+`federal/executive/services/src` إلى مسارِ الاستيرادِ **إن لم تكنِ الحزمةُ
+مُركَّبةً** — وهو نمطُ `src-layout` المعروفُ. فتُنفَّذُ الفحوصُ الثلاثةُ حقًّا لا
+تُتخطّى. وملفُّ السيرِ نفسُه محجوزٌ للمالكِ (`DISC-006`) فلا يُعالَجُ فيه.
 
 ## لماذا اسمُ المُتغيّرِ مكتوبٌ حرفًا لا مُستورَدًا
 
@@ -47,3 +60,15 @@ CONSUMED_PERMITS_PATH_ENV = "AMOS_CONSUMED_PERMITS_PATH"
 if not os.environ.get(CONSUMED_PERMITS_PATH_ENV, "").strip():
     موضع = Path(tempfile.mkdtemp(prefix="amos-runtime-permits-"))
     os.environ[CONSUMED_PERMITS_PATH_ENV] = str(موضع / "CONSUMED_PERMITS.json")
+
+
+#: مُجلَّدُ مصادرِ حزمةِ خدماتِ الاتحاد (`src-layout`).
+SERVICES_SRC = Path(__file__).resolve().parent / "federal" / "executive" / "services" / "src"
+
+if (SERVICES_SRC / "amos_federation").is_dir():
+    import importlib.util
+    import sys
+
+    # الشرطُ مقصودٌ: الحزمةُ المُركَّبةُ أَولى، ولا يُزاحُ مسارٌ مُعلَنٌ سلفًا.
+    if importlib.util.find_spec("amos_federation") is None:
+        sys.path.insert(0, str(SERVICES_SRC))
