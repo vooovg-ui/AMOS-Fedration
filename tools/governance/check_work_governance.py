@@ -317,6 +317,47 @@ def check_duplicate_ids(texts: dict[str, str]) -> list[dict[str, str]]:
     return violations
 
 
+BLOCK_STATUS_RE = re.compile(r"^الحالة:\s*(\S+)", re.MULTILINE)
+
+
+def check_block_status_agrees(
+    items: list[dict[str, object]], blocks: dict[str, str]
+) -> list[dict[str, str]]:
+    """حالةُ البندِ مكتوبةٌ مرّتَين — فلا تُترَكُ تتناقضان (`DISC-035`).
+
+    الصفُ في § 2 يُعلِنُ الحالةَ، وكتلةُ § 3 تُعلِنُها أيضًا. وكانَ الحرسُ
+    يقرأُ الصفَ وحدَه، فمرَّ إغلاقٌ حُدِّثَ فيه أربعةَ عشرَ صفًّا إلى `CLOSED`
+    وبقيَت كتلُها تقولُ `VERIFIED` — فصارَ للبندِ الواحدِ حالتانِ مكتوبتانِ
+    إحداهما كاذبةٌ قطعًا، ومرَّت البوّابةُ خضراءَ. و§ 2 حكم 14 يقولُ: ما كُتِبَ
+    هو حالةُ المشروعِ — فمكتوبانِ متناقضانِ حالتانِ لا حالةٌ.
+
+    ولا يُرفَعُ هذا بحذفِ أحدِ الموضِعَين: الصفُ للمسحِ السريعِ والكتلةُ
+    للتفصيلِ، وإنما يُلزَمُ اتفاقُهما.
+    """
+    violations: list[dict[str, str]] = []
+    for it in items:
+        wid = str(it["id"])
+        block = blocks.get(wid)
+        if not block:
+            continue
+        found = BLOCK_STATUS_RE.search(block)
+        if not found:
+            if str(it["status"]) in ACTIVE_STATUSES:
+                violations.append(_v(
+                    "MALFORMED_ITEM",
+                    f"{wid}: كتلةُ § 3 بلا سطرِ «الحالة:» — لا يُقاسُ اتفاقُها معَ الصفِّ",
+                ))
+            continue
+        declared = found.group(1)
+        if declared != str(it["status"]):
+            violations.append(_v(
+                "STATUS_CONTRADICTION",
+                f"{wid}: الصفُّ يقولُ «{it['status']}» وكتلةُ § 3 تقولُ «{declared}» — "
+                "حالتانِ مكتوبتانِ لبندٍ واحدٍ، إحداهما كاذبةٌ (§ 2 حكم 14)",
+            ))
+    return violations
+
+
 def check_items(
     items: list[dict[str, object]],
     blocks: dict[str, str],
@@ -529,6 +570,17 @@ def _has_ledger_at(ref: str) -> bool:
     return probe.returncode == 0
 
 
+def set_repo_root(path: Path) -> None:
+    """تعيينُ جذرِ الشجرةِ المقيسةِ تعيينًا صريحًا (`DISC-022` · `DISC-034`).
+
+    وليسَ هذا رايةَ تخطِيٍّ: البوّابةُ تعملُ بتمامِها وفحوصُها عينُها،
+    وإنما يُعلَنُ محلُّ القياسِ فلا يُخمَّنُ من موقعِ هذا الملفِ. ومن لم
+    يُمَرِّرهُ فالجذرُ موقعُ الأداةِ كما كان.
+    """
+    global REPO_ROOT  # noqa: PLW0603
+    REPO_ROOT = path
+
+
 def resolve_merge_base(explicit: str | None = None) -> str | None:
     """مرجعُ الفرعِ المدموجِ إليه، أو `None` إن لم يُقرَأْ منه سجلُّ الإكمال.
 
@@ -651,6 +703,7 @@ def run(
     violations += check_sections(texts)
     violations += check_duplicate_ids(texts)
     violations += check_items(items, blocks, scopes, today)
+    violations += check_block_status_agrees(items, blocks)
     violations += check_claim_conflicts(items)
     violations += check_discoveries(texts[DISCOVERIES_PATH])
     if not shape_only:
@@ -703,6 +756,14 @@ def main() -> int:
         "--today", metavar="YYYY-MM-DD", help="تاريخُ المرجعِ لفحصِ انتهاءِ الحجز (للاختبار)"
     )
     parser.add_argument(
+        "--repo-root",
+        metavar="PATH",
+        help=(
+            "جذرُ الشجرةِ المقيسةِ — يُمَرَّرُ صراحةً ليُقاسَ منهُ لا من موقعِ الأداةِ. "
+            "ليسَ تخطِيًّا للبوّابةِ: الفحوصُ عينُها تُجرَى كاملةً على الجذرِ المُمَرَّرِ"
+        ),
+    )
+    parser.add_argument(
         "--merge-base",
         metavar="REF",
         help="مرجعُ الفرعِ المدموجِ إليه لقياسِ واجبِ ما بعدَ الدمج (الافتراضيّ: origin/main ثمَّ main)",
@@ -718,6 +779,16 @@ def main() -> int:
         help="جعلُ POST_MERGE_NOT_CLOSED مُسقِطًا (الافتراضيُّ: إبلاغٌ حتّى يُعتمَدَ A-2/A-3)",
     )
     args = parser.parse_args()
+
+    # جذرٌ مُمَرَّرٌ صراحةً يُعينُ محلَّ القياسِ (`DISC-022`): كانَ الجذرُ يُشتَقُّ
+    # من موقعِ هذا الملفِ وحدَه، فكانَ من يُشغِّلُ الأداةَ على شجرةٍ أخرى يُقاسُ
+    # لهُ المستودعُ الحقيقيُّ لا شجرتُهُ — قياسٌ يُجيبُ عن غيرِ ما سُئِلَ عنه.
+    if args.repo_root:
+        root = Path(args.repo_root).resolve()
+        if not root.is_dir():
+            print(f"[WORK GATE] --repo-root ليسَ مجلَّدًا: {root}", file=sys.stderr)
+            return 2
+        set_repo_root(root)
 
     if args.rng:
         mode, ref = "range", args.rng

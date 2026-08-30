@@ -434,10 +434,33 @@ GATES = (
 )
 
 
-def main() -> int:
-    print("بوابة حدود الأسرار والثقة (E2.2-E)")
+# ── وضعُ الاستدعاءِ المُضيَّقُ: شجرةُ العملِ وحدَها ──────────────────────────
+
+# لِمَ رايةٌ تُضيِّقُ النطاقَ؟ لأنَّ بوّابةَ السيادةِ 6 في `ci.yml` كانت تُعيدُ
+# كتابةَ الماسحِ بيدٍ (`grep -rlE` على نمطِ كتلةِ PEM)، فصارَ للحدِّ الواحدِ
+# مصدرا حقيقةٍ: أداةٌ مرجعيّةٌ وماسحٌ ثانٍ في مِلفِّ التكاملِ. والماسحُ الثاني
+# أضعفُ: يقرأُ النصَّ وحدَه، ولا يُعلِنُ ما تعذّرت قراءتُه، ولا يعرفُ الإعفاءَ
+# المُعلَنَ. فالرايةُ لا تُخفِّفُ فحصًا ولا تُسقِطُ بوّابةً — تُشغِّلُ الفحصَ
+# المرجعيَّ عينَه بنطاقِه المُعلَنِ (شجرةُ العملِ) ليُنادى من مكانٍ واحدٍ.
+TREE_PEM_GATES = (gate_no_private_key_in_tree,)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = list(sys.argv[1:] if argv is None else argv)
+    tree_pem_only = "--tree-pem-only" in args
+    for flag in args:
+        if flag != "--tree-pem-only":
+            print(f"[SECRET BOUNDARIES] رايةٌ غيرُ معروفةٍ: {flag}", file=sys.stderr)
+            return 2
+    gates = TREE_PEM_GATES if tree_pem_only else GATES
+    عنوانٌ = (
+        "بوابة حدود الأسرار والثقة (E2.2-E) — شجرة العمل وحدها"
+        if tree_pem_only
+        else "بوابة حدود الأسرار والثقة (E2.2-E)"
+    )
+    print(عنوانٌ)
     print("=" * 62)
-    for gate in GATES:
+    for gate in gates:
         gate()
     print("=" * 62)
     if UNREADABLE:
@@ -450,12 +473,17 @@ def main() -> int:
         for entry in unmeasured:
             print(f"  - {entry}")
     if failures:
-        print(f"BLOCKED: {len(failures)} مخالفة من {len(GATES)} بوابة")
+        print(f"BLOCKED: {len(failures)} مخالفة من {len(gates)} بوابة")
         for failure in failures:
             print(f"  - {failure}")
         return 1
     ذيلٌ = f" · {len(unmeasured)} غير مقيسة" if unmeasured else ""
-    print(f"PASS: {len(passed)}/{len(GATES)} بوابة{ذيلٌ} — لا سرّ مكشوف ولا سلطة فوق الملك")
+    خاتمةٌ = (
+        "لا مادة مفتاح خاص في شجرة العمل"
+        if tree_pem_only
+        else "لا سرّ مكشوف ولا سلطة فوق الملك"
+    )
+    print(f"PASS: {len(passed)}/{len(gates)} بوابة{ذيلٌ} — {خاتمةٌ}")
     return 0
 
 

@@ -50,11 +50,25 @@ DETAIL_BLOCK = """### WI-001 — بندٌ تجريبيّ
 
 ```text
 النطاق: tooling-gates
+الحالة: IN_PROGRESS
 خارجَ النطاق: لا شيء
 معيارُ القبول: شرطٌ يُقاس
 الدليلُ المطلوب: أمرٌ يُعادُ تشغيلُه
 ```
 """
+
+#: حالةُ الكتلةِ يجبُ أن تُطابِقَ حالةَ الصفِّ (`STATUS_CONTRADICTION` · W-069)، فتُولَّدُ
+#: الكتلةُ الافتراضيّةُ من صفِّ التجهيزِ نفسِه لا تُثبَّتُ على حالةٍ واحدة.
+def _detail_for(rows: str) -> str:
+    """كتلةُ تفصيلٍ حالتُها حالةُ أوّلِ صفٍّ في `rows` — تجهيزٌ لا تخفيفُ حرسٍ."""
+    for line in rows.splitlines():
+        cells = line.split("|")
+        if len(cells) >= 14 and cells[1].strip().startswith("WI-"):
+            status = cells[6].strip()
+            return DETAIL_BLOCK.replace(
+                "الحالة: IN_PROGRESS", f"الحالة: {status}"
+            ).replace("### WI-001", f"### {cells[1].strip()}")
+    return DETAIL_BLOCK
 
 OWNERSHIP_ROW = "| tooling-gates | tools/governance · src | فلان | فلانٌ آخر | — | C1 |"
 DISCOVERY_ROW = (
@@ -72,13 +86,17 @@ def _write_registers(
     repo: Path,
     *,
     active_rows: str = ACTIVE_ROW,
-    details: str = DETAIL_BLOCK,
+    details: str | None = None,
     ownership_rows: str = OWNERSHIP_ROW,
     discovery_rows: str = DISCOVERY_ROW,
 ) -> None:
     files = {
         gate.ROADMAP_PATH: _register(gate.ROADMAP_PATH),
-        gate.ACTIVE_PATH: _register(gate.ACTIVE_PATH, active_rows, details),
+        gate.ACTIVE_PATH: _register(
+            gate.ACTIVE_PATH,
+            active_rows,
+            _detail_for(active_rows) if details is None else details,
+        ),
         gate.OWNERSHIP_PATH: _register(gate.OWNERSHIP_PATH, ownership_rows),
         gate.RISK_PATH: _register(gate.RISK_PATH, RISK_ROW),
         gate.DISCOVERIES_PATH: _register(gate.DISCOVERIES_PATH, discovery_rows),

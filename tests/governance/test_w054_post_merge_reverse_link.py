@@ -51,10 +51,12 @@ ACTIVE_ROW = (
     "| خطوةٌ واحدة | {ledger} |"
 )
 
+#: حالةُ الكتلةِ تُملَأُ من حالةِ الصفِّ نفسِها: المكتوبانِ لا يتناقضانِ (`STATUS_CONTRADICTION` · W-069).
 DETAIL_BLOCK = """### WI-006 — بندٌ تجريبيّ
 
 ```text
 النطاق: tooling-gates
+الحالة: {status}
 خارجَ النطاق: لا شيء
 معيارُ القبول: شرطٌ يُقاس
 الدليلُ المطلوب: أمرٌ يُعادُ تشغيلُه
@@ -88,7 +90,7 @@ def _write_registers(repo: Path, *, status: str, ledger_cell: str, ledger_rows: 
         gate.ACTIVE_PATH: _register(
             gate.ACTIVE_PATH,
             ACTIVE_ROW.format(status=status, ledger=ledger_cell),
-            DETAIL_BLOCK,
+            DETAIL_BLOCK.format(status=status),
         ),
         gate.OWNERSHIP_PATH: _register(gate.OWNERSHIP_PATH, OWNERSHIP_ROW),
         gate.RISK_PATH: _register(gate.RISK_PATH, RISK_ROW),
@@ -235,18 +237,20 @@ def test_الإسقاطُ_يُطلَبُ_فيسقُط(tmp_path: Path) -> None:
     مُشتَقٌّ من موضعِ الملفِّ لا من `cwd`، و`monkeypatch` لا يعبُرُ إلى عمليّةٍ
     أخرى — فكانَ يقرأُ المستودعَ الحقيقيَّ ويخضَرُّ لأنَّ فيه أربعةَ عشرَ واجبًا
     مُهمَلًا. فيومَ وُفِّيَ الواجبُ (`W-065`) احمَرَّ الفحصُ **من إصلاحٍ لا من
-    عَطبٍ** — وذاك مقيسٌ في `DISC-032`. فتُنسَخُ الأداةُ إلى العمقِ النسبيِّ
-    ذاتِه داخلَ الشجرةِ المؤقَّتةِ، فيصيرُ `REPO_ROOT` هو الشجرةَ المقصودةَ.
+    عَطبٍ** — وذاك مقيسٌ في `DISC-032`. وكانَ الدّواءُ أوّلًا نَسخَ الأداةِ إلى
+    العمقِ النسبيِّ ذاتِه داخلَ الشجرةِ المؤقَّتةِ — دواءٌ يُصيبُ ولكنّهُ يقيسُ
+    نُسخَةً لا الأداةَ المنشورةَ. والدّواءُ المُعلَنُ أن يُمَرَّرَ محلُّ القياسِ
+    بـ`--repo-root`، فتُقاسُ الأداةُ المنشورةُ عينُها على الشجرةِ المقصودةِ
+    (`DISC-034`).
     """
     repo = _mkrepo(tmp_path, merged_ledger=LEDGER_LINKED)
-    tool_copy = repo / "tools" / "governance" / TOOL_PATH.name
-    tool_copy.parent.mkdir(parents=True, exist_ok=True)
-    tool_copy.write_text(TOOL_PATH.read_text(encoding="utf-8"), encoding="utf-8")
     out = subprocess.run(
         [
             sys.executable,
-            str(tool_copy),
+            str(TOOL_PATH),
             "--self-check",
+            "--repo-root",
+            str(repo),
             "--merge-base",
             "main",
             "--enforce-post-merge",
@@ -263,11 +267,16 @@ def test_الإسقاطُ_يُطلَبُ_فيسقُط(tmp_path: Path) -> None:
 def test_العلمُ_متروكًا_لا_يُسقِط(tmp_path: Path) -> None:
     """وحدَّ الفحصِ أعلاه مُعلَنٌ: العلمُ هو ما يُسقِطُ، لا وجودُ الواجبِ المُهمَلِ."""
     repo = _mkrepo(tmp_path, merged_ledger=LEDGER_LINKED)
-    tool_copy = repo / "tools" / "governance" / TOOL_PATH.name
-    tool_copy.parent.mkdir(parents=True, exist_ok=True)
-    tool_copy.write_text(TOOL_PATH.read_text(encoding="utf-8"), encoding="utf-8")
     out = subprocess.run(
-        [sys.executable, str(tool_copy), "--self-check", "--merge-base", "main"],
+        [
+            sys.executable,
+            str(TOOL_PATH),
+            "--self-check",
+            "--repo-root",
+            str(repo),
+            "--merge-base",
+            "main",
+        ],
         cwd=repo,
         capture_output=True,
         text=True,
