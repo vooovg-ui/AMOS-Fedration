@@ -263,9 +263,9 @@
     "tools": {
       "domain": "tools",
       "md_files": 41,
-      "py_files": 41,
+      "py_files": 42,
       "yaml_files": 2,
-      "code_lines": 13043,
+      "code_lines": 13422,
       "nucleus_count": 12,
       "nucleus_status": {
         "unspecified": 12
@@ -277,7 +277,7 @@
       "secret_hits": 0,
       "observed_hits": 9,
       "api_routes": 1,
-      "test_refs": 282,
+      "test_refs": 308,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -298,7 +298,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 282
+        "TEST_NAME_MENTIONS": 308
       },
       "maturity": "INTEGRATED",
       "findings_count": 1
@@ -406,7 +406,7 @@
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 111,
+      "test_refs": 116,
       "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
@@ -427,7 +427,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 111
+        "TEST_NAME_MENTIONS": 116
       },
       "maturity": "IMPLEMENTED",
       "findings_count": 0
@@ -478,9 +478,9 @@
     "tests": {
       "domain": "tests",
       "md_files": 14,
-      "py_files": 76,
+      "py_files": 77,
       "yaml_files": 0,
-      "code_lines": 22445,
+      "code_lines": 22711,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
@@ -492,7 +492,7 @@
       "secret_hits": 0,
       "observed_hits": 4,
       "api_routes": 0,
-      "test_refs": 202,
+      "test_refs": 213,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -513,7 +513,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 202
+        "TEST_NAME_MENTIONS": 213
       },
       "maturity": "INTEGRATED",
       "findings_count": 0

@@ -143,6 +143,16 @@ jobs:
         # مُعلَن في الأداة مخالفة، وكل مُعلَن غائب مخالفة كذلك.
         run: python tools/governance/check_root_file_names.py .
 
+      # W-077: دعوى «الحرسُ مُجرَّبٌ في كلِّ دفعةٍ» كانتْ مكتوبةً ولا خطوةَ تُشغِّلُ
+      # المِسبارَ (`DISC-032` · `DISC-037`). وموضِعُها هنا معنًى لا حيلةً: المِسبارُ
+      # يُشغِّلُ فحوصَ `tests/governance/` فرعًا بعدَ إحداثِ العَطبِ، وهذه الوظيفةُ
+      # وحدَها تُشغِّلُ ذلك الدليلَ كلَّه (بوّابةُ 5) وفيها تبعيّاتُه مُنصَّبةٌ.
+      # والكلفةُ مقيسةٌ لا مُخمَّنةٌ: 4م 31ث محليًّا لـ 31 وثبةً في ستِّ دعاوى،
+      # وكلُّها مُلتقَطةٌ. والمِسبارُ يُعيدُ الشجرةَ بينَ وثبتَينِ ويُعلِنُ ما تعذّرَ،
+      # فحمرتُه دلالةٌ لا ضجيجٌ.
+      - name: بوابة 9 — الحرسُ مُجرَّبٌ بإعادةِ العَطبِ (مِسبارُ الوَثبِ · W-077)
+        run: python tools/governance/mutation_probe.py
+
   ledger-gate:
     name: Completion Ledger (القاعدة الملزمة — التوثيقُ قبلَ الدفع)
     runs-on: ubuntu-latest
@@ -215,6 +225,19 @@ jobs:
         run: |
           pip install -r requirements-dev.txt
           pytest tests/governance/test_work_governance_gate.py -v --tb=short
+
+      # W-077: أدواتٌ حاكمةٌ كانتْ تُشغَّلُ باليدِ وحدَها، فحكمُها على الشجرةِ
+      # الحقيقيّةِ كانَ يُترَكُ للذّاكرةِ لا للبوّابةِ (`DISC-037`). وموضِعُها هنا
+      # لأنَّ هذه الوظيفةَ تقرأُ السِّجلّاتِ بالمكتبةِ القياسيّةِ وحدَها، والأدواتُ
+      # الثلاثُ مكتبيّةُ قياسٍ بلا تبعيّةٍ — وحرسُ ذلكَ `gate_dependency_closure.py`.
+      - name: بوابة 4 — دعوى «يُشغَّلُ في كلِّ دفعةٍ» لا تُقبَلُ بلا طريقِ إنفاذٍ
+        run: python tools/governance/guard_enforcement_closure.py
+
+      - name: بوابة 5 — وثائقُ الحالةِ لا تتخلّفُ عن أحدثِ قيدٍ في السِّجلِّ
+        run: python tools/governance/state_document_drift.py
+
+      - name: بوابة 6 — كلُّ سجلٍّ مفتوحٍ له مرسًى ومالِكٌ
+        run: python tools/governance/open_record_accountability.py
 
   constitutional-kernel:
     name: Constitutional Kernel (E1 — بوابات الدستور)
