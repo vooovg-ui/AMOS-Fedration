@@ -45,6 +45,7 @@
 | WI-022 | docs-general | T0 / T0.4ب (صدقُ السجلِّ في موضعِه · إعادةُ تقييمِ `DISC-034` بقياسٍ صحيحٍ) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | CLOSED | PROJECT_STATE.md · docs/PROJECT_HANDBOOK.md · وسجلّاتٌ مُعفاةٌ من الحجزِ تُمَسُّ ولا تُدَّعى مِلكًا: ACTIVE_WORK.md · DISCOVERIES.md · RISK_REGISTER.md · COMPLETION_LEDGER.md · TRUTH_MATRIX.md المولَّدة | 2026-08-31 | 2026-09-07 | — | مُنجَزٌ · مساراهُ انفكّا (§ 6.1) · وقرارُ `origin/develop` بيدِ المالكِ بثلاثةِ خياراتٍ | W-072 · دفعٌ مباشرٌ إلى main (`fb70f47`) · حكمُ CI على عقدةِ القيدِ **قُرِئَ أخضرَ 13/13** (تشغيلُ 33348727892 · `completed success` · و`ci_verdict_readability.py --from-json` ⇒ `READABLE · 13/13`) · مُسلَّمٌ للمراجعةِ 2026-08-31 · مُراجَعٌ 2026-08-31 (`A-2` · غيرُ مستقلٍّ) بعدَ خُضرةٍ مقروءةٍ ثانيةٍ 13/13 على `afae5e0` (تشغيلُ 33350334816 · `READABLE`) · **مُغلَقٌ 2026-08-31 بـ`W-075`** بعدَ خُضرةٍ مقروءةٍ ثالثةٍ 13/13 على `2a5c1f6` (تشغيلُ 33351966117 · `READABLE`) |
 | WI-023 | tooling-gates | T0 / T0.4ب (قابليّةُ القياسِ — دعوى «يُشغَّلُ في كلِّ دفعةٍ» تُقاسُ قبلَ أن تُقبَلَ سندًا) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/guard_enforcement_closure.py · tests/governance/test_w077_guard_enforcement_closure.py · .github/workflows/ci.yml · PROJECT_STATE.md · docs/PROJECT_HANDBOOK.md · وسجلّاتٌ مُعفاةٌ من الحجزِ تُمَسُّ ولا تُدَّعى مِلكًا: ACTIVE_WORK.md · DISCOVERIES.md · COMPLETION_LEDGER.md · docs/audit/TRUTH_MATRIX.md وdocs/audit/truth_matrix.json المولَّدتانِ بالأداةِ | 2026-08-31 | 2026-09-07 | — | **المراجعةُ بيدِ المالكِ**: `VERIFIED` ثمَّ `CLOSED` قرارُه لا قرارُ منفِّذٍ — والمراجعةُ **ليست مستقلَّةً** بنصِّ `A-2` (`DISC-027` · `RK-020`) | W-078 · حكمُ عقدةِ `4764a12` مقروءٌ **13/13 · READABLE** (تشغيلُ 33391458311) |
 | WI-024 | tooling-gates | T0 / T0.4ب (قابليّةُ القياسِ — «أداةٌ حاكمةٌ لا تُشغَّلُ» تُقاسُ وتُعلِنُ سببَها) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/enforcement_path_ledger.py · tests/governance/test_w079_enforcement_path_ledger.py · tools/audit/final_audit.py · tools/audit/judicial_gate_probe.py · tools/audit/treasury_gate_probe.py · tools/governance/ci_verdict_readability.py · tools/governance/constitutional_reconciliation.py · tools/governance/evidence_registry.py · tools/governance/gate_dependency_closure.py · tools/governance/schema_inventory_drift.py · tools/governance/sovereign_decision_status.py · tools/migrations/r4_unify_agent_identity.py · tools/stubs/registry_check.py | 2026-08-31 | 2026-09-08 | — | كتابةُ الأداةِ وفحوصِها ثمَّ إعلانُ طريقِ الإنفاذِ في ترويسةِ كلِّ أداةٍ غيرِ مربوطةٍ (`W-080`) | W-079 · الحجزُ وقياسُ خطِّ الأساسِ |
+| WI-025 | audit-truth | T0 / T0.4ب (‏صدقُ القياسِ — القياسُ المنشورُ يُفتَّحُ بما يُقاسُ لا بإحداثيٍّ في المصدرِ) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_PROGRESS | tools/audit/sovereign_write_inventory.py · tests/governance/test_w083_measurement_site_key.py · docs/audit/measurements/write_inventory_p13.json · docs/audit/measurements/README.md | 2026-08-31 | 2026-09-08 | — | نقلُ مفتاحِ موقعِ الكتابةِ من رقمِ السطرِ إلى (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ) وإعادةُ توليدِ القياسِ المنشورِ بفحوصٍ تُثبِتُ أنَّ الإنفاذَ لم يُخفَّفْ (`W-084`) | W-083 · الحجزُ وفحصُ التداخلِ |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
 
@@ -1470,4 +1471,53 @@
   - **والعددُ المقيسُ هنا 11 لا 13**: جردُ `W-077` عَدَّ مكتبةً بلا مدخلٍ أداةً (`mutation_claims.py`)، وعَدَّ ثلاثًا يُشغِّلُها فحصٌ يحكُمُ على الشجرةِ الحاضرةِ أدواتٍ غيرَ مربوطةٍ (`live_truth.py` · `sovereign_write_inventory.py` · `surface_debt_trend.py`)، وقصَرَ نظرَه على مجلَّدَينِ من خمسةٍ فغابَ عنه `tools/migrations` و`tools/stubs` — فالتصحيحُ مقيسٌ لا مُقدَّرٌ
   - **ولا يُصلَحُ جردُ `guard_enforcement_closure.py`** في هذا البندِ: مسارُه مقفولٌ (§ 6.1)، ونقصُه مقيسٌ ومُقيَّدٌ اكتشافًا — والتصحيحُ في بندٍ تالٍ بعدَ إغلاقِ `WI-023`
 قيدُ السجلّ: W-082 · حكمُ عقدةِ `W-081` قُرِئَ أخضرَ 13/13 · READABLE فسُلِّمَ البندُ للمراجعةِ · وقبلَه W-081 · قُيِّدَ سببُ الحمرةِ (‏`DISC-039`) · وقبلَه W-080 · السجلُّ قائمٌ ويُسقِطُ: 43 ملفًّا مقيسًا · 11 إعلانًا مُصنَّفًا · 22 فحصًا خضراءَ (‏وقبلَه W-079 · الحجزُ وقياسُ خطِّ الأساسِ)
+```
+
+### WI-025 — القياسُ المنشورُ يُفتَّحُ بما يُقاسُ لا برقمِ سطرٍ، فلا يتقادمُ من تعديلِ ترويسةٍ ولا يُخفي انتقالَ موقعٍ
+
+```text
+النطاق: audit-truth
+المسار/المرحلة: T0 / T0.4ب (‏صدقُ القياسِ — بوّابةُ طزاجةٍ تُعاقِبُ ما لا يُقاسُ تُعلِّمُ العاملَ أن يتجنَّبَ الصوابَ)
+المالك: Driving H            المراجع: المالك (`A-2` · غيرُ مستقلٍّ)
+الحالة: IN_PROGRESS
+المسارات:
+  tools/audit/sovereign_write_inventory.py                       (حِملُ `--json` وحدَه · ولا يُمَسُّ منطقُ الجردِ ولا العدُّ ولا التصنيفُ)
+  tests/governance/test_w083_measurement_site_key.py             (فحوصٌ في شجرةٍ مؤقَّتةٍ · تُثبِتُ الطزاجةَ والإنفاذَ معًا)
+  docs/audit/measurements/write_inventory_p13.json               (يُعادُ توليدُه بأمرِه المُقيَّدِ لا بيدٍ)
+  docs/audit/measurements/README.md                              (‏يُعلَنُ فيه مفتاحُ الموقعِ وحدُّه)
+  وسجلّاتُ الحالةِ والحوكمةِ **لا تُدَّعى في مساراتِ هذا البندِ**: هي مُعلَنةٌ في مساراتِ `WI-023` وتُمَسُّ بحكمِ واجبِ § 7 (‏`CLAIM_CONFLICT` § 6.1)
+فحصُ التداخلِ (§ 6.2) — نتيجتُه تُقيَّدُ ولو كانت «لا تداخل»:
+  - `WI-023` (`IN_REVIEW`) يقفلُ `.github/workflows/ci.yml` و`tools/governance/guard_enforcement_closure.py` — **ولا يلمسُهما هذا البندُ**
+  - `WI-024` (`IN_REVIEW`) يقفلُ `tools/governance/enforcement_path_ledger.py` وترويساتِ أحدَ عشرَ ملفًّا ومنها `tools/audit/final_audit.py` — و`final_audit.py` **قارئٌ** لجردِ الكتاباتِ، فقُيسَ من مصدرِه أنَّه لا يقرأُ حقلَ السطرِ، فلا يُمَسُّ ولا يحتاجُ مسًّا: **لا تداخل**
+  - `tools/governance/measurement_provenance.py` **غيرُ محجوزٍ** ولا يُمَسُّ عمدًا: المقارنةُ لا تُخفَّفُ ولا يُضافُ لها استثناءٌ — الإصلاحُ في **مصدرِ** القياسِ لا في **حاكمِه** (وإلّا صارَ الحلُّ إسكاتَ بوّابةٍ)
+  - قارئا الجردِ الآخرانِ `tools/governance/surface_debt_trend.py` و`tools/audit/decision_gate.py` قِيسَ أنَّهما يقرآنِ `summary` لا `sites`: **لا تداخل**
+  - لا جدولَ ولا migration ولا مسارَ API ولا عقدَ ولا سرَّ ولا مورِدَ تشغيلٍ · ولا قرارَ `Q-###` مفتوحًا يتوقَّفُ عليه هذا البندُ · وفئةُ التغييرِ `C0` (‏حِملُ مُخرَجِ تدقيقٍ · بلا تغيُّرِ سلوكٍ مقيسٍ) لا `C3` ولا `C4`
+خارجَ النطاق:
+  - **لا يُخفَّفُ حاكمُ الطزاجةِ**: لا استثناءَ حقلٍ في `measurement_provenance.py` ولا تسامحَ في المقارنةِ ولا حذفَ قيدٍ من العقدِ
+  - **لا يُمَسُّ العدُّ ولا التصنيفُ**: 217 موقعًا تبقى 217، والمجاميعُ في `summary` كما هي — ومن أرادَ تغييرَ ما يُعَدُّ فبندٌ آخرُ وقيدٌ آخرُ
+  - **لا يُصلَحُ جردُ `guard_enforcement_closure.py`** (`DISC-038`) ولا تُضافُ خطوةُ تشغيلٍ في `ci.yml`: مساراتٌ مقفولةٌ بـ`WI-023` (§ 6.1)
+  - **لا تُحسَمُ قراراتُ المالكِ**: مراجعةُ `WI-023` و`WI-024` · `origin/develop` · سرُّ `T0.6` · `A-3` · استقلالُ المراجعةِ · أسئلةُ `T2`
+معيارُ القبول:
+  1. مفتاحُ الموقعِ في حِملِ `--json` صارَ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ داخلَ الثلاثةِ) — **ورقمُ السطرِ يُرفَعُ من الحِملِ** ويبقى في بنيةِ الأداةِ لقارئٍ بشريٍّ ولِفحوصٍ قائمةٍ تقرأُه
+  2. الحِملُ مرتَّبٌ ترتيبًا قاطعًا لا يتبعُ ترتيبَ الأسطرِ — فنقلُ دالّةٍ في ملفِّها لا يُحرِّكُ حرفًا في القياسِ المنشورِ
+  3. **الإنفاذُ لم يُخفَّفْ بقياسٍ لا بدعوى**: إضافةُ موقعِ كتابةٍ · حذفُه · إعادةُ تسميتِه · تغيُّرُ ما يكتبُه · عبورُه الحدَّ أو تركُه — كلٌّ منها يُحرِّكُ الحِملَ فتسقُطُ بوّابةُ الطزاجةِ
+  4. إدخالُ سطرِ ترويسةٍ أو تعليقٍ في ملفٍّ إنتاجيٍّ **لا يُحرِّكُ** الحِملَ — وهو عينُ ما أسقطَ CI في `W-080`
+  5. موقعانِ يتشاركانِ المسارَ والمالكَ والدالّةَ يبقيانِ متمايزَينِ بالرتبةِ — فلا يُدمَجانِ ولا يُسقَطُ أحدُهما بحجّةِ تكرارٍ
+  6. قارئو الجردِ الثلاثةُ يبقونَ عاملينَ بلا مسٍّ: `final_audit.py` · `surface_debt_trend.py` · `decision_gate.py`
+  7. `measurement_provenance.py . --check` **كاملًا** رمزُ 0 · والبوّاباتُ كلُّها رمزُ 0 · والسقّاطةُ ثابتةٌ عندَ 63 · وحكمُ CI يُقرأُ برقمِ تشغيلٍ لكلِّ عقدةِ دفعٍ
+الدليلُ المطلوب:
+  python -m pytest tests/governance/test_w083_measurement_site_key.py -q
+  python tools/audit/sovereign_write_inventory.py --json docs/audit/measurements/write_inventory_p13.json
+  python tools/governance/measurement_provenance.py . --check      # المتوقَّع: عقدٌ مستقيمٌ · رمزُ 0
+  python tools/audit/final_audit.py · surface_debt_trend.py · decision_gate.py --gate W1
+  python tools/governance/truth_audit.py . --ratchet               # المتوقَّع: ثابتٌ عندَ 63
+  ruff check . && python -m pytest tests/governance/ -q
+بدأ: 2026-08-31        ينتهي الحجز: 2026-09-08
+العائق: —
+الخطوةُ التالية: نقلُ المفتاحِ وكتابةُ الفحوصِ وإعادةُ توليدِ القياسِ المنشورِ (`W-084`)
+حدُّ البندِ — مُعلَنٌ لا مطويٌّ:
+  - **هذا يرفعُ إنذارًا كاذبًا ولا يزيدُ ما يُقاسُ**: القياسُ يبقى ساكنًا من الشِفرةِ، وما لا يراه الجردُ اليومَ لا يراه بعدَ هذا البندِ
+  - **الرتبةُ مفتاحٌ نسبيٌّ**: لو أُضيفَ موقعٌ ثانٍ بالاسمِ نفسِه في الدالّةِ نفسِها تنزاحُ رُتَبُ ما بعدَه — وذاك **تغيُّرٌ حقيقيٌّ في الجردِ** يُقصَدُ ظهورُه، لا تقادمًا كاذبًا
+  - **حقلُ السطرِ لا يُحذَفُ من الأداةِ**: فحوصٌ قائمةٌ تقرأُه من البنيةِ (`test_measurement_ignores_environments.py` · `test_step7_factory_surfaces.py`)، وحذفُه كسرٌ لا إصلاحٌ
+قيدُ السجلّ: W-083 · الحجزُ وفحصُ التداخلِ
 ```
