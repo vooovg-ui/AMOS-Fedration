@@ -3,6 +3,7 @@
 # النطاق: federal/executive/services/tests
 # المالك: federal/executive/services
 # تاريخ الإنشاء: 2026-08-15
+# تاريخ آخر تعديل: 2026-09-01
 
 """Pytest configuration for AMOS-Federation tests.
 
@@ -13,6 +14,7 @@ flaky tests caused by stale SQLite files. Never touches production DB.
 import contextlib
 import os
 import shutil
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -26,14 +28,23 @@ os.environ["AMOS_ENVIRONMENT"] = "test"
 # المكتوبة لدلالات SQLite لا تقبل هذا التحويل، وتحويلها قسرًا كان يُنتج فشلًا
 # زائفًا وإرهاقًا لتجمّع اتصالات المزوّد. من يريد PostgreSQL يطلبه صراحةً عبر
 # التجهيزة postgres_url أدناه.
-SQLITE_TEST_URL = "sqlite:///amos_federation_test.db"
+# موضعُ أثرِ التشغيلِ مُطلَقٌ لا نسبيٌّ (‏`W-087` · `WI-026` · `DISC-029`):
+# قِيسَ أنَّ رابطًا نسبيًّا يكتبُ `amos_federation_test.db` في **مجلَّدِ تشغيلِ
+# pytest** — أي في جذرِ المستودعِ عندَ تشغيلِ المجموعِ منه — فيُحمِّرُ
+# `check_root_file_names.py --source disk` بـ`UNDECLARED_ROOT_FILE`، والملفُّ
+# مُستبعَدٌ من الفهرسةِ فلا يُقيَّدُ أبدًا؛ والتنظيفُ أدناه يفتِّشُ مجلَّدَ
+# الخدماتِ فلا يراهُ أصلًا. والقرارُ المعماريُّ (‏`E2.2-G`) لم يُمَسَّ: اللهجةُ
+# ما زالت SQLite قسرًا للحزمةِ كلِّها — وما تغيَّرَ موضعُ الملفِّ وحدَه.
+TEST_ARTIFACT_DIR = Path(tempfile.mkdtemp(prefix="amos-services-tests-"))
+TEST_DB_PATH = TEST_ARTIFACT_DIR / "amos_federation_test.db"
+SQLITE_TEST_URL = f"sqlite:///{TEST_DB_PATH}"
 os.environ["AMOS_DATABASE_URL"] = SQLITE_TEST_URL
 
 os.environ.setdefault("AMOS_JWT_SECRET", "test_secret_at_least_32_characters_long")
 os.environ.setdefault("AMOS_CLAUDE_API_KEY", "test_key_not_real")
 
 # Test-only database file (never touch production files)
-TEST_DB_FILE = "amos_federation_test.db"
+TEST_DB_FILE = TEST_DB_PATH.name
 
 
 def postgres_tests_enabled() -> bool:
@@ -190,17 +201,25 @@ def purge_agents(session) -> None:  # noqa: ANN001 — Session من SQLAlchemy
     session.execute(sa_text("DELETE FROM agents"))
 
 
-def _cleanup_test_db(workspace: Path) -> None:
-    """Remove only the test database file, never production files."""
-    for db_file in workspace.glob(TEST_DB_FILE):
+def _cleanup_test_db(artifact_dir: Path) -> None:
+    """Remove only the test database file, never production files.
+
+    ‏`artifact_dir` هو المجلَّدُ الذي كُتِبَ فيه الأثرُ فعلًا (`W-087`): كانَ
+    الرابطُ نسبيًّا فيُكتَبُ في مجلَّدِ التشغيلِ ويُفتَّشُ في مجلَّدٍ آخرَ، فصارَ
+    الموضعُ مُطلَقًا ويُنظَّفُ حيثُ كُتِبَ.
+    """
+    for db_file in artifact_dir.glob(TEST_DB_FILE):
         with contextlib.suppress(OSError):
             db_file.unlink()
     # Also clean test-related journal files
     for pattern in (TEST_DB_FILE + "-*", TEST_DB_FILE + "-wal", TEST_DB_FILE + "-shm"):
-        for f in workspace.glob(pattern):
+        for f in artifact_dir.glob(pattern):
             with contextlib.suppress(OSError):
                 f.unlink()
-    # Clean egg-info cache if present
+
+
+def _cleanup_egg_info(workspace: Path) -> None:
+    """Clean egg-info cache if present — سلوكٌ قائمٌ لم يُمَسَّ، أُفرِزَ وحدَه."""
     for egg_dir in workspace.glob("*.egg-info"):
         with contextlib.suppress(OSError):
             shutil.rmtree(egg_dir, ignore_errors=True)
@@ -236,14 +255,17 @@ def _cleanup_test_ledger(workspace: Path) -> Path:
 def pytest_sessionstart(session):
     """Clean up test database before test session starts."""
     workspace = Path(__file__).resolve().parent.parent
-    _cleanup_test_db(workspace)
+    # الأثرُ يُكتَبُ في مجلَّدٍ مُطلَقٍ خارجَ الشجرةِ، فيُنظَّفُ حيثُ كُتِبَ (`W-087`).
+    _cleanup_test_db(TEST_ARTIFACT_DIR)
+    _cleanup_egg_info(workspace)
     os.environ["AMOS_EXECUTIVE_IDEMPOTENCY_LEDGER"] = str(_cleanup_test_ledger(workspace))
 
 
 def pytest_sessionfinish(session, exitstatus):
     """Clean up test database after test session ends."""
     workspace = Path(__file__).resolve().parent.parent
-    _cleanup_test_db(workspace)
+    _cleanup_test_db(TEST_ARTIFACT_DIR)
+    _cleanup_egg_info(workspace)
     _cleanup_test_ledger(workspace)
 
 

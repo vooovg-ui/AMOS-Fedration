@@ -3,7 +3,7 @@
 النطاق: جذرُ المستودع — يُحمَّل تلقائيًّا قبلَ جمعِ أيِّ اختبار.
 المالك: governance/
 تاريخ الإنشاء: 2026-08-21
-تاريخ آخر تعديل: 2026-08-29
+تاريخ آخر تعديل: 2026-09-01
 
 ## المشكلةُ المقيسة (O-1N-1)
 
@@ -37,6 +37,21 @@ amos_federation` — **لم تُقَسْ فحوصُ فصلِ الإنفاذِ ا
 مُركَّبةً** — وهو نمطُ `src-layout` المعروفُ. فتُنفَّذُ الفحوصُ الثلاثةُ حقًّا لا
 تُتخطّى. وملفُّ السيرِ نفسُه محجوزٌ للمالكِ (`DISC-006`) فلا يُعالَجُ فيه.
 
+## قاعدةُ التشغيلِ لا تُكتَبُ في الجذرِ (‏`W-087` · `WI-026` · `DISC-029`)
+
+قِيسَ لا افتُرِض: `get_database_url()` في
+`federal/executive/services/src/amos_federation/common/database.py` يهبِطُ — بلا
+`AMOS_DATABASE_URL` — إلى `os.getcwd()/amos_federation.db`، وتشغيلُ الاختباراتِ
+من جذرِ المستودعِ يُنشئُ الملفَّ في **الجذرِ**. والملفُّ مُستبعَدٌ بـ`*.db` في
+`.gitignore` فلا يُقيَّدُ أبدًا، فبوّابةُ أسماءِ الجذرِ خضراءُ في CI (‏تقرأُ
+`git ls-files`) وحمراءُ على قرصِ كلِّ مَن أعادَ التشغيلَ بـ`UNDECLARED_ROOT_FILE`
+— وحمرةٌ لا تدُلُّ على عَطبٍ في المستودعِ تُعلِّمُ تطبيعَ الحمرةِ (`RK-005`).
+
+والمعالجةُ هي معالجةُ سجلِّ الأذونِ نفسُها ولا جديدَ في نمطِها: إعلانٌ صريحٌ في
+البيئةِ لمدى التشغيلِ وحدَه. والموضعُ الافتراضيُّ الإنتاجيُّ **لا يُنقَل** —
+نقلُه تغييرُ عقدٍ لا عزلُ أثرٍ — ولا يُخفَّفُ حرسُ أسماءِ الجذرِ ولا يُعلَنُ
+الأثرُ استثناءً فيه. وإن كانت البيئةُ تُعلِنُ رابطًا سلفًا فهو أَولى.
+
 ## لماذا اسمُ المُتغيّرِ مكتوبٌ حرفًا لا مُستورَدًا
 
 استيرادُ `core.sovereignty.enforcement` هنا يُلزِمُ `cryptography` في **كلِّ**
@@ -60,6 +75,17 @@ CONSUMED_PERMITS_PATH_ENV = "AMOS_CONSUMED_PERMITS_PATH"
 if not os.environ.get(CONSUMED_PERMITS_PATH_ENV, "").strip():
     موضع = Path(tempfile.mkdtemp(prefix="amos-runtime-permits-"))
     os.environ[CONSUMED_PERMITS_PATH_ENV] = str(موضع / "CONSUMED_PERMITS.json")
+
+
+#: نسخةٌ حرفيّةٌ من اسمِ المُتغيّرِ الذي يقرؤه `amos_federation.common.database`
+#: — محروسةٌ باختبارٍ يُقارنُ الحرفَينِ نصًّا (`W-087` · `DISC-029`). ولا
+#: يُستورَدُ المصدرُ هنا: استيرادُه يُلزِمُ `sqlalchemy` في كلِّ تشغيلِ pytest،
+#: ومنها بوّاباتٌ في CI لا تُركِّبُ إلّا `pytest`.
+DATABASE_URL_ENV = "AMOS_DATABASE_URL"
+
+if not os.environ.get(DATABASE_URL_ENV, "").strip():
+    موضع_القاعدة = Path(tempfile.mkdtemp(prefix="amos-runtime-db-"))
+    os.environ[DATABASE_URL_ENV] = f"sqlite:///{موضع_القاعدة / 'amos_federation.db'}"
 
 
 #: مُجلَّدُ مصادرِ حزمةِ خدماتِ الاتحاد (`src-layout`).
