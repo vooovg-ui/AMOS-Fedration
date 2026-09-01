@@ -265,7 +265,7 @@
       "md_files": 41,
       "py_files": 43,
       "yaml_files": 2,
-      "code_lines": 14040,
+      "code_lines": 14069,
       "nucleus_count": 12,
       "nucleus_status": {
         "unspecified": 12
@@ -480,7 +480,7 @@
       "md_files": 14,
       "py_files": 79,
       "yaml_files": 0,
-      "code_lines": 23446,
+      "code_lines": 23491,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5

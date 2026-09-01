@@ -11,7 +11,7 @@
     فتشغيلُ الطفراتِ نفسُه في `tools/governance/mutation_probe.py`.
 المالك: tests/governance — ديوانُ التدقيق، بتفويضٍ من المجلس التأسيسي
 تاريخ الإنشاء: 2026-08-29
-تاريخ آخر تعديل: 2026-08-29
+تاريخ آخر تعديل: 2026-09-01 (W-093 — الدعوى تُقرأُ بإعلانٍ صريحٍ · `DISC-033`)
 
 الحدُّ المُعلَنُ — لا مطويٌّ:
     هذا الملفُّ **لا يُثبِتُ أنَّ الطفرةَ تُمسَكُ**؛ المِسبارُ وحدَه يُثبِتُ ذلك
@@ -100,21 +100,20 @@ def test_unregistered_list_and_registered_list_never_overlap():
 
 
 def test_declared_gap_covers_every_ledger_entry_that_claims_a_mutation():
-    """كلُّ قيدٍ يذكرُ طفرةً في السجلِّ: إمّا مُسجَّلٌ هنا وإمّا مُسمّى في النقصِ.
+    """كلُّ قيدٍ **مُدَّعٍ** في السجلِّ: إمّا مُسجَّلٌ هنا وإمّا مُسمّى في النقصِ.
 
     هذا هو الحرسُ الذي يمنعُ قراءةَ النقصِ اكتمالًا: يومَ يُقيَّدُ قيدٌ جديدٌ
-    يدَّعي طفرةً ولا يُسجِّلُها ولا يُعلِنُها ناقصةً، يسقُطُ هذا الفحصُ.
+    يُعلِنُ دعوى مِسبارٍ ولا يُسجِّلُها ولا يُعلِنُها ناقصةً، يسقُطُ هذا الفحصُ.
+
+    وقراءةُ «مَن هو المُدَّعي» صارت في `mutation_claims.rows_claiming_a_probe`
+    بإعلانٍ صريحٍ لا بجذرِ كلمةٍ (`DISC-033` · `W-093`).
     """
     text = LEDGER.read_text(encoding="utf-8")
-    claiming: set[str] = set()
-    for line in text.splitlines():
-        head = re.match(r"\| (W-\d{3}) \|", line)
-        if head and ("طفر" in line or "تحوّر" in line):
-            claiming.add(head.group(1))
-    assert claiming, "لا قيدَ يذكرُ طفرةً — القياسُ لم يقرأِ السجلَّ"
+    claiming = claims.rows_claiming_a_probe(text)
+    assert claiming, "لا قيدَ مُدَّعٍ يُقرَأُ — القياسُ لم يقرأِ السجلَّ"
     accounted = {c.work for c in claims.CLAIMS} | set(claims.UNREGISTERED_WORK)
     unaccounted = sorted(work for work in claiming if work not in accounted)
-    assert not unaccounted, f"قيودٌ تدَّعي طفرةً ولا تُعلَنُ حالتُها: {unaccounted}"
+    assert not unaccounted, f"قيودٌ مُدَّعيةٌ ولا تُعلَنُ حالتُها: {unaccounted}"
 
 
 def test_every_registered_mutation_still_has_one_place_in_the_tree():
@@ -146,3 +145,75 @@ def test_each_new_claim_names_its_own_living_test_file(work):
     assert claim.tests, work
     for relative in claim.tests:
         assert (ROOT / relative).is_file(), relative
+
+
+# ——— قراءةُ الدعوى: إعلانٌ صريحٌ لا جذرُ كلمةٍ (`DISC-033` · W-093) ———
+
+
+def _row(work: str, body: str) -> str:
+    """صفُّ § 8 مُصطَنَعٌ — يُقاسُ عليه القارئُ بلا مسِّ السجلِّ الحقيقيِّ."""
+    return f"| {work} | 2026-09-01 | خطوة | {body} | بقي | دليل |\n"
+
+
+def test_the_reserved_phrase_marks_a_claim():
+    assert claims.rows_claiming_a_probe(
+        _row("W-500", f"هذا القيدُ فيه {claims.CLAIM_MARKER} بأرقامٍ مقيسةٍ")
+    ) == {"W-500"}
+
+
+def test_a_word_root_alone_is_not_a_claim():
+    """شكلُ `DISC-033` بعينِه: لفظُ القفزِ في عبارةِ حالةٍ لا يُقرَأُ دعوى."""
+    text = _row("W-501", "§ 4.3 لا يُجيزُ الطفرَ من IN_REVIEW إلى CLOSED")
+    text += _row("W-502", "ولا الوثبَ ولا التحوّرَ في حالةِ بندٍ")
+    assert claims.rows_claiming_a_probe(text) == set()
+
+
+def test_prose_outside_a_row_is_not_a_claim():
+    assert claims.rows_claiming_a_probe(
+        f"نصٌّ حرٌّ يذكرُ W-503 و{claims.CLAIM_MARKER} في فقرةٍ لا في صفٍّ.\n"
+    ) == set()
+
+
+def test_legacy_rows_are_still_read_as_claims():
+    """ما قرأَهُ الجذرُ قبلَ حجزِ العبارةِ مُجمَّدٌ: لا يُفلِتُ بصياغةٍ جديدةٍ."""
+    legacy = sorted(claims.LEGACY_CLAIM_ROWS)[0]
+    assert claims.rows_claiming_a_probe(_row(legacy, "بلا لفظٍ ولا عبارةٍ")) == {legacy}
+
+
+def test_legacy_roster_is_not_empty_and_is_frozen():
+    assert len(claims.LEGACY_CLAIM_ROWS) == 13
+    assert isinstance(claims.LEGACY_CLAIM_ROWS, frozenset)
+
+
+def test_every_legacy_row_still_has_a_row_in_the_ledger():
+    """معرِّفٌ مُجمَّدٌ بلا صفٍّ في § 8 دعوى بلا موضِعٍ — يُسقِطُ."""
+    text = LEDGER.read_text(encoding="utf-8")
+    present = set(re.findall(r"\|\s*(W-\d{3})\s*\|", text))
+    missing = sorted(claims.LEGACY_CLAIM_ROWS - present)
+    assert not missing, missing
+
+
+def test_every_legacy_row_declares_its_state():
+    accounted = {c.work for c in claims.CLAIMS} | set(claims.UNREGISTERED_WORK)
+    assert not sorted(claims.LEGACY_CLAIM_ROWS - accounted)
+
+
+def test_a_new_declared_claim_that_is_not_accounted_would_fail_the_guard():
+    """الحرسُ ما زالَ يعَضُّ: صفٌّ يُعلِنُ دعوى ولا يُعلِنُ حالتَه غيرُ محسوبٍ."""
+    claiming = claims.rows_claiming_a_probe(
+        _row("W-504", f"{claims.CLAIM_MARKER} بلا تسجيلٍ ولا إعلانِ نقصٍ")
+    )
+    accounted = {c.work for c in claims.CLAIMS} | set(claims.UNREGISTERED_WORK)
+    assert sorted(work for work in claiming if work not in accounted) == ["W-504"]
+
+
+def test_the_real_ledger_has_no_unaccounted_declared_claim():
+    text = LEDGER.read_text(encoding="utf-8")
+    accounted = {c.work for c in claims.CLAIMS} | set(claims.UNREGISTERED_WORK)
+    assert sorted(claims.rows_claiming_a_probe(text) - accounted) == []
+
+
+def test_reading_the_ledger_writes_nothing():
+    before = LEDGER.read_bytes()
+    claims.rows_claiming_a_probe(before.decode("utf-8"))
+    assert LEDGER.read_bytes() == before
