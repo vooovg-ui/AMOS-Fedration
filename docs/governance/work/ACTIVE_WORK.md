@@ -47,7 +47,7 @@
 | WI-024 | tooling-gates | T0 / T0.4ب (قابليّةُ القياسِ — «أداةٌ حاكمةٌ لا تُشغَّلُ» تُقاسُ وتُعلِنُ سببَها) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/enforcement_path_ledger.py · tests/governance/test_w079_enforcement_path_ledger.py · tools/audit/final_audit.py · tools/audit/judicial_gate_probe.py · tools/audit/treasury_gate_probe.py · tools/governance/ci_verdict_readability.py · tools/governance/constitutional_reconciliation.py · tools/governance/evidence_registry.py · tools/governance/gate_dependency_closure.py · tools/governance/schema_inventory_drift.py · tools/governance/sovereign_decision_status.py · tools/migrations/r4_unify_agent_identity.py · tools/stubs/registry_check.py | 2026-08-31 | 2026-09-08 | — | كتابةُ الأداةِ وفحوصِها ثمَّ إعلانُ طريقِ الإنفاذِ في ترويسةِ كلِّ أداةٍ غيرِ مربوطةٍ (`W-080`) | W-079 · الحجزُ وقياسُ خطِّ الأساسِ |
 | WI-025 | audit-truth | T0 / T0.4ب (‏صدقُ القياسِ — القياسُ المنشورُ يُفتَّحُ بما يُقاسُ لا بإحداثيٍّ في المصدرِ) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/audit/sovereign_write_inventory.py · tests/governance/test_w083_measurement_site_key.py · docs/audit/measurements/write_inventory_p13.json · docs/audit/measurements/README.md | 2026-08-31 | 2026-09-08 | — | مراجعةٌ ثمَّ `VERIFIED` — بيدِ المراجعِ لا بيدِ صاحبِ التغييرِ (§ 4.3) | W-085 · حكمُ عقدةِ `W-084` أخضرُ 13/13 · READABLE |
 | WI-026 | tooling-gates | T0 (قابليّةُ القياسِ · حالةُ تشغيلٍ تُكتَبُ في الشجرةِ فتُحمِّرُ بوّابةً على أثرٍ غيرِ مُفهرَسٍ) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | conftest.py · tests/governance/test_runtime_state_stays_outside_the_tree.py · federal/executive/services/tests/conftest.py | 2026-09-01 | 2026-09-08 | — | مراجعةٌ ثمَّ `VERIFIED` — بيدِ المراجعِ لا بيدِ صاحبِ التغييرِ (§ 4.3) | W-088 · حكمُ عقدةِ `W-087` أخضرُ 13/13 · READABLE |
-| WI-027 | audit-truth | T0 (قابليّةُ القياسِ · حرسُ انحرافٍ يقيسُ أقصى ذكرٍ في النصِّ لا الحقلَ الذي تُعلِنُه الوثيقةُ حالةً) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_PROGRESS | tools/governance/state_document_drift.py · tests/governance/test_w057_state_document_drift.py | 2026-09-01 | 2026-09-08 | — | قراءةُ حكمِ CI برقمِ تشغيلٍ ثمَّ تسليمُ البندِ للمراجعةِ | W-090 |
+| WI-027 | audit-truth | T0 (قابليّةُ القياسِ · حرسُ انحرافٍ يقيسُ أقصى ذكرٍ في النصِّ لا الحقلَ الذي تُعلِنُه الوثيقةُ حالةً) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/state_document_drift.py · tests/governance/test_w057_state_document_drift.py | 2026-09-01 | 2026-09-08 | — | مراجعةٌ ثمَّ `VERIFIED` — بيدِ المراجعِ لا بيدِ صاحبِ التغييرِ (§ 4.3) | W-091 · حكمُ عقدةِ `W-090` أخضرُ 13/13 · READABLE |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
 
@@ -1578,7 +1578,7 @@
 النطاق: audit-truth
 المسار/المرحلة: T0 (قابليّةُ القياسِ — بوّابةٌ خضراءُ على وثيقةٍ متأخِّرةٍ ثمانيةَ قيودٍ · `DISC-031`)
 المالك: Driving H            المراجع: المالك (`A-2` · غيرُ مستقلٍّ)
-الحالة: IN_PROGRESS
+الحالة: IN_REVIEW
 المسارات:
   tools/governance/state_document_drift.py                      (‏تُضافُ قراءةُ الحقلِ المُعلَنِ بمِرساةٍ مكتوبةٍ في الشِفرةِ · ولا تُمَسُّ الأنواعُ القائمةُ من المخالفاتِ)
   tests/governance/test_w057_state_document_drift.py             (‏تُضافُ أوجهُ حرسٍ · ولا يُحذَفُ وجهٌ قائمٌ)
@@ -1610,10 +1610,10 @@
   python tools/governance/truth_audit.py . --ratchet                  # المتوقَّع: ثابتٌ عندَ 63
 بدأ: 2026-09-01        ينتهي الحجز: 2026-09-08
 العائق: —
-الخطوةُ التالية: قراءةُ حكمِ CI برقمِ تشغيلٍ لعقدةِ `W-090` ثمَّ تسليمُ البندِ للمراجعةِ — و`VERIFIED` فعلُ المراجعِ لا فعلُ صاحبِ التغييرِ (§ 4.3)
+الخطوةُ التالية: مراجعةُ البندِ ثمَّ `VERIFIED` ثمَّ `CLOSED` — فعلُ المراجعِ لا فعلُ صاحبِ التغييرِ (§ 4.3)، والمراجعُ المُعلَنُ هو المالكُ وليس مستقلًّا (`DISC-027` · `RK-020`)
 حدُّ البندِ — مُعلَنٌ لا مطويٌّ:
   - **هذا يقيسُ موضعَ الدعوى لا صدقَها**: حقلٌ يقولُ `W-089` ويكذِبُ في وصفِه يمرُّ — وذاك حدُّ الأداةِ المُعلَنُ منذُ `W-057` ولا يُدَّعى رفعُه
   - **والمِرساةُ مُعلَنةٌ في الشِفرةِ لا مُكتشَفةٌ**: وثيقةٌ تُعلِنُ حالتَها بحقلٍ لم يُسمَّ هنا لا يراها هذا الحرسُ — وهو الحدُّ نفسُه القائمُ في `STATE_DOCUMENTS`
   - **ولا يُقرأُ هذا إغلاقًا لِـ`DISC-031`**: القيدُ يُقرأُ حالتَه بعدَ حكمٍ مقروءٍ ومراجعةٍ، وأثرُ العَطبِ على `PROJECT_STATE.md` صُحِّحَ في `W-065` والعَطبُ في القياسِ هو ما يُعالَجُ هنا
-قيدُ السجلّ: W-090 · المِرساةُ مكتوبةٌ وأربعةُ أنواعٍ تُسقِطُ · 53 وجهًا في فحصِ الأداةِ (‏وقبلَه W-089 · الحجزُ)
+قيدُ السجلّ: W-091 · حكمُ عقدةِ `W-090` قُرِئَ أخضرَ 13/13 · READABLE فسُلِّمَ البندُ للمراجعةِ (‏وقبلَه W-090 · المِرساةُ مكتوبةٌ وأربعةُ أنواعٍ تُسقِطُ · 53 وجهًا في فحصِ الأداةِ · وW-089 · الحجزُ)
 ```
