@@ -68,7 +68,7 @@ MEASURED = {
         "ANCHOR_FROM_WHOLE_ROW": 1,
     },
     "W-063": {
-        "GAP_LIST_SHRUNK": 2,
+        "GAP_LIST_SHRUNK": 4,
         "NUMBER_NOT_MEASURED": 2,
         "ITEM_ID_INVENTED": 2,
     },
