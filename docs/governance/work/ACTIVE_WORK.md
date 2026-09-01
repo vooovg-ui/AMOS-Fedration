@@ -46,6 +46,7 @@
 | WI-023 | tooling-gates | T0 / T0.4ب (قابليّةُ القياسِ — دعوى «يُشغَّلُ في كلِّ دفعةٍ» تُقاسُ قبلَ أن تُقبَلَ سندًا) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/guard_enforcement_closure.py · tests/governance/test_w077_guard_enforcement_closure.py · .github/workflows/ci.yml · PROJECT_STATE.md · docs/PROJECT_HANDBOOK.md · وسجلّاتٌ مُعفاةٌ من الحجزِ تُمَسُّ ولا تُدَّعى مِلكًا: ACTIVE_WORK.md · DISCOVERIES.md · COMPLETION_LEDGER.md · docs/audit/TRUTH_MATRIX.md وdocs/audit/truth_matrix.json المولَّدتانِ بالأداةِ | 2026-08-31 | 2026-09-07 | — | **المراجعةُ بيدِ المالكِ**: `VERIFIED` ثمَّ `CLOSED` قرارُه لا قرارُ منفِّذٍ — والمراجعةُ **ليست مستقلَّةً** بنصِّ `A-2` (`DISC-027` · `RK-020`) | W-078 · حكمُ عقدةِ `4764a12` مقروءٌ **13/13 · READABLE** (تشغيلُ 33391458311) |
 | WI-024 | tooling-gates | T0 / T0.4ب (قابليّةُ القياسِ — «أداةٌ حاكمةٌ لا تُشغَّلُ» تُقاسُ وتُعلِنُ سببَها) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/enforcement_path_ledger.py · tests/governance/test_w079_enforcement_path_ledger.py · tools/audit/final_audit.py · tools/audit/judicial_gate_probe.py · tools/audit/treasury_gate_probe.py · tools/governance/ci_verdict_readability.py · tools/governance/constitutional_reconciliation.py · tools/governance/evidence_registry.py · tools/governance/gate_dependency_closure.py · tools/governance/schema_inventory_drift.py · tools/governance/sovereign_decision_status.py · tools/migrations/r4_unify_agent_identity.py · tools/stubs/registry_check.py | 2026-08-31 | 2026-09-08 | — | كتابةُ الأداةِ وفحوصِها ثمَّ إعلانُ طريقِ الإنفاذِ في ترويسةِ كلِّ أداةٍ غيرِ مربوطةٍ (`W-080`) | W-079 · الحجزُ وقياسُ خطِّ الأساسِ |
 | WI-025 | audit-truth | T0 / T0.4ب (‏صدقُ القياسِ — القياسُ المنشورُ يُفتَّحُ بما يُقاسُ لا بإحداثيٍّ في المصدرِ) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/audit/sovereign_write_inventory.py · tests/governance/test_w083_measurement_site_key.py · docs/audit/measurements/write_inventory_p13.json · docs/audit/measurements/README.md | 2026-08-31 | 2026-09-08 | — | مراجعةٌ ثمَّ `VERIFIED` — بيدِ المراجعِ لا بيدِ صاحبِ التغييرِ (§ 4.3) | W-085 · حكمُ عقدةِ `W-084` أخضرُ 13/13 · READABLE |
+| WI-026 | tooling-gates | T0 (قابليّةُ القياسِ · حالةُ تشغيلٍ تُكتَبُ في الشجرةِ فتُحمِّرُ بوّابةً على أثرٍ غيرِ مُفهرَسٍ) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_PROGRESS | conftest.py · tests/governance/test_runtime_state_stays_outside_the_tree.py | 2026-09-01 | 2026-09-08 | — | إعلانُ موضعِ قاعدةِ التشغيلِ خارجَ الشجرةِ لمدى التشغيلِ وحدَه، وحرسُه بأربعةِ أوجهٍ | W-086 · الحجزُ وفحصُ التداخلِ |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
 
@@ -1520,4 +1521,48 @@
   - **الرتبةُ مفتاحٌ نسبيٌّ**: لو أُضيفَ موقعٌ ثانٍ بالاسمِ نفسِه في الدالّةِ نفسِها تنزاحُ رُتَبُ ما بعدَه — وذاك **تغيُّرٌ حقيقيٌّ في الجردِ** يُقصَدُ ظهورُه، لا تقادمًا كاذبًا
   - **حقلُ السطرِ لا يُحذَفُ من الأداةِ**: فحوصٌ قائمةٌ تقرأُه من البنيةِ (`test_measurement_ignores_environments.py` · `test_step7_factory_surfaces.py`)، وحذفُه كسرٌ لا إصلاحٌ
 قيدُ السجلّ: W-085 · حكمُ عقدةِ `W-084` قُرِئَ أخضرَ 13/13 · READABLE فسُلِّمَ البندُ للمراجعةِ · وقبلَه W-084 · المفتاحُ نُقِلَ وأُعيدَ توليدُ القياسِ · 11 فحصًا خضراءَ (‏وقبلَه W-083 · الحجزُ وفحصُ التداخلِ)
+```
+
+### WI-026 — حالةُ التشغيلِ لا تُكتَبُ في شجرةِ المستودعِ: موضعُ قاعدةِ البياناتِ يُعلَنُ في البيئةِ لمدى التشغيلِ، والعقدُ الافتراضيُّ لا يُنقَل
+
+```text
+النطاق: tooling-gates
+المسار/المرحلة: T0 (قابليّةُ القياسِ — حمرةٌ محليّةٌ لا تدُلُّ على عَطبٍ في المستودعِ تُعلِّمُ تطبيعَ الحمرةِ · `RK-005`)
+المالك: Driving H            المراجع: المالك (`A-2` · غيرُ مستقلٍّ)
+الحالة: IN_PROGRESS
+المسارات:
+  conftest.py                                                     (‏إعلانُ موضعٍ في البيئةِ إن لم تُعلِنْه · بنمطِ `AMOS_CONSUMED_PERMITS_PATH` القائمِ)
+  tests/governance/test_runtime_state_stays_outside_the_tree.py    (‏تُضافُ أوجهُ حرسٍ · ولا يُمَسُّ ما فيه من أوجهِ سجلِّ الأذونِ)
+  وسجلّاتُ الحالةِ والحوكمةِ **لا تُدَّعى في مساراتِ هذا البندِ**: مُعلَنةٌ في مساراتِ `WI-023` وتُمَسُّ بحكمِ واجبِ § 7 (‏`CLAIM_CONFLICT` § 6.1)
+فحصُ التداخلِ (§ 6.2) — نتيجتُه تُقيَّدُ ولو كانت «لا تداخل»:
+  - `WI-023` (`IN_REVIEW`) يقفلُ `.github/workflows/ci.yml` و`tools/governance/guard_enforcement_closure.py` — **ولا يلمسُهما هذا البندُ**
+  - `WI-024` (`IN_REVIEW`) يقفلُ `tools/governance/enforcement_path_ledger.py` وترويساتِ أحدَ عشرَ ملفًّا — **ولا يلمسُها هذا البندُ**
+  - `WI-025` (`IN_REVIEW`) يقفلُ أداةَ جردِ الكتاباتِ وقياسَها المنشورَ و`README` القياساتِ — **ولا يلمسُها هذا البندُ**
+  - `conftest.py` كانَ مُعلَنًا في مساراتِ `WI-019` وهي `CLOSED` منذُ 2026-08-30، و`test_runtime_state_stays_outside_the_tree.py` **غيرُ مُدَّعًى في أيِّ بندٍ غيرِ مُغلَقٍ**: لا تداخل
+  - `federal/executive/services/src/amos_federation/common/database.py` **لا يُمَسُّ**: الموضعُ الافتراضيُّ عقدٌ إنتاجيٌّ، ونقلُه تغييرُ عقدٍ لا إصلاحُ أثرٍ
+  - `tools/governance/check_root_file_names.py` **لا يُمَسُّ ولا يُخفَّفُ**: البوّابةُ صادقةٌ، والعَطبُ فيما يكتُبُ في الجذرِ لا فيما يقرأُ
+  - لا جدولَ ولا migration ولا مسارَ API ولا عقدَ ولا سرَّ ولا مورِدَ تشغيلٍ · ولا قرارَ `Q-###` مفتوحًا يتوقَّفُ عليه · وفئةُ التغييرِ `C0` (‏إعلانُ بيئةٍ لمدى التشغيلِ وفحوصٌ · بلا تغيُّرِ سلوكٍ إنتاجيٍّ)
+خارجَ النطاق:
+  - **لا يُخفَّفُ حرسٌ**: لا استثناءَ في `check_root_file_names.py` ولا إعلانَ أثرٍ في قائمةِ الجذرِ ولا قصرَ لوضعِ القرصِ على المُفهرَسِ — وهي الطريقانِ الآخرانِ في `DISC-029` ولم يُختارا
+  - **لا يُنقَلُ الموضعُ الافتراضيُّ الإنتاجيُّ**: `os.getcwd()/amos_federation.db` يبقى كما هو، ووجهُ حرسٍ عكسيٌّ يُسقِطُ لو نُقِلَ صامتًا
+  - **لا تُحسَمُ قراراتُ المالكِ**: مراجعةُ `WI-023` و`WI-024` و`WI-025` · `origin/develop` · سرُّ `T0.6` · `A-3` · استقلالُ المراجعةِ · أسئلةُ `T2`
+معيارُ القبول:
+  1. كلُّ تشغيلِ اختباراتٍ يُعلِنُ `AMOS_DATABASE_URL` بموضعٍ **خارجَ** شجرةِ المستودعِ إن لم تُعلِنْه البيئةُ سلفًا — والإعلانُ الصريحُ لا يُنقَض
+  2. اسمُ مُتغيّرِ البيئةِ المكتوبُ في `conftest.py` مطابقٌ للحرفِ الذي يقرؤه `database.py` — يُقاسُ نصًّا فلا يفترقُ صامتًا
+  3. `amos_federation.db` لا يُنشأُ في جذرِ المستودعِ بعدَ تشغيلِ الاختباراتِ · و`check_root_file_names.py --source disk` يخرُجُ بصفرٍ على شجرةٍ نظيفةٍ
+  4. **الحدُّ العكسيُّ محروسٌ**: بلا إعلانٍ في البيئةِ يبقى الموضعُ الافتراضيُّ مُشتَقًّا من `cwd` — فنقلُه يُسقِطُ الحرسَ ولا يمرُّ صامتًا
+  5. لا فحصَ يُخفَّفُ ولا يُتخطّى: مجموعُ `tests/governance` وفحوصُ الخدماتِ التي تقرأُ المُتغيّرَ تبقى خضراءَ بمعناها
+  6. البوّاباتُ كلُّها رمزُ 0 · والسقّاطةُ ثابتةٌ عندَ 63 · وحكمُ CI يُقرأُ برقمِ تشغيلٍ لعقدةِ كلِّ دفعةٍ
+الدليلُ المطلوب:
+  python tools/governance/check_root_file_names.py . --source disk   # المتوقَّع: رمزُ 0 بعدَ تشغيلِ الاختباراتِ
+  python -m pytest tests/governance/test_runtime_state_stays_outside_the_tree.py -q
+  python -m pytest tests/governance -q  &&  ruff check .
+  python tools/governance/truth_audit.py . --ratchet                 # المتوقَّع: ثابتٌ عندَ 63
+بدأ: 2026-09-01        ينتهي الحجز: 2026-09-08
+العائق: —
+الخطوةُ التالية: إعلانُ الموضعِ في `conftest.py` وكتابةُ أوجهِ الحرسِ، ثمَّ قياسُ وضعِ القرصِ
+حدُّ البندِ — مُعلَنٌ لا مطويٌّ:
+  - **هذا يعزلُ أثرَ التشغيلِ ولا يُصلِحُ عقدًا إنتاجيًّا**: خدمةٌ تُشغَّلُ في الإنتاجِ بلا `AMOS_DATABASE_URL` ما زالت تكتبُ في مجلَّدِ عملِها — وذاك قرارُ عقدٍ يُقيَّدُ لا يُطوى هنا
+  - **الإعلانُ لمدى التشغيلِ لا يُغيِّرُ ما يُقاسُ**: أيُّ فحصٍ يُعلِنُ موضعَه صريحًا يبقى على موضعِه، فلا يُخطَفُ منه شيءٌ
+قيدُ السجلّ: W-086 · الحجزُ وفحصُ التداخلِ
 ```
