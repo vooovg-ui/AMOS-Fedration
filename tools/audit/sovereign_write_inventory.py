@@ -29,6 +29,16 @@
   ولا يُسقَط، لأنّ الكتابةَ التي لا يُعرَفُ مدخلُها أخطرُ لا أهون.
 - كونُ الدالّةِ «مُغيِّرةً» لا يعني وجوبَ هجرتِها: الوجوبُ حكمٌ دستوريٌّ يُقرَّر في
   سجلِّ القرارات، وهذه الأداةُ تعدُّ فقط.
+- **مفتاحُ الموقعِ في حِملِ `--json` لا يحملُ رقمَ سطرٍ**: هو (‏مسارٌ · مالكٌ · دالّةٌ ·
+  رتبةٌ داخلَ الثلاثةِ)، والحِملُ مرتَّبٌ ترتيبًا قاطعًا لا يتبعُ ترتيبَ الأسطر. ورقمُ
+  السطرِ يبقى في بنيةِ `WriteSite` لقارئٍ بشريٍّ ولِحرسٍ يقرأُه، ولا يخرجُ في القياسِ
+  المنشور. وهذا شرطُ صدقٍ لا تجميلٌ: القياسُ المنشورُ محروسٌ بطزاجتِه في
+  `measurement_provenance.py`، فكانَ إدخالُ سطرَي ترويسةٍ لا يمسّانِ سلوكًا في
+  `tools/migrations/r4_unify_agent_identity.py` يُقادِمُ الجردَ ويُسقِطُ CI (‏عُقدةُ
+  `1cd662c` · تشغيلُ 33447618294 · `DISC-039`) — وبوّابةٌ تُعاقِبُ تعديلَ الترويسةِ عقابَ
+  تعديلِ السلوكِ تُعلِّمُ العاملَ أن يتجنَّبَ الصواب. **والإنفاذُ لم يُخفَّفْ**: إضافةُ
+  موضعٍ أو حذفُه أو إعادةُ تسميتِه أو تغيُّرُ ما يكتبُه أو عبورُه الحدَّ كلُّه يُحرِّكُ
+  الحِملَ فتسقُطُ الطزاجةُ — والحرسُ: `tests/governance/test_w083_measurement_site_key.py`.
 - **المقيسُ كودُ المستودعِ وحدَه**: البيئاتُ الافتراضيّةُ (بعلامةِ `pyvenv.cfg`) وشجرُ
   التبعيّاتِ المُورَّدةِ (`site-packages` وأمثالُها) تُقطَعُ من المشيِ لا تُرشَّحُ ملفًّا
   ملفًّا. وهذا شرطُ صحّةٍ لا تحسينُ سرعةٍ: مسارُ التهيئةِ المُوثَّقُ ينشئُ `.venv` في
@@ -397,6 +407,48 @@ AREAS: tuple[tuple[str, str], ...] = (
 )
 
 
+def site_records(sites: list[WriteSite]) -> list[dict[str, object]]:
+    """ابنِ حِملَ المواقعِ للقياسِ المنشور — بمفتاحٍ يُقاسُ لا بإحداثيٍّ في المصدر.
+
+    المفتاحُ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ داخلَ الثلاثةِ)، ورقمُ السطرِ لا يخرجُ:
+    هو إحداثيٌّ يتحرَّكُ بإدخالِ سطرِ تعليقٍ، والقياسُ المنشورُ محروسٌ بطزاجتِه، فكانَ
+    يُقادِمُ ويُسقِطُ CI بلا تغيُّرِ سلوكٍ (`DISC-039`).
+
+    والرتبةُ تُشتَقُّ من **مضمونِ** المواقعِ المتشاركةِ في المفتاحِ الثلاثيِّ مرتَّبةً
+    ترتيبًا قاطعًا، لا من ترتيبِ ظهورِها في الملفّ — فنقلُ دالّةٍ في ملفِّها لا يُحرِّكُ
+    حرفًا، وإضافةُ موقعٍ جديدٍ يُحرِّكُ الحِملَ كما يجب.
+    """
+    grouped: dict[tuple[str, str, str], list[dict[str, object]]] = {}
+    for site in sites:
+        record = {
+            key: value for key, value in asdict(site).items() if key != "line"
+        }
+        grouped.setdefault((site.path, site.owner, site.function), []).append(record)
+
+    payload: list[dict[str, object]] = []
+    for key in sorted(grouped):
+        peers = sorted(
+            grouped[key],
+            key=lambda record: json.dumps(record, ensure_ascii=False, sort_keys=True),
+        )
+        for ordinal, record in enumerate(peers):
+            ordered: dict[str, object] = {
+                "path": record["path"],
+                "owner": record["owner"],
+                "function": record["function"],
+                "ordinal": ordinal,
+            }
+            ordered.update(
+                {
+                    field: value
+                    for field, value in record.items()
+                    if field not in ordered
+                }
+            )
+            payload.append(ordered)
+    return payload
+
+
 def area_of(path: str) -> str:
     """أيُّ منطقةٍ يقعُ فيها الموضع؟ أوّلُ بادئةٍ مطابقةٍ تحكم."""
     for name, prefix in AREAS:
@@ -484,10 +536,12 @@ def main() -> int:
                 "الهدف: جردُ مواضعِ الكتابةِ في المستودعِ وتصنيفُ ما عبرَ الحدَّ "
                 "السّياديَّ وما لم يعبُر— مُخرَجُ "
                 "tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ "
-                "الدَّينِ وحدَه. المادةُ التاسعةُ · 2."
+                "الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ "
+                "· دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ "
+                "تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039)."
             ),
             "summary": summary,
-            "sites": [asdict(s) for s in sites],
+            "sites": site_records(sites),
         }
         Path(args.json_out).write_text(
             json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8"
