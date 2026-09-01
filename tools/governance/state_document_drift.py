@@ -10,9 +10,14 @@
     لا شبكةَ ولا قاعدةَ ولا سرَّ. لا تكتبُ الأداةُ في أيِّ وثيقةٍ تحكمُ عليها.
 المالك: tools/governance — ديوانُ التدقيق، بتفويضٍ من المجلس التأسيسي
 تاريخ الإنشاء: 2026-08-27
-تاريخ آخر تعديل: 2026-08-27
+تاريخ آخر تعديل: 2026-09-01
 
 لماذا أداةٌ لا فقرةٌ:
+    وقِيدَ في `DISC-031` أنَّ «أقصى ذكرٍ» وحدَه يُخضِرُّ على وثيقةٍ تكذبُ: حقلُ
+    «Last Completed Work» بقيَ عندَ `W-057` والسجلُّ عندَ `W-064` — **تأخُّرُ
+    ثمانيةِ قيودٍ** مرَّ لأنَّ ذكرَ الأحدثِ في ترويسةِ التاريخِ أرضى القياسَ. فما
+    يُصلِحُه أن يُقرَأَ **موضعُ الدعوى** لا أيُّ ذكرٍ في الملفِّ (`W-090`).
+
     قِيدَ في `DISC-013` أنَّ `PROJECT_STATE.md` تقولُ «آخرُ عملٍ W-047» والسجلُّ
     فيه `W-053` مدموجًا — أي قارئٌ يبدأُ من وثيقةِ الحالةِ يقرأُ ماضيًا حالةً.
     والقيدُ وحدَه لا يمنعُ تكرارَ الانحرافِ: بقيَ مفتوحًا ثلاثةَ قيودٍ أُخرى
@@ -25,6 +30,11 @@
       واجبُ من يكتبُ، وحرسُه مراجعةٌ بشريّةٌ لا مُطابَقةُ نصٍّ.
     * قائمةُ وثائقِ الحالةِ **مُعلَنةٌ في الشِفرةِ** لا مُكتشَفةٌ: وثيقةٌ جديدةٌ
       تُعلِنُ حالةً ولا تُضافُ هنا لا يراها هذا الحرسُ.
+    * **ومِرساةُ الحقلِ مُعلَنةٌ كذلك** (`W-090`): تقيسُ الأداةُ — فوقَ أقصى ذكرٍ —
+      **القيدَ في الحقلِ الذي تُعلِنُه الوثيقةُ حالةً** بمِرساةٍ مكتوبةٍ في
+      `STATE_FIELD_ANCHORS`. ووثيقةٌ تُعلِنُ حالتَها في حقلٍ لم يُسمَّ هنا لا
+      يراها هذا الوجهُ، **وغيابُ المِرساةِ المُسمّاةِ من الوثيقةِ مخالفةٌ
+      مُصنَّفةٌ** لا سكوتٌ: حقلٌ يُعادُ تسميتُه يُسقِطُ الحرسَ ولا يُسكِتُه.
     * لا تكتبُ الأداةُ سطرًا في وثيقةٍ ولا في السجلِّ: بوّابةٌ تُصلِحُ ما تحكمُ
       عليه لا تُثبِتُ شيئًا (سابقةُ `W-037`/`W-038`).
 
@@ -57,6 +67,18 @@ STATE_DOCUMENTS = (
     Path("docs/PROJECT_HANDBOOK.md"),
 )
 
+#: مِرساةُ الحقلِ الذي تُعلِنُه الوثيقةُ حالةً — مكتوبةٌ لا مُكتشَفةٌ (`DISC-031`).
+STATE_FIELD_ANCHORS: dict[Path, tuple[str, str]] = {
+    Path("PROJECT_STATE.md"): (
+        "Last Completed Work",
+        r"\|\s*\*\*Last Completed Work\*\*\s*\|(?P<value>.*)",
+    ),
+    Path("docs/PROJECT_HANDBOOK.md"): (
+        "تاريخ آخر تعديل",
+        r"تاريخ آخر تعديل:(?P<value>.*)",
+    ),
+}
+
 WORK_RE = re.compile(r"\bW-(\d{3})\b")
 LEDGER_ROW_RE = re.compile(
     r"^\|\s*W-(\d{3})\s*\|\s*(\d{4}-\d{2}-\d{2})\s*\|", re.MULTILINE
@@ -82,6 +104,13 @@ class DocState:
     newest_work_line: int | None
     declared_date: str | None
     mentions: int
+    #: اسمُ الحقلِ المُعلَنِ حالةً كما سُمِّيَ في `STATE_FIELD_ANCHORS` (أو `None`).
+    declared_field: str | None = None
+    #: هل وُجِدَ الحقلُ المُسمّى في نصِّ الوثيقةِ فعلًا.
+    declared_field_found: bool = False
+    #: أحدثُ قيدٍ **داخلَ** الحقلِ المُعلَنِ وحدَه.
+    declared_field_work: str | None = None
+    declared_field_line: int | None = None
 
 
 @dataclass
@@ -103,6 +132,10 @@ class Report:
             "ledger_newest_date": self.ledger_newest_date,
             "ledger_rows": self.ledger_rows,
             "declared_documents": [d.as_posix() for d in STATE_DOCUMENTS],
+            "declared_field_anchors": {
+                path.as_posix(): label
+                for path, (label, _pattern) in STATE_FIELD_ANCHORS.items()
+            },
             "documents": [asdict(d) for d in self.documents],
             "violations": self.violations,
             "notes": self.notes,
@@ -146,6 +179,26 @@ def newest(ids: list[str] | set[str]) -> str | None:
     return numbered[-1] if numbered else None
 
 
+def _declared_field(rel: Path, text: str) -> tuple[str | None, str | None, int | None]:
+    """الحقلُ الذي تُعلِنُه الوثيقةُ حالةً: اسمُه · أحدثُ قيدٍ فيه · سطرُه.
+
+    تُقرَأُ المِرساةُ من `STATE_FIELD_ANCHORS` وحدَها — فلا يُخلَطُ ذكرٌ عارضٌ في
+    نصٍّ حرٍّ بدعوى الوثيقةِ عن موضعِها (`DISC-031`).
+    """
+    anchor = STATE_FIELD_ANCHORS.get(rel)
+    if anchor is None:
+        return None, None, None
+    label, pattern = anchor
+    compiled = re.compile(pattern)
+    for number, line in enumerate(text.splitlines(), start=1):
+        found = compiled.search(line)
+        if found is None:
+            continue
+        ids = [f"W-{hit.group(1)}" for hit in WORK_RE.finditer(found.group("value"))]
+        return label, newest(ids), number
+    return label, None, None
+
+
 def read_document(root: Path, rel: Path) -> DocState:
     """ما تُعلِنُه وثيقةٌ واحدةٌ: أحدثُ قيدٍ تذكرُه · تاريخُها · عددُ الذِّكرِ."""
     text = _read(root, rel)
@@ -155,12 +208,17 @@ def read_document(root: Path, rel: Path) -> DocState:
             found.setdefault(f"W-{hit.group(1)}", number)
     top = newest(list(found))
     stamp = LAST_MODIFIED_RE.search(text)
+    label, field_work, field_line = _declared_field(rel, text)
     return DocState(
         path=rel.as_posix(),
         newest_work=top,
         newest_work_line=found.get(top) if top else None,
         declared_date=stamp.group(1) if stamp else None,
         mentions=len(found),
+        declared_field=label,
+        declared_field_found=field_line is not None,
+        declared_field_work=field_work,
+        declared_field_line=field_line,
     )
 
 
@@ -212,6 +270,56 @@ def measure(root: Path | None = None, today: date | None = None) -> Report:
                     )
                 )
 
+        if doc.declared_field is None:
+            report.notes.append(
+                _v(
+                    "NO_DECLARED_FIELD_ANCHOR",
+                    f"«{doc.path}» لا مِرساةَ حقلٍ مُسمّاةً لها في "
+                    "`STATE_FIELD_ANCHORS` — فلا يُقاسُ فيها إلَّا أقصى ذكرٍ، "
+                    "وهذا حدٌّ مُعلَنٌ لا سكوتٌ.",
+                )
+            )
+        elif not doc.declared_field_found:
+            report.violations.append(
+                _v(
+                    "STATE_DOC_FIELD_ANCHOR_MISSING",
+                    f"«{doc.path}» لا تحوي حقلَها المُعلَنَ «{doc.declared_field}» — "
+                    "والمِرساةُ إن غابَت لم يُقرَأْ موضعُ الدعوى، فلا يُقالُ «لا "
+                    "انحراف» عن حقلٍ لم يُوجَدْ.",
+                )
+            )
+        elif doc.declared_field_work is None:
+            report.violations.append(
+                _v(
+                    "STATE_DOC_FIELD_CITES_NO_WORK",
+                    f"«{doc.path}:{doc.declared_field_line}» حقلُها المُعلَنُ "
+                    f"«{doc.declared_field}» لا يذكرُ قيدًا واحدًا — حقلُ حالةٍ بلا "
+                    "إحالةٍ لا يُقاسُ موضعُه من الطريق.",
+                )
+            )
+        elif doc.declared_field_work not in rows:
+            report.violations.append(
+                _v(
+                    "STATE_DOC_FIELD_CITES_UNKNOWN_WORK",
+                    f"«{doc.path}:{doc.declared_field_line}» حقلُها المُعلَنُ "
+                    f"«{doc.declared_field}» يذكرُ «{doc.declared_field_work}» ولا صفَّ "
+                    "له في § 8 — دعوى عملٍ غيرِ مقيَّدٍ في موضعِ الحالةِ نفسِه.",
+                )
+            )
+        else:
+            field_gap = top_number - int(doc.declared_field_work.split("-")[1])
+            if field_gap > 0:
+                report.violations.append(
+                    _v(
+                        "STATE_DOC_FIELD_BEHIND",
+                        f"«{doc.path}:{doc.declared_field_line}» حقلُها المُعلَنُ "
+                        f"«{doc.declared_field}» يقولُ «{doc.declared_field_work}» "
+                        f"وأحدثُ قيدٍ في § 8 «{top}» — **{field_gap} قيدًا** تأخُّرًا "
+                        "في موضعِ الدعوى نفسِه، ولو ذُكِرَ الأحدثُ في مكانٍ آخرَ من "
+                        "الوثيقةِ.",
+                    )
+                )
+
         if doc.declared_date is None:
             report.violations.append(
                 _v(
@@ -241,12 +349,16 @@ def measure(root: Path | None = None, today: date | None = None) -> Report:
                 )
 
     behind = [v for v in report.violations if v["kind"] == "STATE_DOC_BEHIND"]
+    field_behind = [
+        v for v in report.violations if v["kind"] == "STATE_DOC_FIELD_BEHIND"
+    ]
     report.notes.append(
         _v(
             "LEDGER_HEAD",
             f"أحدثُ قيدٍ مقروءٍ في § 8: {top} ({rows[top]}) · وعددُ الصفوفِ "
             f"{len(rows)} · ووثائقُ الحالةِ المُعلَنةُ {len(STATE_DOCUMENTS)} "
-            f"منها {len(behind)} متأخِّرةٌ.",
+            f"منها {len(behind)} متأخِّرةٌ · وحقولٌ مُعلَنةٌ متأخِّرةٌ "
+            f"{len(field_behind)}.",
         )
     )
     return report
@@ -262,6 +374,11 @@ def render(report: Report) -> str:
         lines.append(
             f"  {doc.path}: أحدثُ قيدٍ مذكورٍ {doc.newest_work or '—'} · "
             f"تاريخٌ مُعلَنٌ {doc.declared_date or '—'} · قيودٌ مذكورةٌ {doc.mentions}"
+        )
+        lines.append(
+            f"    الحقلُ المُعلَنُ حالةً: {doc.declared_field or '— (لا مِرساةَ)'} · "
+            f"قيدُه {doc.declared_field_work or '—'} · "
+            f"السطرُ {doc.declared_field_line or '—'}"
         )
     for note in report.notes:
         lines.append(f"  ملاحظة · {note['kind']}: {note['detail']}")

@@ -11,7 +11,7 @@
     في وثيقةٍ محكومٍ عليها.
 المالك: tests/governance — ديوانُ التدقيق
 تاريخ الإنشاء: 2026-08-27
-تاريخ آخر تعديل: 2026-08-27
+تاريخ آخر تعديل: 2026-09-01 (W-090 — أوجهُ مِرساةِ الحقلِ المُعلَنِ · `DISC-031`)
 """
 
 from __future__ import annotations
@@ -62,8 +62,13 @@ def _tree(
         ("W-003", "2026-08-20"),
         ("W-005", "2026-08-22"),
     ),
-    state_doc: str | None = "آخرُ عملٍ W-005.\ntاريخ آخر تعديل: 2026-08-22\n",
-    handbook: str | None = "الدليلُ عندَ W-005.\nتاريخ آخر تعديل: 2026-08-22\n",
+    state_doc: str | None = (
+        "| **Last Completed Work** | **W-005 · 2026-08-22**: أُنجِزَ |\n"
+        "آخرُ عملٍ W-005.\ntاريخ آخر تعديل: 2026-08-22\n"
+    ),
+    handbook: str | None = (
+        "الدليلُ عندَ W-005.\nتاريخ آخر تعديل: 2026-08-22 (W-005 — خطوةٌ)\n"
+    ),
 ) -> None:
     """شجرةٌ صغيرةٌ صالحةٌ افتراضًا، تُعطَبُ في كلِّ فحصٍ من موضعٍ واحدٍ."""
     body = LEDGER_HEAD + "".join(
@@ -303,7 +308,13 @@ def test_today_is_not_a_future_date(tmp_path: Path) -> None:
 
 
 def test_stale_date_is_a_note_not_a_violation(tmp_path: Path) -> None:
-    _tree(tmp_path, state_doc="W-005\nتاريخ آخر تعديل: 2026-08-20\n")
+    _tree(
+        tmp_path,
+        state_doc=(
+            "| **Last Completed Work** | **W-005**: أُنجِزَ |\n"
+            "W-005\nتاريخ آخر تعديل: 2026-08-20\n"
+        ),
+    )
     report = SDD.measure(tmp_path, today=date(2026, 8, 27))
     assert "DATE_OLDER_THAN_LATEST_ENTRY" in _note_kinds(report)
     assert report.violations == []
@@ -414,3 +425,165 @@ def test_real_state_documents_cite_the_ledger_head() -> None:
     """الحرسُ الذي يُسقِطُ عملَ اليومِ إن تُرِكَتِ الوثيقتانِ متأخِّرتَين."""
     report = SDD.measure(REPO_ROOT, today=datetime.now(UTC).date())
     assert [v for v in report.violations if v["kind"] == "STATE_DOC_BEHIND"] == []
+
+
+# ——— الحقلُ المُعلَنُ حالةً: مِرساةٌ مُسمّاةٌ لا أقصى ذكرٍ (`DISC-031` · W-090) ———
+
+
+def _state_doc(field: str, *, tail: str = "", stamp: str = "2026-08-22") -> str:
+    """وثيقةُ حالةٍ يُتحكَّمُ في **حقلِها المُعلَنِ** وحدَه وفيما تذكرُه سواهُ."""
+    return (
+        f"| **Last Completed Work** | {field} |\n"
+        f"{tail}"
+        f"تاريخ آخر تعديل: {stamp}\n"
+    )
+
+
+def test_declared_field_is_read_from_its_anchor(tmp_path: Path) -> None:
+    _tree(tmp_path, state_doc=_state_doc("**W-003 · 2026-08-20**: أُنجِزَ"))
+    doc = next(
+        d
+        for d in SDD.measure(tmp_path, today=date(2026, 8, 27)).documents
+        if d.path == "PROJECT_STATE.md"
+    )
+    assert doc.declared_field == "Last Completed Work"
+    assert doc.declared_field_work == "W-003"
+    assert doc.declared_field_line == 1
+
+
+def test_field_behind_fires_when_only_the_field_lags(tmp_path: Path) -> None:
+    """شكلُ `DISC-031` بعينِه: الحقلُ متأخِّرٌ والأحدثُ مذكورٌ في مكانٍ آخرَ."""
+    _tree(
+        tmp_path,
+        state_doc=_state_doc(
+            "**W-003 · 2026-08-20**: أُنجِزَ",
+            tail="تُقرَأُ الخارطةُ بعدَ W-005.\n",
+        ),
+    )
+    kinds = _kinds(SDD.measure(tmp_path, today=date(2026, 8, 27)))
+    assert "STATE_DOC_FIELD_BEHIND" in kinds
+    assert "STATE_DOC_BEHIND" not in kinds
+
+
+def test_field_behind_counts_the_exact_gap(tmp_path: Path) -> None:
+    _tree(
+        tmp_path,
+        rows=(("W-003", "2026-08-20"), ("W-011", "2026-08-26")),
+        state_doc=_state_doc("**W-003**: أُنجِزَ", tail="وW-011 مذكورٌ هنا.\n"),
+        handbook="W-011\nتاريخ آخر تعديل: 2026-08-26 (W-011 — خطوةٌ)\n",
+    )
+    hit = next(
+        v
+        for v in SDD.measure(tmp_path, today=date(2026, 8, 27)).violations
+        if v["kind"] == "STATE_DOC_FIELD_BEHIND"
+    )
+    assert "8 قيدًا" in hit["detail"]
+    assert "Last Completed Work" in hit["detail"]
+
+
+def test_field_behind_exits_one(tmp_path: Path) -> None:
+    _tree(
+        tmp_path,
+        state_doc=_state_doc("**W-003**: أُنجِزَ", tail="وW-005 مذكورٌ.\n"),
+    )
+    assert SDD.main(["--root", str(tmp_path)]) == 1
+
+
+def test_field_silent_when_the_field_cites_the_head(tmp_path: Path) -> None:
+    _tree(tmp_path)
+    assert SDD.measure(tmp_path, today=date(2026, 8, 27)).violations == []
+
+
+def test_renamed_field_is_a_violation_not_silence(tmp_path: Path) -> None:
+    """حقلٌ يُعادُ تسميتُه يُسقِطُ الحرسَ — لا يُسكِتُه فيُقرَأَ نظافةً."""
+    _tree(tmp_path, state_doc="| **آخرُ عملٍ** | W-005 |\nتاريخ آخر تعديل: 2026-08-22\n")
+    report = SDD.measure(tmp_path, today=date(2026, 8, 27))
+    assert "STATE_DOC_FIELD_ANCHOR_MISSING" in _kinds(report)
+    assert SDD.main(["--root", str(tmp_path)]) == 1
+
+
+def test_field_without_a_work_reference_fires(tmp_path: Path) -> None:
+    _tree(tmp_path, state_doc=_state_doc("لا إحالةَ هنا", tail="W-005 في سطرٍ آخرَ.\n"))
+    assert "STATE_DOC_FIELD_CITES_NO_WORK" in _kinds(
+        SDD.measure(tmp_path, today=date(2026, 8, 27))
+    )
+
+
+def test_field_citing_an_unledgered_work_fires(tmp_path: Path) -> None:
+    _tree(tmp_path, state_doc=_state_doc("**W-099**: أُنجِزَ"))
+    hit = next(
+        v
+        for v in SDD.measure(tmp_path, today=date(2026, 8, 27)).violations
+        if v["kind"] == "STATE_DOC_FIELD_CITES_UNKNOWN_WORK"
+    )
+    assert "W-099" in hit["detail"]
+
+
+def test_field_reads_the_newest_inside_the_field_only(tmp_path: Path) -> None:
+    _tree(tmp_path, state_doc=_state_doc("**W-005** · وقبلَه **W-003**"))
+    assert "STATE_DOC_FIELD_BEHIND" not in _kinds(
+        SDD.measure(tmp_path, today=date(2026, 8, 27))
+    )
+
+
+def test_handbook_has_its_own_named_anchor(tmp_path: Path) -> None:
+    _tree(tmp_path, handbook="W-005\nتاريخ آخر تعديل: 2026-08-22 (W-003 — خطوةٌ)\n")
+    report = SDD.measure(tmp_path, today=date(2026, 8, 27))
+    hit = next(
+        v for v in report.violations if v["kind"] == "STATE_DOC_FIELD_BEHIND"
+    )
+    assert "docs/PROJECT_HANDBOOK.md" in hit["detail"]
+    assert "تاريخ آخر تعديل" in hit["detail"]
+
+
+def test_declared_anchors_are_published_in_the_payload(tmp_path: Path) -> None:
+    _tree(tmp_path)
+    payload = SDD.measure(tmp_path, today=date(2026, 8, 27)).to_dict()
+    assert payload["declared_field_anchors"] == {
+        "PROJECT_STATE.md": "Last Completed Work",
+        "docs/PROJECT_HANDBOOK.md": "تاريخ آخر تعديل",
+    }
+
+
+def test_note_counts_lagging_declared_fields(tmp_path: Path) -> None:
+    _tree(
+        tmp_path,
+        state_doc=_state_doc("**W-003**: أُنجِزَ", tail="وW-005 مذكورٌ.\n"),
+    )
+    note = next(
+        n
+        for n in SDD.measure(tmp_path, today=date(2026, 8, 27)).notes
+        if n["kind"] == "LEDGER_HEAD"
+    )
+    assert "وحقولٌ مُعلَنةٌ متأخِّرةٌ 1" in note["detail"]
+
+
+def test_field_measurement_writes_nothing(tmp_path: Path) -> None:
+    _tree(tmp_path, state_doc=_state_doc("**W-003**: أُنجِزَ"))
+    before = {
+        path: path.read_bytes() for path in tmp_path.rglob("*") if path.is_file()
+    }
+    SDD.measure(tmp_path, today=date(2026, 8, 27))
+    assert {
+        path: path.read_bytes() for path in tmp_path.rglob("*") if path.is_file()
+    } == before
+
+
+def test_real_state_documents_declare_their_field_at_the_head() -> None:
+    """الحرسُ الذي يُسقِطُ عملَ اليومِ إن تُرِكَ الحقلُ المُعلَنُ متأخِّرًا."""
+    report = SDD.measure(REPO_ROOT, today=datetime.now(UTC).date())
+    lagging = [
+        v
+        for v in report.violations
+        if v["kind"]
+        in {
+            "STATE_DOC_FIELD_BEHIND",
+            "STATE_DOC_FIELD_ANCHOR_MISSING",
+            "STATE_DOC_FIELD_CITES_NO_WORK",
+            "STATE_DOC_FIELD_CITES_UNKNOWN_WORK",
+        }
+    ]
+    assert lagging == []
+    for doc in report.documents:
+        assert doc.declared_field is not None
+        assert doc.declared_field_work == report.ledger_newest_work
