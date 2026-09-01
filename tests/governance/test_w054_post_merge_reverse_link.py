@@ -8,7 +8,7 @@
         لا يُقاسُ هنا صدقُ مضمونِ القيدِ — الحدُّ مُعلَنٌ في THE_ROADMAP § 13.3.
 المالك: tests/governance
 تاريخ الإنشاء: 2026-08-27
-تاريخ آخر تعديل: 2026-08-30 (W-065 · DISC-032)
+تاريخ آخر تعديل: 2026-09-01 (W-096 · WI-029 · DISC-032 — محلُّ القياسِ أُرسِيَ بعلمٍ صريحٍ)
 
 لماذا هذا الاختبار
 ------------------
@@ -207,17 +207,25 @@ def test_أساسٌ_مُمَرَّرٌ_صراحةً_لا_يُتجاوَزُ_إل
     assert gate.resolve_merge_base("لا-وجود-له") is None, "لا قياسٌ عن أساسٍ في زيِّ آخر"
 
 
-def test_رفضٌ_مُعلَنٌ_حينَ_يُطلَبُ_الأساسُ_ولا_يُقرَأ(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """`--require-merge-base` يرفضُ (رمز 2) ولا يمرُّ مرورًا صامتًا."""
+def test_رفضٌ_مُعلَنٌ_حينَ_يُطلَبُ_الأساسُ_ولا_يُقرَأ(tmp_path: Path) -> None:
+    """`--require-merge-base` يرفضُ (رمز 2) ولا يمرُّ مرورًا صامتًا.
+
+    **ومحلُّ القياسِ مُمرَّرٌ بعلمٍ صريحٍ** (`--repo-root`): كان هذا الموضعُ
+    يُشغِّلُ الأداةَ من مسارِها الحقيقيِّ بلا علمٍ، و`monkeypatch.setattr`
+    **لا يعبُرُ إلى عمليّةٍ فرعيّةٍ** — فكانَ رمزُ الخروجِ 2 يأتي من المستودعِ
+    الحقيقيِّ لا من هذه الشجرةِ. وقد قِيسَ ذلك بالتشغيلِ: الأمرُ نفسُه من
+    دليلٍ **فارغٍ** بلا سجلٍّ ولا شجرةٍ يخرُجُ بـ2 كذلك. وهو نمطُ `DISC-032`،
+    ويحرسُه اليومَ `tests/governance/test_w096_subprocess_measurement_site.py`.
+    فأُرسِيَ المحلُّ ولم يُحذَفْ تأكيدٌ ولا لُيِّنَ رمزُ خروجٍ.
+    """
     repo = _mkrepo(tmp_path, merged_ledger=LEDGER_LINKED)
-    monkeypatch.setattr(gate, "REPO_ROOT", repo)
     out = subprocess.run(
         [
             sys.executable,
             str(TOOL_PATH),
             "--self-check",
+            "--repo-root",
+            str(repo),
             "--merge-base",
             "لا-وجود-له",
             "--require-merge-base",
@@ -228,6 +236,55 @@ def test_رفضٌ_مُعلَنٌ_حينَ_يُطلَبُ_الأساسُ_ولا_�
         check=False,
     )
     assert out.returncode == 2, out.stdout + out.stderr
+
+
+def test_الشجرةُ_المُمَرَّرةُ_هي_المقروءةُ_لا_المستودعُ_الحقيقيّ(tmp_path: Path) -> None:
+    """إرساءُ المحلِّ يُقاسُ بأثرِه لا بوجودِ العلمِ في سطرِ الأمرِ.
+
+    تُبنى شجرتانِ مؤقَّتتانِ لا تختلفانِ إلّا في حالِ البندِ: الأولى بندُها
+    `IN_REVIEW` وخليّتُه `—` فيلزَمُ أن تُعلَنَ `POST_MERGE_NOT_CLOSED`،
+    والثانيةُ بندُها `CLOSED` وخليّتُه مملوءةٌ فيلزَمُ أن تصمُتَ. والأمرُ واحدٌ
+    في الحالتَينِ ولا يتغيَّرُ إلّا قيمةُ `--repo-root` — فاختلافُ الحكمِ دليلٌ
+    على أنَّ العمليّةَ الفرعيّةَ قرأَت الشجرةَ المُمرَّرةَ لا شجرةً أخرى.
+
+    **ولا يُقاسُ هذا بحالِ المستودعِ الحقيقيِّ**: لو كانَ المِرجَعُ حالَه لَصارَ
+    الفحصُ رهينةَ حوكمةِ اليومِ فيحمَرُّ من إصلاحٍ أو يخضَرُّ من عَطبٍ — وذاك
+    عينُ ما قِيسَ في `DISC-032`.
+    """
+    مُهمَلٌ = tmp_path / "مُهمَل"
+    مُغلَقٌ = tmp_path / "مُغلَق"
+    مُهمَلٌ.mkdir()
+    مُغلَقٌ.mkdir()
+    _mkrepo(مُهمَلٌ, merged_ledger=LEDGER_LINKED)
+    _mkrepo(
+        مُغلَقٌ,
+        merged_ledger=LEDGER_LINKED,
+        status="CLOSED",
+        ledger_cell="W-051 · دمج #20",
+    )
+    أمرٌ = [
+        sys.executable,
+        str(TOOL_PATH),
+        "--self-check",
+        "--merge-base",
+        "main",
+        "--enforce-post-merge",
+        "--repo-root",
+    ]
+    أوّلٌ = subprocess.run(
+        [*أمرٌ, str(مُهمَلٌ)],
+        cwd=مُهمَلٌ, capture_output=True, text=True, check=False,
+    )
+    ثانٍ = subprocess.run(
+        [*أمرٌ, str(مُغلَقٌ)],
+        cwd=مُغلَقٌ, capture_output=True, text=True, check=False,
+    )
+    مخرَجٌ = أوّلٌ.stdout + أوّلٌ.stderr
+    assert "POST_MERGE_NOT_CLOSED" in مخرَجٌ, مخرَجٌ[-1500:]
+    assert أوّلٌ.returncode == 1, مخرَجٌ[-1500:]
+    assert "POST_MERGE_NOT_CLOSED" not in (ثانٍ.stdout + ثانٍ.stderr), (
+        "شجرةٌ بندُها مُغلَقٌ أُعلِنَ عنها الحرسُ — فالمقروءُ ليس الشجرةَ المُمرَّرةَ"
+    )
 
 
 def test_الإسقاطُ_يُطلَبُ_فيسقُط(tmp_path: Path) -> None:
