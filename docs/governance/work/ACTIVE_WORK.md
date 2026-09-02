@@ -4,7 +4,7 @@
 ## النطاق: البنودُ المفتوحةُ وحدَها (`PROPOSED` → `VERIFIED`) والمُغلَقةُ حديثًا. **لا يُسجَّلُ هنا تاريخُ ما أُنجِز** — ذاك في [`COMPLETION_LEDGER.md`](../../audit/COMPLETION_LEDGER.md)، ولا حالةُ القدرةِ — تلك في [`TRUTH_MATRIX.md`](../../audit/TRUTH_MATRIX.md)
 ## المالك: قائدُ التنفيذِ، بتفويضٍ من المجلس التأسيسي
 ## تاريخ الإنشاء: 2026-08-25
-## تاريخ آخر تعديل: 2026-09-02 (`WI-033` — حكمٌ أخضرُ مقروءٌ **13/13** على عقدةِ `ceef58e` فصارَ `IN_REVIEW` · وما بقيَ حرًّا من الدَّينِ موضعانِ تحتَ `tools/crown/` حبسُهما قرارُ مالكٍ لا عملٌ) · وقبلَه 2026-09-02 (`WI-032` — حكمٌ أخضرُ مقروءٌ **13/13** على عقدةِ `9c27533` فصارَ `IN_REVIEW` · و`WI-033` حُجِزَ ونُفِّذَ: 9 مواضعَ حرّةٍ باقيةٍ تحتَ `tests/`) · وقبلَه 2026-09-02 (`WI-032` — نُفِّذَ الخفضُ: 34 موضعًا رُحِّلَت، فصارَ دَينُ `tests` **19** ومن صنفِ «بلا وجهٍ» **12**) · وقبلَه 2026-09-02 (`WI-032` — حُجِزَ: أوّلُ خفضٍ فعليٍّ لدَينِ `DISC-041` في 34 موضعًا حرًّا) · وقبلَه 2026-09-02 (`WI-031` — حكمانِ أخضرانِ مقروآنِ 13/13 فصارَ `IN_REVIEW` · و`DISC-041` مِرساتُه صارَت حرسًا قائمًا) · وقبلَه 2026-09-02 (`WI-031` — نزلَ الحرسُ وصارَ `IN_PROGRESS`: الدَّينُ صارَ سقّاطتَينِ لا تعلوانِ) · وقبلَه 2026-09-02 (`WI-031` — حُجِزَ: جذرُ القياسِ يُعرَفُ بعلامةٍ أو بعلمٍ لا بعُمقٍ مكتوبٍ · و`DISC-041` قُيِّدَ بأرقامٍ تُعادُ: **25 و53 موضعًا · منها 2 و37 بلا وجهٍ يُمرِّرُ جذرًا صريحًا**) · وقبلَه 2026-09-02 (`WI-030` — نُقِلَ إلى `IN_REVIEW` بعدَ حكمٍ أخضرَ مقروءٍ **13/13** على عقدةِ `48082c5`، والفحصُ الجديدُ نُفِّذَ في CI لا محلّيًّا وحدَه) · وقبلَه 2026-09-02 (`WI-030` — نزلَ وجهُ `--check` وحرسُه فصارَ «الأثرُ المُولَّدُ مدفوعٌ» مقيسًا **قبلَ** الدفعِ لا في CI وحدَها: **6 فحوصٍ مرَّت · مواضعُ القياسِ 27 منها 0 غيرُ مُرساةٍ · والسقّاطةُ ثابتةٌ عندَ 63 بعدَ إصلاحِ عَطبٍ أحدثَه القياسُ في نفسِه**) · وقبلَه 2026-09-01 (`WI-030` — حُجِزَ: «الأثرُ المُولَّدُ مدفوعٌ» يصيرُ مقيسًا قبلَ الدفعِ لا في CI وحدَها · و`WI-029` نُقِلَ إلى `IN_REVIEW` بعدَ حكمٍ أخضرَ مقروءٍ 13/13) · وقبلَه 2026-09-01 (`WI-029` — الحرسُ نزلَ فصارَ النمطُ مقيسًا في كلِّ دفعةٍ، والموضعُ الوحيدُ غيرُ المُرسى أُرسِيَ بعلمٍ صريحٍ: **24 موضعًا · 19 قصدًا · 5 مؤقَّتةً · 5 مُرساةٌ · 0 غيرُ مُرساةٍ**) · وقبلَه 2026-08-30 (`WI-021` — ماسحٌ واحدٌ مرجعيٌّ لبوّابةِ 6، ومحلُّ قياسٍ صريحٌ، وحالةٌ لا تُكتَبُ مرّتَينِ متناقضتَينِ) · وقبلَه 2026-08-29 (`WI-019` — الحكمُ الأحمرُ صارَ مقروءًا ثمَّ صارَ أخضرَ: سببُه سطرُ اختبارٍ لا حرسٌ ضعيفٌ، فأُصلِحَ الفتيلُ ولم يُخفَّفِ الماسحُ)
+## تاريخ آخر تعديل: 2026-09-02 (`WI-034` — فخُّ منطقةِ زمنِ الالتزامِ صارَ محروسًا: الحرسُ يُثبِتُ الفخَّ ثمَّ يقيسُ زوالَه · و`WI-033` صارَ `IN_REVIEW` بحكمٍ أخضرَ مقروءٍ **13/13** على عقدةِ `3c5025d`) · وقبلَه 2026-09-02 (`WI-033` — حكمٌ أخضرُ مقروءٌ **13/13** على عقدةِ `ceef58e` فصارَ `IN_REVIEW` · وما بقيَ حرًّا من الدَّينِ موضعانِ تحتَ `tools/crown/` حبسُهما قرارُ مالكٍ لا عملٌ) · وقبلَه 2026-09-02 (`WI-032` — حكمٌ أخضرُ مقروءٌ **13/13** على عقدةِ `9c27533` فصارَ `IN_REVIEW` · و`WI-033` حُجِزَ ونُفِّذَ: 9 مواضعَ حرّةٍ باقيةٍ تحتَ `tests/`) · وقبلَه 2026-09-02 (`WI-032` — نُفِّذَ الخفضُ: 34 موضعًا رُحِّلَت، فصارَ دَينُ `tests` **19** ومن صنفِ «بلا وجهٍ» **12**) · وقبلَه 2026-09-02 (`WI-032` — حُجِزَ: أوّلُ خفضٍ فعليٍّ لدَينِ `DISC-041` في 34 موضعًا حرًّا) · وقبلَه 2026-09-02 (`WI-031` — حكمانِ أخضرانِ مقروآنِ 13/13 فصارَ `IN_REVIEW` · و`DISC-041` مِرساتُه صارَت حرسًا قائمًا) · وقبلَه 2026-09-02 (`WI-031` — نزلَ الحرسُ وصارَ `IN_PROGRESS`: الدَّينُ صارَ سقّاطتَينِ لا تعلوانِ) · وقبلَه 2026-09-02 (`WI-031` — حُجِزَ: جذرُ القياسِ يُعرَفُ بعلامةٍ أو بعلمٍ لا بعُمقٍ مكتوبٍ · و`DISC-041` قُيِّدَ بأرقامٍ تُعادُ: **25 و53 موضعًا · منها 2 و37 بلا وجهٍ يُمرِّرُ جذرًا صريحًا**) · وقبلَه 2026-09-02 (`WI-030` — نُقِلَ إلى `IN_REVIEW` بعدَ حكمٍ أخضرَ مقروءٍ **13/13** على عقدةِ `48082c5`، والفحصُ الجديدُ نُفِّذَ في CI لا محلّيًّا وحدَه) · وقبلَه 2026-09-02 (`WI-030` — نزلَ وجهُ `--check` وحرسُه فصارَ «الأثرُ المُولَّدُ مدفوعٌ» مقيسًا **قبلَ** الدفعِ لا في CI وحدَها: **6 فحوصٍ مرَّت · مواضعُ القياسِ 27 منها 0 غيرُ مُرساةٍ · والسقّاطةُ ثابتةٌ عندَ 63 بعدَ إصلاحِ عَطبٍ أحدثَه القياسُ في نفسِه**) · وقبلَه 2026-09-01 (`WI-030` — حُجِزَ: «الأثرُ المُولَّدُ مدفوعٌ» يصيرُ مقيسًا قبلَ الدفعِ لا في CI وحدَها · و`WI-029` نُقِلَ إلى `IN_REVIEW` بعدَ حكمٍ أخضرَ مقروءٍ 13/13) · وقبلَه 2026-09-01 (`WI-029` — الحرسُ نزلَ فصارَ النمطُ مقيسًا في كلِّ دفعةٍ، والموضعُ الوحيدُ غيرُ المُرسى أُرسِيَ بعلمٍ صريحٍ: **24 موضعًا · 19 قصدًا · 5 مؤقَّتةً · 5 مُرساةٌ · 0 غيرُ مُرساةٍ**) · وقبلَه 2026-08-30 (`WI-021` — ماسحٌ واحدٌ مرجعيٌّ لبوّابةِ 6، ومحلُّ قياسٍ صريحٌ، وحالةٌ لا تُكتَبُ مرّتَينِ متناقضتَينِ) · وقبلَه 2026-08-29 (`WI-019` — الحكمُ الأحمرُ صارَ مقروءًا ثمَّ صارَ أخضرَ: سببُه سطرُ اختبارٍ لا حرسٌ ضعيفٌ، فأُصلِحَ الفتيلُ ولم يُخفَّفِ الماسحُ)
 
 > يحكمُ هذا السجلَّ [`THE_ROADMAP.md`](THE_ROADMAP.md): الحقولُ في § 4.2، والحالاتُ
 > والانتقالاتُ في § 4.3، وقفلُ النطاقِ في § 6، وواجبُ ما بعدَ الدمجِ في § 7.
@@ -54,6 +54,7 @@
 | WI-031 | tooling-gates | T0 (قابليّةُ القياسِ · جذرُ القياسِ مُثبَّتٌ بعُمقٍ مكتوبٍ فيُقرأُ أخضرُ عن شجرةٍ غيرِ مقصودةٍ · `DISC-041` · سببُ `DISC-032` الأعمقُ) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tests/governance/test_w102_measurement_root_provenance.py | 2026-09-02 | 2026-09-09 | — | مراجعةُ المالكِ — ولا يضعُ الكاتبُ `VERIFIED` (§ 4.3) | — |
 | WI-032 | tooling-gates | T0 (خفضُ دَينِ `DISC-041` المقيسِ: جذرٌ يُعرَفُ بعلامةٍ لا بعُمقٍ مكتوبٍ — في المواضعِ **الحرّةِ** وحدَها) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/repo_root.py · tests/governance/test_w106_repo_root_discovery.py · tests/governance/test_completion_ledger_gate.py · tests/governance/test_constitutional_reconciliation.py · tests/governance/test_cross_system_suites.py · tests/governance/test_identity_law.py · tests/governance/test_measurement_ignores_environments.py · tests/governance/test_q3_branch_declaration_surface.py · tests/governance/test_root_dependencies_declared.py · tests/governance/test_step12_live_truth_guards.py · tests/governance/test_step13_identity_headers.py · tests/governance/test_step16_silent_fallback.py · tests/governance/test_step17_in_memory_stores.py · tests/governance/test_step18_restart_survival.py · tests/governance/test_step20_debt_drift_snapshot.py · tests/governance/test_step7_factory_surfaces.py · tests/governance/test_truth_matrix_identity.py · tests/governance/test_w034_runtime_state_identity.py · tests/governance/test_w036_pricing_divergence.py · tests/governance/test_w037_measurement_provenance.py · tests/governance/test_w038_probe_measure_mode.py · tests/governance/test_w042_root_name_guard.py · tests/governance/test_w048_bound_provenance.py · tests/governance/test_w051_ci_verdict_readability.py · tests/governance/test_w052_history_hash_probe.py · tests/governance/test_w053_gate_dependency_closure.py · tests/governance/test_w055_schema_inventory_drift.py · tests/governance/test_w056_sovereign_decision_status.py · tests/governance/test_w058_live_stack_precondition.py · tests/governance/test_w059_open_record_accountability.py · tests/governance/test_w061_surface_debt_trend.py · tests/governance/test_w062_mutation_probe.py · tests/governance/test_w064_services_src_fallback.py · tests/governance/test_w069_single_scanner_and_explicit_root.py · tests/governance/test_w069_status_contradiction.py · tests/governance/test_work_governance_gate.py | 2026-09-02 | 2026-09-09 | — | مراجعةُ المالكِ (`A-2` `PENDING` — و`VERIFIED` فعلُ المراجعِ لا الكاتبِ) | — |
 | WI-033 | tests-root | T0 (تتمّةُ خفضِ دَينِ `DISC-041`: المواضعُ الحرّةُ الباقيةُ تحتَ `tests/` خارجَ `tests/governance/`) | Driving H | — (النطاقُ بلا مراجعٍ مُسجَّلٍ · `A-2` `PENDING`) | IN_REVIEW | tests/constitutional/test_constitutional_cli.py · tests/constitutional/test_constitutional_engine.py · tests/crown/test_crown_truth_matrix.py · tests/crown/test_w064_secret_scan_exceptions.py · tests/sovereignty/test_crown_human_root.py · tests/sovereignty/test_enforcement_boundary.py · tests/sovereignty/test_enforcement_integration.py · tests/sovereignty/test_sovereignty_cli.py · tests/sovereignty/test_sovereignty_kernel.py | 2026-09-02 | 2026-09-09 | — | مراجعةٌ — والنطاقُ بلا مراجعٍ مُسجَّلٍ و`A-2` `PENDING`، فلا `VERIFIED` بيدِ الكاتبِ | — |
+| WI-034 | tooling-gates | T0 (‏حدُّ الصدقِ 8 في [`COMPLETION_LEDGER.md § 10`](../../audit/COMPLETION_LEDGER.md): فخُّ منطقةِ زمنِ الالتزامِ صارَ محروسًا لا مُعلَنًا وحدَه) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_PROGRESS | tools/governance/stamp_readme_identity.py · tests/governance/test_w109_commit_timestamp_timezone.py | 2026-09-02 | 2026-09-09 | — | قراءةُ حكمِ CI لعقدةِ العملِ ثمَّ `IN_REVIEW` (§ 4.3) | — |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
 
@@ -1323,6 +1324,43 @@
 قيدُ السجلّ: W-069 · دفعٌ مباشرٌ إلى main (`ed9e5c5`) · حكمُ CI على عقدةِ القيدِ **قُرِئَ أخضرَ 13/13** (تشغيلُ 33342938099 · `completed success` · و`ci_verdict_readability.py --from-json` ⇒ `READABLE · 13/13`) · مُراجَعٌ 2026-08-31 (`A-2` · غيرُ مستقلٍّ) · **مُغلَقٌ 2026-08-31 بـ`W-071`** بعدَ خُضرةٍ مقروءةٍ ثانيةٍ 13/13 على `0ce4d5d` (تشغيلُ 33345147799 · `READABLE`)
 ```
 
+
+### WI-034 — فخُّ منطقةِ زمنِ الالتزامِ: يُحرَسُ لا يُعلَنُ وحدَه
+
+```text
+النطاق: tooling-gates (‏`tools/governance` — نطاقٌ مُسجَّلٌ · فئةُ التغييرِ `C1`)
+المسار/المرحلة: T0 (قابليّةُ القياسِ — حدُّ الصدقِ 8 المُعلَنُ منذُ `W-005` بلا حرسٍ)
+المالك: Driving H            المراجع: المالك (`A-2` · غيرُ مستقلٍّ)
+الحالة: IN_PROGRESS   (‏حُجِزَ ثمَّ نُفِّذَ في العقدةِ نفسِها — والحجزُ كُتِبَ قبلَ مسِّ ملفٍّ · § 4.3)
+المسارات:
+  tools/governance/stamp_readme_identity.py                        (‏اشتقاقُ التاريخِ يُوحَّدُ على UTC)
+  tests/governance/test_w109_commit_timestamp_timezone.py          (‏جديدٌ — حرسٌ يُثبِتُ الفخَّ ثمَّ يقيسُ زوالَه)
+فحصُ التداخلِ (§ 6.2) — نتيجتُه تُقيَّدُ ولو كانت «لا تداخل»:
+  - `stamp_readme_identity.py` **لا يُعلِنُه بندٌ** `RESERVED`/`IN_PROGRESS`/`IN_REVIEW`: قِيسَ على خلايا المساراتِ كلِّها — لا تداخل
+  - وملفُّ الحرسِ جديدٌ · ولا `ci.yml` يُمَسُّ (‏مقفولٌ بـ`WI-023`) · ولا جدولَ ولا migration ولا سرَّ · ولا قرارَ `Q-###` يتوقَّفُ عليه
+خارجَ النطاق:
+  - **حدُّ الصدقِ 9 لا يُمَسُّ**: صدقُ طابعِ الالتزامِ نفسِه (‏تواريخُ `W-023`…`W-027` الباطلةُ) دَينٌ آخرُ يبقى مُعلَنًا، وتصحيحُه يوجبُ إعادةَ كتابةِ التاريخِ وهي ممنوعةٌ
+  - ولا تُمَسُّ أدواتٌ أُخرى تشتقُّ تواريخَ ولو كانَ فيها عينُ النمطِ: هذا بندُ موضعٍ واحدٍ مقيسٍ لا حملةٌ
+معيارُ القبول:
+  1. اشتقاقُ «اليومِ» لا يتبعُ منطقةَ الجهازِ، واشتقاقُ تاريخِ git لا يتبعُ منطقةَ الالتزامِ — بل UTC في الحالَينِ
+  2. الحرسُ **يُثبِتُ أنَّ الفخَّ حقيقيٌّ** أوّلًا (‏التزامٌ بـ+03:00 قربَ منتصفِ الليلِ يُري `--date=short` يومًا والمُوحَّدُ يومًا آخرَ)، فلا تُقاسُ خُضرةٌ بلا فرقٍ
+  3. لا يُخفَّفُ فحصٌ ولا يُسكَتُ ماسحٌ · و`--ratchet` لا يرتفعُ · و§ 5.4 كلُّها رمزُها 0
+  4. حكمُ CI يُقرأُ برقمِ تشغيلٍ ويُقيَّدُ قبلَ الانتقالِ (§ 4.3)
+الدليلُ المطلوب:
+  python -m pytest tests/governance/test_w109_commit_timestamp_timezone.py -q
+  python tools/governance/truth_audit.py . --ratchet
+بدأ: 2026-09-02        ينتهي الحجز: 2026-09-09
+العائق: —
+الخطوةُ التالية: قراءةُ حكمِ CI لعقدةِ العملِ برقمِ تشغيلٍ وتقييدُه، ثمَّ `IN_REVIEW`
+حكمُ CI المقروءُ: — (‏عقدةُ هذا العملِ تُقرأُ في القيدِ التالي)
+حدُّ البندِ — مُعلَنٌ لا مطويٌّ:
+  - **الحرسُ يقيسُ أداةً واحدةً**: عودةُ النمطِ في أداةٍ أُخرى لا يُسقِطُه — فالحدُّ 8 صارَ محروسًا **في موضعِه المقيسِ** لا في المستودعِ كلِّه
+  - **ولا يُقرأُ إبراءً للحدِّ 9**: صدقُ الطابعِ نفسِه ما زالَ بلا حرسٍ
+قيدُ السجلّ: W-109 · الحجزُ والعملُ في عقدةٍ واحدةٍ («الدفعُ = العملُ وقيدُه معًا»)
+  و**خليّةُ «قيدُ السجلّ» في صفِّ § 1 تُكتَبُ `—`** بالسابقةِ المقيسةِ (`DISC-010` · `DISC-030`)
+```
+
+---
 
 ### WI-033 — تتمّةُ الخفضِ: المواضعُ الحرّةُ الباقيةُ تحتَ `tests/`
 

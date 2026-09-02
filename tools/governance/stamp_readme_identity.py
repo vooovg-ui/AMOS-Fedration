@@ -9,7 +9,7 @@
         مالكًا — تلك حقول يكتبها إنسان، ولا يجوز تلفيقها.
 المالك: tools/governance — المجلس التأسيسي
 تاريخ الإنشاء: 2026-08-16
-تاريخ آخر تعديل: 2026-08-16
+تاريخ آخر تعديل: 2026-09-02 (‏W-109 — اشتقاقُ اليومِ والتاريخِ صارَ بـUTC لا بمنطقةِ الجهازِ ولا بمنطقةِ الالتزامِ)
 
 ## الحد الفاصل الذي تلتزمه هذه الأداة
 «تاريخ آخر تعديل» و«المحتويات» **وقائع** تُقرأ من git ومن نظام الملفات، فتوليدها
@@ -25,13 +25,37 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
+import os
 import re
 import subprocess
 import sys
-from datetime import date
+from datetime import datetime, timezone
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+# يُحمَّلُ المُكتشِفُ **بموضعِه المجاورِ** لا بعُمقٍ من الجذرِ: الأداةُ تُشغَّلُ
+# سكربتًا مستقلًّا (‏فلا حزمةَ `tools` في `sys.path`) وتُستورَدُ حزمةً في الفحوصِ،
+# فالطريقُ الوحيدُ الصادقُ في الحالَينِ هو الملفُّ الجارُ في المجلَّدِ نفسِه.
+_ROOT_FINDER_PATH = Path(__file__).resolve().with_name("repo_root.py")
+_ROOT_FINDER_SPEC = importlib.util.spec_from_file_location(
+    "amos_repo_root_finder", _ROOT_FINDER_PATH
+)
+if _ROOT_FINDER_SPEC is None or _ROOT_FINDER_SPEC.loader is None:
+    raise ImportError(f"تعذّرَ تحميلُ مُكتشِفِ الجذرِ من {_ROOT_FINDER_PATH}")
+_ROOT_FINDER = importlib.util.module_from_spec(_ROOT_FINDER_SPEC)
+_ROOT_FINDER_SPEC.loader.exec_module(_ROOT_FINDER)
+
+REPO_ROOT = _ROOT_FINDER.discover_repo_root(__file__)
+
+
+def utc_today() -> str:
+    """اليومُ بالتوقيتِ العالميِّ — لا بمنطقةِ الجهازِ.
+
+    `date.today()` يقرأُ منطقةَ الجهازِ، فيُري جهازًا بـ+03:00 قربَ منتصفِ الليلِ
+    يومًا غيرَ الذي يراهُ CI بـ+00:00 — وهو الفخُّ المُعلَنُ في
+    `COMPLETION_LEDGER.md § 10` حدًّا 8. فيُوحَّدُ المرجعُ هنا نصًّا واحدًا.
+    """
+    return datetime.now(timezone.utc).date().isoformat()
 
 SKIP_DIRS = {
     ".git", "__pycache__", ".pytest_cache", ".ruff_cache", ".mypy_cache",
@@ -57,15 +81,16 @@ def git_last_modified(path: Path) -> str:
     """تاريخ آخر تعديل من سجل git — واقع لا تقدير."""
     try:
         out = subprocess.run(
-            ["git", "log", "-1", "--format=%ad", "--date=short", "--", str(path)],
+            ["git", "log", "-1", "--format=%ad", "--date=format-local:%Y-%m-%d", "--", str(path)],
             cwd=REPO_ROOT, capture_output=True, text=True, timeout=20, check=False,
+            env={**os.environ, "TZ": "UTC"},
         )
         stamp = out.stdout.strip()
         if re.fullmatch(r"\d{4}-\d{2}-\d{2}", stamp):
             return stamp
     except (OSError, subprocess.SubprocessError) as exc:  # لا يُبتلع
         print(f"  [تنبيه] تعذّر قراءة سجل git لـ {path}: {exc}", file=sys.stderr)
-    return date.today().isoformat()
+    return utc_today()
 
 
 def _is_dirty(path: Path) -> bool:
@@ -84,7 +109,7 @@ def _is_dirty(path: Path) -> bool:
 def expected_last_modified(readme: Path) -> str:
     """التاريخ الذي **يجب** أن تحمله البطاقة: اليوم إن كانت مُعدَّلة، وإلا سجل git."""
     if _is_dirty(readme):
-        return date.today().isoformat()
+        return utc_today()
     return git_last_modified(readme)
 
 
@@ -120,7 +145,7 @@ def date_drift(readme: Path, text: str | None = None) -> tuple[str, str] | None:
     if declared is None:
         return None
     actual = expected_last_modified(readme)
-    today = date.today().isoformat()
+    today = utc_today()
     if declared < actual:
         return (declared, actual)
     if declared > today:
@@ -240,7 +265,7 @@ def stamp(readme: Path) -> bool:
         drift = date_drift(readme, text)
         if drift is not None:
             # التصحيح يكتب تاريخ اليوم: الملف يُعدَّل الآن بهذا التصحيح نفسه.
-            text = _fill(text, MTIME_HEADS, date.today().isoformat())
+            text = _fill(text, MTIME_HEADS, utc_today())
 
     if not _has(text, CONTENTS_HEADS):
         contents = build_contents(directory)
