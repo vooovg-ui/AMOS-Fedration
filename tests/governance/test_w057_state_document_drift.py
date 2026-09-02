@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -417,7 +418,10 @@ def test_newest_returns_none_on_empty() -> None:
 def test_real_repository_is_measurable() -> None:
     report = SDD.measure(REPO_ROOT, today=datetime.now(UTC).date())
     assert report.ledger_rows > 40
-    assert report.ledger_newest_work.startswith("W-0")
+    # شكلُ المعرِّفِ يُقاسُ، لا سقفٌ لعدَدِه: `startswith("W-0")` كانَ يُضمِرُ أنَّ
+    # السجلَّ لا يتجاوزُ `W-099`، فسقطَ حينَ بلغَ `W-100` — وهو نموُّ سجلٍّ لا عَطبُ
+    # قياسٍ. فأُصلِحَ المقيسُ في مصدرِه ولم يُحذَفِ التأكيدُ ولم يُلَيَّنْ.
+    assert re.fullmatch(r"W-\d{3,}", report.ledger_newest_work), report.ledger_newest_work
     assert len(report.documents) == len(SDD.STATE_DOCUMENTS)
 
 

@@ -10,10 +10,12 @@
 المبدأ: لا تُقبل عبارة DONE بلا دليل تنفيذي. هذا المحرك يستخرج الدليل آليًا.
 
 Usage:
-    python tools/governance/truth_audit.py [REPO_ROOT] [--strict] [--ratchet] [--set-baseline]
+    python tools/governance/truth_audit.py [REPO_ROOT] [--strict] [--ratchet] [--set-baseline] [--check]
 
 الأوضاع:
     (بلا علم)      توليد المصفوفة فقط
+    --check        بوابة الطزاجة: يولّد في الذاكرة ويقارن بالمكتوب في الشجرة ويفشل على الفرق
+                   — ولا يكتب شيئًا. (DISC-040: الأمر الذي يكتب الأثر لا يقيس أنه يُدفع)
     --strict       يفشل عند وجود أي مخالفة CRITICAL (بوابة الإقفال النهائية)
     --ratchet      بوابة عدم التراجع: يفشل إذا ارتفع عدد المخالفات عن خط الأساس
     --set-baseline يثبّت خط أساس جديد (يُستخدم فقط بعد خفض المخالفات)
@@ -1024,11 +1026,91 @@ def ratchet_gate(out_dir: Path, summary: dict, set_baseline: bool) -> int:
     return 0
 
 
+def _json_drift(published_text: str, generated_text: str) -> list[str]:
+    """أينَ اختلفَ المكتوبُ عن المُولَّدِ — بالحقلِ لا بالسطرِ، فالرسالةُ تُصلِحُ لا تُحيِّرُ."""
+    try:
+        published = json.loads(published_text)
+        generated = json.loads(generated_text)
+    except json.JSONDecodeError as exc:
+        # لا يُبتلَعُ الخطأُ: يُسَمَّى ويُرفَعُ إلى مُخرَجِ القياسِ فيُسقِطُ البوّابةَ.
+        print(f"[FRESHNESS] JSONDecodeError: {exc}", file=sys.stderr)
+        return [f"الملفُّ المكتوبُ ليسَ JSON صالحًا ({exc}) — أعِدْ توليدَه"]
+
+    def walk(pub: object, gen: object, path: str, out: list[str]) -> None:
+        if isinstance(pub, dict) and isinstance(gen, dict):
+            for key in sorted(set(pub) | set(gen)):
+                if key not in pub:
+                    out.append(f"{path}{key}: غائبٌ في المكتوبِ · المُولَّدُ {gen[key]!r}")
+                elif key not in gen:
+                    out.append(f"{path}{key}: زائدٌ في المكتوبِ · قيمتُه {pub[key]!r}")
+                else:
+                    walk(pub[key], gen[key], f"{path}{key}.", out)
+            return
+        if pub == gen:
+            return
+        if isinstance(pub, list) and isinstance(gen, list):
+            # القوائمُ تُلخَّصُ ولا تُسكَبُ: رسالةٌ تُقرأُ خيرٌ من ألفِ سطرٍ لا يُقرأ.
+            only_gen = [x for x in gen if x not in pub]
+            only_pub = [x for x in pub if x not in gen]
+            out.append(
+                f"{path.rstrip('.')}: قائمةٌ طولُها المكتوبُ {len(pub)} · المُولَّدُ {len(gen)} "
+                f"· زائدٌ في المُولَّدِ {len(only_gen)} · مفقودٌ منه {len(only_pub)}"
+                + "".join(f"\n        + {str(x)[:200]}" for x in only_gen[:5])
+                + "".join(f"\n        - {str(x)[:200]}" for x in only_pub[:5])
+            )
+            return
+        out.append(f"{path.rstrip('.')}: المكتوبُ {str(pub)[:200]!r} · المُولَّدُ {str(gen)[:200]!r}")
+
+    drift: list[str] = []
+    walk(published, generated, "", drift)
+    return drift
+
+
+def freshness_gate(out_dir: Path, markdown: str, matrix_json: str) -> int:
+    """وجهُ `--check`: يقيسُ أنَّ الأثرَ المُولَّدَ المكتوبَ في الشجرةِ طازجٌ — **ولا يكتُبُ فيها**.
+
+    العَطبُ المقيسُ (`DISC-040`): مجموعةُ ما قبلَ الدفعِ تأمرُ بتشغيلِ هذه الأداةِ، وتشغيلُها
+    **يكتُبُ** الأثرَ فيُرضي الأمرَ — ولا يقيسُ أنَّ المكتوبَ **يُدفَعُ**. فالبوّابةُ الوحيدةُ
+    التي كانت تلتقطُ التقادمَ هي `git diff --exit-code` في CI، فيخضَرُّ المحلّيُّ ويحمَرُّ الحكمُ.
+    """
+    expected = {
+        "docs/audit/TRUTH_MATRIX.md": markdown,
+        "docs/audit/truth_matrix.json": matrix_json,
+    }
+    stale: list[str] = []
+    for rel, generated in expected.items():
+        path = out_dir.parent.parent / rel
+        if not path.exists():
+            stale.append(f"{rel}: لا وجودَ له في الشجرةِ — الأثرُ المُولَّدُ غيرُ مدفوعٍ")
+            continue
+        published = path.read_text(encoding="utf-8")
+        if published == generated:
+            continue
+        if rel.endswith(".json"):
+            fields = _json_drift(published, generated)
+            head = f"{rel}: المكتوبُ متقادمٌ في {len(fields)} حقلًا"
+            stale.append(head + "".join(f"\n      - {f}" for f in fields[:20]))
+        else:
+            stale.append(f"{rel}: المكتوبُ يخالفُ المُولَّدَ")
+
+    if stale:
+        print("[FRESHNESS] ✗ الأثرُ المُولَّدُ في الشجرةِ متقادمٌ — "
+              "أعِدْ توليدَه وادفعْه مع عملِك:", file=sys.stderr)
+        for line in stale:
+            print(f"    {line}", file=sys.stderr)
+        print("    الأمرُ: python tools/governance/truth_audit.py", file=sys.stderr)
+        return 1
+
+    print("[FRESHNESS] ✓ الأثرُ المُولَّدُ المكتوبُ في الشجرةِ يطابقُ المُولَّدَ الآنَ.")
+    return 0
+
+
 def main(argv: list[str]) -> int:
     args = [a for a in argv[1:] if not a.startswith("--")]
     strict = "--strict" in argv
     ratchet = "--ratchet" in argv
     set_baseline = "--set-baseline" in argv
+    check = "--check" in argv
     root = Path(args[0]).resolve() if args else Path(__file__).resolve().parents[2]
 
     audit = TruthAudit(root)
@@ -1036,10 +1118,16 @@ def main(argv: list[str]) -> int:
     audit.load_evidence()
 
     out_dir = root / "docs" / "audit"
+    markdown = audit.to_markdown()
+    matrix_json = json.dumps(audit.to_json(), ensure_ascii=False, indent=2)
+
+    if check:
+        # وجهٌ يقرأُ ولا يكتُبُ: لا `mkdir` ولا `write_text` — فالشجرةُ التي يحكُمُ عليها لا يمسُّها.
+        return freshness_gate(out_dir, markdown, matrix_json)
+
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "TRUTH_MATRIX.md").write_text(audit.to_markdown(), encoding="utf-8")
-    (out_dir / "truth_matrix.json").write_text(
-        json.dumps(audit.to_json(), ensure_ascii=False, indent=2), encoding="utf-8")
+    (out_dir / "TRUTH_MATRIX.md").write_text(markdown, encoding="utf-8")
+    (out_dir / "truth_matrix.json").write_text(matrix_json, encoding="utf-8")
 
     s = audit.summary()
     print(f"[TRUTH AUDIT] أقاليم: {s['domains_total']} | "
