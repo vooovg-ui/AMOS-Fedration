@@ -25,9 +25,9 @@ import pytest
 
 from tools.governance import constitutional_reconciliation as recon
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+from tools.governance.repo_root import discover_repo_root  # noqa: E402
 
-
+REPO_ROOT = discover_repo_root(__file__)
 @pytest.fixture
 def دستورٌ_وهميّ(tmp_path: Path) -> Path:
     """يبني شجرةَ دستورٍ صغيرةً حقيقيّةَ الملفّات لا مُحاكاةً بالتلقيم."""

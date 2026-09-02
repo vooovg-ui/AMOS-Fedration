@@ -26,9 +26,10 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+from tools.governance.repo_root import discover_repo_root  # noqa: E402
+
+REPO_ROOT = discover_repo_root(__file__)
 GATE_TOOL = REPO_ROOT / "tools" / "audit" / "decision_gate.py"
 LEDGER_PATH = (
     REPO_ROOT / "docs" / "audit" / "measurements" / "decision_gate_ledger.json"

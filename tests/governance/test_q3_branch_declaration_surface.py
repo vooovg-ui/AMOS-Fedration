@@ -33,7 +33,9 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+from tools.governance.repo_root import discover_repo_root  # noqa: E402
+
+REPO_ROOT = discover_repo_root(__file__)
 SERVICES_SRC = REPO_ROOT / "federal" / "executive" / "services" / "src"
 PRINCIPAL_PATH = SERVICES_SRC / "amos_federation" / "common" / "principal.py"
 BRIDGE_PATH = (

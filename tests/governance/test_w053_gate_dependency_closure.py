@@ -34,7 +34,9 @@ from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[2]
+from tools.governance.repo_root import discover_repo_root  # noqa: E402
+
+ROOT = discover_repo_root(__file__)
 TOOL = ROOT / "tools/governance/gate_dependency_closure.py"
 SOURCE = TOOL.read_text(encoding="utf-8")
 

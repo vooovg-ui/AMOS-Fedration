@@ -36,8 +36,9 @@ from pathlib import Path
 
 import pytest
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+from tools.governance.repo_root import discover_repo_root  # noqa: E402
 
+REPO_ROOT = discover_repo_root(__file__)
 # قاعدةُ الحكمِ تُستورَدُ من المدقّقِ نفسِه — لا تُعادُ كتابتُها هنا، لئلّا يخضرَّ
 # الحرسُ بقاعدةٍ ألطفَ من قاعدةِ البوّابة.
 sys.path.insert(0, str(REPO_ROOT / "tools" / "governance"))

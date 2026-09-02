@@ -23,7 +23,9 @@ from pathlib import Path
 
 import pytest
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+from tools.governance.repo_root import discover_repo_root  # noqa: E402
+
+REPO_ROOT = discover_repo_root(__file__)
 TOOL_PATH = REPO_ROOT / "tools" / "governance" / "check_completion_ledger.py"
 LEDGER_REL = "docs/audit/COMPLETION_LEDGER.md"
 

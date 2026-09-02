@@ -25,7 +25,9 @@ import json
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+from tools.governance.repo_root import discover_repo_root  # noqa: E402
+
+ROOT = discover_repo_root(__file__)
 TOOL = ROOT / "tools/governance/check_root_file_names.py"
 WORKFLOW = ROOT / ".github/workflows/ci.yml"
 HANDBOOK = ROOT / "docs/PROJECT_HANDBOOK.md"

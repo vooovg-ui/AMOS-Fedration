@@ -18,9 +18,10 @@
 from __future__ import annotations
 
 import re
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+from tools.governance.repo_root import discover_repo_root  # noqa: E402
+
+REPO_ROOT = discover_repo_root(__file__)
 CI = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 DEV = REPO_ROOT / "requirements-dev.txt"
 TOOLS = REPO_ROOT / "requirements-tools.txt"

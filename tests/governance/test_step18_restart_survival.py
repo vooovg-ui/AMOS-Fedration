@@ -34,7 +34,9 @@ from typing import Any
 
 import pytest
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+from tools.governance.repo_root import discover_repo_root  # noqa: E402
+
+REPO_ROOT = discover_repo_root(__file__)
 PROBE_PATH = REPO_ROOT / "tools" / "governance" / "restart_survival_probe.py"
 MEASUREMENT_PATH = (
     REPO_ROOT / "docs" / "audit" / "measurements" / "restart_survival.json"
