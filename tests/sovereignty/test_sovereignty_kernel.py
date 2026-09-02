@@ -54,7 +54,9 @@ from core.sovereignty.prerogatives import (
     touches_royal_authority,
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+from tools.governance.repo_root import discover_repo_root  # noqa: E402
+
+REPO_ROOT = discover_repo_root(__file__)
 NOW = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 

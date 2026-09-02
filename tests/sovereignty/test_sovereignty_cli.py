@@ -17,9 +17,9 @@ import pytest
 from core.sovereignty import cli
 from core.sovereignty.cli import main
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+from tools.governance.repo_root import discover_repo_root  # noqa: E402
 
-
+REPO_ROOT = discover_repo_root(__file__)
 class TestSovereigntyCheckGate:
     def test_gate_passes_on_a_healthy_state(self, capsys: pytest.CaptureFixture[str]) -> None:
         assert main(["sovereignty-check"]) == 0

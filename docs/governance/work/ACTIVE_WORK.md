@@ -4,7 +4,7 @@
 ## النطاق: البنودُ المفتوحةُ وحدَها (`PROPOSED` → `VERIFIED`) والمُغلَقةُ حديثًا. **لا يُسجَّلُ هنا تاريخُ ما أُنجِز** — ذاك في [`COMPLETION_LEDGER.md`](../../audit/COMPLETION_LEDGER.md)، ولا حالةُ القدرةِ — تلك في [`TRUTH_MATRIX.md`](../../audit/TRUTH_MATRIX.md)
 ## المالك: قائدُ التنفيذِ، بتفويضٍ من المجلس التأسيسي
 ## تاريخ الإنشاء: 2026-08-25
-## تاريخ آخر تعديل: 2026-09-02 (`WI-032` — نُفِّذَ الخفضُ: 34 موضعًا رُحِّلَت، فصارَ دَينُ `tests` **19** ومن صنفِ «بلا وجهٍ» **12**) · وقبلَه 2026-09-02 (`WI-032` — حُجِزَ: أوّلُ خفضٍ فعليٍّ لدَينِ `DISC-041` في 34 موضعًا حرًّا) · وقبلَه 2026-09-02 (`WI-031` — حكمانِ أخضرانِ مقروآنِ 13/13 فصارَ `IN_REVIEW` · و`DISC-041` مِرساتُه صارَت حرسًا قائمًا) · وقبلَه 2026-09-02 (`WI-031` — نزلَ الحرسُ وصارَ `IN_PROGRESS`: الدَّينُ صارَ سقّاطتَينِ لا تعلوانِ) · وقبلَه 2026-09-02 (`WI-031` — حُجِزَ: جذرُ القياسِ يُعرَفُ بعلامةٍ أو بعلمٍ لا بعُمقٍ مكتوبٍ · و`DISC-041` قُيِّدَ بأرقامٍ تُعادُ: **25 و53 موضعًا · منها 2 و37 بلا وجهٍ يُمرِّرُ جذرًا صريحًا**) · وقبلَه 2026-09-02 (`WI-030` — نُقِلَ إلى `IN_REVIEW` بعدَ حكمٍ أخضرَ مقروءٍ **13/13** على عقدةِ `48082c5`، والفحصُ الجديدُ نُفِّذَ في CI لا محلّيًّا وحدَه) · وقبلَه 2026-09-02 (`WI-030` — نزلَ وجهُ `--check` وحرسُه فصارَ «الأثرُ المُولَّدُ مدفوعٌ» مقيسًا **قبلَ** الدفعِ لا في CI وحدَها: **6 فحوصٍ مرَّت · مواضعُ القياسِ 27 منها 0 غيرُ مُرساةٍ · والسقّاطةُ ثابتةٌ عندَ 63 بعدَ إصلاحِ عَطبٍ أحدثَه القياسُ في نفسِه**) · وقبلَه 2026-09-01 (`WI-030` — حُجِزَ: «الأثرُ المُولَّدُ مدفوعٌ» يصيرُ مقيسًا قبلَ الدفعِ لا في CI وحدَها · و`WI-029` نُقِلَ إلى `IN_REVIEW` بعدَ حكمٍ أخضرَ مقروءٍ 13/13) · وقبلَه 2026-09-01 (`WI-029` — الحرسُ نزلَ فصارَ النمطُ مقيسًا في كلِّ دفعةٍ، والموضعُ الوحيدُ غيرُ المُرسى أُرسِيَ بعلمٍ صريحٍ: **24 موضعًا · 19 قصدًا · 5 مؤقَّتةً · 5 مُرساةٌ · 0 غيرُ مُرساةٍ**) · وقبلَه 2026-08-30 (`WI-021` — ماسحٌ واحدٌ مرجعيٌّ لبوّابةِ 6، ومحلُّ قياسٍ صريحٌ، وحالةٌ لا تُكتَبُ مرّتَينِ متناقضتَينِ) · وقبلَه 2026-08-29 (`WI-019` — الحكمُ الأحمرُ صارَ مقروءًا ثمَّ صارَ أخضرَ: سببُه سطرُ اختبارٍ لا حرسٌ ضعيفٌ، فأُصلِحَ الفتيلُ ولم يُخفَّفِ الماسحُ)
+## تاريخ آخر تعديل: 2026-09-02 (`WI-032` — حكمٌ أخضرُ مقروءٌ **13/13** على عقدةِ `9c27533` فصارَ `IN_REVIEW` · و`WI-033` حُجِزَ ونُفِّذَ: 9 مواضعَ حرّةٍ باقيةٍ تحتَ `tests/`) · وقبلَه 2026-09-02 (`WI-032` — نُفِّذَ الخفضُ: 34 موضعًا رُحِّلَت، فصارَ دَينُ `tests` **19** ومن صنفِ «بلا وجهٍ» **12**) · وقبلَه 2026-09-02 (`WI-032` — حُجِزَ: أوّلُ خفضٍ فعليٍّ لدَينِ `DISC-041` في 34 موضعًا حرًّا) · وقبلَه 2026-09-02 (`WI-031` — حكمانِ أخضرانِ مقروآنِ 13/13 فصارَ `IN_REVIEW` · و`DISC-041` مِرساتُه صارَت حرسًا قائمًا) · وقبلَه 2026-09-02 (`WI-031` — نزلَ الحرسُ وصارَ `IN_PROGRESS`: الدَّينُ صارَ سقّاطتَينِ لا تعلوانِ) · وقبلَه 2026-09-02 (`WI-031` — حُجِزَ: جذرُ القياسِ يُعرَفُ بعلامةٍ أو بعلمٍ لا بعُمقٍ مكتوبٍ · و`DISC-041` قُيِّدَ بأرقامٍ تُعادُ: **25 و53 موضعًا · منها 2 و37 بلا وجهٍ يُمرِّرُ جذرًا صريحًا**) · وقبلَه 2026-09-02 (`WI-030` — نُقِلَ إلى `IN_REVIEW` بعدَ حكمٍ أخضرَ مقروءٍ **13/13** على عقدةِ `48082c5`، والفحصُ الجديدُ نُفِّذَ في CI لا محلّيًّا وحدَه) · وقبلَه 2026-09-02 (`WI-030` — نزلَ وجهُ `--check` وحرسُه فصارَ «الأثرُ المُولَّدُ مدفوعٌ» مقيسًا **قبلَ** الدفعِ لا في CI وحدَها: **6 فحوصٍ مرَّت · مواضعُ القياسِ 27 منها 0 غيرُ مُرساةٍ · والسقّاطةُ ثابتةٌ عندَ 63 بعدَ إصلاحِ عَطبٍ أحدثَه القياسُ في نفسِه**) · وقبلَه 2026-09-01 (`WI-030` — حُجِزَ: «الأثرُ المُولَّدُ مدفوعٌ» يصيرُ مقيسًا قبلَ الدفعِ لا في CI وحدَها · و`WI-029` نُقِلَ إلى `IN_REVIEW` بعدَ حكمٍ أخضرَ مقروءٍ 13/13) · وقبلَه 2026-09-01 (`WI-029` — الحرسُ نزلَ فصارَ النمطُ مقيسًا في كلِّ دفعةٍ، والموضعُ الوحيدُ غيرُ المُرسى أُرسِيَ بعلمٍ صريحٍ: **24 موضعًا · 19 قصدًا · 5 مؤقَّتةً · 5 مُرساةٌ · 0 غيرُ مُرساةٍ**) · وقبلَه 2026-08-30 (`WI-021` — ماسحٌ واحدٌ مرجعيٌّ لبوّابةِ 6، ومحلُّ قياسٍ صريحٌ، وحالةٌ لا تُكتَبُ مرّتَينِ متناقضتَينِ) · وقبلَه 2026-08-29 (`WI-019` — الحكمُ الأحمرُ صارَ مقروءًا ثمَّ صارَ أخضرَ: سببُه سطرُ اختبارٍ لا حرسٌ ضعيفٌ، فأُصلِحَ الفتيلُ ولم يُخفَّفِ الماسحُ)
 
 > يحكمُ هذا السجلَّ [`THE_ROADMAP.md`](THE_ROADMAP.md): الحقولُ في § 4.2، والحالاتُ
 > والانتقالاتُ في § 4.3، وقفلُ النطاقِ في § 6، وواجبُ ما بعدَ الدمجِ في § 7.
@@ -52,7 +52,8 @@
 | WI-029 | tests-root | T0 (قابليّةُ القياسِ · فحصٌ يُشغِّلُ أداةً في عمليّةٍ فرعيّةٍ ويحكُمُ على شجرةٍ **لا يقرؤها** · `DISC-032`) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tests/governance/test_w096_subprocess_measurement_site.py · tests/governance/test_w054_post_merge_reverse_link.py | 2026-09-01 | 2026-09-08 | — | مُسلَّمٌ للمراجعةِ · حكمُ CI قُرِئَ أخضرَ 13/13 · والنقلُ إلى `VERIFIED` فعلُ المراجعِ لا فعلُ الكاتبِ (§ 4.3 · `A-2` غيرُ مستقلٍّ · `DISC-027`) | W-097 · دفعٌ مباشرٌ إلى main (`9bf0b00`) · **حكمُ عقدةِ القيدِ نفسِها قُرِئَ أحمرَ** (تشغيلُ 33570417864 · رقمُ 55 · `READABLE` · 12/13) **بسببٍ خارجَ نطاقِ البندِ**: خطوةُ «المصفوفةُ المدفوعةُ محدَّثةٌ» في وظيفةِ `Truth Audit` — ووظيفةُ `Tests` نفسُها **خضِرَت**، فالحرسُ نُفِّذَ وسكتَ على شجرةٍ صادقةٍ. وقُطِعَ السببُ في مصدرِه بـ`W-098`، فقُرِئَ الحكمُ على العقدةِ التاليةِ `815d707` **أخضرَ 13/13** (تشغيلُ [33572642082](https://github.com/xoos-beep/AMOS-Fedration/actions/runs/33572642082) · رقمُ 56 · `completed success` · و`ci_verdict_readability.py --from-json` ⇒ `READABLE · 13/13`) وهي تحملُ مساراتِ البندِ بلا تغيُّرٍ · مُسلَّمٌ للمراجعةِ 2026-09-01 · **وقيدُ التسليمِ لا يُسمّى في هذه الخليّةِ** بالسابقةِ المقيسةِ نفسِها (`DISC-010` · `DISC-030`): البوّابةُ تقرأُ الرابطَ العكسيَّ فتُشعِلُ `POST_MERGE_NOT_CLOSED` على بندٍ حالتُه `IN_REVIEW`، والرابطُ يكتبُه مَن يُغلِقُ. والدليلُ لم يُخفَ: قيدُ التسليمِ يُسمّي هذا البندَ نصًّا |
 | WI-030 | tooling-gates | T0 (قابليّةُ القياسِ · أثرٌ مُولَّدٌ يتقادمُ فتخضَرُّ كلُّ بوّابةٍ محلّيّةٍ ويحمَرُّ CI وحدَه · `DISC-040`) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/truth_audit.py · tests/governance/test_w099_generated_artifact_freshness.py | 2026-09-01 | 2026-09-08 | — | مراجعةٌ ثمَّ `VERIFIED` — بيدِ المراجعِ لا بيدِ صاحبِ التغييرِ (§ 4.3) | — |
 | WI-031 | tooling-gates | T0 (قابليّةُ القياسِ · جذرُ القياسِ مُثبَّتٌ بعُمقٍ مكتوبٍ فيُقرأُ أخضرُ عن شجرةٍ غيرِ مقصودةٍ · `DISC-041` · سببُ `DISC-032` الأعمقُ) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tests/governance/test_w102_measurement_root_provenance.py | 2026-09-02 | 2026-09-09 | — | مراجعةُ المالكِ — ولا يضعُ الكاتبُ `VERIFIED` (§ 4.3) | — |
-| WI-032 | tooling-gates | T0 (خفضُ دَينِ `DISC-041` المقيسِ: جذرٌ يُعرَفُ بعلامةٍ لا بعُمقٍ مكتوبٍ — في المواضعِ **الحرّةِ** وحدَها) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_PROGRESS | tools/governance/repo_root.py · tests/governance/test_w106_repo_root_discovery.py · tests/governance/test_completion_ledger_gate.py · tests/governance/test_constitutional_reconciliation.py · tests/governance/test_cross_system_suites.py · tests/governance/test_identity_law.py · tests/governance/test_measurement_ignores_environments.py · tests/governance/test_q3_branch_declaration_surface.py · tests/governance/test_root_dependencies_declared.py · tests/governance/test_step12_live_truth_guards.py · tests/governance/test_step13_identity_headers.py · tests/governance/test_step16_silent_fallback.py · tests/governance/test_step17_in_memory_stores.py · tests/governance/test_step18_restart_survival.py · tests/governance/test_step20_debt_drift_snapshot.py · tests/governance/test_step7_factory_surfaces.py · tests/governance/test_truth_matrix_identity.py · tests/governance/test_w034_runtime_state_identity.py · tests/governance/test_w036_pricing_divergence.py · tests/governance/test_w037_measurement_provenance.py · tests/governance/test_w038_probe_measure_mode.py · tests/governance/test_w042_root_name_guard.py · tests/governance/test_w048_bound_provenance.py · tests/governance/test_w051_ci_verdict_readability.py · tests/governance/test_w052_history_hash_probe.py · tests/governance/test_w053_gate_dependency_closure.py · tests/governance/test_w055_schema_inventory_drift.py · tests/governance/test_w056_sovereign_decision_status.py · tests/governance/test_w058_live_stack_precondition.py · tests/governance/test_w059_open_record_accountability.py · tests/governance/test_w061_surface_debt_trend.py · tests/governance/test_w062_mutation_probe.py · tests/governance/test_w064_services_src_fallback.py · tests/governance/test_w069_single_scanner_and_explicit_root.py · tests/governance/test_w069_status_contradiction.py · tests/governance/test_work_governance_gate.py | 2026-09-02 | 2026-09-09 | — | قراءةُ حكمِ CI لعقدةِ العملِ ثمَّ `IN_REVIEW` (§ 4.3) | — |
+| WI-032 | tooling-gates | T0 (خفضُ دَينِ `DISC-041` المقيسِ: جذرٌ يُعرَفُ بعلامةٍ لا بعُمقٍ مكتوبٍ — في المواضعِ **الحرّةِ** وحدَها) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/repo_root.py · tests/governance/test_w106_repo_root_discovery.py · tests/governance/test_completion_ledger_gate.py · tests/governance/test_constitutional_reconciliation.py · tests/governance/test_cross_system_suites.py · tests/governance/test_identity_law.py · tests/governance/test_measurement_ignores_environments.py · tests/governance/test_q3_branch_declaration_surface.py · tests/governance/test_root_dependencies_declared.py · tests/governance/test_step12_live_truth_guards.py · tests/governance/test_step13_identity_headers.py · tests/governance/test_step16_silent_fallback.py · tests/governance/test_step17_in_memory_stores.py · tests/governance/test_step18_restart_survival.py · tests/governance/test_step20_debt_drift_snapshot.py · tests/governance/test_step7_factory_surfaces.py · tests/governance/test_truth_matrix_identity.py · tests/governance/test_w034_runtime_state_identity.py · tests/governance/test_w036_pricing_divergence.py · tests/governance/test_w037_measurement_provenance.py · tests/governance/test_w038_probe_measure_mode.py · tests/governance/test_w042_root_name_guard.py · tests/governance/test_w048_bound_provenance.py · tests/governance/test_w051_ci_verdict_readability.py · tests/governance/test_w052_history_hash_probe.py · tests/governance/test_w053_gate_dependency_closure.py · tests/governance/test_w055_schema_inventory_drift.py · tests/governance/test_w056_sovereign_decision_status.py · tests/governance/test_w058_live_stack_precondition.py · tests/governance/test_w059_open_record_accountability.py · tests/governance/test_w061_surface_debt_trend.py · tests/governance/test_w062_mutation_probe.py · tests/governance/test_w064_services_src_fallback.py · tests/governance/test_w069_single_scanner_and_explicit_root.py · tests/governance/test_w069_status_contradiction.py · tests/governance/test_work_governance_gate.py | 2026-09-02 | 2026-09-09 | — | مراجعةُ المالكِ (`A-2` `PENDING` — و`VERIFIED` فعلُ المراجعِ لا الكاتبِ) | — |
+| WI-033 | tests-root | T0 (تتمّةُ خفضِ دَينِ `DISC-041`: المواضعُ الحرّةُ الباقيةُ تحتَ `tests/` خارجَ `tests/governance/`) | Driving H | — (النطاقُ بلا مراجعٍ مُسجَّلٍ · `A-2` `PENDING`) | IN_PROGRESS | tests/constitutional/test_constitutional_cli.py · tests/constitutional/test_constitutional_engine.py · tests/crown/test_crown_truth_matrix.py · tests/crown/test_w064_secret_scan_exceptions.py · tests/sovereignty/test_crown_human_root.py · tests/sovereignty/test_enforcement_boundary.py · tests/sovereignty/test_enforcement_integration.py · tests/sovereignty/test_sovereignty_cli.py · tests/sovereignty/test_sovereignty_kernel.py | 2026-09-02 | 2026-09-09 | — | قراءةُ حكمِ CI لعقدةِ العملِ ثمَّ `IN_REVIEW` (§ 4.3) | — |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
 
@@ -1323,13 +1324,59 @@
 ```
 
 
+### WI-033 — تتمّةُ الخفضِ: المواضعُ الحرّةُ الباقيةُ تحتَ `tests/`
+
+```text
+النطاق: tests-root (‏`tests` — نطاقٌ **مُسجَّلٌ** في `OWNERSHIP.md` فئتُه `C0`، فلا نطاقَ يُبتدَعُ هنا)
+المسار/المرحلة: T0 (قابليّةُ القياسِ — تتمّةُ `W-106`: ما بقيَ حرًّا من صنفِ «بلا وجهٍ يُمرِّرُ جذرًا صريحًا»)
+المالك: Driving H            المراجع: — (‏النطاقُ بلا مراجعٍ مُسجَّلٍ · و`A-2` `PENDING`)
+الحالة: IN_PROGRESS   (‏حُجِزَ ثمَّ نُفِّذَ في العقدةِ نفسِها — والحجزُ كُتِبَ قبلَ مسِّ ملفٍّ · § 4.3)
+المسارات (‏كلُّ مسارٍ مُعلَنٌ صراحةً اسمًا — لا بنثرٍ يُقرأُ دعوى واسعةً · `DISC-042`):
+  tests/constitutional/test_constitutional_cli.py
+  tests/constitutional/test_constitutional_engine.py
+  tests/crown/test_crown_truth_matrix.py
+  tests/crown/test_w064_secret_scan_exceptions.py
+  tests/sovereignty/test_crown_human_root.py
+  tests/sovereignty/test_enforcement_boundary.py
+  tests/sovereignty/test_enforcement_integration.py
+  tests/sovereignty/test_sovereignty_cli.py
+  tests/sovereignty/test_sovereignty_kernel.py
+فحصُ التداخلِ (§ 6.2) — نتيجتُه تُقيَّدُ ولو كانت «لا تداخل»:
+  - قِيسَت التسعةُ واحدًا واحدًا على خلايا مساراتِ كلِّ بندٍ `RESERVED`/`IN_PROGRESS`/`IN_REVIEW`: **لا يُدَّعى أيٌّ منها**
+  - ولا أداةَ تُمَسُّ · ولا `ci.yml` (‏مقفولٌ بـ`WI-023`) · ولا جدولَ ولا migration ولا سرَّ · ولا قرارَ `Q-###` يتوقَّفُ عليه
+خارجَ النطاق:
+  - **`tools/crown/` لا يُمَسُّ**: مجلَّدٌ **بلا نطاقٍ مُسجَّلٍ** في `OWNERSHIP.md` (‏`RK-012` · `DISC-008`)، وتسجيلُ نطاقٍ فعلُ مالكٍ لا منفِّذٍ — فموضعاهُ الحرّانِ يبقيانِ مقيسَينِ في الدَّينِ
+  - ومواضعُ البنودِ المفتوحةِ لا تُمَسُّ (§ 6.1) · وصنفُ «بوجهٍ يُمرِّرُ جذرًا صريحًا» ليسَ هدفَ هذا البندِ
+  - ولا يُغلَقُ `DISC-041` ولا `DISC-032`: خفضٌ لا إبراءٌ
+معيارُ القبول:
+  1. المواضعُ التسعةُ تصيرُ `discover_repo_root(__file__)` بلا تغييرِ سلوكٍ آخرَ — والجذرُ المُكتشَفُ هو الجذرُ نفسُه (‏الاختباراتُ تمرُّ كما كانت)
+  2. الرقمانِ المُعلَنانِ في `ROOT_PROVENANCE_BASELINE:` يُخفَضانِ تبعًا للمقيسِ، وحرسُ `WI-031` يُسقِطُ إن لم يُخفَضا
+  3. § 5.4 كلُّها رمزُها 0 · و`--ratchet` لا يرتفعُ · و`ruff` نظيفٌ · والمجموعةُ الكاملةُ أخضرُ بمعناها عدا الإخفاقاتِ المحلّيّةِ المُعلَنةِ
+  4. حكمُ CI يُقرأُ برقمِ تشغيلٍ ويُقيَّدُ قبلَ الانتقالِ (§ 4.3)
+الدليلُ المطلوب:
+  python -m pytest tests/constitutional tests/crown tests/sovereignty -q
+  python -m pytest tests/governance/test_w102_measurement_root_provenance.py -q
+  bash tools/dev/bootstrap.sh --verify  &&  python tools/governance/truth_audit.py . --ratchet
+بدأ: 2026-09-02        ينتهي الحجز: 2026-09-09
+العائق: —
+الخطوةُ التالية: قراءةُ حكمِ CI لعقدةِ العملِ برقمِ تشغيلٍ وتقييدُه، ثمَّ `IN_REVIEW`
+حكمُ CI المقروءُ: — (‏عقدةُ هذا العملِ تُقرأُ في القيدِ التالي)
+حدُّ البندِ — مُعلَنٌ لا مطويٌّ:
+  - **يبقى بعدَ هذا البندِ موضعانِ حرّانِ من الصنفِ نفسِه** تحتَ `tools/crown/`، وحبسُهما ليسَ تقنيًّا بل **غيابُ نطاقٍ مُسجَّلٍ** — قرارُ مالكٍ
+  - وتبقى مواضعُ البنودِ المفتوحةِ وصنفُ «بوجهٍ صريحٍ» مقيسةً في الدَّينِ
+قيدُ السجلّ: W-107 · الحجزُ والعملُ في عقدةٍ واحدةٍ («الدفعُ = العملُ وقيدُه معًا»)
+  و**خليّةُ «قيدُ السجلّ» في صفِّ § 1 تُكتَبُ `—`** بالسابقةِ المقيسةِ (`DISC-010` · `DISC-030`)
+```
+
+---
+
 ### WI-032 — خفضُ دَينِ `DISC-041`: الجذرُ يُكتشَفُ بعلامةٍ، في المواضعِ الحرّةِ وحدَها
 
 ```text
 النطاق: tooling-gates (‏النطاقُ المُسجَّلُ في `OWNERSHIP.md` · فئةُ التغييرِ `C0`)
 المسار/المرحلة: T0 (قابليّةُ القياسِ — `DISC-041` مقيسٌ ومحروسٌ من النموِّ، وهذا أوّلُ خفضٍ فعليٍّ له)
 المالك: Driving H            المراجع: المالك (`A-2` · غيرُ مستقلٍّ)
-الحالة: IN_PROGRESS   (‏حُجِزَ ثمَّ نُفِّذَ في العقدةِ نفسِها — والحجزُ كُتِبَ قبلَ مسِّ ملفٍّ · ولا يُقفَزُ إلى `IN_REVIEW` قبلَ حكمٍ مقروءٍ · § 4.3)
+الحالة: IN_REVIEW   (‏`RESERVED` ← `IN_PROGRESS` ← `IN_REVIEW` بلا قفزٍ · § 4.3 · ولا يكتبُ الكاتبُ `VERIFIED`)
 المسارات:
   tools/governance/repo_root.py                                    (‏جديدٌ — مُكتشِفٌ يصعدُ حتّى علامةٍ دالّةٍ ويرفعُ خطأً إن لم يجدْها)
   tests/governance/test_w106_repo_root_discovery.py                (‏جديدٌ — حرسُ المُكتشِفِ نفسِه)
@@ -1388,8 +1435,8 @@
   bash tools/dev/bootstrap.sh --verify  &&  python tools/governance/truth_audit.py . --ratchet
 بدأ: 2026-09-02        ينتهي الحجز: 2026-09-09
 العائق: —
-الخطوةُ التالية: قراءةُ حكمِ CI لعقدةِ العملِ برقمِ تشغيلٍ وتقييدُه، ثمَّ `IN_REVIEW`
-حكمُ CI المقروءُ: — (‏عقدةُ هذا العملِ تُقرأُ في القيدِ التالي · ولا يُقرأُ الأخضرُ المحلّيُّ بديلًا)
+الخطوةُ التالية: مراجعةُ المالكِ — و`A-2` `PENDING` فلا مراجعَ مستقلٌّ اليومَ، وهذا حدٌّ مُعلَنٌ لا يُلتَفُّ عليه
+حكمُ CI المقروءُ: عقدةُ `9c27533` · تشغيلٌ **64** (`33598194613`) · **success · 13/13 · READABLE** — قُرِئَ بـ`ci_verdict_readability.py --from-json` لا بنظرٍ في الصفحةِ · وأخضرُ مقروءٌ ليسَ إغلاقًا
 ما قِيسَ فعلًا:
   - رُحِّلَ **34 موضعًا حرًّا** إلى `discover_repo_root(__file__)`، فانخفضَ المقيسُ:
     `tests` من **53 إلى 19** · ومن صنفِ «بلا وجهٍ» من **37 إلى 12** · و`tools` **25 و2** بلا تغييرٍ

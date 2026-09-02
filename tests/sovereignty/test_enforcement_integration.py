@@ -62,7 +62,9 @@ from core.sovereignty.gateways import (
 from core.sovereignty.idempotency import IdempotencyKey, IdempotencyLedger
 from core.sovereignty.outbox import EffectPayload, OutboxLedger, SovereignOutbox
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+from tools.governance.repo_root import discover_repo_root  # noqa: E402
+
+REPO_ROOT = discover_repo_root(__file__)
 TARGET = "state/province-A"
 NOTICE = "notifications/citizen-1"
 

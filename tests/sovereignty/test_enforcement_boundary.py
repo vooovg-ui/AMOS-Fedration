@@ -77,9 +77,9 @@ from core.sovereignty.outbox import (
 TARGET = "treasury/account-A"
 CASE = "judiciary/case-1"
 NOTICE = "notifications/citizen-1"
-REPO_ROOT = Path(__file__).resolve().parents[2]
+from tools.governance.repo_root import discover_repo_root  # noqa: E402
 
-
+REPO_ROOT = discover_repo_root(__file__)
 # ═══════════════════════════════════════════════════════════════════════════
 # تجهيزات — حالةٌ حقيقيّةٌ وسجلّاتٌ على القرص، لا مُتتبِّعاتُ استدعاء
 # ═══════════════════════════════════════════════════════════════════════════
