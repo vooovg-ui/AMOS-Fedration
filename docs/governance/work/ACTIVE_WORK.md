@@ -55,7 +55,7 @@
 | WI-032 | tooling-gates | T0 (خفضُ دَينِ `DISC-041` المقيسِ: جذرٌ يُعرَفُ بعلامةٍ لا بعُمقٍ مكتوبٍ — في المواضعِ **الحرّةِ** وحدَها) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/repo_root.py · tests/governance/test_w106_repo_root_discovery.py · tests/governance/test_completion_ledger_gate.py · tests/governance/test_constitutional_reconciliation.py · tests/governance/test_cross_system_suites.py · tests/governance/test_identity_law.py · tests/governance/test_measurement_ignores_environments.py · tests/governance/test_q3_branch_declaration_surface.py · tests/governance/test_root_dependencies_declared.py · tests/governance/test_step12_live_truth_guards.py · tests/governance/test_step13_identity_headers.py · tests/governance/test_step16_silent_fallback.py · tests/governance/test_step17_in_memory_stores.py · tests/governance/test_step18_restart_survival.py · tests/governance/test_step20_debt_drift_snapshot.py · tests/governance/test_step7_factory_surfaces.py · tests/governance/test_truth_matrix_identity.py · tests/governance/test_w034_runtime_state_identity.py · tests/governance/test_w036_pricing_divergence.py · tests/governance/test_w037_measurement_provenance.py · tests/governance/test_w038_probe_measure_mode.py · tests/governance/test_w042_root_name_guard.py · tests/governance/test_w048_bound_provenance.py · tests/governance/test_w051_ci_verdict_readability.py · tests/governance/test_w052_history_hash_probe.py · tests/governance/test_w053_gate_dependency_closure.py · tests/governance/test_w055_schema_inventory_drift.py · tests/governance/test_w056_sovereign_decision_status.py · tests/governance/test_w058_live_stack_precondition.py · tests/governance/test_w059_open_record_accountability.py · tests/governance/test_w061_surface_debt_trend.py · tests/governance/test_w062_mutation_probe.py · tests/governance/test_w064_services_src_fallback.py · tests/governance/test_w069_single_scanner_and_explicit_root.py · tests/governance/test_w069_status_contradiction.py · tests/governance/test_work_governance_gate.py | 2026-09-02 | 2026-09-09 | — | مراجعةُ المالكِ (`A-2` `PENDING` — و`VERIFIED` فعلُ المراجعِ لا الكاتبِ) | — |
 | WI-033 | tests-root | T0 (تتمّةُ خفضِ دَينِ `DISC-041`: المواضعُ الحرّةُ الباقيةُ تحتَ `tests/` خارجَ `tests/governance/`) | Driving H | — (النطاقُ بلا مراجعٍ مُسجَّلٍ · `A-2` `PENDING`) | IN_REVIEW | tests/constitutional/test_constitutional_cli.py · tests/constitutional/test_constitutional_engine.py · tests/crown/test_crown_truth_matrix.py · tests/crown/test_w064_secret_scan_exceptions.py · tests/sovereignty/test_crown_human_root.py · tests/sovereignty/test_enforcement_boundary.py · tests/sovereignty/test_enforcement_integration.py · tests/sovereignty/test_sovereignty_cli.py · tests/sovereignty/test_sovereignty_kernel.py | 2026-09-02 | 2026-09-09 | — | مراجعةٌ — والنطاقُ بلا مراجعٍ مُسجَّلٍ و`A-2` `PENDING`، فلا `VERIFIED` بيدِ الكاتبِ | — |
 | WI-035 | tooling-gates | T0 (‏حدُّ الصدقِ 9 في [`COMPLETION_LEDGER.md § 10`](../../audit/COMPLETION_LEDGER.md): صدقُ طوابعِ الالتزامِ يصيرُ رقمًا مقيسًا محروسًا من النموِّ · `DISC-043`) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/commit_timestamp_integrity.py · tests/governance/test_w110_commit_stamp_integrity.py · tests/governance/test_w113_new_commit_stamp_utc.py | 2026-09-02 | 2026-09-09 | — | مراجعةٌ ثمَّ `VERIFIED` — بيدِ المراجعِ لا بيدِ الكاتبِ (§ 4.3 · `A-2` `PENDING`) | — |
-| WI-036 | tooling-gates | T0 (قابليّةُ القياسِ · `DISC-045`: أرقامُ حدودِ § 10 في [`COMPLETION_LEDGER.md`](../../audit/COMPLETION_LEDGER.md) لا يُقاسُ تفرُّدُها فـ«الحدُّ 9» إحالةٌ لا تُحَلُّ) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | RESERVED | tools/governance/truth_limit_integrity.py · tests/governance/test_w115_truth_limit_integrity.py | 2026-09-03 | 2026-09-10 | — | تنفيذُ الحرسِ القارئِ ثمَّ `IN_PROGRESS` (§ 4.3) | — |
+| WI-036 | tooling-gates | T0 (قابليّةُ القياسِ · `DISC-045`: أرقامُ حدودِ § 10 في [`COMPLETION_LEDGER.md`](../../audit/COMPLETION_LEDGER.md) لا يُقاسُ تفرُّدُها فـ«الحدُّ 9» إحالةٌ لا تُحَلُّ) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_PROGRESS | tools/governance/truth_limit_integrity.py · tests/governance/test_w115_truth_limit_integrity.py | 2026-09-03 | 2026-09-10 | — | قراءةُ حكمِ CI لعقدةِ الحرسِ ثمَّ `IN_REVIEW` (§ 4.3 — ولا يضعُ الكاتبُ `VERIFIED`) | — |
 | WI-034 | tooling-gates | T0 (‏حدُّ الصدقِ 8 في [`COMPLETION_LEDGER.md § 10`](../../audit/COMPLETION_LEDGER.md): فخُّ منطقةِ زمنِ الالتزامِ صارَ محروسًا لا مُعلَنًا وحدَه) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/stamp_readme_identity.py · tests/governance/test_w109_commit_timestamp_timezone.py | 2026-09-02 | 2026-09-09 | — | مراجعةٌ — و`A-2` `PENDING` فلا `VERIFIED` (§ 4.3 · `DISC-027`) | — |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
@@ -1333,7 +1333,7 @@
 النطاق: tooling-gates (‏`tools/governance` — نطاقٌ مُسجَّلٌ · فئةُ التغييرِ `C1`)
 المسار/المرحلة: T0 (قابليّةُ القياسِ — `DISC-045`: § 10 تُعلِنُ 17 حدًّا مرقومةً 1…16 والرقمُ 9 مكتوبٌ مرّتَينِ)
 المالك: Driving H            المراجع: المالك (`A-2` · غيرُ مستقلٍّ)
-الحالة: RESERVED     (‏حُجِزَ في هذه العقدةِ قبلَ مسِّ أيِّ ملفٍّ من مساراتِه · § 4.3)
+الحالة: IN_PROGRESS  (‏نزلَ الحرسُ في مسارَيهِ المحجوزَينِ لا غيرِهما · وحكمُ CI لم يُقرَأْ بعدُ فلا `IN_REVIEW` · § 4.3)
 المسارات:
   tools/governance/truth_limit_integrity.py                        (‏جديدٌ — يقيسُ ولا يُصحِّحُ)
   tests/governance/test_w115_truth_limit_integrity.py              (‏جديدٌ — حرسُ «لا نموَّ» + إثباتُ الفخِّ على نصٍّ مصنوعٍ)
@@ -1348,14 +1348,15 @@
 معيار القبول:
   1. الالتباسُ يصيرُ **رقمًا يُعادُ** من نصِّ § 10 لا فقرةً تُروى: عددُ الحدودِ · الأرقامُ المكرَّرةُ · الفجواتُ · والإحالاتُ التي لا تُحَلُّ
   2. نموُّ أيِّ رقمٍ يُسقِطُ الفحصَ · وانخفاضُه يوجبُ خفضَ المُعلَنِ (‏سقّاطةٌ لا تعلو ولا تُترَكُ رخوةً)
-  3. الحرسُ **يُثبِتُ أنَّ القياسَ يرى العيبَ** على نصٍّ مصنوعٍ فيه تكرارٌ وفجوةٌ وإحالةٌ معلَّقةٌ، فلا تُقاسُ خُضرةٌ بلا فرقٍ
+  3. الحرسُ **يُثبِتُ أنَّ القياسَ يرى العيبَ** على نصٍّ مصنوعٍ فيه تكرارٌ وفجوةٌ وإحالةٌ ملتبسةٌ، **ويُثبِتُ عكسَه** على نصٍّ سليمٍ فلا تُقاسُ خُضرةٌ بلا فرقٍ
+     (‏**تصحيحُ صياغةٍ مقيسٌ لا تخفيفٌ**: كُتِبَ عندَ الحجزِ «إحالةٌ معلَّقةٌ» ثمَّ وقعَ مقيسًا أنَّ الإحالةَ المعلَّقةَ **لا تُفرَّقُ نصًّا** عن رقمٍ أجنبيٍّ عن القسمِ — فالعبارةُ نفسُها تُستعملُ لغيرِ الحدودِ («الحدُّ 80%» عن نسبةٍ) فعَدُّها معلَّقةً حكمٌ كاذبٌ. فالمحكومُ به **الإحالةُ الملتبسةُ**: رقمٌ داخلَ مدى الترقيمِ يحملُه أكثرُ من حدٍّ — وهي **عينُ عَطبِ `DISC-045`**. وما خرجَ عن المدى يُطبَعُ إبلاغًا لا حكمًا (`OUTSIDE_RANGE_REFERENCES`) فلا يُحذَفُ أثرُه ولا يُدَّعى فيه صدقٌ)
   4. الرقمُ المُعلَنُ مصدرُه **سطرٌ واحدٌ** في `DISCOVERIES.md` لا ثابتٌ في فحصٍ (‏مصدرُ حقيقةٍ واحدٌ)
   5. لا يُخفَّفُ فحصٌ ولا يُسكَتُ ماسحٌ · و`--ratchet` لا يرتفعُ · و§ 5.4 كلُّها رمزُها 0
   6. حكمُ CI يُقرأُ برقمِ تشغيلٍ ويُقيَّدُ قبلَ الانتقالِ (§ 4.3)
 الدليل المطلوب:
-  python -m pytest tests/governance/test_w115_truth_limit_integrity.py -q
-  python tools/governance/truth_limit_integrity.py --check
-  python tools/governance/truth_audit.py . --ratchet
+  python -m pytest tests/governance/test_w115_truth_limit_integrity.py -q        (‏10 نجحَت)
+  python tools/governance/truth_limit_integrity.py --check                       (‏رمزُ 0)
+  python tools/governance/truth_audit.py . --ratchet                             (‏ثابتٌ عندَ 63 — بعدَ إصلاحِ `SILENT_FALLBACK` أحدثَته النسخةُ الأولى في نفسِها)
 بدأ: 2026-09-03        ينتهي الحجز: 2026-09-10
 العائق: —
 الخطوةُ التالية: تنفيذُ الحرسِ القارئِ ثمَّ `IN_PROGRESS`، ثمَّ قراءةُ حكمِ CI لعقدتِه
@@ -1364,6 +1365,7 @@
   - **الحرسُ يقيسُ شكلَ المُعرِّفِ لا صدقَ الحدِّ**: حدٌّ فريدُ الرقمِ قد يكونُ كاذبَ المضمونِ — وهذا لا يُقاسُ هنا
   - **والالتباسُ القائمُ لا يُرفَعُ**: الرقمُ 9 يبقى مكتوبًا مرّتَينِ مُعلَنًا مقيسًا، والحرسُ يمنعُ زيادتَه فقط
   - وقياسُ الإحالاتِ نصّيٌّ (‏أنماطُ «الحدِّ N» في `.md`/`.py`) فصياغةٌ جديدةٌ للإحالةِ قد لا تُرى — والحدُّ مُعلَنٌ لا مطويٌّ
+  - **والإحالةُ المعلَّقةُ خارجَ المدى لا تُحكَمُ بها**: لا يُفرَّقُ نصًّا رقمٌ أجنبيٌّ عن القسمِ عن إحالةٍ إلى حدٍّ غيرِ موجودٍ، فتُطبَعُ إبلاغًا (`OUTSIDE_RANGE_REFERENCES`) ولا تُدخَلُ في السقّاطةِ — إعلانُ حدٍّ لا إسقاطُ أثرٍ
 قيدُ السجلّ: W-114 (‏الحجزُ) · و**خليّةُ «قيدُ السجلّ» في صفِّ § 1 تُكتَبُ `—`** بالسابقةِ المقيسةِ (`DISC-010` · `DISC-030`)
 ```
 
