@@ -12,7 +12,7 @@
     قاعدةَ ولا سرَّ ولا حسابَ Actions. ولا تكتبُ الأداةُ سطرًا في سجلٍّ تحكمُ عليه.
 المالك: tools/governance — ديوانُ التدقيق، بتفويضٍ من المجلس التأسيسي
 تاريخ الإنشاء: 2026-08-28
-تاريخ آخر تعديل: 2026-08-28
+تاريخ آخر تعديل: 2026-09-03
 
 لماذا أداةٌ لا فقرةٌ:
     قِيدَ في `DISC-018` أنَّ **القيدَ المفتوحَ لا يمنعُ اتِّساعَ العطبِ**:
@@ -77,6 +77,21 @@ PATH_RE = re.compile(r"(?:tools|tests)/[A-Za-z0-9_./-]+\.py\b")
 #: تاريخُ استحقاقٍ مُعلَنٌ صراحةً في الصفِّ.
 DUE_RE = re.compile(r"استحقاق\s*:\s*(\d{4}-\d{2}-\d{2})")
 
+#: علاماتُ **الإعلانِ المُهيكَلِ للحرسِ** (`WI-039` · `DISC-021`) — والمسارُ لا يُقرأُ
+#: إعلانًا إلّا إذا وقعَ في المقطعِ الذي تفتحُه إحداها. وهما علامتانِ مُعلَنتانِ
+#: هنا لا جذرُ كلمةٍ يُبحَثُ عنه في نصٍّ حرٍّ: «حرس» في نفيٍ لا يُشبِهُ «حرسٌ قائمٌ:».
+GUARD_DECLARATION_MARKERS = ("حرسٌ قائمٌ:", "حرسٌ مُثبَتٌ:")
+
+#: مسارٌ واحدٌ في مقطعِ الإعلانِ — يُقبَلُ فاصلًا `·` أو `و` أو فاصلةً، ويُقبَلُ
+#: بعلامةِ اقتباسٍ خلفيّةٍ أو في رابطِ Markdown، ويقفُ المسحُ عندَ أوّلِ ما ليسَ مسارًا.
+_DECLARED_TOKEN_RE = re.compile(
+    r"\s*(?:[·،,]|و)?\s*\[?`?((?:tools|tests)/[A-Za-z0-9_./-]+\.py)`?(?:\]\([^)]*\))?"
+)
+
+#: السقّاطةُ المُعلَنةُ لصفوفِ «مسارٌ في نثرٍ» — مصدرُ حقيقةٍ واحدٌ في سجلِّ
+#: الاكتشافاتِ، لا ثابتٌ مدفونٌ في شِفرةٍ. تُقرأُ ولا تُكتَبُ من هنا.
+PROSE_BASELINE_RE = re.compile(r"ANCHOR_PROSE_BASELINE:\s*rows=(\d+)")
+
 #: ما يُعلِنُ أنَّ القيدَ بيدِ المالكِ فلا فعلَ لمنفِّذٍ فيه (§ 16.3) — تُقرأُ من
 #: **خليّةِ الوجهةِ/المالكِ** وحدَها لا من وصفِ العَطبِ.
 OWNER_HELD_MARKERS = (
@@ -125,6 +140,10 @@ class Record:
     guard_paths: tuple[str, ...]
     missing_paths: tuple[str, ...]
     due: str | None
+    #: ما وقعَ منها في **إعلانٍ مُهيكَلٍ** (`GUARD_DECLARATION_MARKERS`).
+    declared_paths: tuple[str, ...] = ()
+    #: ما مرَّ في نثرِ الخليّةِ بلا إعلانٍ — يُعَدُّ ويُسمَّى ولا يُقرأُ ضمانًا.
+    prose_paths: tuple[str, ...] = ()
 
 
 @dataclass
@@ -243,6 +262,32 @@ def _anchor_of(
     return ANCHOR_NONE
 
 
+def declared_guard_paths(text: str) -> tuple[str, ...]:
+    """المساراتُ الواقعةُ في **إعلانٍ مُهيكَلٍ** للحرسِ داخلَ نصِّ خليّةٍ.
+
+    ولمَ إعلانٌ لا ذِكرٌ: قِيسَ في `W-060` (`DISC-021`) أنَّ صفًّا يكتبُ «لا حرسَ،
+    وهذانِ الملفّانِ لا يقيسانِ هذا» يُقرأُ **محروسًا** لمجرَّدِ مرورِ مسارٍ في
+    نثرِه — فالنفيُ نفسُه يشتري خُضرةً. والمسحُ هنا يبدأُ من علامةٍ مُعلَنةٍ
+    ويقفُ عندَ أوّلِ مقطعٍ ليسَ مسارًا، فلا يبتلعُ ما بعدَه من كلامٍ.
+    """
+    haystack = _norm(text.replace("*", ""))
+    found: list[str] = []
+    for marker in GUARD_DECLARATION_MARKERS:
+        needle = _norm(marker)
+        if not needle:
+            # علامةٌ فارغةٌ تُطابِقُ كلَّ موضعٍ فلا تُميِّزُ إعلانًا من نثرٍ — وتقدُّمُ
+            # المسحِ بها صِفرٌ فيدورُ بلا نهايةٍ. تُتخطَّى صراحةً لا صمتًا.
+            continue
+        index = haystack.find(needle)
+        while index >= 0:
+            position = index + len(needle)
+            while match := _DECLARED_TOKEN_RE.match(haystack, position):
+                found.append(match.group(1))
+                position = match.end()
+            index = haystack.find(needle, index + len(needle))
+    return tuple(dict.fromkeys(found))
+
+
 def _rows(text: str, pattern: re.Pattern[str]) -> list[tuple[int, str, str]]:
     out: list[tuple[int, str, str]] = []
     for number, line in enumerate(text.splitlines(), start=1):
@@ -290,6 +335,8 @@ def measure(root: Path | None = None, today: date | None = None) -> Report:
         anchor_text = f"{cells[6]} {cells[7]}"
         owner_text = anchor_text
         guard_paths, missing = _paths_in(root, anchor_text)
+        declared = tuple(p for p in guard_paths if p in declared_guard_paths(anchor_text))
+        prose = tuple(p for p in guard_paths if p not in declared)
         due_match = DUE_RE.search(anchor_text)
         due = due_match.group(1) if due_match else None
         report.records.append(
@@ -303,6 +350,8 @@ def measure(root: Path | None = None, today: date | None = None) -> Report:
                 guard_paths=guard_paths,
                 missing_paths=missing,
                 due=due,
+                declared_paths=declared,
+                prose_paths=prose,
             )
         )
 
@@ -324,6 +373,8 @@ def measure(root: Path | None = None, today: date | None = None) -> Report:
         # خطرٌ موضوعُهُ تأخُّرُ قرارِ المالكِ ليس خطرًا بيدِهِ بمجرَّدِ ذِكرِهِ.
         owner_text = f"{cells[5]} {cells[6]}"
         guard_paths, missing = _paths_in(root, anchor_text)
+        declared = tuple(p for p in guard_paths if p in declared_guard_paths(anchor_text))
+        prose = tuple(p for p in guard_paths if p not in declared)
         due_match = DUE_RE.search(anchor_text)
         due = due_match.group(1) if due_match else None
         if not cells[4] or cells[4] == "—":
@@ -345,6 +396,8 @@ def measure(root: Path | None = None, today: date | None = None) -> Report:
                 guard_paths=guard_paths,
                 missing_paths=missing,
                 due=due,
+                declared_paths=declared,
+                prose_paths=prose,
             )
         )
 
@@ -405,6 +458,102 @@ def measure(root: Path | None = None, today: date | None = None) -> Report:
     return report
 
 
+@dataclass
+class DeclarationReport:
+    """قياسُ **إعلانِ الحرسِ** وسقّاطتُه — طبقةٌ فوقَ القياسِ لا بديلٌ عنه."""
+
+    measured_at: str
+    prose_rows: list[str] = field(default_factory=list)
+    declared_rows: list[str] = field(default_factory=list)
+    baseline: int | None = None
+    violations: list[dict[str, str]] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "measured_at": self.measured_at,
+            "declared_markers": list(GUARD_DECLARATION_MARKERS),
+            "baseline_rows": self.baseline,
+            "prose_rows": self.prose_rows,
+            "prose_count": len(self.prose_rows),
+            "declared_rows": self.declared_rows,
+            "declared_count": len(self.declared_rows),
+            "violations": self.violations,
+        }
+
+
+def read_prose_baseline(root: Path) -> int:
+    """الرقمُ المُعلَنُ في سجلِّ الاكتشافاتِ — مصدرُ حقيقةٍ واحدٌ لا ثابتٌ مدفونٌ."""
+    text = _read(root, DISCOVERIES)
+    matches = PROSE_BASELINE_RE.findall(text)
+    if not matches:
+        raise MeasurementRefused(
+            "PROSE_BASELINE_MISSING",
+            "لا سطرَ `ANCHOR_PROSE_BASELINE: rows=N` في "
+            f"«{DISCOVERIES.as_posix()}» — وسقّاطةٌ بلا رقمٍ مُعلَنٍ لا تُقاسُ، "
+            "ولا يُخترَعُ لها رقمٌ في شِفرةٍ.",
+        )
+    if len(set(matches)) > 1:
+        raise MeasurementRefused(
+            "PROSE_BASELINE_AMBIGUOUS",
+            f"رقمُ السقّاطةِ مكتوبٌ بأكثرَ من قيمةٍ ({' · '.join(sorted(set(matches)))}) "
+            "— مصدرانِ للحقيقةِ لا يُرجَّحُ أحدُهما بالظنِّ.",
+        )
+    return int(matches[0])
+
+
+def measure_declarations(
+    root: Path | None = None, today: date | None = None
+) -> DeclarationReport:
+    """صفوفٌ مفتوحةٌ تُقرأُ `GUARD` وحرسُها غيرُ مُعلَنٍ — تُعَدُّ وتُسمَّى وتُسقَّطُ."""
+    root = root or REPO_ROOT
+    base = measure(root, today)
+    out = DeclarationReport(measured_at=base.measured_at)
+    for record in base.open_records:
+        if record.anchor != ANCHOR_GUARD:
+            continue
+        if record.declared_paths:
+            out.declared_rows.append(record.record_id)
+        else:
+            out.prose_rows.append(record.record_id)
+    out.baseline = read_prose_baseline(root)
+    measured = len(out.prose_rows)
+    if measured > out.baseline:
+        out.violations.append(
+            _v(
+                "PROSE_ANCHOR_GROWTH",
+                f"صفوفُ «مسارٌ في نثرٍ» مقيسةٌ {measured} والمُعلَنُ "
+                f"{out.baseline} — ارتفعَ العددُ: صفٌّ جديدٌ اشترى `GUARD` بمرورِ "
+                "مسارٍ في كلامِه، وذاك عينُ `DISC-021`. "
+                f"الصفوفُ: {' · '.join(out.prose_rows)}",
+            )
+        )
+    elif measured < out.baseline:
+        out.violations.append(
+            _v(
+                "STALE_PROSE_BASELINE",
+                f"صفوفُ «مسارٌ في نثرٍ» مقيسةٌ {measured} والمُعلَنُ "
+                f"{out.baseline} — انخفضَ ولم يُخفَضِ المُعلَنُ، فلا تُترَكُ "
+                "سقّاطةٌ رخوةً تسمحُ بعودةِ ما زالَ.",
+            )
+        )
+    return out
+
+
+def render_declarations(report: DeclarationReport) -> str:
+    lines = [
+        "[ANCHOR DECLARATION] الحرسُ يُقرأُ من إعلانٍ مُهيكَلٍ لا من مسارٍ في نثرٍ:",
+        f"  مُعلَنٌ حرسُها: {len(report.declared_rows)} "
+        f"({' · '.join(report.declared_rows) or '—'})",
+        f"  مسارٌ في نثرٍ: {len(report.prose_rows)} · السقّاطةُ {report.baseline}",
+        f"  الصفوفُ: {' · '.join(report.prose_rows) or '—'}",
+    ]
+    for violation in report.violations:
+        lines.append(f"  ✗ {violation['kind']}: {violation['detail']}")
+    if not report.violations:
+        lines.append("  ✓ لا نموَّ في «مسارٍ في نثرٍ» — والرقمُ المُعلَنُ يُطابِقُ المقيسَ.")
+    return "\n".join(lines)
+
+
 def render(report: Report) -> str:
     lines = ["[OPEN RECORD] مساءلةُ القيودِ المفتوحةِ في سجلَّي الاكتشافِ والخطرِ:"]
     for record in report.records:
@@ -430,9 +579,29 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--root", default=None, help="جذرُ استنساخٍ يُقاسُ بدلًا من هذا.")
     parser.add_argument("--json", action="store_true", help="طبعُ الحِملِ كاملًا JSON.")
+    parser.add_argument(
+        "--declaration-check",
+        action="store_true",
+        help="قياسُ إعلانِ الحرسِ وسقّاطتِه (`DISC-021`) — لا يُبدِّلُ القياسَ الأصليَّ.",
+    )
     args = parser.parse_args(argv)
 
     root = Path(args.root).resolve() if args.root else REPO_ROOT
+    if args.declaration_check:
+        try:
+            declarations = measure_declarations(root)
+        except MeasurementRefused as refusal:
+            print(
+                f"[ANCHOR DECLARATION] رفضٌ · {refusal.kind}: {refusal.detail}",
+                file=sys.stderr,
+            )
+            return 2
+        if args.json:
+            print(json.dumps(declarations.to_dict(), ensure_ascii=False, indent=2))
+        else:
+            print(render_declarations(declarations))
+        return 1 if declarations.violations else 0
+
     try:
         report = measure(root)
     except MeasurementRefused as refusal:
