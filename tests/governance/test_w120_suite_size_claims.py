@@ -10,7 +10,8 @@
         لأنَّه يستدعي `pytest` في عمليّةٍ مستقلّةٍ.
 المالك: tests/governance — المجلس التأسيسي
 تاريخ الإنشاء: 2026-09-03
-تاريخ آخر تعديل: 2026-09-03
+تاريخ آخر تعديل: 2026-09-03 (`W-122` — أُضيفَ حرسُ الفرقِ بينَ «تبعيّاتٌ خارجيّةٌ
+                غائبةٌ يُسمّيها المُفسِّرُ» و«حزمةٌ معطوبةٌ»، بعدَ حكمِ CI 79 الأحمرِ)
 """
 
 from __future__ import annotations
@@ -25,10 +26,13 @@ from tools.governance.suite_size_inventory import (
     SUITES,
     Suite,
     SuiteCollectionFailed,
+    SuiteDependenciesMissing,
     ClaimPathMissing,
     claims,
     collect_size,
     judge,
+    live_sizes,
+    missing_external_modules,
     needed_suites,
     verdict,
 )
@@ -144,3 +148,79 @@ def test_لا_تُجمَعُ_حزمةٌ_لا_رقمَ_لها(tmp_path):
         tmp_path, "| حزمةُ الجذر | **2351 نجحَت · 1 مُتخطّاة** |\n"
     )
     assert needed_suites(claims(repo)) == {"root"}
+
+
+def _suite_in(repo: Path, key: str, body: str) -> Suite:
+    """حزمةٌ مصنوعةٌ في مستودعٍ مصنوعٍ — يُصنَعُ سببُ الفشلِ لا يُنتظَرُ."""
+    target = repo / key
+    target.mkdir(parents=True, exist_ok=True)
+    (target / f"test_{key}.py").write_text(body, encoding="utf-8")
+    return Suite(
+        key=key,
+        target=key,
+        marker="حزمةُ الجذر",
+        probe=None,
+        unmeasured_reason="سببٌ مكتوبٌ للتجربةِ",
+    )
+
+
+def test_أسماءُ_الحزمِ_الغائبةِ_تُقرأُ_ولا_تُخمَّنُ():
+    """السببُ يُقرأُ من خرجِ المُفسِّرِ، وحزمُ المستودعِ نفسِها ليست نقصَ بيئةٍ."""
+    output = (
+        "ModuleNotFoundError: No module named 'fastapi'\n"
+        "ModuleNotFoundError: No module named 'sqlalchemy.orm'\n"
+        "ModuleNotFoundError: No module named 'amos_federation.common'\n"
+    )
+    assert missing_external_modules(output) == ("fastapi", "sqlalchemy")
+    assert missing_external_modules("collected 0 items") == ()
+
+
+def test_تبعيّةٌ_خارجيّةٌ_غائبةٌ_تُعفي_بإعلانٍ_يُسمّيها(tmp_path):
+    """جمعٌ يفشلُ ويُسمّي حزمةً خارجيّةً غائبةً ⇒ إعفاءٌ مُعلَنٌ باسمِها لا صمتٌ."""
+    suite = _suite_in(
+        tmp_path, "svc", "import حزمة_لا_وجود_لها_في_البيئة  # noqa: F401\n"
+    )
+    with pytest.raises(SuiteDependenciesMissing) as raised:
+        collect_size(suite, tmp_path)
+    assert raised.value.modules == ("حزمة_لا_وجود_لها_في_البيئة",)
+    assert "حزمة_لا_وجود_لها_في_البيئة" in str(raised.value)
+
+
+def test_حزمةٌ_معطوبةٌ_لا_تُعفى_بل_تُرفَعُ_إخفاقًا(tmp_path):
+    """فشلُ جمعٍ لا يُسمّي حزمةً غائبةً عَطبٌ مُسمًّى — ولا يُبتلَعُ إعفاءً."""
+    suite = _suite_in(tmp_path, "broken", "def معطوب(:\n    pass\n")
+    with pytest.raises(SuiteCollectionFailed) as raised:
+        collect_size(suite, tmp_path)
+    assert "SUITE_UNCOLLECTABLE" in str(raised.value)
+
+
+def test_الإعفاءُ_يُدرَجُ_في_المقيسِ_بسببٍ_يحملُ_الأسماءَ(monkeypatch, tmp_path):
+    """`live_sizes` تُعفي ما تعذَّرَ جمعُه لتبعيّةٍ غائبةٍ، وتكتبُ اسمَها في سببِه."""
+    repo = _repo_with_handbook(
+        tmp_path,
+        "| حزمةُ الخدماتِ | **1356 نجحَت · 27 مُتخطّاة** |\n",
+    )
+    وهمية = Suite(
+        key="services",
+        target="لا-يوجد",
+        marker="حزمةُ الخدمات",
+        probe=None,
+        unmeasured_reason="سببٌ مكتوبٌ للتجربةِ",
+    )
+
+    def _يرفعُ_الغياب(suite, repo=None):
+        raise SuiteDependenciesMissing(suite.key, ("fastapi", "sqlalchemy"))
+
+    monkeypatch.setattr(
+        "tools.governance.suite_size_inventory.SUITES", (وهمية,), raising=True
+    )
+    monkeypatch.setattr(
+        "tools.governance.suite_size_inventory.collect_size",
+        _يرفعُ_الغياب,
+        raising=True,
+    )
+    sizes, unmeasured, reasons = live_sizes(claims(repo), repo)
+    assert sizes == {}
+    assert unmeasured == frozenset({"services"})
+    assert "fastapi" in reasons["services"] and "sqlalchemy" in reasons["services"]
+    assert judge(claims(repo), sizes, unmeasured) == []

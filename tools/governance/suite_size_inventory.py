@@ -31,11 +31,16 @@
 2. **المجموعُ هو المقيسُ**: الجمعُ الحيُّ يُعطي عددَ المُجمَّعِ (نجاحًا وتخطّيًا)،
    فيُقارَنُ بـ«N نجحَت + M مُتخطّاة». ولا يُقاسُ هنا **نجاحُ** الحزمةِ ولا زمنُها:
    حزمةٌ صحيحةُ العددِ قد تفشلُ — وذاكَ تقيسُه CI لا هذا الملفُّ.
-3. **حزمةٌ غيرُ مُثبَّتةٍ تُعلَنُ ولا تُطوى**: بيئةٌ لا تحملُ حزمةَ الخدماتِ
-   (‏وظيفةُ بوّاباتِ الحوكمةِ في CI منها) لا تجمعُها، فيُطبَعُ «غيرُ مقيسٍ هنا»
-   بسببِه المكتوبِ في السجلِّ ولا يُدَّعى صدقٌ لم يُقَسْ. والغيابُ يُقاسُ
-   بالاستيرادِ (`probe`) لا بابتلاعِ فشلِ جمعٍ — فحزمةٌ **مُثبَّتةٌ** لا تُجمَعُ
-   إخفاقٌ مُسمًّى (`SUITE_UNCOLLECTABLE`) لا إعفاءٌ.
+3. **حزمةٌ لا تُجمَعُ هنا تُعلَنُ ولا تُطوى**: بيئةٌ لا تحملُ تبعيّاتِ حزمةِ
+   الخدماتِ (‏وظيفةُ بوّاباتِ الحوكمةِ في CI منها) لا تجمعُها، فيُطبَعُ «غيرُ
+   مقيسٍ هنا» بسببٍ مكتوبٍ **وبأسماءِ الحزمِ الغائبةِ كما قرأها المُفسِّرُ** ولا
+   يُدَّعى صدقٌ لم يُقَسْ. والغيابُ يُقاسُ على طبقتَينِ لا بالظنِّ:
+   (أ) استيرادُ حزمةِ المستودعِ نفسِها (`probe`)، و(ب) قراءةُ خرجِ الجمعِ حينَ
+   يفشلُ: إن سمّى حزمًا **خارجيّةً** غائبةً فذاكَ إعفاءٌ مُعلَنٌ باسمِه
+   (`SuiteDependenciesMissing`)، وإلّا فإخفاقٌ مُسمًّى (`SUITE_UNCOLLECTABLE`)
+   لا إعفاءٌ. والطبقةُ (أ) وحدَها لا تكفي: `conftest.py` في الجذرِ يُضيفُ
+   `federal/executive/services/src` إلى مسارِ الاستيرادِ، فتُرى الحزمةُ
+   «مُثبَّتةً» وتبعيّاتُها الخارجيّةُ غائبةٌ — وذاكَ ما قِيسَ في تشغيلِ CI 79.
 4. **التاريخيُّ يُعفى بإعلانٍ لا بصمتٍ**: سطرُ سلسلةِ القيودِ («تاريخ آخر تعديل»)
    ورقمٌ مُعلَنٌ «إحالةٌ لا قياسي» يُقرآنِ تاريخًا، ويُشترَطُ فيهما قيدٌ ينسِبُهما.
 
@@ -106,6 +111,23 @@ class SuiteCollectionFailed(RuntimeError):
     """
 
 
+class SuiteDependenciesMissing(RuntimeError):
+    """يُرفَعُ حينَ يتعذَّرُ الجمعُ **لغيابِ حزمٍ خارجيّةٍ** يُسمّيها خرجُ الجمعِ.
+
+    وهذا ليس ابتلاعًا: السببُ **مقروءٌ من الخرجِ** لا مُفترَضٌ، وأسماءُ الحزمِ
+    الغائبةِ تُطبَعُ، ويبقى إنفاذُ الرقمِ حيثُ تُثبَّتُ الحزمةُ. أمّا فشلٌ لا
+    يُسمّي حزمةً غائبةً فمخالفةٌ (`SUITE_UNCOLLECTABLE`) لا إعفاءٌ.
+    """
+
+    def __init__(self, suite_key: str, modules: tuple[str, ...]) -> None:
+        self.suite_key = suite_key
+        self.modules = modules
+        super().__init__(
+            f"{suite_key}: حزمٌ خارجيّةٌ غائبةٌ يُسمّيها خرجُ الجمعِ — "
+            + " · ".join(modules)
+        )
+
+
 class ClaimPathMissing(RuntimeError):
     """يُرفَعُ حينَ يغيبُ مسارٌ مُعلَنٌ في النطاقِ — نطاقٌ ناقصٌ لا يُقاسُ عليه."""
 
@@ -164,6 +186,21 @@ SUITES: tuple[Suite, ...] = (
 )
 
 _COLLECTED_RE = re.compile(r"(\d+)\s+tests?\s+collected")
+
+#: اسمُ حزمةٍ غائبةٍ كما يكتبُه المُفسِّرُ — سببٌ يُقرأُ لا يُفترَضُ.
+_MISSING_MODULE_RE = re.compile(r"ModuleNotFoundError: No module named '([^']+)'")
+
+#: حزمُ المستودعِ نفسِه — غيابُها عَطبٌ في الشجرةِ لا نقصٌ في البيئةِ.
+REPO_PACKAGES = ("amos_federation", "tools", "tests", "federal", "royal")
+
+
+def missing_external_modules(output: str) -> tuple[str, ...]:
+    """أسماءُ الحزمِ **الخارجيّةِ** الغائبةِ في خرجِ الجمعِ — تُقرأُ ولا تُخمَّنُ."""
+    names = {
+        name.split(".")[0]
+        for name in _MISSING_MODULE_RE.findall(output)
+    }
+    return tuple(sorted(n for n in names if n not in REPO_PACKAGES))
 _NO_TESTS_RE = re.compile(r"no tests ran|collected 0 items")
 
 
@@ -190,6 +227,9 @@ def collect_size(suite: Suite, repo: Path | None = None) -> int:
             text=True,
         )
     if completed.returncode != 0:
+        missing = missing_external_modules(completed.stdout + completed.stderr)
+        if missing:
+            raise SuiteDependenciesMissing(suite.key, missing)
         raise SuiteCollectionFailed(
             f"SUITE_UNCOLLECTABLE · {suite.key} ({suite.target}) — رمزُ الخروجِ "
             f"{completed.returncode}. آخرُ الخرجِ: "
@@ -334,18 +374,43 @@ def measure(repo: Path | None = None) -> dict[str, object]:
     """المقيسُ: أحجامُ الحزمِ حيًّا · الدعاوى المصنَّفةُ — يُعادُ من النصِّ لا من ذاكرةٍ."""
     repo = Path(repo) if repo is not None else REPO_ROOT
     written = claims(repo)
-    needed = needed_suites(written)
-    unmeasured = unmeasured_suites(needed)
-    sizes = {
-        s.key: collect_size(s, repo)
-        for s in SUITES
-        if s.key in needed and s.key not in unmeasured
-    }
+    sizes, unmeasured, reasons = live_sizes(written, repo)
     return {
         "collected": sizes,
         "unmeasured": sorted(unmeasured),
+        "unmeasured_reasons": reasons,
         "claims": [c.to_dict() for c in written],
     }
+
+
+def live_sizes(
+    written: list[Claim], repo: Path | None = None
+) -> tuple[dict[str, int], frozenset[str], dict[str, str]]:
+    """أحجامُ ما جُمِعَ حيًّا · ما تعذَّرَ جمعُه هنا بسببٍ مقروءٍ · نصُّ السببِ.
+
+    الإعفاءُ لا يُمنَحُ بالظنِّ: إمّا غيابُ حزمةِ المستودعِ بالاستيرادِ، وإمّا
+    فشلُ جمعٍ **يُسمّي بنفسِه** حزمًا خارجيّةً غائبةً. وأيُّ فشلٍ آخرَ يُرفَعُ
+    مخالفةً (`SUITE_UNCOLLECTABLE`) ولا يُبتلَعُ.
+    """
+    repo = Path(repo) if repo is not None else REPO_ROOT
+    needed = needed_suites(written)
+    unmeasured = set(unmeasured_suites(needed))
+    reasons = {
+        s.key: s.unmeasured_reason for s in SUITES if s.key in unmeasured
+    }
+    sizes: dict[str, int] = {}
+    for suite in SUITES:
+        if suite.key not in needed or suite.key in unmeasured:
+            continue
+        try:
+            sizes[suite.key] = collect_size(suite, repo)
+        except SuiteDependenciesMissing as missing:
+            unmeasured.add(suite.key)
+            reasons[suite.key] = (
+                f"{suite.unmeasured_reason} · وحزمُها الخارجيّةُ الغائبةُ كما "
+                f"قرأها المُفسِّرُ: {' · '.join(missing.modules)}"
+            )
+    return sizes, frozenset(unmeasured), reasons
 
 
 def needed_suites(written: list[Claim]) -> set[str]:
@@ -419,13 +484,7 @@ def verdict(repo: Path | None = None) -> tuple[int, list[str]]:
     """الحكمُ ورسائلُه — رمزُ خروجٍ يُقاسُ لا تقريرٌ يُقرَأُ."""
     repo = Path(repo) if repo is not None else REPO_ROOT
     written = claims(repo)
-    needed = needed_suites(written)
-    unmeasured = unmeasured_suites(needed)
-    sizes = {
-        s.key: collect_size(s, repo)
-        for s in SUITES
-        if s.key in needed and s.key not in unmeasured
-    }
+    sizes, unmeasured, _ = live_sizes(written, repo)
     problems = judge(written, sizes, unmeasured)
     return (1 if problems else 0), problems
 
@@ -446,16 +505,18 @@ def main() -> int:
         print(json.dumps(measure(repo), ensure_ascii=False, indent=2))
         return 0
 
-    code, problems = verdict(repo)
     written = claims(repo)
+    sizes, unmeasured, reasons = live_sizes(written, repo)
+    problems = judge(written, sizes, unmeasured)
+    code = 1 if problems else 0
     live = [c for c in written if c.kind == "LIVE"]
     print(
         f"SUITE SIZE: {len(written)} دعوى مقروءةً · {len(live)} حيّةً · "
         f"{len(written) - len(live)} مُعلَنةً تاريخيّةً"
     )
     for suite in SUITES:
-        if suite.key in unmeasured_suites(needed_suites(written)):
-            print(f"  ! غيرُ مقيسٍ هنا · {suite.key} — {suite.unmeasured_reason}")
+        if suite.key in unmeasured:
+            print(f"  ! غيرُ مقيسٍ هنا · {suite.key} — {reasons[suite.key]}")
     for problem in problems:
         print(f"  ✗ {problem}")
     if not problems:
