@@ -21,7 +21,7 @@ tags: project-state, handoff, quick-reference, governance-active
 | المستودع | `https://github.com/xoos-beep/AMOS-Fedration` |
 | الفرع | `main` |
 | **Current Stage** | المسارات الحاكمة (T0: قابليّة القياس · T2: الحوكمة والقرارات السيادية · T4: الطبقة الحقيقية) |
-| **Last Completed Work** | **W-127 · 2026-09-03**: قُرِئَ حكمُ تشغيلِ **84** أحمرَ **11/13** وسببُه **فحصانِ** في طوابعِ الالتزامِ لا في محتوى العملِ: إنشاءُ الالتزامِ بواجهةِ Git Data بلا تصريحِ تاريخٍ ورثَ إزاحةَ الدافعِ `+03:00` بينما يعرضُها وجهُ القراءةِ `Z` (`DISC-049`). فأُعيدَ إنشاءُ الالتزامِ بحقلَي تاريخٍ مُصرَّحَينِ `+00:00` (`b2aa8306`) بلا رفعِ رقمٍ مُعلَنٍ ولا تخفيفِ فحصٍ، وقُرِئَ تشغيلُ **85** (`33764005547`) **أخضرَ 13/13** `READABLE`. و`WI-041` (`READY`) لحرسِ السببِ. و`WI-039` يبقى `IN_PROGRESS` بلا `VERIFIED` |
+| **Last Completed Work** | **W-128 · 2026-09-03**: قُرِئَ حكمُ تشغيلِ **86** على عقدةِ `8de10b14` **على محاولتَينِ متناقضتَينِ**: الأولى فشلٌ **12/13** بسقوطِ «بوّابة 2ج — حدُّ سرِّ الملكِ» وحدَها، والثانيةُ نجاحٌ **13/13** `READABLE` **بلا تغييرِ حرفٍ**. فقُيِّدَ `DISC-050`: حكمُ البوّابةِ ليس دالّةً في الشجرةِ وحدَها، وسببُ السقوطِ **لم يُقرَأْ** لأنَّ سجلَّ الوظيفةِ يُحوَّلُ إلى مُضيفٍ محجوبٍ. وفُتِحَ `WI-042` (`READY`) لعزلِ السببِ قبلَ أيِّ تغييرٍ — ولم يُوسَمْ فحصٌ ولم يُسكَتْ ولم تُمَسَّ `ci.yml`. و`WI-039` يبقى `IN_PROGRESS` بلا `VERIFIED` |
 | **Governing Roadmap** | [`docs/governance/work/THE_ROADMAP.md`](docs/governance/work/THE_ROADMAP.md) (الحالة: `ACTIVE` نافذة) |
 | **Active Work Register** | [`docs/governance/work/ACTIVE_WORK.md`](docs/governance/work/ACTIVE_WORK.md) (حجز النطاقات ومنع التكرار) |
 | **Central Ledger** | [`docs/audit/COMPLETION_LEDGER.md`](docs/audit/COMPLETION_LEDGER.md) (سجل W-000 إلى W-106 — 107 صفًّا مقروءًا بالأداةِ) |
