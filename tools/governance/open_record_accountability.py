@@ -112,6 +112,12 @@ _DIACRITICS = dict.fromkeys(
     [*range(0x064B, 0x0653), 0x0640, 0x0670, 0x06D6, 0x0653, 0x0654, 0x0655]
 )
 
+#: عددُ الأعمدةِ المُعلَنِ في ترويسةِ كلِّ سجلٍّ — يُقرأُ حدًّا لا يُظَنُّ.
+#: وزيادتُه أخطرُ من نقصِه: خليّةٌ فيها `|` غيرُ مهروبٍ **تنشطرُ**، فتزحفُ
+#: الخلايا فيُقرأُ ذيلُ خليّةِ الوجهةِ حالةً وتُقرأُ الحالةُ الحقيقيّةُ في
+#: عمودٍ لا يُنظَرُ إليه — حكمٌ على صفٍّ لم يُقرَأْ (‏`DISC-048`).
+DECLARED_COLUMNS = 8
+
 ANCHOR_GUARD = "GUARD"
 ANCHOR_DUE = "DUE"
 ANCHOR_OWNER_HELD = "OWNER_HELD"
@@ -221,8 +227,19 @@ def _require_section(text: str, rel: Path) -> None:
         )
 
 
+#: فاصلُ الخلايا هو `|` **غيرُ مهروبٍ** وحدَه — و`\|` محتوًى لا حدٌّ
+#: (‏وهي عينُ قاعدةِ GFM للجداول). وقسمٌ ساذجٌ على `|` يشطرُ خليّةً
+#: فيها أمرُ أنبوبٍ، فتزحفُ الأعمدةُ ويُحكَمُ على صفٍّ لم يُقرَأْ (‏`DISC-048`).
+_CELL_SPLIT_RE = re.compile(r"(?<!\\)\|")
+
+
 def _cells(line: str) -> list[str]:
-    return [c.strip() for c in line.strip().strip("|").split("|")]
+    body = line.strip()
+    if body.startswith("|"):
+        body = body[1:]
+    if body.endswith("|") and not body.endswith("\\|"):
+        body = body[:-1]
+    return [c.strip().replace("\\|", "|") for c in _CELL_SPLIT_RE.split(body)]
 
 
 def _classify_open(status_cell: str) -> tuple[bool, str]:
@@ -320,12 +337,18 @@ def measure(root: Path | None = None, today: date | None = None) -> Report:
 
     for line_no, record_id, line in disc_rows:
         cells = _cells(line)
-        if len(cells) < 8:
+        if len(cells) != DECLARED_COLUMNS:
             report.violations.append(
                 _v(
                     "MALFORMED_ROW",
                     f"{record_id}: صفُّ اكتشافٍ بـ{len(cells)} خليّةً — الإلزاميُّ "
-                    "ثمانٍ، فلا تُقرأُ حالتُه ولا وجهتُه.",
+                    f"{DECLARED_COLUMNS}، فلا تُقرأُ حالتُه ولا وجهتُه"
+                    + (
+                        " (‏زيادةٌ سببُها `|` غيرُ مهروبٍ في خليّةٍ: الخلايا تزحفُ "
+                        "فيُقرأُ عمودٌ مكانَ عمودٍ)."
+                        if len(cells) > DECLARED_COLUMNS
+                        else "."
+                    ),
                 )
             )
             continue
@@ -357,12 +380,18 @@ def measure(root: Path | None = None, today: date | None = None) -> Report:
 
     for line_no, record_id, line in risk_rows:
         cells = _cells(line)
-        if len(cells) < 8:
+        if len(cells) != DECLARED_COLUMNS:
             report.violations.append(
                 _v(
                     "MALFORMED_ROW",
                     f"{record_id}: صفُّ خطرٍ بـ{len(cells)} خليّةً — الإلزاميُّ "
-                    "ثمانٍ، فلا تُقرأُ إشارتُه المبكِّرةُ ولا مالكُه.",
+                    f"{DECLARED_COLUMNS}، فلا تُقرأُ إشارتُه المبكِّرةُ ولا مالكُه"
+                    + (
+                        " (‏زيادةٌ سببُها `|` غيرُ مهروبٍ في خليّةٍ: الخلايا تزحفُ "
+                        "فيُقرأُ عمودٌ مكانَ عمودٍ)."
+                        if len(cells) > DECLARED_COLUMNS
+                        else "."
+                    ),
                 )
             )
             continue

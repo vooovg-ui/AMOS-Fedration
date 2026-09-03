@@ -265,7 +265,7 @@
       "md_files": 41,
       "py_files": 47,
       "yaml_files": 2,
-      "code_lines": 15330,
+      "code_lines": 15349,
       "nucleus_count": 12,
       "nucleus_status": {
         "unspecified": 12
@@ -480,7 +480,7 @@
       "md_files": 14,
       "py_files": 90,
       "yaml_files": 0,
-      "code_lines": 25223,
+      "code_lines": 25305,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
@@ -492,7 +492,7 @@
       "secret_hits": 0,
       "observed_hits": 4,
       "api_routes": 0,
-      "test_refs": 273,
+      "test_refs": 275,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -513,7 +513,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 273
+        "TEST_NAME_MENTIONS": 275
       },
       "maturity": "INTEGRATED",
       "findings_count": 0

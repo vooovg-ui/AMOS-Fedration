@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -331,3 +332,111 @@ def test_the_real_repository_matches_its_declared_baseline() -> None:
 def test_the_real_repository_declares_at_least_one_guard() -> None:
     """لو صارَ الإعلانُ شكلًا لا يستعمِلُه أحدٌ، سقطَ هذا الفحصُ لا الرقمُ وحدَه."""
     assert ORA.measure_declarations(REPO_ROOT).declared_rows
+
+
+# ——— حدُّ الأعمدةِ: الرفضُ في الجهتَينِ لا في جهةٍ واحدةٍ (`DISC-048`) ———
+
+#: صفٌّ فيه أنبوبٌ غيرُ مهروبٍ داخلَ خليّةِ وجهتِه: تسعُ خلايا لا ثمانٍ،
+#: فتزحفُ الأعمدةُ ويُقرأُ ذيلُ الوجهةِ حالةً — وهو الصفُّ الذي مرَّ صامتًا.
+OVERFLOWING_DISC_ROW = (
+    "| DISC-203 | P2 | موضع | ما اكتُشِف | دليل | أثر | "
+    "الوجهةُ `WI-001` وأمرُ قياسِها `grep tests/ | wc -l` | مفتوحٌ |"
+)
+#: الصفُّ نفسُه بعدَ الهربِ: ثمانِ خلايا، والأنبوبُ محتوًى لا حدٌّ.
+ESCAPED_DISC_ROW = OVERFLOWING_DISC_ROW.replace("| wc -l", r"\| wc -l")
+
+OVERFLOWING_RISK_ROW = (
+    "| RK-203 | خطرٌ مقيسٌ | منخفض | أثر | عدَّادٌ يصعدُ | "
+    r"يُستثنى `try/except ImportError|Exception` | المالك | قيدُ W-001 |"
+)
+ESCAPED_RISK_ROW = OVERFLOWING_RISK_ROW.replace("ImportError|", r"ImportError\|")
+
+
+def _codes(report) -> list[str]:
+    return [v["kind"] for v in report.violations]
+
+
+def test_a_discovery_row_with_more_cells_than_declared_is_refused(
+    tmp_path: Path,
+) -> None:
+    """الزيادةُ تُرفَضُ كما يُرفَضُ النقصُ — وإلّا حُكِمَ على صفٍّ لم يُقرَأْ."""
+    _tree(tmp_path, disc_rows=(OVERFLOWING_DISC_ROW,), baseline="0")
+    report = ORA.measure(tmp_path)
+    assert "MALFORMED_ROW" in _codes(report)
+    assert not [r for r in report.records if r.record_id == "DISC-203"]
+
+
+def test_a_risk_row_with_more_cells_than_declared_is_refused(tmp_path: Path) -> None:
+    _tree(tmp_path, risk_rows=(OVERFLOWING_RISK_ROW,), baseline="0")
+    report = ORA.measure(tmp_path)
+    assert "MALFORMED_ROW" in _codes(report)
+    assert not [r for r in report.records if r.record_id == "RK-203"]
+
+
+def test_the_refusal_names_the_unescaped_pipe_as_the_cause(tmp_path: Path) -> None:
+    """رسالةٌ لا تُسمّي السببَ تدفعُ إلى حذفِ النصِّ بدلَ هربِ محرفِه."""
+    _tree(tmp_path, disc_rows=(OVERFLOWING_DISC_ROW,), baseline="0")
+    detail = next(
+        v["detail"]
+        for v in ORA.measure(tmp_path).violations
+        if v["kind"] == "MALFORMED_ROW"
+    )
+    assert "|" in detail
+    assert "9" in detail
+
+
+def test_an_escaped_pipe_is_content_and_the_row_reads_eight_cells(
+    tmp_path: Path,
+) -> None:
+    """`\\|` محتوًى لا حدٌّ (‏قاعدةُ GFM) — فالصفُّ يُقرأُ ولا يُرفَضُ."""
+    _tree(tmp_path, disc_rows=(ESCAPED_DISC_ROW,), risk_rows=(ESCAPED_RISK_ROW,))
+    report = ORA.measure(tmp_path)
+    assert "MALFORMED_ROW" not in _codes(report)
+    row = next(r for r in report.records if r.record_id == "DISC-203")
+    assert row.anchor == ORA.ANCHOR_NONE
+    assert next(r for r in report.records if r.record_id == "RK-203")
+
+
+def test_the_escaped_pipe_is_unescaped_inside_the_cell_text(tmp_path: Path) -> None:
+    """الهربُ يُزالُ عندَ القراءةِ، فلا يتغيَّرُ النصُّ الذي تُقاسُ عليه المِرساةُ."""
+    _tree(tmp_path, disc_rows=(ESCAPED_DISC_ROW,))
+    cells = ORA._cells(ESCAPED_DISC_ROW)
+    assert len(cells) == ORA.DECLARED_COLUMNS
+    assert "grep tests/ | wc -l" in cells[6]
+    assert "\\|" not in cells[6]
+
+
+def test_reverting_the_column_limit_makes_the_overflowing_row_pass(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """طفرةٌ أولى: لولا حدُّ العددِ لمرَّ صفُّ التسعِ خلايا ولحُكِمَ عليه بعمودٍ مُزاحٍ."""
+    _tree(tmp_path, disc_rows=(OVERFLOWING_DISC_ROW,), baseline="0")
+    assert "MALFORMED_ROW" in _codes(ORA.measure(tmp_path))
+    before = ORA.measure(tmp_path).records
+    assert not [r for r in before if r.record_id == "DISC-203"]
+    monkeypatch.setattr(ORA, "DECLARED_COLUMNS", 9)
+    passed = ORA.measure(tmp_path)
+    shifted = next(r for r in passed.records if r.record_id == "DISC-203")
+    assert shifted.open_basis == "STATUS_UNDECLARED_READ_OPEN", (
+        "بعدَ رفعِ الحدِّ يُقرأُ ذيلُ خليّةِ الوجهةِ حالةً، فتُقرأُ «مفتوحٌ» "
+        "المكتوبةُ في عمودٍ لا يُنظَرُ إليه — وهو عينُ العَطبِ المُقيَّدِ"
+    )
+
+
+
+def test_reverting_the_naive_split_refuses_a_legitimately_escaped_row(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """طفرةٌ ثانيةٌ: لولا تمييزُ المهروبِ لصارَ الهربُ الصحيحُ نفسُه رفضًا."""
+    _tree(tmp_path, disc_rows=(ESCAPED_DISC_ROW,), baseline="0")
+    assert "MALFORMED_ROW" not in _codes(ORA.measure(tmp_path))
+    monkeypatch.setattr(ORA, "_CELL_SPLIT_RE", re.compile(r"\|"))
+    assert "MALFORMED_ROW" in _codes(ORA.measure(tmp_path))
+
+
+def test_the_real_registers_hold_no_malformed_row(tmp_path: Path) -> None:
+    """السجلّانِ الحقيقيّانِ يُقرآنِ ثمانيًا — وإلّا حُكِمَ عليهما بعمودٍ مُزاحٍ."""
+    report = ORA.measure(REPO_ROOT)
+    assert "MALFORMED_ROW" not in _codes(report), [
+        v["detail"] for v in report.violations if v["kind"] == "MALFORMED_ROW"
+    ]
