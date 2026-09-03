@@ -167,6 +167,39 @@ EXEMPT_SUFFIXES = (".lock", ".egg-info", ".pyc")
 
 DETAIL_KEYS = ("خارج النطاق", "معيار القبول", "الدليل المطلوب")
 
+# شكلُ المسارِ في خليّةِ § 1. الخليّةُ تُشطَرُ على «·»، وكلُّ جزءٍ **يجبُ** أن
+# يكونَ مسارًا مكتوبًا لا نثرًا حولَه: جزءٌ نثريٌّ كانَ يُقرأُ دعوى، ونثرٌ يذكرُ
+# مجلَّدًا كانَ يُغطّيه كلَّه بالبادئةِ (`DISC-042` — قِيسَ في `W-106` عيانًا).
+# والمقيسُ هنا **الشكلُ لا الوجودُ**: بندٌ يُعلِنُ ملفًّا سيُنشِئُه مشروعٌ.
+CLAIM_PATH_RE = re.compile(r"^[A-Za-z0-9_.][A-Za-z0-9_./*-]*$")
+# علاماتُ «لا مسارَ يُحجَزُ»: خليّةٌ تبدأُ بها إعلانُ فراغٍ، وما بعدَها تعليلٌ
+# مكتوبٌ لا دعوى — فلا يُكسَرُ صفٌّ صادقٌ يشرحُ لِمَ لا يُحجَزُ شيءٌ.
+NO_CLAIM_MARKS = ("—", "–", "-")
+
+
+def parse_claim_cell(wid: str, cell: str) -> tuple[list[str], list[dict[str, str]]]:
+    """خليّةُ المساراتِ ⇐ مساراتٌ مُعلَنةٌ + مخالفاتُ الأجزاءِ غيرِ المساريّةِ."""
+    stripped = cell.strip()
+    if stripped.startswith(NO_CLAIM_MARKS):
+        return [], []
+    paths: list[str] = []
+    violations: list[dict[str, str]] = []
+    for part in stripped.split("·"):
+        segment = part.strip()
+        if not segment:
+            continue
+        candidate = segment.strip("`").strip()
+        if CLAIM_PATH_RE.match(candidate):
+            paths.append(candidate)
+            continue
+        violations.append(_v(
+            "NONPATH_CLAIM",
+            f"{wid}: «{segment[:60]}» في خليّةِ المساراتِ ليسَ مسارًا — "
+            "الخليّةُ مساراتٌ مفصولةٌ بـ«·» لا نثرٌ حولَها، والنثرُ يُنقَلُ إلى "
+            f"كتلةِ التفاصيلِ (THE_ROADMAP § 6.1 · DISC-042)",
+        ))
+    return paths, violations
+
 _DIACRITICS = dict.fromkeys(
     [*range(0x064B, 0x0653), 0x0640, 0x0670, 0x06D6, 0x0653, 0x0654, 0x0655]
 )
@@ -223,10 +256,12 @@ def parse_items(text: str) -> tuple[list[dict[str, object]], list[dict[str, str]
         cells = _cells(line)
         wid = m.group(1)
         if len(cells) == 12:
+            claimed, cell_violations = parse_claim_cell(wid, cells[6])
+            violations.extend(cell_violations)
             items.append({
                 "id": wid, "scope": cells[1], "track": cells[2], "owner": cells[3],
                 "reviewer": cells[4], "status": cells[5],
-                "paths": [p.strip() for p in cells[6].split("·") if p.strip()],
+                "paths": claimed,
                 "start": cells[7], "expires": cells[8], "blocker": cells[9],
                 "next": cells[10], "ledger": cells[11], "deferred_row": False,
             })
