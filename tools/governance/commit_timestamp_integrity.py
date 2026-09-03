@@ -17,6 +17,17 @@
 التزاماتٌ أقلُّ، فيُقاسُ أقلُّ — ولذلك تُعلِنُ الأداةُ ضحالةَ السجلِّ صراحةً في
 حكمِها بدلَ أن تُوهِمَ بنقصانِ الدَّينِ.
 
+## حرسٌ سابقٌ للدفعِ لا بَعديٌّ وحدَه (W-113 · `DISC-044`)
+قياسُ المجموعِ **بَعديٌّ**: يكشفُ النموَّ في الدفعةِ التاليةِ ولا يمنعُ التزامًا
+مغلوطًا لحظةَ إنشائِه. وهذا الحدُّ كانَ مُعلَنًا ثمَّ **وقعَ مقيسًا**: العقدةُ
+`66c217b` التي أعلنَت `non_utc=134` حملَت نفسُها إزاحةً محلّيّةً (`+03:00`)، فصارَ
+المقيسُ 135 والمُعلَنُ 134 — فأسقطَت العقدةُ سقّاطتَها بنفسِها (‏حكمُ CI
+`33621763476`). فصارَ الحرسُ وجهَينِ: مجموعٌ **لا يعلو** (‏والماضي مُجمَّدٌ لا
+يُعادُ كتابتُه)، و**كلُّ التزامٍ بعدَ العقدةِ المُعلَنةِ** (`baseline_node`)
+إزاحتُه `+00:00` أو يسقُطُ الفحصُ **قبلَ الدفعِ**. فالنموُّ يُمنَعُ في
+مصدرِه لا يُرصَدُ بعدَ وقوعِه — ولا يُقرَأُ هذا إبراءً للماضي: المائةُ
+والخمسةُ والثلاثونَ تبقى مُعلَنةً مقيسةً.
+
 الاستخدام:
     python tools/governance/commit_timestamp_integrity.py --check
 """
@@ -46,6 +57,9 @@ BASELINE_RECORD = Path("docs/governance/work/DISCOVERIES.md")
 BASELINE_KEY = "COMMIT_STAMP_BASELINE:"
 BASELINE_FIELDS = ("non_utc", "duplicate_groups", "duplicate_commits", "non_monotonic")
 HISTORY_FIELD = "history_commits"
+BASELINE_NODE_FIELD = "baseline_node"
+# git يكتُبُ التوقيتَ العالميَّ بوجهَينِ: «Z» أو «+00:00» — والوجهانِ عالميّانِ
+UTC_SUFFIXES = ("Z", "+00:00")
 
 
 class CommitHistoryUnreadable(RuntimeError):
@@ -54,6 +68,10 @@ class CommitHistoryUnreadable(RuntimeError):
 
 class BaselineRecordMissing(RuntimeError):
     """يُرفَعُ حينَ يغيبُ سطرُ الرقمِ المُعلَنِ أو يتكرَّرُ — فلا مرجعَ يُقاسُ عليه."""
+
+
+class BaselineNodeUnreachable(RuntimeError):
+    """يُرفَعُ حينَ لا تُرى العقدةُ المُعلَنةُ في السجلِّ المحلّيِّ — تُعلَنُ ولا تُطوى."""
 
 
 def _git(args: list[str], repo: Path) -> str:
@@ -102,9 +120,7 @@ def measure(repo: Path | None = None) -> dict[str, int]:
         parents[sha] = parts[2:]
 
     # git يكتبُ التوقيتَ العالميَّ «Z» ويكتبُ غيرَه إزاحةً صريحةً — والوجهانِ عالميّانِ
-    non_utc = sum(
-        1 for s in stamps.values() if not (s.endswith("Z") or s.endswith("+00:00"))
-    )
+    non_utc = sum(1 for s in stamps.values() if not s.endswith(UTC_SUFFIXES))
 
     seen: dict[str, list[str]] = {}
     for sha, stamp in stamps.items():
@@ -171,6 +187,74 @@ def declared_history_commits(repo: Path | None = None) -> int:
     return int(match.group(1))
 
 
+def declared_baseline_node(repo: Path | None = None) -> str:
+    """العقدةُ التي عندَها جُمَّدَ الماضي — تُقرأُ من السطرِ الواحدِ نفسِه.
+
+    ما قبلَ هذه العقدةِ دَينٌ مُعلَنٌ لا يُعادُ كتابتُه، وما بعدَها يُلزَمُ
+    بالإزاحةِ العالميّةِ — فالحدُّ بينَ الماضي والمستقبلِ **مكتوبٌ لا مُقدَّرٌ**.
+    """
+    repo = Path(repo) if repo is not None else REPO_ROOT
+    text = (repo / BASELINE_RECORD).read_text(encoding="utf-8")
+    lines = [ln for ln in text.splitlines() if BASELINE_KEY in ln]
+    if len(lines) != 1:
+        raise BaselineRecordMissing(
+            f"سطرُ `{BASELINE_KEY}` وُجِدَ {len(lines)} مرّةً والمطلوبُ مرّةً واحدةً"
+        )
+    match = re.search(rf"{BASELINE_NODE_FIELD}=([0-9a-f]{{7,40}})", lines[0])
+    if match is None:
+        raise BaselineRecordMissing(
+            f"الحقلُ `{BASELINE_NODE_FIELD}` غائبٌ عن سطرِ `{BASELINE_KEY}` — "
+            "فلا يُعرَفُ من أينَ يبدأُ الإلزامُ ولا يُخمَّنُ حدٌّ"
+        )
+    return match.group(1)
+
+
+def _rev_exists(repo: Path, rev: str) -> bool:
+    out = subprocess.run(
+        ["git", "cat-file", "-e", f"{rev}^{{commit}}"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    return out.returncode == 0
+
+
+def commits_after_baseline(
+    repo: Path | None = None, baseline_node: str | None = None
+) -> dict[str, str]:
+    """طوابعُ كلِّ التزامٍ أُنشِئَ **بعدَ** العقدةِ المُعلَنةِ حتّى `HEAD`.
+
+    ولا يُبتلَعُ نقصٌ: إن غابَت العقدةُ عن المرآةِ رُفِعَ `BaselineNodeUnreachable`
+    فيُعلَنُ أنَّ الشرطَ **لم يُقَس** حيثُ أُشُغّل، ويُقاسُ حيثُ يُمكِنُ (CI بعمقٍ كاملٍ).
+    """
+    repo = Path(repo) if repo is not None else REPO_ROOT
+    node = baseline_node if baseline_node is not None else declared_baseline_node(repo)
+    if not _rev_exists(repo, node):
+        raise BaselineNodeUnreachable(
+            f"العقدةُ المُعلَنةُ `{node}` غيرُ مرئيّةٍ في {repo} — "
+            "فشرطُ «كلُّ جديدٍ بإزاحةٍ عالميّةٍ» لم يُقَس هنا ولا يُدَّعى خُضرةً"
+        )
+    raw = _git(["log", "--format=%H %cI", f"{node}..HEAD"], repo).strip()
+    stamps: dict[str, str] = {}
+    for line in raw.splitlines():
+        sha, stamp = line.split()[0], line.split()[1]
+        stamps[sha] = stamp
+    return stamps
+
+
+def forward_violations(
+    repo: Path | None = None, baseline_node: str | None = None
+) -> dict[str, str]:
+    """من الجديدِ من حملَ إزاحةً غيرَ عالميّةٍ — خرقٌ يُقرَأُ قبلَ الدفعِ لا بعدَه."""
+    return {
+        sha: stamp
+        for sha, stamp in commits_after_baseline(repo, baseline_node).items()
+        if not stamp.endswith(UTC_SUFFIXES)
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="قياسُ صدقِ طوابعِ الالتزامِ")
     parser.add_argument("--check", action="store_true", help="يقيسُ ويُقارِنُ بالمُعلَنِ")
@@ -209,6 +293,21 @@ def main() -> int:
                 file=sys.stderr,
             )
             return 1
+    # وجهُ الحرسِ السابقُ للدفعِ: ما بعدَ العقدةِ المُعلَنةِ لا يُقبَلُ فيه إزاحةٌ محلّيّةٌ
+    try:
+        violations = forward_violations(REPO_ROOT)
+    except BaselineNodeUnreachable as unreachable:
+        print(f"[COMMIT STAMP] △ لم يُقَس شرطُ الجديدِ: {unreachable}", file=sys.stderr)
+    else:
+        if violations:
+            print(
+                "[COMMIT STAMP] ✗ التزامٌ جديدٌ بإزاحةٍ محلّيّةٍ: "
+                + " · ".join(f"{sha[:10]}={stamp}" for sha, stamp in violations.items())
+                + " — يُعادُ الالتزامُ بإزاحةٍ `+00:00` (`TZ=UTC`)، ولا يُرفَعُ الرقمُ المُعلَنُ",
+                file=sys.stderr,
+            )
+            return 1
+        print(f"[COMMIT STAMP] ✓ كلُّ جديدٍ بعدَ {declared_baseline_node()[:10]} إزاحتُه عالميّةٌ.")
     print("[COMMIT STAMP] ✓ لا نموَّ في دَينِ الطوابعِ.")
     return 0
 
