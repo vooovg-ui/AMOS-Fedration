@@ -4,7 +4,7 @@
 ## النطاق: البنودُ المفتوحةُ وحدَها (`PROPOSED` → `VERIFIED`) والمُغلَقةُ حديثًا. **لا يُسجَّلُ هنا تاريخُ ما أُنجِز** — ذاك في [`COMPLETION_LEDGER.md`](../../audit/COMPLETION_LEDGER.md)، ولا حالةُ القدرةِ — تلك في [`TRUTH_MATRIX.md`](../../audit/TRUTH_MATRIX.md)
 ## المالك: قائدُ التنفيذِ، بتفويضٍ من المجلس التأسيسي
 ## تاريخ الإنشاء: 2026-08-25
-## تاريخ آخر تعديل: 2026-09-07 (**`WI-050`** — تفعيلُ A-3 + إصلاحُ إخفاقاتِ Identity Law + مزامنةُ وثائقِ الحالةِ · قُيِّدَ بـ`W-140`)
+## تاريخ آخر تعديل: 2026-09-07 (**`WI-049`+`WI-050`** — اعتمادُ البندينِ `VERIFIED` تحتَ `A-2` بقرارِ المالكِ · قُيِّدَ بـ`W-143`)
 
 > يحكمُ هذا السجلَّ [`THE_ROADMAP.md`](THE_ROADMAP.md): الحقولُ في § 4.2، والحالاتُ
 > والانتقالاتُ في § 4.3، وقفلُ النطاقِ في § 6، وواجبُ ما بعدَ الدمجِ في § 7.
@@ -69,8 +69,8 @@
 | WI-048 | tooling-gates | T0 (‏قابليّةُ القياسِ · `DISC-056`: قارئُ حكمِ CI يستدعي `/runs/{id}/jobs` **بلا تثبيتِ محاولةٍ** والواجهةُ تُرجِعُ آخرَها وحدَها ولا يكتُبُ الخرجُ أيَّ محاولةٍ قرأَ — فالتشغيلُ **94** انقلبَ `READABLE · 13/13` ← `UNREADABLE · 0/10` بإعادةِ تشغيلٍ بنيويّةٍ بلا تغييرِ حرفٍ في الشجرةِ · **استحقاق 2026-09-13**) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | READY | tools/governance/ci_verdict_readability.py · tests/governance/test_w051_ci_verdict_readability.py | 2026-09-05 | 2026-09-13 | **المسارانِ مقفولانِ**: `ci_verdict_readability.py` مُدَّعًى لـ`WI-024` و`test_w051_…` مُدَّعًى لـ`WI-032` وكلاهما `IN_REVIEW` — فلا يُحجَزانِ قبلَ تحرُّرِهما، و`READY` لا تقفلُ مسارًا (§ 6.1) فلا `CLAIM_CONFLICT` | حجزُ البندِ متى تحرَّرَ المسارانِ، ثمَّ تثبيتُ رقمِ المحاولةِ في القراءةِ وكتابتُه في الخرجِ، وحرسٌ يُثبِتُ الفرقَ بطفرةٍ | — |
 | WI-046 | tooling-gates | T0 (‏قابليّةُ القياسِ · `DISC-054`: أثرٌ مُولَّدٌ يشهدُ في متنِه أنَّ قياسَه جرى في بيئةٍ **ناقصةٍ** ولا يقرأُ تلكَ الشهادةَ حرسٌ — فوثيقةٌ معطوبةٌ تمرُّ بكلِّ بوّابةٍ برمزِ خروجٍ 0 · والمقيسُ **وثيقتانِ شاهدتانِ · صفرُ مُعلِنٍ نقصًا · صفرُ قارئٍ** · **استحقاق 2026-09-12**) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/artifact_witness_integrity.py · tests/governance/test_w131_artifact_witness_integrity.py | 2026-09-03 | 2026-09-12 | لا عائقَ تنفيذيًّا — **الحكمُ مقروءٌ**: تشغيلُ CI **90** (`33790942381`) على عقدةِ `9da40866` ⇒ `completed success` · **13/13** · `READABLE`. والعائقُ الباقي **مراجعةٌ مستقلّةٌ**: `A-2` `PENDING` والمالكُ يجمعُ الدورَينِ (`DISC-027` · `RK-020`) فلا يُكتَبُ `VERIFIED` | مراجعةٌ مستقلّةٌ تقرأُ الحرسَ وحدودَه المُعلَنةَ ثمَّ `VERIFIED` — والكاتبُ لا يكتبُها (§ 4.3) | — |
 | WI-045 | tooling-gates | T0 (‏قابليّةُ القياسِ · `DISC-053`: السطرُ الناجحُ لوجهِ `--check` يُعلِنُ حكمًا **كلّيًّا** ولا يقولُ **كم قرأَ**، فلا يُميَّزُ «قِيسَ ألفٌ» من «قِيسَ صفرٌ» — والمقيسُ **20** جملةً كلّيّةً منها **17** بلا مقامٍ · **استحقاق 2026-09-11") | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/green_denominator_closure.py · tests/governance/test_w130_green_denominator_closure.py | 2026-09-03 | 2026-09-11 | لا عائقَ تنفيذيًّا — **الحكمُ مقروءٌ**: تشغيلُ CI **89** (`33785332367`) على عقدةِ `93db6855` ⇒ `completed success` · **13/13** · `READABLE`. والعائقُ الباقي **مراجعةٌ مستقلّةٌ**: `A-2` `PENDING` والمالكُ يجمعُ الدورَينِ (`DISC-027` · `RK-020`) فلا يُكتَبُ `VERIFIED` | مراجعةٌ مستقلّةٌ تقرأُ الحرسَ وحدودَه المُعلَنةَ ثمَّ `VERIFIED` — والكاتبُ لا يكتبُها (§ 4.3) | — |
-| WI-050 | governance-docs | T0 (قابليّةُ القياسِ — تفعيلُ A-3 + إصلاحُ إخفاقاتِ Identity Law: مزامنةُ وثائقِ الحالةِ وتصحيحُ حدِّ الصدق) | Perplexity Computer | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | docs/governance/work/THE_ROADMAP.md · docs/governance/work/DISCOVERIES.md | 2026-09-07 | 2026-09-14 | لا عائقَ فنيًّا — THE_ROADMAP.md غيرُ مُدَّعًى وDISCOVERIES.md معفيةٌ بنصِّ § 6 | تفعيلُ A-3 + تصحيحُ TRUTH_LIMIT_BASELINE + مزامنةُ PROJECT_HANDBOOK.md (واجبُ § 7) | — |
-| WI-049 | audit-truth | T0 (قابليّةُ القياسِ · خطُّ أساسِ المستودعِ الجديدِ: قياسُ حالةِ CI على `vooovg-ui/AMOS-Fedration` · المستودعُ نُسِخَ من `xoos-beep` وحسابُ `Actions` فيه جديدٌ · `DISC-006` كانَ على حسابِ المالكِ القديمِ) | Perplexity Computer | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | docs/governance/work/ACTIVE_WORK.md · docs/audit/COMPLETION_LEDGER.md | 2026-09-07 | 2026-09-14 | لا عائقَ فنيًّا — ولا مسارَ مقفولًا يُمَسُّ — ووثيقتا الحالةِ تُمَسّانِ بسطرِ قيدٍ معفىٍ بنصِّ § 6 | دفعُ التسجيلِ إلى main لإحراكِ CI ثمَّ قراءةُ الحكمِ وتقييدُه | — |
+| WI-050 | governance-docs | T0 (قابليّةُ القياسِ — تفعيلُ A-3 + إصلاحُ إخفاقاتِ Identity Law: مزامنةُ وثائقِ الحالةِ وتصحيحُ حدِّ الصدق) | Perplexity Computer | المالك (`A-2` · غيرُ مستقلٍّ) | VERIFIED | docs/governance/work/THE_ROADMAP.md · docs/governance/work/DISCOVERIES.md | 2026-09-07 | 2026-09-14 | لا عائقَ فنيًّا — THE_ROADMAP.md غيرُ مُدَّعًى وDISCOVERIES.md معفيةٌ بنصِّ § 6 | تفعيلُ A-3 + تصحيحُ TRUTH_LIMIT_BASELINE + مزامنةُ PROJECT_HANDBOOK.md (واجبُ § 7) | — |
+| WI-049 | audit-truth | T0 (قابليّةُ القياسِ · خطُّ أساسِ المستودعِ الجديدِ: قياسُ حالةِ CI على `vooovg-ui/AMOS-Fedration` · المستودعُ نُسِخَ من `xoos-beep` وحسابُ `Actions` فيه جديدٌ · `DISC-006` كانَ على حسابِ المالكِ القديمِ) | Perplexity Computer | المالك (`A-2` · غيرُ مستقلٍّ) | VERIFIED | docs/governance/work/ACTIVE_WORK.md · docs/audit/COMPLETION_LEDGER.md | 2026-09-07 | 2026-09-14 | لا عائقَ فنيًّا — ولا مسارَ مقفولًا يُمَسُّ — ووثيقتا الحالةِ تُمَسّانِ بسطرِ قيدٍ معفىٍ بنصِّ § 6 | دفعُ التسجيلِ إلى main لإحراكِ CI ثمَّ قراءةُ الحكمِ وتقييدُه | — |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
 
@@ -2637,7 +2637,7 @@
 النطاق: governance-docs
 المسار/المرحلة: T0 (قابليّةُ القياسِ — تفعيلُ بوّابةِ work-governance-gate بوضعِ الإسقاط + إصلاحُ إخفاقاتِ CI)
 المالك: Perplexity Computer            المراجع: المالك (`A-2` · غيرُ مستقلٍّ)
-الحالة: IN_REVIEW   (‏`IN_PROGRESS` ← `IN_REVIEW` بلا قفزٍ · § 4.3 — نُقِلَ على حكمِ تشغيلٍ **34157781041** ⇒ `READABLE · 13/13 success` · و`VERIFIED` **لا يُكتَبُ هنا**: فعلُ المراجعِ لا الكاتبِ · `A-2`)
+الحالة: VERIFIED   (‏`IN_REVIEW` ← `VERIFIED` بقرارِ المالكِ تحتَ `A-2` · § 4.3 — المراجعةُ **غيرُ مستقلّةٍ** (`DISC-027` · `RK-020`) · الدليلُ أُعيدَ تشغيلُهُ: `check_work_governance --self-check` ✓ · `check_repository_identity .` ✓ · `truth_audit . --ratchet` 63 ثابتةٌ · A-3 `APPROVED` نافذٌ · حكمُ CI **34159148045** ⇒ `READABLE · 13/13 success` · و`CLOSED` **لا يُكتَبُ هنا**: فعلُ الالتزامِ التالي · `A-2`)
 المسارات:
   docs/governance/work/THE_ROADMAP.md        (غيرُ مُدَّعًى — متاحٌ)
   docs/governance/work/DISCOVERIES.md         (معفيةٌ من الحجزِ بنصِّ § 6)
@@ -2673,7 +2673,7 @@
 النطاق: ci-pipeline / audit-truth
 المسار/المرحلة: T0 (قابليّةُ القياسِ — خطُّ أساسٍ على مستودعٍ جديدٍ)
 المالك: Perplexity Computer            المراجع: المالك (`A-2` · غيرُ مستقلٍّ)
-الحالة: IN_REVIEW   (‏`RESERVED` ← `IN_PROGRESS` ← `IN_REVIEW` بلا قفزٍ · § 4.3 — نُقِلَ على حكمِ تشغيلٍ **34148407884** ⇒ `READABLE · 13/13` · `DISC-006` لا ينطبقُ على هذا الحسابِ · و`VERIFIED` **لا يُكتَبُ هنا**: فعلُ المراجعِ لا الكاتبِ · `A-2`)
+الحالة: VERIFIED   (‏`IN_REVIEW` ← `VERIFIED` بقرارِ المالكِ تحتَ `A-2` · § 4.3 — المراجعةُ **غيرُ مستقلّةٍ** (`DISC-027` · `RK-020`) · الدليلُ أُعيدَ تشغيلُهُ: `check_work_governance --self-check` ✓ · `check_repository_identity .` ✓ · `truth_audit . --ratchet` 63 ثابتةٌ · حكمُ CI **34159148045** ⇒ `READABLE · 13/13 success` · مصفوفةُ الحقيقةِ **34159148010** `success` · و`CLOSED` **لا يُكتَبُ هنا**: فعلُ الالتزامِ التالي · `A-2`)
 المسارات:
   docs/governance/work/ACTIVE_WORK.md        (معفيةٌ من الحجزِ بنصِّ § 6)
   docs/audit/COMPLETION_LEDGER.md             (معفيةٌ من الحجزِ بنصِّ § 6)
