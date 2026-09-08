@@ -4,7 +4,7 @@
 ## النطاق: البنودُ المفتوحةُ وحدَها (`PROPOSED` → `VERIFIED`) والمُغلَقةُ حديثًا. **لا يُسجَّلُ هنا تاريخُ ما أُنجِز** — ذاك في [`COMPLETION_LEDGER.md`](../../audit/COMPLETION_LEDGER.md)، ولا حالةُ القدرةِ — تلك في [`TRUTH_MATRIX.md`](../../audit/TRUTH_MATRIX.md)
 ## المالك: قائدُ التنفيذِ، بتفويضٍ من المجلس التأسيسي
 ## تاريخ الإنشاء: 2026-08-25
-## تاريخ آخر تعديل: 2026-09-07 (**`WI-049`+`WI-050`** — إغلاقُ البندينِ `CLOSED` بـ`W-144` بعدَ اعتمادِ `VERIFIED` بـ`W-143`)
+## تاريخ آخر تعديل: 2026-09-08 (WI-051 — تسجيل Q-43 وتحديث A-2) (**`WI-049`+`WI-050`** — إغلاقُ البندينِ `CLOSED` بـ`W-144` بعدَ اعتمادِ `VERIFIED` بـ`W-143`)
 
 > يحكمُ هذا السجلَّ [`THE_ROADMAP.md`](THE_ROADMAP.md): الحقولُ في § 4.2، والحالاتُ
 > والانتقالاتُ في § 4.3، وقفلُ النطاقِ في § 6، وواجبُ ما بعدَ الدمجِ في § 7.
@@ -43,7 +43,7 @@
 ---
 | WI-021 | tooling-gates | T0 / T0.4ب (إرجاعُ `main` أخضرَ · واحديّةُ الماسحِ ومحلُّ القياسِ الصريحُ) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | CLOSED | .github/workflows/ci.yml · tools/crown/verify_secret_boundaries.py · tools/governance/check_work_governance.py · tests/governance/test_w054_post_merge_reverse_link.py · tests/governance/test_w069_single_scanner_and_explicit_root.py · tests/governance/test_w069_status_contradiction.py · tests/governance/test_work_governance_gate.py · PROJECT_STATE.md · docs/PROJECT_HANDBOOK.md | 2026-08-30 | 2026-09-06 | — | مُنجَزٌ · مساراتُه الثمانيةُ انفكَّت (§ 6.1) · وقرارُ `origin/develop` بيدِ المالكِ | W-069 · دفعٌ مباشرٌ إلى main (`ed9e5c5`) · حكمُ CI على عقدةِ القيدِ **قُرِئَ أخضرَ 13/13** (تشغيلُ 33342938099 · `completed success` · و`ci_verdict_readability.py --from-json` ⇒ `READABLE · 13/13`) · مُراجَعٌ 2026-08-31 (`A-2` · غيرُ مستقلٍّ) · **مُغلَقٌ 2026-08-31 بـ`W-071`** بعدَ خُضرةٍ مقروءةٍ ثانيةٍ 13/13 على `0ce4d5d` (تشغيلُ 33345147799 · `READABLE`) |
 | WI-022 | docs-general | T0 / T0.4ب (صدقُ السجلِّ في موضعِه · إعادةُ تقييمِ `DISC-034` بقياسٍ صحيحٍ) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | CLOSED | PROJECT_STATE.md · docs/PROJECT_HANDBOOK.md | 2026-08-31 | 2026-09-07 | — | مُنجَزٌ · مساراهُ انفكّا (§ 6.1) · وقرارُ `origin/develop` بيدِ المالكِ بثلاثةِ خياراتٍ | W-072 · دفعٌ مباشرٌ إلى main (`fb70f47`) · حكمُ CI على عقدةِ القيدِ **قُرِئَ أخضرَ 13/13** (تشغيلُ 33348727892 · `completed success` · و`ci_verdict_readability.py --from-json` ⇒ `READABLE · 13/13`) · مُسلَّمٌ للمراجعةِ 2026-08-31 · مُراجَعٌ 2026-08-31 (`A-2` · غيرُ مستقلٍّ) بعدَ خُضرةٍ مقروءةٍ ثانيةٍ 13/13 على `afae5e0` (تشغيلُ 33350334816 · `READABLE`) · **مُغلَقٌ 2026-08-31 بـ`W-075`** بعدَ خُضرةٍ مقروءةٍ ثالثةٍ 13/13 على `2a5c1f6` (تشغيلُ 33351966117 · `READABLE`) |
-| WI-023 | tooling-gates | T0 / T0.4ب (قابليّةُ القياسِ — دعوى «يُشغَّلُ في كلِّ دفعةٍ» تُقاسُ قبلَ أن تُقبَلَ سندًا) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/guard_enforcement_closure.py · tests/governance/test_w077_guard_enforcement_closure.py · .github/workflows/ci.yml · PROJECT_STATE.md · docs/PROJECT_HANDBOOK.md | 2026-08-31 | 2026-09-07 | — | **المراجعةُ بيدِ المالكِ**: `VERIFIED` ثمَّ `CLOSED` قرارُه لا قرارُ منفِّذٍ — والمراجعةُ **ليست مستقلَّةً** بنصِّ `A-2` (`DISC-027` · `RK-020`) | W-078 · حكمُ عقدةِ `4764a12` مقروءٌ **13/13 · READABLE** (تشغيلُ 33391458311) |
+| WI-023 | tooling-gates | T0 / T0.4ب (قابليّةُ القياسِ — دعوى «يُشغَّلُ في كلِّ دفعةٍ» تُقاسُ قبلَ أن تُقبَلَ سندًا) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/guard_enforcement_closure.py · tests/governance/test_w077_guard_enforcement_closure.py · .github/workflows/ci.yml · PROJECT_STATE.md · docs/PROJECT_HANDBOOK.md | 2026-08-31 | 2026-09-14 | — | **المراجعةُ بيدِ المالكِ**: `VERIFIED` ثمَّ `CLOSED` قرارُه لا قرارُ منفِّذٍ — والمراجعةُ **ليست مستقلَّةً** بنصِّ `A-2` (`DISC-027` · `RK-020`) | W-078 · حكمُ عقدةِ `4764a12` مقروءٌ **13/13 · READABLE** (تشغيلُ 33391458311) |
 | WI-024 | tooling-gates | T0 / T0.4ب (قابليّةُ القياسِ — «أداةٌ حاكمةٌ لا تُشغَّلُ» تُقاسُ وتُعلِنُ سببَها) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/enforcement_path_ledger.py · tests/governance/test_w079_enforcement_path_ledger.py · tools/audit/final_audit.py · tools/audit/judicial_gate_probe.py · tools/audit/treasury_gate_probe.py · tools/governance/ci_verdict_readability.py · tools/governance/constitutional_reconciliation.py · tools/governance/evidence_registry.py · tools/governance/gate_dependency_closure.py · tools/governance/schema_inventory_drift.py · tools/governance/sovereign_decision_status.py · tools/migrations/r4_unify_agent_identity.py · tools/stubs/registry_check.py | 2026-08-31 | 2026-09-08 | — | كتابةُ الأداةِ وفحوصِها ثمَّ إعلانُ طريقِ الإنفاذِ في ترويسةِ كلِّ أداةٍ غيرِ مربوطةٍ (`W-080`) | W-079 · الحجزُ وقياسُ خطِّ الأساسِ |
 | WI-025 | audit-truth | T0 / T0.4ب (‏صدقُ القياسِ — القياسُ المنشورُ يُفتَّحُ بما يُقاسُ لا بإحداثيٍّ في المصدرِ) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/audit/sovereign_write_inventory.py · tests/governance/test_w083_measurement_site_key.py · docs/audit/measurements/write_inventory_p13.json · docs/audit/measurements/README.md | 2026-08-31 | 2026-09-08 | — | مراجعةٌ ثمَّ `VERIFIED` — بيدِ المراجعِ لا بيدِ صاحبِ التغييرِ (§ 4.3) | W-085 · حكمُ عقدةِ `W-084` أخضرُ 13/13 · READABLE |
 | WI-026 | tooling-gates | T0 (قابليّةُ القياسِ · حالةُ تشغيلٍ تُكتَبُ في الشجرةِ فتُحمِّرُ بوّابةً على أثرٍ غيرِ مُفهرَسٍ) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | conftest.py · tests/governance/test_runtime_state_stays_outside_the_tree.py · federal/executive/services/tests/conftest.py | 2026-09-01 | 2026-09-08 | — | مراجعةٌ ثمَّ `VERIFIED` — بيدِ المراجعِ لا بيدِ صاحبِ التغييرِ (§ 4.3) | W-088 · حكمُ عقدةِ `W-087` أخضرُ 13/13 · READABLE |
@@ -70,6 +70,7 @@
 | WI-046 | tooling-gates | T0 (‏قابليّةُ القياسِ · `DISC-054`: أثرٌ مُولَّدٌ يشهدُ في متنِه أنَّ قياسَه جرى في بيئةٍ **ناقصةٍ** ولا يقرأُ تلكَ الشهادةَ حرسٌ — فوثيقةٌ معطوبةٌ تمرُّ بكلِّ بوّابةٍ برمزِ خروجٍ 0 · والمقيسُ **وثيقتانِ شاهدتانِ · صفرُ مُعلِنٍ نقصًا · صفرُ قارئٍ** · **استحقاق 2026-09-12**) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/artifact_witness_integrity.py · tests/governance/test_w131_artifact_witness_integrity.py | 2026-09-03 | 2026-09-12 | لا عائقَ تنفيذيًّا — **الحكمُ مقروءٌ**: تشغيلُ CI **90** (`33790942381`) على عقدةِ `9da40866` ⇒ `completed success` · **13/13** · `READABLE`. والعائقُ الباقي **مراجعةٌ مستقلّةٌ**: `A-2` `PENDING` والمالكُ يجمعُ الدورَينِ (`DISC-027` · `RK-020`) فلا يُكتَبُ `VERIFIED` | مراجعةٌ مستقلّةٌ تقرأُ الحرسَ وحدودَه المُعلَنةَ ثمَّ `VERIFIED` — والكاتبُ لا يكتبُها (§ 4.3) | — |
 | WI-045 | tooling-gates | T0 (‏قابليّةُ القياسِ · `DISC-053`: السطرُ الناجحُ لوجهِ `--check` يُعلِنُ حكمًا **كلّيًّا** ولا يقولُ **كم قرأَ**، فلا يُميَّزُ «قِيسَ ألفٌ» من «قِيسَ صفرٌ» — والمقيسُ **20** جملةً كلّيّةً منها **17** بلا مقامٍ · **استحقاق 2026-09-11") | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/green_denominator_closure.py · tests/governance/test_w130_green_denominator_closure.py | 2026-09-03 | 2026-09-11 | لا عائقَ تنفيذيًّا — **الحكمُ مقروءٌ**: تشغيلُ CI **89** (`33785332367`) على عقدةِ `93db6855` ⇒ `completed success` · **13/13** · `READABLE`. والعائقُ الباقي **مراجعةٌ مستقلّةٌ**: `A-2` `PENDING` والمالكُ يجمعُ الدورَينِ (`DISC-027` · `RK-020`) فلا يُكتَبُ `VERIFIED` | مراجعةٌ مستقلّةٌ تقرأُ الحرسَ وحدودَه المُعلَنةَ ثمَّ `VERIFIED` — والكاتبُ لا يكتبُها (§ 4.3) | — |
 | WI-050 | governance-docs | T0 (قابليّةُ القياسِ — تفعيلُ A-3 + إصلاحُ إخفاقاتِ Identity Law: مزامنةُ وثائقِ الحالةِ وتصحيحُ حدِّ الصدق) | Perplexity Computer | المالك (`A-2` · غيرُ مستقلٍّ) | CLOSED | docs/governance/work/THE_ROADMAP.md · docs/governance/work/DISCOVERIES.md | 2026-09-07 | 2026-09-14 | لا عائقَ فنيًّا — THE_ROADMAP.md غيرُ مُدَّعًى وDISCOVERIES.md معفيةٌ بنصِّ § 6 | تفعيلُ A-3 + تصحيحُ TRUTH_LIMIT_BASELINE + مزامنةُ PROJECT_HANDBOOK.md (واجبُ § 7) | دفعٌ مباشرٌ إلى main (`08251f8`) · حكمُ CI: **أخضرُ 13/13 success** (تشغيلُ 34159148045) · مُراجَعٌ بـ`W-143` · **مُغلَقٌ بـ`W-144`** |
+| WI-051 | governance-docs | T2 | Driving H | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | docs/audit/SOVEREIGN_DECISION_REGISTER.md · docs/governance/work/THE_ROADMAP.md · docs/governance/work/OWNERSHIP.md · docs/governance/work/ACTIVE_WORK.md | 2026-09-08 | 2026-09-15 | — | تسجيل قرار Q-43 وتحديث A-2 واغلاق RK-020 و DISC-027 — ثم مراجعة مستقلة بالنماذج | — |
 | WI-049 | audit-truth | T0 (قابليّةُ القياسِ · خطُّ أساسِ المستودعِ الجديدِ: قياسُ حالةِ CI على `vooovg-ui/AMOS-Fedration` · المستودعُ نُسِخَ من `xoos-beep` وحسابُ `Actions` فيه جديدٌ · `DISC-006` كانَ على حسابِ المالكِ القديمِ) | Perplexity Computer | المالك (`A-2` · غيرُ مستقلٍّ) | CLOSED | docs/governance/work/ACTIVE_WORK.md · docs/audit/COMPLETION_LEDGER.md | 2026-09-07 | 2026-09-14 | لا عائقَ فنيًّا — ولا مسارَ مقفولًا يُمَسُّ — ووثيقتا الحالةِ تُمَسّانِ بسطرِ قيدٍ معفىٍ بنصِّ § 6 | دفعُ التسجيلِ إلى main لإحراكِ CI ثمَّ قراءةُ الحكمِ وتقييدُه | دفعٌ مباشرٌ إلى main (`95f0fc3`) · حكمُ CI: **أوّلُ تشغيلٍ READABLE · 13/13** (تشغيلُ 34148407884) · مُراجَعٌ بـ`W-143` · **مُغلَقٌ بـ`W-144`** |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
@@ -2711,4 +2712,41 @@
   - ولا يُحلُّ بندٌ IN_REVIEW بيدِ المنفِّذ (§ 4.3) — القرارُ بيدِ المراجعِ
   - والمراجعةُ ليست مستقلَّةً استقلالًا حقيقيًّا (A-2 · DISC-027 · RK-020)
 قيدُ السجلّ: — (يُكتَبُ عندَ الإغلاقِ)
+```
+
+### WI-051 — تسجيل قرار سيادي Q-43: تعيين مجلس مراجعة مستقل بالنماذج
+
+```text
+النطاق: governance-docs / decisions
+المسار/المرحلة: T2 (الحوكمة والتوثيق المحروس)
+المالك: Driving H            المراجع: مجلس المراجعة (GPT 5.6 + Grok 4.6)
+الحالة: IN_REVIEW
+المسارات:
+  docs/audit/SOVEREIGN_DECISION_REGISTER.md
+  docs/governance/work/THE_ROADMAP.md
+  docs/governance/work/OWNERSHIP.md
+  docs/governance/work/ACTIVE_WORK.md
+خارج النطاق:
+  - لا يعدل نص دستوري ولا مرسوم
+  - لا يمس كود التطبيق في core/ federal/ states/ agents/ runtime/
+  - لا تغيير في البوابات الالية ولا في ci.yml
+  - لا يحل بنود IN_REVIEW بيد المنفذ (section 4.3)
+فحص التداخل (section 6.2) — نتيجته: لا تداخل
+  - المسارات المعلنة معفاة من الحجز بنص section 6 (سجلات الحوكمة)
+  - لا مسار تطبيقي يمس ولا اداة ولا فحص
+معيار القبول:
+  1. قرار Q-43 مسجل في SOVEREIGN_DECISION_REGISTER.md
+  2. A-2 محدث في THE_ROADMAP.md section 16.5
+  3. OWNERSHIP.md محدث بتعيين المراجع المستقل
+  4. RK-020 و DISC-027 يعلنان الاغلاق
+  5. check_work_governance.py --self-check ناجح
+  6. المراجعة المستقلة بـGPT 5.6 و Grok 4.6 تمنح VERIFIED
+الدليل المطلوب:
+  python tools/governance/check_work_governance.py --self-check
+  python tools/governance/truth_audit.py . --ratchet
+  python tools/governance/check_repository_identity.py .
+بدأ: 2026-09-08        ينتهي الحجز: 2026-09-15
+العائق: —
+الخطوة التالية: مراجعة مستقلة بـGPT 5.6 و Grok 4.6 ثم VERIFIED
+قيد السجل: — (يكتتب عند الاغلاق)
 ```
