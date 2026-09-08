@@ -208,18 +208,22 @@ jobs:
       - name: بوابة 1 — سجلّاتُ الطبقةِ قائمةٌ سليمةُ الشكلِ ولا تقاطعَ فيها
         run: python tools/governance/check_work_governance.py --self-check
 
-      # مجموعةُ التغييرِ تُقاسُ في وضعِ **الإبلاغِ** حتى يُعتمَدَ القرارُ A-3 في
-      # docs/governance/work/THE_ROADMAP.md § 16. وثيقةٌ لم تُعتمَدْ بعد لا يُحاسَبُ
-      # عليها عاملٌ سبقَها؛ وفحصُ الشكلِ أعلاه مُلزِمٌ الآنَ لأنّنا نملكُه كاملًا.
-      - name: بوابة 2 — كلُّ مسارٍ في هذا الطلبِ محجوزٌ ببندٍ نشِط (إبلاغ)
+      # مجموعةُ التغييرِ تُقاسُ في وضعِ **الإسقاطِ** — وذاكَ أثرُ اعتمادِ القرارِ
+      # A-3 (`APPROVED` في 2026-09-07) منفّذًا لا مُعلَنًا وحدَه. وقد بقيَ هذا
+      # الملفُّ يستدعي `--advisory` بعدَ اعتمادِ A-3 بيومٍ، فكانت § 16.5 تقولُ
+      # إنفاذًا والملفُّ يقيسُ إبلاغًا — تناقُضٌ أسقطَه مجلسُ المراجعةِ المستقلُّ
+      # (GPT 5.6 + Grok 4.6) بإجماعٍ، وأُصلِحَ في `W-150` بعدَ فضِّ قفلِ `WI-023`
+      # بقرارِ المالكِ `Q-44` (قسمةُ بندٍ · § 6.1). ومن أرادَ الإبلاغَ بعدَ اليومِ
+      # فبقرارٍ مُسجَّلٍ ينقُضُ A-3، لا بتحريرِ سطرٍ هنا.
+      - name: بوابة 2 — كلُّ مسارٍ في هذا الطلبِ محجوزٌ ببندٍ نشِط (إسقاط)
         if: github.event_name == 'pull_request'
         run: |
-          python tools/governance/check_work_governance.py --advisory \
+          python tools/governance/check_work_governance.py \
             --range "origin/${{ github.base_ref }}..HEAD"
 
-      - name: بوابة 2 — الالتزامُ المدفوعُ يستندُ إلى بندٍ نشِط (إبلاغ)
+      - name: بوابة 2 — الالتزامُ المدفوعُ يستندُ إلى بندٍ نشِط (إسقاط)
         if: github.event_name == 'push'
-        run: python tools/governance/check_work_governance.py --advisory --commit HEAD
+        run: python tools/governance/check_work_governance.py --commit HEAD
 
       - name: بوابة 3 — البوّابةُ نفسُها مُراقَبةٌ باختباراتها
         run: |
