@@ -51,9 +51,10 @@
     39,
     40,
     41,
-    42
+    42,
+    43
   ],
-  "questions_count": 42,
+  "questions_count": 43,
   "questions_missing_1_to_max": [],
   "missing_docs": [],
   "missing_tools": [],
