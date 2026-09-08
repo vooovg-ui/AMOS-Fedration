@@ -70,7 +70,7 @@
 | WI-046 | tooling-gates | T0 (‏قابليّةُ القياسِ · `DISC-054`: أثرٌ مُولَّدٌ يشهدُ في متنِه أنَّ قياسَه جرى في بيئةٍ **ناقصةٍ** ولا يقرأُ تلكَ الشهادةَ حرسٌ — فوثيقةٌ معطوبةٌ تمرُّ بكلِّ بوّابةٍ برمزِ خروجٍ 0 · والمقيسُ **وثيقتانِ شاهدتانِ · صفرُ مُعلِنٍ نقصًا · صفرُ قارئٍ** · **استحقاق 2026-09-12**) | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/artifact_witness_integrity.py · tests/governance/test_w131_artifact_witness_integrity.py | 2026-09-03 | 2026-09-12 | لا عائقَ تنفيذيًّا — **الحكمُ مقروءٌ**: تشغيلُ CI **90** (`33790942381`) على عقدةِ `9da40866` ⇒ `completed success` · **13/13** · `READABLE`. والعائقُ الباقي **مراجعةٌ مستقلّةٌ**: `A-2` `PENDING` والمالكُ يجمعُ الدورَينِ (`DISC-027` · `RK-020`) فلا يُكتَبُ `VERIFIED` | مراجعةٌ مستقلّةٌ تقرأُ الحرسَ وحدودَه المُعلَنةَ ثمَّ `VERIFIED` — والكاتبُ لا يكتبُها (§ 4.3) | — |
 | WI-045 | tooling-gates | T0 (‏قابليّةُ القياسِ · `DISC-053`: السطرُ الناجحُ لوجهِ `--check` يُعلِنُ حكمًا **كلّيًّا** ولا يقولُ **كم قرأَ**، فلا يُميَّزُ «قِيسَ ألفٌ» من «قِيسَ صفرٌ» — والمقيسُ **20** جملةً كلّيّةً منها **17** بلا مقامٍ · **استحقاق 2026-09-11") | Driving H | المالك (`A-2` · غيرُ مستقلٍّ) | IN_REVIEW | tools/governance/green_denominator_closure.py · tests/governance/test_w130_green_denominator_closure.py | 2026-09-03 | 2026-09-11 | لا عائقَ تنفيذيًّا — **الحكمُ مقروءٌ**: تشغيلُ CI **89** (`33785332367`) على عقدةِ `93db6855` ⇒ `completed success` · **13/13** · `READABLE`. والعائقُ الباقي **مراجعةٌ مستقلّةٌ**: `A-2` `PENDING` والمالكُ يجمعُ الدورَينِ (`DISC-027` · `RK-020`) فلا يُكتَبُ `VERIFIED` | مراجعةٌ مستقلّةٌ تقرأُ الحرسَ وحدودَه المُعلَنةَ ثمَّ `VERIFIED` — والكاتبُ لا يكتبُها (§ 4.3) | — |
 | WI-050 | governance-docs | T0 (قابليّةُ القياسِ — تفعيلُ A-3 + إصلاحُ إخفاقاتِ Identity Law: مزامنةُ وثائقِ الحالةِ وتصحيحُ حدِّ الصدق) | Perplexity Computer | المالك (`A-2` · غيرُ مستقلٍّ) | CLOSED | docs/governance/work/THE_ROADMAP.md · docs/governance/work/DISCOVERIES.md | 2026-09-07 | 2026-09-14 | لا عائقَ فنيًّا — THE_ROADMAP.md غيرُ مُدَّعًى وDISCOVERIES.md معفيةٌ بنصِّ § 6 | تفعيلُ A-3 + تصحيحُ TRUTH_LIMIT_BASELINE + مزامنةُ PROJECT_HANDBOOK.md (واجبُ § 7) | دفعٌ مباشرٌ إلى main (`08251f8`) · حكمُ CI: **أخضرُ 13/13 success** (تشغيلُ 34159148045) · مُراجَعٌ بـ`W-143` · **مُغلَقٌ بـ`W-144`** |
-| WI-051 | governance-docs | T2 | Driving H | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | docs/audit/SOVEREIGN_DECISION_REGISTER.md · docs/governance/work/THE_ROADMAP.md · docs/governance/work/OWNERSHIP.md · docs/governance/work/ACTIVE_WORK.md | 2026-09-08 | 2026-09-15 | — | تسجيل قرار Q-43 وتحديث A-2 واغلاق RK-020 و DISC-027 — ثم مراجعة مستقلة بالنماذج | — |
+| WI-051 | governance-docs | T2 | Driving H | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_PROGRESS | docs/audit/SOVEREIGN_DECISION_REGISTER.md · docs/governance/work/THE_ROADMAP.md · docs/governance/work/OWNERSHIP.md · docs/governance/work/ACTIVE_WORK.md · docs/governance/work/RISK_REGISTER.md · docs/governance/work/DISCOVERIES.md | 2026-09-08 | 2026-09-15 | مراجعة مستقلة رفضت — إصلاح وإعادة مراجعة | تسجيل قرار Q-43 وتحديث A-2 واغلاق RK-020 و DISC-027 — ثم مراجعة مستقلة بالنماذج | — |
 | WI-049 | audit-truth | T0 (قابليّةُ القياسِ · خطُّ أساسِ المستودعِ الجديدِ: قياسُ حالةِ CI على `vooovg-ui/AMOS-Fedration` · المستودعُ نُسِخَ من `xoos-beep` وحسابُ `Actions` فيه جديدٌ · `DISC-006` كانَ على حسابِ المالكِ القديمِ) | Perplexity Computer | المالك (`A-2` · غيرُ مستقلٍّ) | CLOSED | docs/governance/work/ACTIVE_WORK.md · docs/audit/COMPLETION_LEDGER.md | 2026-09-07 | 2026-09-14 | لا عائقَ فنيًّا — ولا مسارَ مقفولًا يُمَسُّ — ووثيقتا الحالةِ تُمَسّانِ بسطرِ قيدٍ معفىٍ بنصِّ § 6 | دفعُ التسجيلِ إلى main لإحراكِ CI ثمَّ قراءةُ الحكمِ وتقييدُه | دفعٌ مباشرٌ إلى main (`95f0fc3`) · حكمُ CI: **أوّلُ تشغيلٍ READABLE · 13/13** (تشغيلُ 34148407884) · مُراجَعٌ بـ`W-143` · **مُغلَقٌ بـ`W-144`** |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
@@ -2720,12 +2720,14 @@
 النطاق: governance-docs / decisions
 المسار/المرحلة: T2 (الحوكمة والتوثيق المحروس)
 المالك: Driving H            المراجع: مجلس المراجعة (GPT 5.6 + Grok 4.6)
-الحالة: IN_REVIEW
+الحالة: IN_PROGRESS (المراجعةُ المستقلةُ بـGPT 5.6 + Grok 4.6 رفضت VERIFIED — إصلاحُ العيوبِ المُسجَّلةِ ثمَّ إعادةُ مراجعةٍ)
 المسارات:
   docs/audit/SOVEREIGN_DECISION_REGISTER.md
   docs/governance/work/THE_ROADMAP.md
   docs/governance/work/OWNERSHIP.md
   docs/governance/work/ACTIVE_WORK.md
+  docs/governance/work/RISK_REGISTER.md
+  docs/governance/work/DISCOVERIES.md
 خارج النطاق:
   - لا يعدل نص دستوري ولا مرسوم
   - لا يمس كود التطبيق في core/ federal/ states/ agents/ runtime/
@@ -2746,7 +2748,8 @@
   python tools/governance/truth_audit.py . --ratchet
   python tools/governance/check_repository_identity.py .
 بدأ: 2026-09-08        ينتهي الحجز: 2026-09-15
-العائق: —
-الخطوة التالية: مراجعة مستقلة بـGPT 5.6 و Grok 4.6 ثم VERIFIED
+حكمُ CI على حالةِ الدولةِ (§ 16.5 شرطُ 2 — مقروءٌ ومُقيَّدٌ لا مطويٌّ): التشغيلُ 34175576534 على رأسِ 6785bf1 ⇒ **failure** · مقروءٌ (13 وظيفةً بخطواتٍ) · 3 وظائفَ حمراءَ (Work Governance · Identity Law · Cross-System Suites) · سببُ الحمرةِ: انحرافُ وثائقِ الحالةِ (PROJECT_STATE.md:24 وPROJECT_HANDBOOK.md:12 عندَ W-146 بينما رأسُ سجلِّ الإكمالِ عندَ W-148). تُسجَّلُ الحمرةُ وسببُها ولا تُطوى؛ وإصلاحُ الانحرافِ شأنٌ مستقلٌّ (مزامنةُ وثائقِ حالةٍ) خارجُ نطاقِ WI-051 — **محجوزٌ بمسارِ WI-023 (`IN_REVIEW`) على `PROJECT_STATE.md` و`PROJECT_HANDBOOK.md`** (`CLAIM_CONFLICT` § 6.1)، فلا يُحلُّ إلّا بتحريرِ مسارِ WI-023 أو بقرارِ مالكٍ.
+العائق: المراجعةُ المستقلةُ (GPT 5.6 + Grok 4.6) رفضت منحَ VERIFIED — عُيوبٌ مُسجَّلةٌ (§ 16.5 متنٌ/جدولٌ · RK-020/DISC-027 · حكمُ CI غيرُ مُقيَّدٍ) عُولِجَت في هذا الإصلاحِ، ويُنتظرُ إعادةُ المراجعةِ.
+الخطوة التالية: إعادةُ مراجعةٍ مستقلةٍ بـGPT 5.6 + Grok 4.6؛ فإن وافقا ⇒ VERIFIED، وإلّا ⇒ إصلاحٌ أو تسجيلُ عائقٍ.
 قيد السجل: — (يكتتب عند الاغلاق)
 ```
