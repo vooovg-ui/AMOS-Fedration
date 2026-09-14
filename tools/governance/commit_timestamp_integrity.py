@@ -10,7 +10,7 @@
         تاريخِ المستودعِ (‏`force-push` يمحو قيودًا مدفوعةً · § 10 حدًّا 9).
 المالك: tools/governance — المجلس التأسيسي
 تاريخ الإنشاء: 2026-09-02
-تاريخ آخر تعديل: 2026-09-02
+تاريخ آخر تعديل: 2026-09-14
 
 ## الحدُّ المُعلَنُ في الأداةِ نفسِها
 القياسُ لا يصدُقُ إلّا على سجلٍّ كاملٍ. فعلى مرآةٍ ضحلةٍ (`--depth`) تُرى
@@ -27,6 +27,17 @@
 إزاحتُه `+00:00` أو يسقُطُ الفحصُ **قبلَ الدفعِ**. فالنموُّ يُمنَعُ في
 مصدرِه لا يُرصَدُ بعدَ وقوعِه — ولا يُقرَأُ هذا إبراءً للماضي: المائةُ
 والخمسةُ والثلاثونَ تبقى مُعلَنةً مقيسةً.
+
+## نطاقُ القياسِ: شجرةُ المستودعِ لا عقدةٌ تُولِّدُها المنصّةُ (W-164 · `DISC-065`)
+وقعَ حدٌّ ثالثٌ **مقيسًا**: على حدثِ `pull_request` تُفحَصُ في CI عقدةُ دمجٍ
+عارضةٌ يُولِّدُها GitHub في `refs/pull/<N>/merge`، وهي **ليست من تاريخِ
+المستودعِ ولن تدخلَه**: لا يحويها فرعٌ، وتُولَدُ بإزاحةِ ساعةِ المُولِّدِ
+فتحملُ `+03:00` مرّةً و`+00:00` مرّةً على الشجرةِ نفسِها — فسقطَ الحرسانِ
+(تشغيلا 30 و32) وخرجَ حكمُ `pull_request` **غيرَ حتميٍّ**: يتبدَّلُ بلا
+تبدُّلِ شجرةٍ. والعلاجُ **حصرُ مدى القياسِ في ما يملكُه المستودعُ**، لا رفعُ
+رقمٍ مُعلَنٍ ولا تخطّي فحصٍ: تُستثنى العقدةُ العارضةُ وحدَها ويُقاسُ **كلُّ**
+تاريخِ أبوَيها (‏فلا ينخفضُ دَينٌ ولا يُقاسُ على جزءٍ)، والاستثناءُ **يُعلَنُ
+في الحكمِ** باسمِ العقدةِ وسببِها فلا يمرُّ صامتًا.
 
 الاستخدام:
     python tools/governance/commit_timestamp_integrity.py --check
@@ -60,6 +71,8 @@ HISTORY_FIELD = "history_commits"
 BASELINE_NODE_FIELD = "baseline_node"
 # git يكتُبُ التوقيتَ العالميَّ بوجهَينِ: «Z» أو «+00:00» — والوجهانِ عالميّانِ
 UTC_SUFFIXES = ("Z", "+00:00")
+# مراجعُ الدمجِ العارضةُ التي تُولِّدُها منصّةُ الاستضافةِ ولا يحويها فرعٌ
+GENERATED_MERGE_REF = re.compile(r"^refs/(?:remotes/(?:[^/]+/)*)?pull/\d+/merge$")
 
 
 class CommitHistoryUnreadable(RuntimeError):
@@ -90,6 +103,43 @@ def is_shallow(repo: Path) -> bool:
     return _git(["rev-parse", "--is-shallow-repository"], repo).strip() == "true"
 
 
+def platform_merge_head(repo: Path | None = None) -> str | None:
+    """عقدةُ الدمجِ العارضةُ التي وَلَّدَتها المنصّةُ — تُستثنى من النطاقِ وتُعلَنُ.
+
+    الشرطُ ثلاثيٌّ ومقيسٌ لا مُخمَّنٌ، فلا يُستثنى التزامٌ من تاريخِ المستودعِ:
+      1. `HEAD` التزامُ دمجٍ (‏أبوانِ أو أكثرُ).
+      2. **لا يحويه مرجعٌ من مراجعِ المستودعِ**: كلُّ مرجعٍ يحويه — إن وُجِدَ —
+         مرجعُ دمجٍ عارضٌ (`refs/pull/<N>/merge`). فعقدةٌ يحويها فرعٌ أو وسمٌ
+         هي من التاريخِ وتُقاسُ ولو كانت دمجًا.
+      3. كلُّ أبٍ من آبائِه **مرئيٌّ** في السجلِّ، فيُقاسُ تاريخُهم كلُّه بدلَها
+         ولا يُقاسُ على جزءٍ ولا ينخفضُ دَينٌ مُعلَنٌ.
+    ومن لم يستوفِ الثلاثةَ **يُقاسُ** — الاستثناءُ أضيقُ من أن يُفلِتَ منه خرقٌ.
+    """
+    repo = Path(repo) if repo is not None else REPO_ROOT
+    head_line = _git(["rev-list", "--parents", "-n", "1", "HEAD"], repo).split()
+    if len(head_line) < 3:  # الأوّلُ الابنُ وما بعدَه آباؤُه
+        return None
+    head, parents = head_line[0], head_line[1:]
+    refs = _git(
+        ["for-each-ref", "--contains", head, "--format=%(refname)"], repo
+    ).split()
+    if any(GENERATED_MERGE_REF.match(ref) is None for ref in refs):
+        return None
+    if any(not _rev_exists(repo, parent) for parent in parents):
+        return None
+    return head
+
+
+def measurement_scope(repo: Path | None = None) -> tuple[list[str], str | None]:
+    """مدى القياسِ ومن استُثنِيَ منه — يُعادُ الاثنانِ معًا فلا يُطوى استثناءٌ."""
+    repo = Path(repo) if repo is not None else REPO_ROOT
+    foreign = platform_merge_head(repo)
+    if foreign is None:
+        return (["HEAD"], None)
+    parents = _git(["rev-list", "--parents", "-n", "1", foreign], repo).split()[1:]
+    return (parents, foreign)
+
+
 def has_full_history(repo: Path | None = None, measured: dict[str, int] | None = None) -> bool:
     """أهذا سجلٌّ كاملٌ؟ — يُقاسُ بعددِ الالتزاماتِ لا بعَلَمٍ وحدَه.
 
@@ -107,7 +157,8 @@ def has_full_history(repo: Path | None = None, measured: dict[str, int] | None =
 def measure(repo: Path | None = None) -> dict[str, int]:
     """يقيسُ الحقولَ الأربعةَ من سجلِّ git — أرقامٌ تُعادُ لا تُروى."""
     repo = Path(repo) if repo is not None else REPO_ROOT
-    raw = _git(["log", "--format=%H %cI %P"], repo).strip()
+    revs, _ = measurement_scope(repo)
+    raw = _git(["log", "--format=%H %cI %P", *revs], repo).strip()
     if not raw:
         raise CommitHistoryUnreadable(f"سجلُّ git فارغٌ في {repo} — لا قياسَ بلا سجلٍّ")
 
@@ -236,7 +287,8 @@ def commits_after_baseline(
             f"العقدةُ المُعلَنةُ `{node}` غيرُ مرئيّةٍ في {repo} — "
             "فشرطُ «كلُّ جديدٍ بإزاحةٍ عالميّةٍ» لم يُقَس هنا ولا يُدَّعى خُضرةً"
         )
-    raw = _git(["log", "--format=%H %cI", f"{node}..HEAD"], repo).strip()
+    revs, _ = measurement_scope(repo)
+    raw = _git(["log", "--format=%H %cI", *revs, "--not", node], repo).strip()
     stamps: dict[str, str] = {}
     for line in raw.splitlines():
         sha, stamp = line.split()[0], line.split()[1]
@@ -263,6 +315,13 @@ def main() -> int:
     measured = measure()
     declared = declared_baseline()
     full = has_full_history(REPO_ROOT, measured)
+    _, excluded = measurement_scope(REPO_ROOT)
+    if excluded is not None:
+        print(
+            f"COMMIT_STAMP: △ استُثنِيَ من النطاقِ `{excluded[:10]}` — عقدةُ دمجٍ "
+            "وَلَّدَتها منصّةُ الاستضافةِ ولا يحويها فرعٌ فليست من تاريخِ المستودعِ "
+            "(`DISC-065`)، وقِيسَ تاريخُ أبوَيها كلُّه بدلَها فلا ينخفضُ دَينٌ"
+        )
     print(
         "COMMIT_STAMP: مقيسٌ "
         + " · ".join(f"{k}={measured[k]}" for k in BASELINE_FIELDS)
