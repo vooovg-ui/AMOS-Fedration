@@ -224,11 +224,41 @@ class PromotionModel(Base):
 # === إدارة الاتصال ===
 
 
+#: مُشغِّلُ PostgreSQL المُعلَنُ اعتمادًا في `pyproject.toml` (`psycopg2-binary`).
+#: الرابطُ بلا مُشغِّلٍ (`postgresql://`) كان يُسلِّمُ اختيارَ المُشغِّلِ لافتراضِ
+#: SQLAlchemy، وافتراضُه تغيَّرَ في 2.1.0 (2026-09-24) من psycopg2 إلى psycopg 3 —
+#: وهذا غيرُ مُعلَنٍ اعتمادًا، فسقطَ كلُّ محرّكِ PostgreSQL بـ`ModuleNotFoundError`
+#: بلا تغييرِ حرفٍ في المستودع (`DISC-067`). فالمُشغِّلُ يُكتَبُ صراحةً ههنا مرّةً
+#: واحدةً، والرابطُ الذي يُسمّي مُشغِّلَه بنفسِه لا يُنقَض.
+POSTGRES_DRIVER = "psycopg2"
+_DRIVERLESS_POSTGRES_PREFIX = "postgresql://"
+
+
+def with_declared_driver(url: str) -> str:
+    """رابطٌ بلا مُشغِّلٍ يُسنَدُ إلى المُشغِّلِ المُعلَن؛ وما سواه يعودُ كما هو."""
+    if url.startswith(_DRIVERLESS_POSTGRES_PREFIX):
+        return f"postgresql+{POSTGRES_DRIVER}://" + url[len(_DRIVERLESS_POSTGRES_PREFIX) :]
+    return url
+
+
+def libpq_dsn(url: str) -> str:
+    """صيغةُ libpq للاتصالِ المباشرِ بـpsycopg2 — بلا اسمِ المُشغِّلِ الذي تفهمُه SQLAlchemy وحدَها.
+
+    `psycopg2.connect` لا يعرفُ `postgresql+psycopg2://` فيرفضُه (`invalid dsn`)، فالموضعُ
+    الذي يتجاوزُ SQLAlchemy إلى المُشغِّلِ نفسِه يأخذُ الرابطَ بهذه الدالّةِ لا خامًا.
+    """
+    if url.startswith("postgresql+"):
+        return "postgresql://" + url.split("://", 1)[1]
+    return url
+
+
 def get_database_url() -> str:
-    """الحصول على رابط قاعدة البيانات."""
-    return os.environ.get(
-        "AMOS_DATABASE_URL",
-        f"sqlite:///{os.path.join(os.getcwd(), 'amos_federation.db')}",
+    """الحصول على رابط قاعدة البيانات — والمُشغِّلُ فيه مُعلَنٌ لا مُفترَض."""
+    return with_declared_driver(
+        os.environ.get(
+            "AMOS_DATABASE_URL",
+            f"sqlite:///{os.path.join(os.getcwd(), 'amos_federation.db')}",
+        )
     )
 
 
@@ -530,7 +560,7 @@ def db_cursor():
         from psycopg2.extras import RealDictCursor
 
         pg_args = _pg_connect_args(db_url)
-        conn = psycopg2.connect(db_url, **pg_args)
+        conn = psycopg2.connect(libpq_dsn(db_url), **pg_args)
         try:
             yield PortableCursor(conn.cursor(cursor_factory=RealDictCursor), dialect)
             conn.commit()
