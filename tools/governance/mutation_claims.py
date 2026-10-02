@@ -374,7 +374,12 @@ W059 = Claim(
             target="tools/governance/open_record_accountability.py",
             old='anchor_text = f"{cells[6]} {cells[7]}"',
             new='anchor_text = " ".join(cells)',
-            expected_failures=1,
+            #: قِيسَ 1 حتى `W-164` ثمَّ صارَ 2 من `W-166`: صفّا `DISC-067` و`DISC-068`
+            #: أُضيفَا إلى السجلِّ الحيِّ فقرأَت المِرساةُ المُوسَّعةُ مساراتِهما،
+            #: فسقَطَ `test_the_live_registers_are_measurable` بـ`DEAD_ANCHOR` ثانٍ
+            #: فوقَ `test_guard_in_the_evidence_cell_is_not_an_anchor` القائمِ.
+            #: والرقمُ مقيسٌ لا مُخفَّضٌ: الحرسُ صارَ أقوى لا أضعفَ.
+            expected_failures=2,
             note="المِرساةُ تُقرأُ من الصفِّ كلِّهِ فيصيرُ موضِعُ العَطبِ حرسَه.",
         ),
     ),

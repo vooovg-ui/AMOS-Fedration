@@ -65,7 +65,7 @@ MEASURED = {
     },
     "W-059": {
         "DIACRITIC_RANGE_TOO_WIDE": 11,
-        "ANCHOR_FROM_WHOLE_ROW": 1,
+        "ANCHOR_FROM_WHOLE_ROW": 2,  # قِيسَ 2 من W-166: السجلُّ الحيُّ اتَّسعَ بـDISC-067/068
     },
     "W-063": {
         "GAP_LIST_SHRUNK": 4,

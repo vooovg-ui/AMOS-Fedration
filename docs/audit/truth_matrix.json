@@ -91,21 +91,21 @@
     "federal": {
       "domain": "federal",
       "md_files": 60,
-      "py_files": 226,
+      "py_files": 227,
       "yaml_files": 3,
-      "code_lines": 64305,
+      "code_lines": 64503,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
       },
       "has_readme": true,
-      "real_source_hits": 217,
+      "real_source_hits": 260,
       "fake_hits": 1,
       "in_memory_hits": 60,
       "secret_hits": 0,
       "observed_hits": 151,
       "api_routes": 182,
-      "test_refs": 204,
+      "test_refs": 205,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -126,7 +126,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 204
+        "TEST_NAME_MENTIONS": 205
       },
       "maturity": "UNIT_TESTED",
       "findings_count": 61
@@ -480,7 +480,7 @@
       "md_files": 14,
       "py_files": 97,
       "yaml_files": 0,
-      "code_lines": 26766,
+      "code_lines": 26774,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
