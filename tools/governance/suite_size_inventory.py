@@ -83,6 +83,11 @@ _TASHKEEL = {chr(c) for c in range(0x064B, 0x0653)} | {"\u0640", "\u0670"}
 #: «N نجحَت» — كلُّ ظهورٍ لهذه الصيغةِ في النطاقِ يُصنَّفُ، ولا يُتخطّى واحدٌ بصمتٍ.
 CLAIM_RE = re.compile(r"(\d+)\s*نجحت")
 
+#: «المُجمَّعُ حيًّا N» — صيغةُ رقمِ الجذرِ المقيسِ بـ`--collect-only`: المجموعُ مكتوبٌ
+#: بنفسِه فيُقرأُ دعوى حيّةً ويُقاسُ (`DISC-052` · `DISC-063` الطبقةُ 7 · `DISC-069`).
+#: وكانت تُفلِتُ من القارئِ فتقادَمَ المكتوبُ برمزِ خروجٍ 0.
+COLLECTED_CLAIM_RE = re.compile(r"المجمع حيا\s*(\d+)")
+
 #: «M مُتخطّاة» على سطرِ الدعوى نفسِه — بها وحدَها يُقرأُ المجموعُ.
 SKIPPED_RE = re.compile(r"(\d+)\s*متخطاة")
 
@@ -329,6 +334,27 @@ def claims(repo: Path | None = None) -> list[Claim]:
         lines = path.read_text(encoding="utf-8").splitlines()
         for index, raw in enumerate(lines):
             plain = normalize(raw)
+            for match in COLLECTED_CLAIM_RE.finditer(plain):
+                total = int(match.group(1))
+                prefix = plain[max(0, match.start() - INLINE_MARKER_WINDOW) : match.start()]
+                if RECORD_CHAIN_RE.match(plain):
+                    kind = "HISTORICAL_RECORD_CHAIN"
+                elif any(marker in prefix for marker in INLINE_HISTORICAL_MARKERS):
+                    kind = "HISTORICAL_DECLARED"
+                else:
+                    kind = "LIVE"
+                suite = _attributed_suite(lines, index) if kind == "LIVE" else None
+                found.append(
+                    Claim(
+                        path=str(relative),
+                        line_number=index + 1,
+                        line=raw,
+                        kind=kind,
+                        suite=suite.key if suite else None,
+                        written_total=total if kind == "LIVE" else None,
+                        paragraph=_paragraph(lines, index),
+                    )
+                )
             for match in CLAIM_RE.finditer(plain):
                 passed = int(match.group(1))
                 prefix = plain[max(0, match.start() - INLINE_MARKER_WINDOW) : match.start()]
@@ -452,7 +478,7 @@ def judge(
                 "حزمتُه، فلا يُقاسُ صدقُه"
             )
             continue
-        if claim.written_total is None:
+        if claim.written_total is None and claim.passed is not None:
             problems.append(
                 f"UNREADABLE_CLAIM_SHAPE · {claim.where} — «{claim.passed} نجحَت» "
                 "بلا «مُتخطّاة» على سطرِها، فالمجموعُ لا يُقرأُ"
@@ -473,8 +499,12 @@ def judge(
         if claim.written_total != live:
             problems.append(
                 f"STALE_SUITE_CLAIM · {claim.where} · {claim.suite} — المكتوبُ "
-                f"{claim.passed}+{claim.skipped}={claim.written_total} · "
-                f"المجموعُ حيًّا {live} — يُعادُ القياسُ ويُكتَبُ المقيسُ بتاريخِه، "
+                + (
+                    f"{claim.passed}+{claim.skipped}={claim.written_total} · "
+                    if claim.passed is not None
+                    else f"مُجمَّعًا {claim.written_total} · "
+                )
+                + f"المجموعُ حيًّا {live} — يُعادُ القياسُ ويُكتَبُ المقيسُ بتاريخِه، "
                 "ولا يُحذَفُ الرقمُ ليمرَّ الفحصُ"
             )
     return problems
@@ -520,7 +550,11 @@ def main() -> int:
     for problem in problems:
         print(f"  ✗ {problem}")
     if not problems:
-        print("  ✓ لا مخالفةَ مقيسةً: كلُّ رقمِ حزمةٍ مكتوبٍ يُطابِقُ الجمعَ الحيَّ.")
+        print(
+            "  ✓ لا مخالفةَ مقيسةً: كلُّ رقمِ حزمةٍ **مقروءٍ بالصيغتَينِ المُعلَنتَينِ** "
+            "(«N نجحَت · M مُتخطّاة» و«المُجمَّعُ حيًّا N») يُطابِقُ الجمعَ الحيَّ — "
+            "وما غيرُ مقيسٍ هنا مُعلَنٌ أعلاه، وصيغةٌ ثالثةٌ لا تُقرأُ (‏حدُّ قارئِ النصِّ)."
+        )
     return code if args.check else 0
 
 

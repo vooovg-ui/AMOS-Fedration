@@ -224,3 +224,52 @@ def test_الإعفاءُ_يُدرَجُ_في_المقيسِ_بسببٍ_يحمل
     assert unmeasured == frozenset({"services"})
     assert "fastapi" in reasons["services"] and "sqlalchemy" in reasons["services"]
     assert judge(claims(repo), sizes, unmeasured) == []
+
+
+# ── W-176 · `DISC-069` (ج) · `DISC-052`: صيغةُ «المُجمَّعُ حيًّا N» تُقرأُ دعوى حيّةً ──
+
+
+def test_المُجمَّعُ_حيًّا_الميّتُ_يُرى_مخالفةً_مُسمّاةً(tmp_path):
+    """رقمُ الجذرِ بصيغةِ المُجمَّعِ يُخالِفُ الجمعَ ⇒ `STALE_SUITE_CLAIM` بموضعِه."""
+    repo = _repo_with_handbook(
+        tmp_path, "| حزمةُ الجذر | **المُجمَّعُ حيًّا 2485** | `pytest tests/ -q` |\n"
+    )
+    problems = judge(claims(repo), LIVE_SIZES)
+    assert any(
+        p.startswith("STALE_SUITE_CLAIM") and "PROJECT_HANDBOOK.md:1" in p and "2485" in p
+        for p in problems
+    ), problems
+
+
+def test_المُجمَّعُ_حيًّا_المُطابِقُ_لا_يُشتكى_منه(tmp_path):
+    """مكتوبٌ = مقيسٌ ⇒ لا مخالفةَ، ولا يُطلَبُ «مُتخطّاة» لصيغةٍ مجموعُها مكتوبٌ."""
+    repo = _repo_with_handbook(
+        tmp_path, "| حزمةُ الجذر | **المُجمَّعُ حيًّا 2352** | `pytest tests/ -q` |\n"
+    )
+    assert judge(claims(repo), LIVE_SIZES) == []
+
+
+def test_المُجمَّعُ_حيًّا_يُزاحُ_بواحدٍ_فيسقطُ(tmp_path):
+    """طفرةٌ على نصِّ الدليلِ الحيِّ نفسِه: رقمُ الجذرِ يُزاحُ بواحدٍ ⇒ مخالفةٌ."""
+    text = (REPO_ROOT / CLAIM_PATHS[0]).read_text(encoding="utf-8")
+    live_root = [c for c in claims(REPO_ROOT) if c.kind == "LIVE" and c.suite == "root"]
+    assert live_root, "رقمُ حزمةِ الجذرِ لا يُقرأُ دعوى حيّةً في الدليلِ"
+    written = live_root[0].written_total
+    assert written is not None
+    sizes = {"root": written, "services": LIVE_SIZES["services"]}
+    mutated = text.replace(f"حيًّا {written}", f"حيًّا {written + 1}")
+    assert mutated != text
+    repo = _repo_with_handbook(tmp_path, mutated)
+    problems = judge(claims(repo), sizes, frozenset({"services"}))
+    assert any(p.startswith("STALE_SUITE_CLAIM") and "root" in p for p in problems), problems
+
+
+def test_المُجمَّعُ_حيًّا_المُعلَنُ_تاريخيًّا_لا_يُقاسُ(tmp_path):
+    """«كانَ المكتوبُ» قبلَ الرقمِ ⇒ روايةٌ عن قيدٍ لا دعوى حاضرةٌ."""
+    repo = _repo_with_handbook(
+        tmp_path,
+        "| حزمةُ الجذر | وكانَ المكتوبُ قبلَه المُجمَّعُ حيًّا 2000 (‏W-132) | x |\n",
+    )
+    written = claims(repo)
+    assert written and all(c.kind != "LIVE" for c in written)
+    assert judge(written, LIVE_SIZES) == []
