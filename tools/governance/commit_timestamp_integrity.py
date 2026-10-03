@@ -307,6 +307,90 @@ def forward_violations(
     }
 
 
+# ─── الوجهُ الرابعُ: إزاحةُ رأسِ الفرعِ المدفوعِ (W-179 · WI-041 · DISC-049) ───
+# الدَّينُ المحلّيُّ يقيسُ ما في الشجرةِ، وحكمُ CI يقرأُ بعدَ الحمرةِ. والوجهُ
+# الرابعُ يقرأُ ما رآه الدافعُ لحظةَ دفعِه: إزاحةُ رأسِ الفرعِ **المدفوعِ**
+# لا المحلّيِّ. فالخادمُ الذي يُنشئُ دمجًا بإزاحتِه المحلّيّةِ لا يُرى محليًّا
+# حتى يُعادَ الجلبُ — وهذا الوجهُ يكشفُه من المرجعِ البعيدِ المُتاحِ.
+
+class PushedHeadUnreadable(RuntimeError):
+    """يُرفَعُ حينَ لا يُرى المرجعُ البعيدُ — فلا يُخمَّنُ طابعٌ ولا يُطوى الفحصُ."""
+
+
+def upstream_ref(repo: Path | None = None) -> str:
+    """اسمُ المرجعِ البعيدِ الذي يتتبَّعُه الفرعُ الحاليُّ.
+
+    يُحاولُ قراءةَ `@{upstream}` من git، فإن غابَ رجَعَ إلى `origin/main`.
+    والرجوعُ مُعلَنٌ لا صامتٌ: إن لم يوجدْ مرجعٌ بعيدٌ، رُفِعَ `PushedHeadUnreadable`.
+    """
+    repo = Path(repo) if repo is not None else REPO_ROOT
+    out = subprocess.run(
+        ["git", "rev-parse", "--abbrev-ref", "@{upstream}"],
+        cwd=repo, capture_output=True, text=True, timeout=60, check=False,
+    )
+    if out.returncode == 0:
+        return out.stdout.strip()
+    # احتياطٌ مُعلَنٌ: origin/main
+    out2 = subprocess.run(
+        ["git", "rev-parse", "--abbrev-ref", "origin/main"],
+        cwd=repo, capture_output=True, text=True, timeout=60, check=False,
+    )
+    if out2.returncode == 0:
+        return out2.stdout.strip()
+    raise PushedHeadUnreadable(
+        "لا مرجعَ بعيدٌ يُتتبَّعُ — فإزاحةُ رأسِ الفرعِ المدفوعِ لم تُقَس"
+    )
+
+
+def pushed_head_stamp(repo: Path | None = None) -> tuple[str, str]:
+    """طابعُ رأسِ الفرعِ **المدفوعِ** — يُقرأُ من المرجعِ البعيدِ لا المحلّيِّ.
+
+    تُعيدُ (‏الاسم، الطابعَ) حيثُ الطابعُ بصيغةِ `%cI` (‏ISO 8601 صارمٌ).
+    والوجهُ الذي يكشفُ ما صنعَه الخادمُ لا ما صنعَه المنفِّذُ محليًّا.
+    """
+    repo = Path(repo) if repo is not None else REPO_ROOT
+    ref = upstream_ref(repo)
+    stamp = _git(["show", "-s", "--format=%cI", ref], repo).strip()
+    return (ref, stamp)
+
+
+def pushed_head_offset(repo: Path | None = None) -> str:
+    """إزاحةُ رأسِ الفرعِ المدفوعِ — `+00:00` أو `Z` سليمٌ، وغيرُه خرقٌ.
+
+    تُعادُ الإزاحةُ نصًّا (‏مثلُ `+00:00` أو `+03:00` أو `Z`).
+    والفحصُ يقرأُ الإزاحةَ من الطابعِ نفسِه لا من حقلٍ منفصلٍ.
+    """
+    _, stamp = pushed_head_stamp(repo)
+    if stamp.endswith("Z"):
+        return "Z"
+    # ISO 8601: الإزاحةُ آخرُ جزءٍ (‏مثلُ +03:00)
+    match = re.search(r"([+-]\d{2}:\d{2})$", stamp)
+    if match is None:
+        return "unknown"
+    return match.group(1)
+
+
+def pushed_head_is_utc(repo: Path | None = None) -> bool:
+    """أإزاحةُ رأسِ الفرعِ المدفوعِ عالميّةٌ؟ — `+00:00` أو `Z`."""
+    return pushed_head_offset(repo) in UTC_SUFFIXES
+
+
+def pushed_head_violation(repo: Path | None = None) -> dict[str, str] | None:
+    """خرقُ إزاحةِ رأسِ الفرعِ المدفوعِ — أو `None` إن سَلِمَ.
+
+    يُعيدُ `{المرجع: الطابع}` إن كانَ غيرَ عالميٍّ، و`None` إن سَلِمَ أو
+    غابَ المرجعُ البعيدُ (‏يُعلَنُ الغيابُ لا يُطوى).
+    """
+    try:
+        ref, stamp = pushed_head_stamp(repo)
+    except PushedHeadUnreadable:
+        return None  # الغيابُ مُعلَنٌ لا مَطويٌّ
+    if not stamp.endswith(UTC_SUFFIXES):
+        return {ref: stamp}
+    return None
+
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="قياسُ صدقِ طوابعِ الالتزامِ")
     parser.add_argument("--check", action="store_true", help="يقيسُ ويُقارِنُ بالمُعلَنِ")
@@ -367,6 +451,19 @@ def main() -> int:
             )
             return 1
         print(f"[COMMIT STAMP] ✓ كلُّ جديدٍ بعدَ {declared_baseline_node()[:10]} إزاحتُه عالميّةٌ.")
+    # الوجهُ الرابعُ: إزاحةُ رأسِ الفرعِ المدفوعِ (W-179 · WI-041 · DISC-049)
+    pushed = pushed_head_violation(REPO_ROOT)
+    if pushed is not None:
+        print(
+            "[COMMIT STAMP] ✗ رأسُ الفرعِ المدفوعِ بإزاحةٍ محلّيّةٍ: "
+            + " · ".join(f"{ref}={stamp}" for ref, stamp in pushed.items())
+            + " — الدمجُ من جانبِ الخادمِ يُنشئُ طوابعَ غيرَ عالميّةٍ (`DISC-049`)، "
+            "ويُدمَجُ محليًّا بـ`TZ=UTC` ثمَّ يُدفَعُ (`git merge --ff-only` لا `gh pr merge --squash`)، "
+            "ولا يُرفَعُ الرقمُ المُعلَنُ",
+            file=sys.stderr,
+        )
+        return 1
+    print("[COMMIT STAMP] ✓ رأسُ الفرعِ المدفوعِ بإزاحةٍ عالميّةٍ.")
     print("[COMMIT STAMP] ✓ لا نموَّ في دَينِ الطوابعِ.")
     return 0
 
