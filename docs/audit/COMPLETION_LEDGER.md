@@ -890,3 +890,5 @@ T5 (‏الرصد) لا دَينُ هذه الخطوة. **وأخطرُ ما يج
 [`REMAINING_SURFACES_INVENTORY.md`](REMAINING_SURFACES_INVENTORY.md) ·
 [`ACTIVE_EXECUTION_STATE.md`](ACTIVE_EXECUTION_STATE.md) ·
 [`STAGE_1N_HANDOFF.md`](STAGE_1N_HANDOFF.md)
+
+| W-180 | 2026-10-03 | **قراءةُ حكمِ CI على عقدةِ `W-179` المدموجةِ (`e3726b5`)** | **الحكمُ قُرِئَ لا استُنتِجَ**: التشغيلُ [37089300780](https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/37089300780) على `e3726b5` ⇒ `failure` · **12/13** · `READABLE` (وظيفةُ Completion Ledger وحدَها حمراءُ: `LEDGER_NOT_UPDATED` على PROJECT_STATE.md وPROJECT_HANDBOOK.md — والسببُ أنَّ W-179 أُضيفَ في التزامٍ سابقٍ على الفرعِ لا في عقدةِ الدمجِ، فلم يُقَس قيدُه في المدى). ومصفوفةُ الحقيقةِ [37089300808](https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/37089300808) ⇒ `success`. والعدُّ الثلاثيُّ (`DISC-060`) **12 خضراءَ · 1 حمراءَ · 0 متخطّاةٍ**. **ولا يُغيِّرُ هذا القيدُ حالةَ بندٍ**: `WI-041` `RESERVED` منذُ `W-179` |
