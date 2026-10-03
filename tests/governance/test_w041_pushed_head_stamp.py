@@ -114,7 +114,7 @@ def test_الإزاحةُ_المحلّيّةُ_تُكشَفُ_خرقًا(temp_re
     assert offset == "+03:00"
 
 
-def test_غيابُ_المرجعِ_البعيدِ_مُعلَنٌ_لا_مطويٌّ(tmp_path: Path):
+def test_غيابُ_المرجعِ_البعيدِ_مُعلَنٌ_لا_مطويٌّ(tmp_path: Path, capsys):
     """لا مرجعَ بعيدَ — فالوجهُ يُعلِنُ غيابَه ولا يُخمِّنُ."""
     repo = tmp_path / "noremote"
     repo.mkdir()
@@ -126,6 +126,8 @@ def test_غيابُ_المرجعِ_البعيدِ_مُعلَنٌ_لا_مطويٌ
     _git(["commit", "-m", "init"], repo)
     # لا remote — pushed_head_violation تُعيدُ None (غيابٌ مُعلَنٌ)
     assert pushed_head_violation(repo) is None
+    captured = capsys.readouterr()
+    assert "لم يُقَس" in captured.err
     # ولكن pushed_head_stamp ترفعُ PushedHeadUnreadable
     with pytest.raises(PushedHeadUnreadable):
         pushed_head_stamp(repo)

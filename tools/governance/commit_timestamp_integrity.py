@@ -378,13 +378,16 @@ def pushed_head_is_utc(repo: Path | None = None) -> bool:
 def pushed_head_violation(repo: Path | None = None) -> dict[str, str] | None:
     """خرقُ إزاحةِ رأسِ الفرعِ المدفوعِ — أو `None` إن سَلِمَ.
 
-    يُعيدُ `{المرجع: الطابع}` إن كانَ غيرَ عالميٍّ، و`None` إن سَلِمَ أو
-    غابَ المرجعُ البعيدُ (‏يُعلَنُ الغيابُ لا يُطوى).
+    يُعيدُ `{المرجع: الطابع}` إن كانَ غيرَ عالميٍّ، و`None` إن سَلِمَ.
+    وغيابُ المرجعِ البعيدِ **يُعلَنُ لا يُطوى**: يُطبَعُ تحذيرٌ على stderr.
     """
     try:
         ref, stamp = pushed_head_stamp(repo)
-    except PushedHeadUnreadable:
-        return None  # الغيابُ مُعلَنٌ لا مَطويٌّ
+    except PushedHeadUnreadable as exc:
+        # الغيابُ مُعلَنٌ لا مَطويٌّ — لا يُخمَّنُ طابعٌ ولا يُطوى الفحصُ
+        import sys
+        print(f"[COMMIT STAMP] △ لم يُقَس رأسُ الفرعِ المدفوعِ: {exc}", file=sys.stderr)
+        return None
     if not stamp.endswith(UTC_SUFFIXES):
         return {ref: stamp}
     return None
