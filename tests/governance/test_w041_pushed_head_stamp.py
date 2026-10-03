@@ -13,21 +13,19 @@ from __future__ import annotations
 
 import os
 import subprocess
-import textwrap
 from pathlib import Path
 
 import pytest
 
 from tools.governance.commit_timestamp_integrity import (
     PushedHeadUnreadable,
+    REPO_ROOT,
     pushed_head_is_utc,
     pushed_head_offset,
     pushed_head_stamp,
     pushed_head_violation,
     upstream_ref,
 )
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _git(args: list[str], repo: Path) -> str:
