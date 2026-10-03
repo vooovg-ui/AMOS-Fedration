@@ -19,7 +19,6 @@ import pytest
 
 from tools.governance.commit_timestamp_integrity import (
     PushedHeadUnreadable,
-    REPO_ROOT,
     pushed_head_is_utc,
     pushed_head_offset,
     pushed_head_stamp,
