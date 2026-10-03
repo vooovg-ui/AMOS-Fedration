@@ -211,8 +211,18 @@ def _norm(text: str) -> str:
     return re.sub(r"\s+", " ", stripped).strip()
 
 
+#: قاسمُ الخلايا: أنبوبٌ غيرُ مهروبٍ — `\|` محتوًى لا حدٌّ (GFM) · DISC-048.
+_CELL_SPLIT_RE = re.compile(r"(?<!\\)\|")
+
+
 def _cells(line: str) -> list[str]:
-    return [c.strip() for c in line.strip().strip("|").split("|")]
+    """خلايا الصفِّ — تُقسَمُ على أنبوبٍ غيرِ مهروبٍ، ويُزالُ هربُ الأنبوبِ."""
+    body = line.strip()
+    if body.startswith("|"):
+        body = body[1:]
+    if body.endswith("|") and not body.endswith("\\|"):
+        body = body[:-1]
+    return [c.strip().replace("\\|", "|") for c in _CELL_SPLIT_RE.split(body)]
 
 
 def _is_empty(cell: str) -> bool:
@@ -523,10 +533,15 @@ def check_discoveries(text: str) -> list[dict[str, str]]:
         if not m:
             continue
         cells = _cells(line)
-        if len(cells) < 8:
+        if len(cells) != 8:
+            cause = (
+                "أنبوبٌ غيرُ مهروبٍ في خليّةٍ — الهربُ `\\|` يجعلُه محتوًى"
+                if len(cells) > 8
+                else "الإلزاميُّ ثمانٍ"
+            )
             violations.append(_v(
                 "MALFORMED_ITEM",
-                f"{m.group(1)}: صفُّ اكتشافٍ بـ{len(cells)} خليّةً — الإلزاميُّ ثمانٍ",
+                f"{m.group(1)}: صفُّ اكتشافٍ بـ{len(cells)} خليّةً — {cause}",
             ))
             continue
         if _is_empty(cells[6]):
