@@ -22,8 +22,6 @@ import importlib.util
 import sys
 from pathlib import Path
 
-import pytest
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CWG_PATH = REPO_ROOT / "tools" / "governance" / "check_work_governance.py"
 
@@ -44,8 +42,7 @@ CWG = _load_cwg()
 
 #: صفٌّ سليمٌ بثمانِ خلايا — بدون أنبوبٍ مهروبٍ.
 _GOOD_DISC_ROW = (
-    "| DISC-201 | P2 | موضع | ما اكتُشِف | دليل | أثر | "
-    "الوجهةُ `WI-001` | مفتوحٌ |"
+    "| DISC-201 | P2 | موضع | ما اكتُشِف | دليل | أثر | الوجهةُ `WI-001` | مفتوحٌ |"
 )
 
 #: صفٌّ فيه أنبوبٌ غيرُ مهروبٍ داخلَ خليّةِ الوجهة: تسعُ خلايا.
@@ -58,9 +55,7 @@ _OVERFLOWING_DISC_ROW = (
 _ESCAPED_DISC_ROW = _OVERFLOWING_DISC_ROW.replace("| wc -l", r"\| wc -l")
 
 #: صفٌّ ناقصٌ: سبعُ خلايا.
-_TOO_FEW_ROW = (
-    "| DISC-204 | P2 | موضع | ما اكتُشِف | دليل | أثر | مفتوحٌ |"
-)
+_TOO_FEW_ROW = "| DISC-204 | P2 | موضع | ما اكتُشِف | دليل | أثر | مفتوحٌ |"
 
 
 # ── فحوصُ `check_work_governance._cells` ──────────────────────────────────────
@@ -122,9 +117,7 @@ class TestDiscoveriesColumnCount:
         """رسالةُ الزيادةِ تُسمّي الأنبوبَ غيرَ المهروبِ سببًا."""
         text = f"# سجل\n\n## 1\n\n| أ | ب | ج | د | هـ | و | ز | ح |\n|---|---|---|---|---|---|---|---|\n{_OVERFLOWING_DISC_ROW}\n"
         violations = CWG.check_discoveries(text)
-        detail = next(
-            v["detail"] for v in violations if v["kind"] == "MALFORMED_ITEM"
-        )
+        detail = next(v["detail"] for v in violations if v["kind"] == "MALFORMED_ITEM")
         assert "مهروب" in detail
 
 
@@ -137,6 +130,7 @@ class TestMutations:
     def test_naive_split_would_accept_overflowing_row(self) -> None:
         """طفرةٌ: لو عادَ القسمُ الساذجُ `split("|")` لمرَّ الصفُّ ذو التسعِ خلايا."""
         import re as _re
+
         original = CWG._CELL_SPLIT_RE
         try:
             CWG._CELL_SPLIT_RE = _re.compile(r"\|")
@@ -151,17 +145,22 @@ class TestMutations:
         text = f"# سجل\n\n## 1\n\n| أ | ب | ج | د | هـ | و | ز | ح |\n|---|---|---|---|---|---|---|---|\n{_OVERFLOWING_DISC_ROW}\n"
         original_check = CWG.check_discoveries
         try:
+
             def _relaxed(text: str):
                 violations = []
                 for line in text.splitlines():
                     import re
+
                     m = re.match(r"\|\s*(DISC-\d+)", line)
                     if not m:
                         continue
                     cells = CWG._cells(line)
                     if len(cells) < 8:
-                        violations.append({"kind": "MALFORMED_ITEM", "detail": "too few"})
+                        violations.append(
+                            {"kind": "MALFORMED_ITEM", "detail": "too few"}
+                        )
                 return violations
+
             CWG.check_discoveries = _relaxed
             violations = CWG.check_discoveries(text)
             assert "MALFORMED_ITEM" not in [v["kind"] for v in violations]

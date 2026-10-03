@@ -99,17 +99,29 @@ REQUIRED_SECTIONS: dict[str, tuple[str, ...]] = {
     DISCOVERIES_PATH: ("## 1 · الاكتشافات المقيدة",),
 }
 
-ACTIVE_STATUSES = frozenset({
-    "PROPOSED", "READY", "RESERVED", "IN_PROGRESS", "BLOCKED", "IN_REVIEW", "VERIFIED",
-})
+ACTIVE_STATUSES = frozenset(
+    {
+        "PROPOSED",
+        "READY",
+        "RESERVED",
+        "IN_PROGRESS",
+        "BLOCKED",
+        "IN_REVIEW",
+        "VERIFIED",
+    }
+)
 TERMINAL_STATUSES = frozenset({"CLOSED", "DEFERRED", "CANCELLED"})
 ALL_STATUSES = ACTIVE_STATUSES | TERMINAL_STATUSES
 
 # الحالاتُ التي تقفلُ مساراتِها فعلًا (THE_ROADMAP § 6.1)، ويجوزُ للتغييرِ أن
 # يستندَ إليها. تُضافُ `CLOSED` لأنَّ الإغلاقَ يقعُ في التزامِ التسجيلِ نفسِه.
-CLAIMING_STATUSES = frozenset({"RESERVED", "IN_PROGRESS", "BLOCKED", "IN_REVIEW", "VERIFIED", "CLOSED"})
+CLAIMING_STATUSES = frozenset(
+    {"RESERVED", "IN_PROGRESS", "BLOCKED", "IN_REVIEW", "VERIFIED", "CLOSED"}
+)
 # الحالاتُ التي يجبُ فيها مالكٌ مُسمًّى
-OWNER_REQUIRED_STATUSES = frozenset({"RESERVED", "IN_PROGRESS", "BLOCKED", "IN_REVIEW", "VERIFIED", "CLOSED"})
+OWNER_REQUIRED_STATUSES = frozenset(
+    {"RESERVED", "IN_PROGRESS", "BLOCKED", "IN_REVIEW", "VERIFIED", "CLOSED"}
+)
 
 LEGAL_TRANSITIONS: dict[str, frozenset[str]] = {
     "PROPOSED": frozenset({"READY", "DEFERRED", "CANCELLED"}),
@@ -138,7 +150,9 @@ LEDGER_ROW_RE = re.compile(r"^\|\s*(W-\d{3})\s*\|(.*)$", re.MULTILINE)
 # ولا يُقاسُ الذكرُ العارضُ (‏قيدٌ يذكرُ بندَ غيرِه ليقولَ «لم أمسَّ محجوزَه»)،
 # لأنَّ حرسًا يُحمِّرُ على ذكرٍ عارضٍ يُعلِّمُ الناسَ ألّا يذكروا — وذاك خسرانُ صدقٍ
 # أكبرُ من الخرقِ الذي يمنعُه. والحدُّ مُعلَنٌ في THE_ROADMAP § 13.3.
-LEDGER_ITEM_LINK_RE = re.compile(r"\[`?(WI-[A-Z]?\d{2,3})`?\]\([^)]*ACTIVE_WORK\.md[^)]*\)")
+LEDGER_ITEM_LINK_RE = re.compile(
+    r"\[`?(WI-[A-Z]?\d{2,3})`?\]\([^)]*ACTIVE_WORK\.md[^)]*\)"
+)
 
 # أساسُ قياسِ ما بعدَ الدمج: الفرعُ الذي يصيرُ العملُ فيه حالةَ الدولة.
 MERGE_BASE_ENV = "AMOS_WORK_GATE_MERGE_BASE"
@@ -148,16 +162,22 @@ EMPTY_MARKS = frozenset({"", "—", "-", "–", "لا شيء", "غير معين"
 
 # ما لا يُلزِمُ حجزًا: سجلّاتُ الطبقةِ نفسُها (وإلّا لزمَ حجزُ حجزٍ)، والمخرجاتُ
 # المولَّدةُ آليًّا، وقياساتُ التدقيق.
-EXEMPT_EXACT = frozenset({
-    ROADMAP_PATH, ACTIVE_PATH, OWNERSHIP_PATH, RISK_PATH, DISCOVERIES_PATH,
-    LEDGER_PATH,
-    "docs/audit/TRUTH_MATRIX.md",
-    "docs/audit/truth_matrix.json",
-    "docs/audit/truth_baseline.json",
-    "docs/audit/CROWN_TRUTH_MATRIX.md",
-    "docs/audit/CROSS_SYSTEM_SUITE_MATRIX.md",
-    "docs/audit/constitution_history_digests.json",
-})
+EXEMPT_EXACT = frozenset(
+    {
+        ROADMAP_PATH,
+        ACTIVE_PATH,
+        OWNERSHIP_PATH,
+        RISK_PATH,
+        DISCOVERIES_PATH,
+        LEDGER_PATH,
+        "docs/audit/TRUTH_MATRIX.md",
+        "docs/audit/truth_matrix.json",
+        "docs/audit/truth_baseline.json",
+        "docs/audit/CROWN_TRUTH_MATRIX.md",
+        "docs/audit/CROSS_SYSTEM_SUITE_MATRIX.md",
+        "docs/audit/constitution_history_digests.json",
+    }
+)
 EXEMPT_PREFIXES = (
     f"{WORK_DIR}/HANDOFFS/",
     "docs/audit/measurements/",
@@ -192,13 +212,16 @@ def parse_claim_cell(wid: str, cell: str) -> tuple[list[str], list[dict[str, str
         if CLAIM_PATH_RE.match(candidate):
             paths.append(candidate)
             continue
-        violations.append(_v(
-            "NONPATH_CLAIM",
-            f"{wid}: «{segment[:60]}» في خليّةِ المساراتِ ليسَ مسارًا — "
-            "الخليّةُ مساراتٌ مفصولةٌ بـ«·» لا نثرٌ حولَها، والنثرُ يُنقَلُ إلى "
-            f"كتلةِ التفاصيلِ (THE_ROADMAP § 6.1 · DISC-042)",
-        ))
+        violations.append(
+            _v(
+                "NONPATH_CLAIM",
+                f"{wid}: «{segment[:60]}» في خليّةِ المساراتِ ليسَ مسارًا — "
+                "الخليّةُ مساراتٌ مفصولةٌ بـ«·» لا نثرٌ حولَها، والنثرُ يُنقَلُ إلى "
+                f"كتلةِ التفاصيلِ (THE_ROADMAP § 6.1 · DISC-042)",
+            )
+        )
     return paths, violations
+
 
 _DIACRITICS = dict.fromkeys(
     [*range(0x064B, 0x0653), 0x0640, 0x0670, 0x06D6, 0x0653, 0x0654, 0x0655]
@@ -241,7 +264,9 @@ def _git(*args: str) -> str:
         ["git", *args], cwd=REPO_ROOT, capture_output=True, text=True, check=False
     )
     if out.returncode != 0:
-        raise RuntimeError(f"git {' '.join(args)} → {out.returncode}: {out.stderr.strip()}")
+        raise RuntimeError(
+            f"git {' '.join(args)} → {out.returncode}: {out.stderr.strip()}"
+        )
     return out.stdout
 
 
@@ -268,26 +293,49 @@ def parse_items(text: str) -> tuple[list[dict[str, object]], list[dict[str, str]
         if len(cells) == 12:
             claimed, cell_violations = parse_claim_cell(wid, cells[6])
             violations.extend(cell_violations)
-            items.append({
-                "id": wid, "scope": cells[1], "track": cells[2], "owner": cells[3],
-                "reviewer": cells[4], "status": cells[5],
-                "paths": claimed,
-                "start": cells[7], "expires": cells[8], "blocker": cells[9],
-                "next": cells[10], "ledger": cells[11], "deferred_row": False,
-            })
+            items.append(
+                {
+                    "id": wid,
+                    "scope": cells[1],
+                    "track": cells[2],
+                    "owner": cells[3],
+                    "reviewer": cells[4],
+                    "status": cells[5],
+                    "paths": claimed,
+                    "start": cells[7],
+                    "expires": cells[8],
+                    "blocker": cells[9],
+                    "next": cells[10],
+                    "ledger": cells[11],
+                    "deferred_row": False,
+                }
+            )
         elif len(cells) == 6:
-            items.append({
-                "id": wid, "scope": cells[1], "track": "", "owner": cells[2],
-                "reviewer": "", "status": cells[3], "paths": [], "start": "",
-                "expires": "", "blocker": "", "next": cells[4], "ledger": "",
-                "deferred_row": True,
-            })
+            items.append(
+                {
+                    "id": wid,
+                    "scope": cells[1],
+                    "track": "",
+                    "owner": cells[2],
+                    "reviewer": "",
+                    "status": cells[3],
+                    "paths": [],
+                    "start": "",
+                    "expires": "",
+                    "blocker": "",
+                    "next": cells[4],
+                    "ledger": "",
+                    "deferred_row": True,
+                }
+            )
         else:
-            violations.append(_v(
-                "MALFORMED_ITEM",
-                f"{wid}: صفٌّ بـ{len(cells)} خليّةً — جدولُ البنودِ النشِطةِ اثنَتا عشرةَ خليّةً "
-                "وجدولُ المؤجَّلِ ستٌّ",
-            ))
+            violations.append(
+                _v(
+                    "MALFORMED_ITEM",
+                    f"{wid}: صفٌّ بـ{len(cells)} خليّةً — جدولُ البنودِ النشِطةِ اثنَتا عشرةَ خليّةً "
+                    "وجدولُ المؤجَّلِ ستٌّ",
+                )
+            )
     return items, violations
 
 
@@ -337,10 +385,12 @@ def check_sections(texts: dict[str, str]) -> list[dict[str, str]]:
         body = _norm(texts.get(path, ""))
         for section in sections:
             if _norm(section) not in body:
-                violations.append(_v(
-                    "REGISTER_SECTION_MISSING",
-                    f"{path}: القسمُ «{section}» غير موجود",
-                ))
+                violations.append(
+                    _v(
+                        "REGISTER_SECTION_MISSING",
+                        f"{path}: القسمُ «{section}» غير موجود",
+                    )
+                )
     return violations
 
 
@@ -354,10 +404,12 @@ def check_duplicate_ids(texts: dict[str, str]) -> list[dict[str, str]]:
         seen: set[str] = set()
         for item_id in parse_ids(texts.get(path, ""), pattern):
             if item_id in seen:
-                violations.append(_v(
-                    "DUPLICATE_ITEM_ID",
-                    f"{path}: مُعرِّفُ {label} {item_id} مُكرَّرٌ — لا يُعادُ استخدامُ معرِّف",
-                ))
+                violations.append(
+                    _v(
+                        "DUPLICATE_ITEM_ID",
+                        f"{path}: مُعرِّفُ {label} {item_id} مُكرَّرٌ — لا يُعادُ استخدامُ معرِّف",
+                    )
+                )
             seen.add(item_id)
     return violations
 
@@ -388,18 +440,22 @@ def check_block_status_agrees(
         found = BLOCK_STATUS_RE.search(block)
         if not found:
             if str(it["status"]) in ACTIVE_STATUSES:
-                violations.append(_v(
-                    "MALFORMED_ITEM",
-                    f"{wid}: كتلةُ § 3 بلا سطرِ «الحالة:» — لا يُقاسُ اتفاقُها معَ الصفِّ",
-                ))
+                violations.append(
+                    _v(
+                        "MALFORMED_ITEM",
+                        f"{wid}: كتلةُ § 3 بلا سطرِ «الحالة:» — لا يُقاسُ اتفاقُها معَ الصفِّ",
+                    )
+                )
             continue
         declared = found.group(1)
         if declared != str(it["status"]):
-            violations.append(_v(
-                "STATUS_CONTRADICTION",
-                f"{wid}: الصفُّ يقولُ «{it['status']}» وكتلةُ § 3 تقولُ «{declared}» — "
-                "حالتانِ مكتوبتانِ لبندٍ واحدٍ، إحداهما كاذبةٌ (§ 2 حكم 14)",
-            ))
+            violations.append(
+                _v(
+                    "STATUS_CONTRADICTION",
+                    f"{wid}: الصفُّ يقولُ «{it['status']}» وكتلةُ § 3 تقولُ «{declared}» — "
+                    "حالتانِ مكتوبتانِ لبندٍ واحدٍ، إحداهما كاذبةٌ (§ 2 حكم 14)",
+                )
+            )
     return violations
 
 
@@ -415,89 +471,113 @@ def check_items(
         status = str(it["status"])
 
         if status not in ALL_STATUSES:
-            violations.append(_v(
-                "ILLEGAL_STATUS",
-                f"{wid}: الحالةُ «{status}» خارجَ آلةِ الحالات — THE_ROADMAP § 4.3",
-            ))
+            violations.append(
+                _v(
+                    "ILLEGAL_STATUS",
+                    f"{wid}: الحالةُ «{status}» خارجَ آلةِ الحالات — THE_ROADMAP § 4.3",
+                )
+            )
             continue
 
         if _is_empty(str(it["scope"])):
             violations.append(_v("MALFORMED_ITEM", f"{wid}: النطاقُ فارغ"))
         elif str(it["scope"]) not in scopes:
-            violations.append(_v(
-                "SCOPE_UNOWNED",
-                f"{wid}: النطاقُ «{it['scope']}» غيرُ مُسجَّلٍ في {OWNERSHIP_PATH}",
-            ))
+            violations.append(
+                _v(
+                    "SCOPE_UNOWNED",
+                    f"{wid}: النطاقُ «{it['scope']}» غيرُ مُسجَّلٍ في {OWNERSHIP_PATH}",
+                )
+            )
 
         if status in OWNER_REQUIRED_STATUSES and _is_empty(str(it["owner"])):
-            violations.append(_v(
-                "OWNERLESS_ITEM",
-                f"{wid}: حالتُه {status} بلا مالكٍ مُسمًّى — لا نطاقَ بلا مالكٍ واحد",
-            ))
+            violations.append(
+                _v(
+                    "OWNERLESS_ITEM",
+                    f"{wid}: حالتُه {status} بلا مالكٍ مُسمًّى — لا نطاقَ بلا مالكٍ واحد",
+                )
+            )
 
         if status == "CLOSED" and not WORK_ID_IN_TEXT_RE.search(str(it["ledger"])):
-            violations.append(_v(
-                "MISSING_LEDGER_LINK",
-                f"{wid}: أُغلِقَ بلا قيدِ W-### في سجلِّ الإكمال — THE_ROADMAP § 7",
-            ))
+            violations.append(
+                _v(
+                    "MISSING_LEDGER_LINK",
+                    f"{wid}: أُغلِقَ بلا قيدِ W-### في سجلِّ الإكمال — THE_ROADMAP § 7",
+                )
+            )
 
         if it["deferred_row"]:
             if status != "DEFERRED":
-                violations.append(_v(
-                    "MALFORMED_ITEM",
-                    f"{wid}: مُدرَجٌ في جدولِ المؤجَّلِ وحالتُه {status}",
-                ))
+                violations.append(
+                    _v(
+                        "MALFORMED_ITEM",
+                        f"{wid}: مُدرَجٌ في جدولِ المؤجَّلِ وحالتُه {status}",
+                    )
+                )
             if _is_empty(str(it["next"])):
-                violations.append(_v(
-                    "MALFORMED_ITEM",
-                    f"{wid}: مؤجَّلٌ بلا trigger يُعيدُه — التأجيلُ بلا شرطٍ إلغاءٌ مُقنَّع",
-                ))
+                violations.append(
+                    _v(
+                        "MALFORMED_ITEM",
+                        f"{wid}: مؤجَّلٌ بلا trigger يُعيدُه — التأجيلُ بلا شرطٍ إلغاءٌ مُقنَّع",
+                    )
+                )
             continue
 
         if status in ACTIVE_STATUSES:
             if not it["paths"]:
-                violations.append(_v(
-                    "MALFORMED_ITEM",
-                    f"{wid}: بندٌ نشِطٌ بلا مساراتٍ مُعلَنةٍ — لا حجزَ بلا نطاقٍ محدَّد",
-                ))
+                violations.append(
+                    _v(
+                        "MALFORMED_ITEM",
+                        f"{wid}: بندٌ نشِطٌ بلا مساراتٍ مُعلَنةٍ — لا حجزَ بلا نطاقٍ محدَّد",
+                    )
+                )
             if _is_empty(str(it["track"])):
-                violations.append(_v(
-                    "MALFORMED_ITEM",
-                    f"{wid}: لا ينتسبُ إلى مسارٍ T# ولا مرحلةٍ E## — THE_ROADMAP § 9",
-                ))
+                violations.append(
+                    _v(
+                        "MALFORMED_ITEM",
+                        f"{wid}: لا ينتسبُ إلى مسارٍ T# ولا مرحلةٍ E## — THE_ROADMAP § 9",
+                    )
+                )
             if _is_empty(str(it["next"])):
-                violations.append(_v(
-                    "MALFORMED_ITEM", f"{wid}: بلا خطوةٍ تاليةٍ بفعلٍ واحد"
-                ))
+                violations.append(
+                    _v("MALFORMED_ITEM", f"{wid}: بلا خطوةٍ تاليةٍ بفعلٍ واحد")
+                )
             for field, label in (("start", "بدأ"), ("expires", "ينتهي الحجز")):
                 value = str(it[field])
                 if not DATE_RE.match(value):
-                    violations.append(_v(
-                        "MALFORMED_ITEM",
-                        f"{wid}: «{label}» = «{value}» — الصيغةُ الملزمةُ YYYY-MM-DD",
-                    ))
+                    violations.append(
+                        _v(
+                            "MALFORMED_ITEM",
+                            f"{wid}: «{label}» = «{value}» — الصيغةُ الملزمةُ YYYY-MM-DD",
+                        )
+                    )
             block = _norm(blocks.get(wid, ""))
             if not block:
-                violations.append(_v(
-                    "MALFORMED_ITEM",
-                    f"{wid}: بندٌ نشِطٌ بلا كتلةِ تفاصيلَ في § 3 من {ACTIVE_PATH}",
-                ))
+                violations.append(
+                    _v(
+                        "MALFORMED_ITEM",
+                        f"{wid}: بندٌ نشِطٌ بلا كتلةِ تفاصيلَ في § 3 من {ACTIVE_PATH}",
+                    )
+                )
             else:
                 for key in DETAIL_KEYS:
                     if _norm(key) not in block:
-                        violations.append(_v(
-                            "MALFORMED_ITEM",
-                            f"{wid}: كتلةُ التفاصيلِ بلا حقلِ «{key}»",
-                        ))
+                        violations.append(
+                            _v(
+                                "MALFORMED_ITEM",
+                                f"{wid}: كتلةُ التفاصيلِ بلا حقلِ «{key}»",
+                            )
+                        )
 
         if status in {"RESERVED", "IN_PROGRESS", "IN_REVIEW"}:
             expires = str(it["expires"])
             if DATE_RE.match(expires) and date.fromisoformat(expires) < today:
-                violations.append(_v(
-                    "RESERVATION_EXPIRED",
-                    f"{wid}: انتهى الحجزُ في {expires} والحالةُ ما زالت {status} — "
-                    "يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)",
-                ))
+                violations.append(
+                    _v(
+                        "RESERVATION_EXPIRED",
+                        f"{wid}: انتهى الحجزُ في {expires} والحالةُ ما زالت {status} — "
+                        "يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)",
+                    )
+                )
     return violations
 
 
@@ -505,19 +585,22 @@ def check_claim_conflicts(items: list[dict[str, object]]) -> list[dict[str, str]
     """تقاطعُ مسارٍ بينَ بندَينِ نشِطَينِ — البابُ الأوّلُ لتكرارِ العمل."""
     violations: list[dict[str, str]] = []
     claiming = [
-        it for it in items
+        it
+        for it in items
         if str(it["status"]) in CLAIMING_STATUSES and str(it["status"]) != "CLOSED"
     ]
     for i, first in enumerate(claiming):
-        for second in claiming[i + 1:]:
+        for second in claiming[i + 1 :]:
             for pa in first["paths"]:  # type: ignore[union-attr]
                 for pb in second["paths"]:  # type: ignore[union-attr]
                     if _paths_overlap(str(pa), str(pb)):
-                        violations.append(_v(
-                            "CLAIM_CONFLICT",
-                            f"{first['id']} و{second['id']} يتقاطعانِ في «{pa}» ↔ «{pb}» — "
-                            "يُقسَمُ البندُ أو يُستلَم (THE_ROADMAP § 6.1)",
-                        ))
+                        violations.append(
+                            _v(
+                                "CLAIM_CONFLICT",
+                                f"{first['id']} و{second['id']} يتقاطعانِ في «{pa}» ↔ «{pb}» — "
+                                "يُقسَمُ البندُ أو يُستلَم (THE_ROADMAP § 6.1)",
+                            )
+                        )
     return violations
 
 
@@ -539,16 +622,20 @@ def check_discoveries(text: str) -> list[dict[str, str]]:
                 if len(cells) > 8
                 else "الإلزاميُّ ثمانٍ"
             )
-            violations.append(_v(
-                "MALFORMED_ITEM",
-                f"{m.group(1)}: صفُّ اكتشافٍ بـ{len(cells)} خليّةً — {cause}",
-            ))
+            violations.append(
+                _v(
+                    "MALFORMED_ITEM",
+                    f"{m.group(1)}: صفُّ اكتشافٍ بـ{len(cells)} خليّةً — {cause}",
+                )
+            )
             continue
         if _is_empty(cells[6]):
-            violations.append(_v(
-                "UNROUTED_DISCOVERY",
-                f"{m.group(1)}: بلا وجهةٍ مُعلَنة — THE_ROADMAP § 11",
-            ))
+            violations.append(
+                _v(
+                    "UNROUTED_DISCOVERY",
+                    f"{m.group(1)}: بلا وجهةٍ مُعلَنة — THE_ROADMAP § 11",
+                )
+            )
     return violations
 
 
@@ -561,7 +648,9 @@ def changed_paths(mode: str, ref: str | None) -> list[str]:
     elif mode == "range":
         raw = _git("diff", "--name-only", "--diff-filter=ACMRD", str(ref))
     else:
-        raw = _git("show", "--pretty=format:", "--name-only", "--diff-filter=ACMRD", str(ref))
+        raw = _git(
+            "show", "--pretty=format:", "--name-only", "--diff-filter=ACMRD", str(ref)
+        )
     return sorted({line.strip() for line in raw.splitlines() if line.strip()})
 
 
@@ -588,7 +677,10 @@ def base_items(mode: str, ref: str | None) -> list[dict[str, object]] | None:
         return None
     probe = subprocess.run(
         ["git", "rev-parse", "--verify", "--quiet", f"{base}:{ACTIVE_PATH}"],
-        cwd=REPO_ROOT, capture_output=True, text=True, check=False,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     if probe.returncode != 0:
         return None
@@ -615,7 +707,10 @@ def ledger_reverse_links(text: str) -> dict[str, set[str]]:
 def _has_ledger_at(ref: str) -> bool:
     probe = subprocess.run(
         ["git", "rev-parse", "--verify", "--quiet", f"{ref}:{LEDGER_PATH}"],
-        cwd=REPO_ROOT, capture_output=True, text=True, check=False,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     return probe.returncode == 0
 
@@ -661,12 +756,14 @@ def check_post_merge_closure(
         status = str(it["status"])
         if status == "CLOSED" or item_id not in owner:
             continue
-        violations.append(_v(
-            "POST_MERGE_NOT_CLOSED",
-            f"{item_id}: قيدُه ({'، '.join(sorted(owner[item_id]))}) مدموجٌ في «{base}» "
-            f"وحالتُه ما زالت {status} — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### "
-            f"ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2)",
-        ))
+        violations.append(
+            _v(
+                "POST_MERGE_NOT_CLOSED",
+                f"{item_id}: قيدُه ({'، '.join(sorted(owner[item_id]))}) مدموجٌ في «{base}» "
+                f"وحالتُه ما زالت {status} — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### "
+                f"ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2)",
+            )
+        )
     return violations
 
 
@@ -691,22 +788,26 @@ def check_change_set(
     ]
     for path in governed:
         if not any(_covers(claim, path) for _, claim in claimed):
-            violations.append(_v(
-                "PATH_UNCLAIMED",
-                f"«{path}» تغيَّرَ ولا بندَ نشِطٌ يُعلِنُه في مساراتِه — "
-                f"سجِّلْ بندَك في {ACTIVE_PATH} قبلَ العمل (THE_ROADMAP § 2 قاعدة 1)",
-            ))
+            violations.append(
+                _v(
+                    "PATH_UNCLAIMED",
+                    f"«{path}» تغيَّرَ ولا بندَ نشِطٌ يُعلِنُه في مساراتِه — "
+                    f"سجِّلْ بندَك في {ACTIVE_PATH} قبلَ العمل (THE_ROADMAP § 2 قاعدة 1)",
+                )
+            )
 
     recorded = set(ADDED_WORK_ID_RE.findall(ledger_diff(mode, ref)))
     if recorded:
         for it in items:
             links = set(WORK_ID_IN_TEXT_RE.findall(str(it["ledger"])))
             if links & recorded and str(it["status"]) != "CLOSED":
-                violations.append(_v(
-                    "POST_MERGE_NOT_CLOSED",
-                    f"{it['id']}: قُيِّدَ عملُه في سجلِّ الإكمال ({'، '.join(sorted(links & recorded))}) "
-                    f"وحالتُه ما زالت {it['status']} — واجبُ ما بعدَ الدمج (THE_ROADMAP § 7)",
-                ))
+                violations.append(
+                    _v(
+                        "POST_MERGE_NOT_CLOSED",
+                        f"{it['id']}: قُيِّدَ عملُه في سجلِّ الإكمال ({'، '.join(sorted(links & recorded))}) "
+                        f"وحالتُه ما زالت {it['status']} — واجبُ ما بعدَ الدمج (THE_ROADMAP § 7)",
+                    )
+                )
 
     previous = base_items(mode, ref)
     if previous is not None:
@@ -714,13 +815,20 @@ def check_change_set(
         for it in items:
             old = before.get(str(it["id"]))
             new = str(it["status"])
-            if old is None or old == new or new not in ALL_STATUSES or old not in ALL_STATUSES:
+            if (
+                old is None
+                or old == new
+                or new not in ALL_STATUSES
+                or old not in ALL_STATUSES
+            ):
                 continue
             if new not in LEGAL_TRANSITIONS[old]:
-                violations.append(_v(
-                    "ILLEGAL_TRANSITION",
-                    f"{it['id']}: {old} → {new} انتقالٌ غيرُ مسموحٍ — THE_ROADMAP § 4.3",
-                ))
+                violations.append(
+                    _v(
+                        "ILLEGAL_TRANSITION",
+                        f"{it['id']}: {old} → {new} انتقالٌ غيرُ مسموحٍ — THE_ROADMAP § 4.3",
+                    )
+                )
     return violations
 
 
@@ -776,7 +884,9 @@ def run(
             violations += overdue
         elif notes is not None:
             for v in overdue:
-                notes.append(f"{v['kind']}: {v['detail']} — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)")
+                notes.append(
+                    f"{v['kind']}: {v['detail']} — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)"
+                )
     elif notes is not None:
         notes.append(
             "حرسُ ما بعدَ الدمجِ **لم يُقَسْ**: لا يُقرأُ سجلُّ الإكمالِ من "
@@ -791,11 +901,15 @@ def main() -> int:
         description="بوابة حوكمة العمل — لا عملَ غيرُ مُسجَّل، ولا نطاقَ لجهتَين"
     )
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("--staged", action="store_true", help="فحصُ ما أُدرِجَ للالتزام (الافتراضيّ)")
+    group.add_argument(
+        "--staged", action="store_true", help="فحصُ ما أُدرِجَ للالتزام (الافتراضيّ)"
+    )
     group.add_argument("--range", dest="rng", metavar="A..B", help="فحصُ مدى التزامات")
     group.add_argument("--commit", metavar="SHA", help="فحصُ التزامٍ واحد")
     group.add_argument(
-        "--self-check", action="store_true", help="فحصُ شكلِ السجلّاتِ وحدَه بلا مجموعةِ تغيير"
+        "--self-check",
+        action="store_true",
+        help="فحصُ شكلِ السجلّاتِ وحدَه بلا مجموعةِ تغيير",
     )
     parser.add_argument(
         "--advisory",
@@ -803,7 +917,9 @@ def main() -> int:
         help="إبلاغٌ بلا إسقاط — يُستعمَلُ قبلَ اعتمادِ الخارطة (THE_ROADMAP § 16)",
     )
     parser.add_argument(
-        "--today", metavar="YYYY-MM-DD", help="تاريخُ المرجعِ لفحصِ انتهاءِ الحجز (للاختبار)"
+        "--today",
+        metavar="YYYY-MM-DD",
+        help="تاريخُ المرجعِ لفحصِ انتهاءِ الحجز (للاختبار)",
     )
     parser.add_argument(
         "--repo-root",
