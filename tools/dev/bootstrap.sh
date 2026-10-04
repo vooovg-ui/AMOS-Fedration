@@ -4,7 +4,7 @@
 # النطاق: جذرُ المستودعِ محلّيًّا. لا يُشغَّلُ في CI (لكلِّ وظيفةٍ تركيبُها المُعلَن).
 # المالك: governance/
 # تاريخ الإنشاء: 2026-08-21
-# تاريخ آخر تعديل: 2026-08-21
+# تاريخ آخر تعديل: 2026-10-04 (WI-056 · DISC-073: ruff يُركَّبُ بإصدارِ CI المُثبَّتِ)
 #
 # ── لماذا هذه الأداة (T0.2) ─────────────────────────────────────────────────
 # كانت البيئةُ تُجهَّزُ يدويًّا بسبعِ خطواتٍ منثورةٍ في دليلِ المشروع § 8، فكلُّ
@@ -22,17 +22,20 @@
 #   bash tools/dev/bootstrap.sh              # تهيئةٌ فحسب
 #   bash tools/dev/bootstrap.sh --with-tools # + تبعيّاتُ مولِّداتِ الجذر
 #   bash tools/dev/bootstrap.sh --verify     # + تشغيلُ حزمةِ الجذرِ والبوّابات
+#   bash tools/dev/bootstrap.sh --print-ruff-pin  # إصدارُ ruff المُثبَّتُ في CI ثمَّ الخروج
 
 set -euo pipefail
 
 VENV_DIR=".venv"
 WITH_TOOLS=0
 VERIFY=0
+PRINT_RUFF_PIN=0
 
 for arg in "$@"; do
   case "$arg" in
     --with-tools) WITH_TOOLS=1 ;;
     --verify) VERIFY=1 ;;
+    --print-ruff-pin) PRINT_RUFF_PIN=1 ;;
     -h|--help) sed -n '20,26p' "$0"; exit 0 ;;
     *) echo "✗ وسيطٌ غيرُ معروف: $arg" >&2; exit 2 ;;
   esac
@@ -47,6 +50,26 @@ for marker in pytest.ini core/constitution requirements-dev.txt; do
     exit 1
   fi
 done
+# ── 0ب) ruff الذي يحكمُ به CI — يُقرأُ من موضعِه الواحدِ لا يُكتَبُ هنا رقمًا ────
+# (‏WI-056 · DISC-073): `pyproject.toml` يُعلِنُ `ruff>=0.6.9` حدًّا أدنى، وCI يُركِّبُ
+# إصدارًا مُثبَّتًا نصًّا، فكانت هذه البيئةُ تحملُ أحدثَ إصدارٍ فترى `ruff check .`
+# أحمرَ بما لا يراه CI. فالإصدارُ يُقرأُ من `ci.yml`، وغيابُه أو تعدُّدُه خطأٌ لا تخمين.
+ruff_ci_pin() {
+  local pins count
+  pins="$(sed -nE 's/^[[:space:]]*-[[:space:]]*run:[[:space:]]*pip install ruff==([0-9][0-9A-Za-z.]*)[[:space:]]*$/\1/p' \
+    .github/workflows/ci.yml | sort -u)"
+  count="$(printf '%s\n' "$pins" | grep -c . || true)"
+  if [ "$count" -ne 1 ]; then
+    echo "✗ يُنتظَرُ تثبيتٌ واحدٌ لـruff في .github/workflows/ci.yml، والمقروءُ: $count" >&2
+    return 1
+  fi
+  printf '%s\n' "$pins"
+}
+if [ "$PRINT_RUFF_PIN" -eq 1 ]; then
+  ruff_ci_pin
+  exit $?
+fi
+RUFF_PIN="$(ruff_ci_pin)"
 echo "• الجذر: $root_dir"
 
 # ── 1) استنساخُ git لا أرشيف ─────────────────────────────────────────────────
@@ -91,6 +114,15 @@ fi
 # ── 5) حزمةُ الخدماتِ الفدراليّة ──────────────────────────────────────────────
 echo "• تركيبُ حزمةِ الخدماتِ (قد تطولُ: تبعيّاتٌ كثيرة)"
 python -m pip install --quiet -e "federal/executive/services[dev]"
+
+# ── 5ب) ruff بإصدارِ CI (‏WI-056) — بعدَ حزمةِ الخدماتِ لأنَّ `[dev]` يُركِّبُ أحدثَ إصدار ──
+echo "• تركيبُ ruff==$RUFF_PIN (‏المُثبَّتُ في .github/workflows/ci.yml)"
+python -m pip install --quiet "ruff==$RUFF_PIN"
+installed_ruff="$(ruff --version | awk '{print $2}')"
+if [ "$installed_ruff" != "$RUFF_PIN" ]; then
+  echo "✗ ruff المُركَّبُ $installed_ruff لا يساوي مُثبَّتَ CI $RUFF_PIN" >&2
+  exit 1
+fi
 
 echo "✓ البيئةُ جاهزة. للتنشيطِ في جلسةٍ جديدة: source $VENV_DIR/bin/activate"
 
