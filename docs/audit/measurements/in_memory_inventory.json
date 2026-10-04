@@ -3,21 +3,21 @@
   "note": "قياسٌ لا حُكم. `occurrences_total` هو عينُ عدّادِ IN_MEMORY_STORE في truth_audit.py وهو عدّادُ **انتشارِ اسمٍ** لا عدّادُ مخازنَ موصولةٍ — والتفصيلُ في SOVEREIGN_DECISION_REGISTER.md § Q-38. و`module_stores` مخازنُ إنتاجٍ لا يراها ذاك العدّادُ أصلًا. لا يُقرَأُ هذا الملفُّ شهادةَ إدامةٍ: كلُّ ما فيه مُعلَنٌ متطايرٌ حتى تُنجَزَ T4/E4 · Q-39.",
   "repo": "AMOS-Fedration",
   "summary": {
-    "occurrences_total": 60,
+    "occurrences_total": 59,
     "by_bucket": {
-      "SRC_DOUBLE_NOT_WIRED": 6,
-      "SRC_WIRED_VOLATILE": 10,
+      "SRC_DOUBLE_NOT_WIRED": 8,
+      "SRC_WIRED_VOLATILE": 7,
       "TEST_REFERENCE": 44
     },
     "classes_total": 8,
     "classes_wired": [
       "InMemoryDataPipeline",
-      "InMemoryModelRegistry",
       "InMemoryShadowStore"
     ],
     "classes_not_wired": [
       "InMemoryCriticStore",
       "InMemoryExperienceStore",
+      "InMemoryModelRegistry",
       "InMemoryTaskStore",
       "InMemoryToolStore",
       "InMemoryVectorStore"
@@ -29,12 +29,12 @@
     "undeclared_total": 0,
     "q38_option_impact": {
       "measured_at_scan": true,
-      "option_a_counts_wiring_not_names": 18,
-      "option_b_counter_unchanged": 60,
-      "option_c_second_detector_added": 62,
+      "option_a_counts_wiring_not_names": 17,
+      "option_b_counter_unchanged": 59,
+      "option_c_second_detector_added": 61,
       "inputs": {
-        "name_occurrences_total": 60,
-        "name_occurrences_outside_tests": 16,
+        "name_occurrences_total": 59,
+        "name_occurrences_outside_tests": 15,
         "module_stores_not_seen_by_counter": 2
       },
       "note": "أثرٌ مقيسٌ لخياراتِ SOVEREIGN_DECISION_REGISTER.md § Q-38 — عرضٌ لا تنفيذ. (أ) يقيسُ التوصيلَ لا الاسمَ فيستثني حزمةَ الاختبارِ ويُضيفُ مخازنَ حالةِ الوحدةِ. (ب) يُبقي العدّادَ ويُصحِّحُ دلالتَه. (ج) يُضيفُ كاشفًا ثانيًا لمخازنِ حالةِ الوحدةِ فيرتفعُ العدُّ. ولم يُمَسَّ الكاشفُ ولا خطُّ الأساسِ في هذا القياس."
@@ -85,16 +85,14 @@
       "line": 31,
       "declared_as": "WIRED_VOLATILE",
       "wired_at": [
-        "federal/executive/services/src/amos_federation/services/training/main.py:41"
+        "federal/executive/services/src/amos_federation/services/training/main.py:42"
       ]
     },
     "InMemoryModelRegistry": {
       "path": "federal/executive/services/src/amos_federation/services/training/model_registry.py",
       "line": 30,
-      "declared_as": "WIRED_VOLATILE",
-      "wired_at": [
-        "federal/executive/services/src/amos_federation/services/training/main.py:42"
-      ]
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "wired_at": []
     }
   },
   "occurrences": [
@@ -184,7 +182,7 @@
       "name": "InMemoryDataPipeline",
       "bucket": "SRC_WIRED_VOLATILE",
       "declared_as": "WIRED_VOLATILE",
-      "note": "federal/executive/services/src/amos_federation/services/training/main.py:41"
+      "note": "federal/executive/services/src/amos_federation/services/training/main.py:42"
     },
     {
       "path": "federal/executive/services/src/amos_federation/services/training/main.py",
@@ -192,28 +190,12 @@
       "name": "InMemoryDataPipeline",
       "bucket": "SRC_WIRED_VOLATILE",
       "declared_as": "WIRED_VOLATILE",
-      "note": "federal/executive/services/src/amos_federation/services/training/main.py:41"
-    },
-    {
-      "path": "federal/executive/services/src/amos_federation/services/training/main.py",
-      "line": 23,
-      "name": "InMemoryModelRegistry",
-      "bucket": "SRC_WIRED_VOLATILE",
-      "declared_as": "WIRED_VOLATILE",
       "note": "federal/executive/services/src/amos_federation/services/training/main.py:42"
     },
     {
       "path": "federal/executive/services/src/amos_federation/services/training/main.py",
-      "line": 41,
-      "name": "InMemoryDataPipeline",
-      "bucket": "SRC_WIRED_VOLATILE",
-      "declared_as": "WIRED_VOLATILE",
-      "note": "federal/executive/services/src/amos_federation/services/training/main.py:41"
-    },
-    {
-      "path": "federal/executive/services/src/amos_federation/services/training/main.py",
       "line": 42,
-      "name": "InMemoryModelRegistry",
+      "name": "InMemoryDataPipeline",
       "bucket": "SRC_WIRED_VOLATILE",
       "declared_as": "WIRED_VOLATILE",
       "note": "federal/executive/services/src/amos_federation/services/training/main.py:42"
@@ -222,9 +204,17 @@
       "path": "federal/executive/services/src/amos_federation/services/training/model_registry.py",
       "line": 30,
       "name": "InMemoryModelRegistry",
-      "bucket": "SRC_WIRED_VOLATILE",
-      "declared_as": "WIRED_VOLATILE",
-      "note": "federal/executive/services/src/amos_federation/services/training/main.py:42"
+      "bucket": "SRC_DOUBLE_NOT_WIRED",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "لا تهيئةَ في شِفرةِ الإنتاج"
+    },
+    {
+      "path": "federal/executive/services/src/amos_federation/services/training/persistent_registry.py",
+      "line": 9,
+      "name": "InMemoryModelRegistry",
+      "bucket": "SRC_DOUBLE_NOT_WIRED",
+      "declared_as": "DOUBLE_NOT_WIRED",
+      "note": "لا تهيئةَ في شِفرةِ الإنتاج"
     },
     {
       "path": "federal/executive/services/tests/test_common_branches.py",
@@ -255,7 +245,7 @@
       "line": 17,
       "name": "InMemoryModelRegistry",
       "bucket": "TEST_REFERENCE",
-      "declared_as": "WIRED_VOLATILE",
+      "declared_as": "DOUBLE_NOT_WIRED",
       "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
     },
     {
@@ -271,7 +261,7 @@
       "line": 43,
       "name": "InMemoryModelRegistry",
       "bucket": "TEST_REFERENCE",
-      "declared_as": "WIRED_VOLATILE",
+      "declared_as": "DOUBLE_NOT_WIRED",
       "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
     },
     {
@@ -279,7 +269,7 @@
       "line": 47,
       "name": "InMemoryModelRegistry",
       "bucket": "TEST_REFERENCE",
-      "declared_as": "WIRED_VOLATILE",
+      "declared_as": "DOUBLE_NOT_WIRED",
       "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
     },
     {
@@ -287,7 +277,7 @@
       "line": 55,
       "name": "InMemoryModelRegistry",
       "bucket": "TEST_REFERENCE",
-      "declared_as": "WIRED_VOLATILE",
+      "declared_as": "DOUBLE_NOT_WIRED",
       "note": "إشارةٌ داخلَ حزمةِ اختبار — ليست توصيلَ إنتاج"
     },
     {

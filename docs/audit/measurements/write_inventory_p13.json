@@ -1,7 +1,7 @@
 {
  "$comment": "الهدف: جردُ مواضعِ الكتابةِ في المستودعِ وتصنيفُ ما عبرَ الحدَّ السّياديَّ وما لم يعبُر— مُخرَجُ tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039).",
  "summary": {
-  "write_sites_total": 217,
+  "write_sites_total": 219,
   "by_area": {
    "core": {
     "public": 1,
@@ -14,9 +14,9 @@
     "non_sovereign": 28
    },
    "services": {
-    "public": 170,
+    "public": 172,
     "sovereign": 16,
-    "non_sovereign": 153
+    "non_sovereign": 155
    },
    "tools": {
     "public": 1,
@@ -24,10 +24,10 @@
     "non_sovereign": 1
    }
   },
-  "public_write_operations": 200,
+  "public_write_operations": 202,
   "sovereign_write_operations": 16,
   "closed_legacy_paths": 7,
-  "non_sovereign_write_operations": 182,
+  "non_sovereign_write_operations": 184,
   "non_sovereign_by_file": {
    "federal/executive/services/src/amos_federation/common/persistent.py": 20,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py": 18,
@@ -52,6 +52,7 @@
    "federal/executive/services/src/amos_federation/common/durable_event_bus.py": 2,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py": 2,
    "federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py": 2,
+   "federal/executive/services/src/amos_federation/services/training/persistent_registry.py": 2,
    "federal/executive/services/src/amos_federation/common/event_bus.py": 1,
    "federal/executive/services/src/amos_federation/common/events.py": 1,
    "federal/executive/services/src/amos_federation/services/api_gateway/store.py": 1,
@@ -2996,6 +2997,33 @@
     "_post",
     "_record_transaction_authority"
    ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/training/persistent_registry.py",
+   "owner": "PersistentModelRegistry",
+   "function": "register",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()",
+    "merge()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/training/persistent_registry.py",
+   "owner": "PersistentModelRegistry",
+   "function": "update_status",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
   },
   {
    "path": "tools/migrations/r4_unify_agent_identity.py",

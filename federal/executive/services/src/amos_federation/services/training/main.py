@@ -20,7 +20,7 @@ from amos_federation.services.executive_core.subsystem_boundary import (
     get_subsystem_boundary,
 )
 from amos_federation.services.training.data_pipeline import InMemoryDataPipeline
-from amos_federation.services.training.model_registry import InMemoryModelRegistry
+from amos_federation.services.training.persistent_registry import PersistentModelRegistry
 
 router = APIRouter(prefix="/v1", tags=["training"])
 
@@ -33,13 +33,14 @@ def _make_service(port: int, description: str) -> Any:
 
 
 # تهيئة المخازن
-#: تصنيفُ إدامةِ مخازنِ هذه الخدمةِ — مُعلَنٌ في الشِفرةِ لا مُستنتَجٌ (T3.6 · W-029):
-#: مجموعاتُ البياناتِ وسجلُّ النماذجِ (ومنه ترقيةُ نموذجٍ إلى الإنتاج) في ذاكرةِ
-#: العمليّةِ، ولا جدولَ لها في `common/database.py` — الإدامةُ عملُ T4/E4 · القرارُ Q-39.
-STORE_DURABILITY = "in_memory_volatile"
+#: تصنيفُ إدامةِ مخزنِ النماذجِ — مُعلَنٌ في الشِفرةِ لا مُستنتَجٌ (T4/E4 · W-055):
+#: سجلُّ النماذجِ (ومنه ترقيةُ نموذجٍ إلى الإنتاج) في جدولِ `training_models` الدائمِ،
+#: لا في ذاكرةِ العمليّة. وقرارُ الإدامةِ في Q-39 (أ) — نُفِّذَ في W-055.
+#: مجموعاتُ البياناتِ لا تزالُ في الذاكرة (T3.6 · W-029) — خارجَ نطاقِ WI-055.
+STORE_DURABILITY = "durable_control"
 
 _pipeline = InMemoryDataPipeline()
-_registry = InMemoryModelRegistry()
+_registry = PersistentModelRegistry()
 
 
 class CreateDatasetRequest(BaseModel):

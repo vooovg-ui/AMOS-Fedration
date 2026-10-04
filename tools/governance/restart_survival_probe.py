@@ -537,8 +537,8 @@ SURFACES: tuple[Surface, ...] = (
     Surface(
         "training_model",
         "training",
-        VOLATILE,
-        "سجلُّ النماذجِ وبطاقاتُها وحالةُ ترقيتِها للإنتاج",
+        DURABLE,
+        "لا شيءَ بعدَ W-055: النماذجُ وبطاقاتُها وحالةُ ترقيتِها في جدولِ `training_models` — قرارٌ ينجو",
         "training_model",
         "training_model",
     ),

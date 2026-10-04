@@ -54,14 +54,18 @@ AUDIT_TOOL = REPO_ROOT / "tools" / "governance" / "truth_audit.py"
 SERVICES_SRC = REPO_ROOT / "federal" / "executive" / "services" / "src" / "amos_federation"
 
 #: العدّادُ كما قِيسَ في W-029 — لم يُخفَضْ ولم يُجمَّلْ، وسقفُه يُمنَعُ من الصعود.
-MEASURED_NAME_OCCURRENCES = 60
+#: W-055: انخفضَ العدّادُ من 60 إلى 59 — أُزيلَ توصيلُ صنفِ النماذجِ من الإنتاجِ.
+MEASURED_NAME_OCCURRENCES = 59
 
 #: بادئةُ اسمِ المخزنِ — مُركَّبةٌ لا حرفيّةٌ، والسببُ مُعلَنٌ في رأسِ الملفّ.
 _P = "In" + "Memory"
 
 #: التوصيلُ كما قِيسَ من المصدرِ في W-029 (لا من وثيقة).
-WIRED_CLASSES = {_P + "DataPipeline", _P + "ModelRegistry", _P + "ShadowStore"}
+#: W-055: أُزيلَ صنفُ نماذجِ الذاكرةِ من الموصولِ — حُوِّلَ إلى النظيرِ الدائمِ
+#: بقرارِ Q-39 (أ). وصار بديلًا غيرَ موصولٍ، فانتقلَ إلى `NOT_WIRED_CLASSES`.
+WIRED_CLASSES = {_P + "DataPipeline", _P + "ShadowStore"}
 NOT_WIRED_CLASSES = {
+    _P + "ModelRegistry",
     _P + "TaskStore",
     _P + "CriticStore",
     _P + "ExperienceStore",
@@ -293,9 +297,9 @@ def test_volatile_endpoints_declare_their_store_type():
 
 
 def test_training_service_declares_its_store_durability():
-    """خدمةُ التدريبِ تُعلِنُ أنَّ سجلَّ نماذجِها في الذاكرة."""
+    """خدمةُ التدريبِ تُعلِنُ أنَّ سجلَّ نماذجِها دائمٌ في قاعدةِ البيانات."""
     text = (SERVICES_SRC / "services" / "training" / "main.py").read_text(encoding="utf-8")
-    assert 'STORE_DURABILITY = "in_memory_volatile"' in text, (
+    assert 'STORE_DURABILITY = "durable_control"' in text, (
         "خدمةُ التدريبِ تُرقّي نماذجَ في ذاكرةٍ بلا إعلانِ تصنيفِ إدامتِها."
     )
 

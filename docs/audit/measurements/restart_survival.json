@@ -3,12 +3,12 @@
   "note": "قياسٌ لا حُكم: يقولُ ما يُفقَدُ، ولا يقولُ ما يجبُ أن يُدامَ — ذاك قرارٌ سياديٌّ (Q-39؛ حُسِمَ شقُّه الأوّلُ 2026-08-23 فأُديمَ مفتاحُ الإيقافِ والترقياتُ في W-031). و`lost_on_restart` **ليس** مخالفةً جديدةً ولا يدخلُ عدّادَ المصفوفةِ: هو بيانُ أثرِ الستّينَ المعروفةِ. وشاهدا الضبطِ (audit_chain · task) يجبُ أن ينجُوا، فإن سقطا فالمِسبارُ هو المكسورُ لا الحالة.",
   "summary": {
     "surfaces_total": 12,
-    "lost_on_restart": 4,
-    "survived_restart": 8,
+    "lost_on_restart": 3,
+    "survived_restart": 9,
     "unmeasured": 0,
     "contradicts_declaration": 0,
-    "declared_volatile": 4,
-    "control_surfaces": 7
+    "declared_volatile": 3,
+    "control_surfaces": 8
   },
   "surfaces": [
     {
@@ -65,13 +65,13 @@
     {
       "surface_id": "training_model",
       "service": "training",
-      "declared": "WIRED_VOLATILE",
-      "what_is_lost": "سجلُّ النماذجِ وبطاقاتُها وحالةُ ترقيتِها للإنتاج",
+      "declared": "DURABLE_CONTROL",
+      "what_is_lost": "لا شيءَ بعدَ W-055: النماذجُ وبطاقاتُها وحالةُ ترقيتِها في جدولِ `training_models` — قرارٌ ينجو",
       "wrote_ok": true,
-      "survived": false,
-      "expected_survival": false,
+      "survived": true,
+      "expected_survival": true,
       "verdict": "MATCHES_DECLARATION",
-      "detail": "HTTP 404",
+      "detail": "HTTP 200",
       "extra": {}
     },
     {
