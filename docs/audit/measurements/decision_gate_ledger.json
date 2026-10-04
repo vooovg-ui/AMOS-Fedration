@@ -93,6 +93,22 @@
    "kind": "work_drift",
    "reason": "بطاقةُ هويّةٍ لأثرِ التشغيلِ (حسمُ Q-40 ج): الوسمُ يقعُ داخلَ الكاتبِ الذرّيِّ في core ولا يُنشئُ موضعَ كتابةٍ عامًّا جديدًا — 182 كما هو، بقياسِ tools/audit/sovereign_write_inventory.py",
    "recorded_at": "2026-08-24T10:49:34+00:00"
+  },
+  {
+   "debt": 184,
+   "sovereign": 16,
+   "closed_legacy": 7,
+   "write_sites_total": 219,
+   "git_head": "b708a58",
+   "waves": {
+    "W1": 52,
+    "W2": 34,
+    "W3": 98
+   },
+   "decision": "W-203",
+   "kind": "work_drift",
+   "reason": "تحديث خط أساس الدَّين بعد W-200: زيادة مواقع الكتابة من 217 إلى 219 بعد إدخال persistent_registry.py",
+   "recorded_at": "2026-10-04T21:45:52+00:00"
   }
  ]
 }
