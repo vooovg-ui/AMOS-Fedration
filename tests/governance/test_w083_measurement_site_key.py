@@ -266,39 +266,44 @@ def test_crossing_the_sovereign_boundary_moves_the_payload(tmp_path: Path) -> No
 
 
 def test_sites_sharing_the_key_stay_distinct_by_ordinal(tmp_path: Path) -> None:
-    """موضعانِ بالمسارِ والمالكِ والدالّةِ نفسِها يبقيانِ اثنَينِ برتبتَينِ."""
+    """موضعانِ بالمسارِ والمالكِ والدالّةِ نفسِها يبقيانِ اثنَينِ برتبتَينِ.
+
+    والتشارُكُ هنا **يُبنى ولا يُفترَضُ** (‏`DISC-074` (ب) — الجولةُ الثامنة): كانَ
+    التركيبُ السابقُ ينتجُ موضعًا واحدًا فيمرُّ الفحصُ بفرعِ «لا تشارُك» ولا يقيسُ
+    الدمجَ أصلًا. والآنَ صنفٌ واحدٌ فيه دالّتانِ عامّتانِ باسمِ `save` تكتبُ كلٌّ
+    منهما كتابةً مختلفة — فالمفتاحُ الثلاثيُّ واحدٌ قطعًا، والمطلوبُ سجلّانِ لا سجلٌّ.
+    """
     tool = _load_tool()
     _project(
         tmp_path,
-        '''"""وحدةٌ فيها عمليّةٌ واحدةٌ يقعُ فيها إغلاقُ مسارٍ قديمٍ وكتابةٌ معًا."""
+        '''"""وحدةٌ يتشاركُ فيها موضعا كتابةٍ المسارَ والمالكَ والدالّة."""
 
 
 class Registry:
     def save(self, session, row):
-        if row is None:
-            raise UndeclaredExecutionError("مسارٌ قديمٌ مُغلَق")
         session.add(row)
+        session.commit()
+
+    def save(self, session, row):  # noqa: F811 - التشارُكُ مقصودٌ: هو موضوعُ الفحص
+        session.delete(row)
         session.commit()
 ''',
     )
 
     records = tool.site_records(tool.collect(tmp_path))
-    keys = [(r["path"], r["owner"], r["function"]) for r in records]
-    if len(records) > len(set(keys)):
-        shared = [
-            r
-            for r in records
-            if keys.count((r["path"], r["owner"], r["function"])) > 1
-        ]
-        ordinals = sorted(r["ordinal"] for r in shared)
-        assert ordinals == list(range(len(shared))), (
-            f"مواضعُ تتشاركُ المفتاحَ ورُتَبُها ليست متمايزةً متّصلةً: {ordinals}"
-        )
-    else:
-        # لا تشارُكَ في هذه الشجرةِ — والرتبةُ تبقى صفرًا لكلِّ موضعٍ، وذاك حكمٌ يُقاسُ
-        assert all(r["ordinal"] == 0 for r in records), (
-            f"لا تشارُكَ في المفتاحِ ومع ذلك ظهرَت رتبةٌ غيرُ صفرٍ: {records}"
-        )
+    shared = [r for r in records if (r["owner"], r["function"]) == ("Registry", "save")]
+    keys = {(r["path"], r["owner"], r["function"]) for r in shared}
+
+    assert len(keys) == 1, f"التركيبُ لم يبنِ تشارُكًا في المفتاحِ الثلاثيّ: {keys}"
+    assert len(shared) == 2, (
+        f"موضعانِ يتشاركانِ المفتاحَ صارا {len(shared)} — دمجٌ أو إسقاطٌ: {shared}"
+    )
+    assert sorted(r["ordinal"] for r in shared) == [0, 1], (
+        f"رُتَبُ المتشاركَينِ ليست متمايزةً متّصلةً: {[r['ordinal'] for r in shared]}"
+    )
+    writes = [json.dumps(r, ensure_ascii=False, sort_keys=True) for r in shared]
+    assert writes[0] != writes[1], "السجلّانِ متطابقانِ — فالتمايزُ بالرتبةِ لا يحملُ ما كُتِب"
+    assert len({r["ordinal"] for r in records}) >= 2, "لا رتبةَ غيرَ الصفرِ في حِملٍ فيه تشارُك"
 
 
 def test_the_payload_is_ordered_by_its_key_and_is_repeatable(tmp_path: Path) -> None:
