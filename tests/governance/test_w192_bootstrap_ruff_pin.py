@@ -23,7 +23,23 @@ from pathlib import Path
 
 import pytest
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _discover_root() -> Path:
+    """جذرُ المستودعِ بعلامةٍ لا بعُمقٍ مكتوبٍ (‏`DISC-041` · حرسُ `test_w102`).
+
+    صعودٌ حتّى مجلَّدٍ فيه `PROJECT_STATE.md` و`.github/workflows/ci.yml` معًا — فإن
+    نُقِلَ هذا الملفُّ لم يصِرِ الجذرُ مجلَّدًا آخرَ بلا خطأ.
+    """
+    for candidate in Path(__file__).resolve().parents:
+        if (candidate / "PROJECT_STATE.md").is_file() and (
+            candidate / ".github" / "workflows" / "ci.yml"
+        ).is_file():
+            return candidate
+    raise RuntimeError("لم يُعثَرْ على جذرِ المستودعِ بعلامتِه")
+
+
+REPO_ROOT = _discover_root()
 BOOTSTRAP = REPO_ROOT / "tools" / "dev" / "bootstrap.sh"
 CI_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 
