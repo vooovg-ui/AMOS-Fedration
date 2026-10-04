@@ -24,8 +24,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-import pytest
-
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _SERVICES_SRC = _REPO_ROOT / "federal" / "executive" / "services" / "src"
 _TRAINING_TESTS = _REPO_ROOT / "federal" / "executive" / "services" / "tests"
@@ -47,11 +45,11 @@ def _phase_env(db_path: Path) -> dict[str, str]:
     return env
 
 
-_WRITE_SCRIPT = """
+_WRITE_SCRIPT = f"""
 import json
 import sys
 
-sys.path.insert(0, "{src}")
+sys.path.insert(0, "{_SERVICES_SRC}")
 
 from fastapi.testclient import TestClient
 from amos_federation.services.training import main as training_main
@@ -99,14 +97,14 @@ print("PROBE_RESULT:" + json.dumps({{
     "status": promote.json()["status"],
     "dataset_id": dataset_id,
 }}, ensure_ascii=False))
-""".format(src=str(_SERVICES_SRC))
+"""
 
 
-_READ_SCRIPT = """
+_READ_SCRIPT = f"""
 import json
 import sys
 
-sys.path.insert(0, "{src}")
+sys.path.insert(0, "{_SERVICES_SRC}")
 
 from fastapi.testclient import TestClient
 from amos_federation.services.training import main as training_main
@@ -139,7 +137,7 @@ print("PROBE_RESULT:" + json.dumps({{
     "card_ok": card_resp.status_code == 200,
     "model_id": model.get("model_id"),
 }}, ensure_ascii=False))
-""".format(src=str(_SERVICES_SRC))
+"""
 
 
 def _run_script(script: str, db_path: Path, args: list[str] | None = None) -> dict:
