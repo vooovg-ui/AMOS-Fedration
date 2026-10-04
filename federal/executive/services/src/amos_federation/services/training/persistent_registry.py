@@ -117,16 +117,14 @@ class PersistentModelRegistry:
         session_local = get_session_factory()
         session = session_local()
         try:
-            row = session.query(TrainingModelModel).filter(
-                TrainingModelModel.id == model_id
-            ).first()
+            row = (
+                session.query(TrainingModelModel).filter(TrainingModelModel.id == model_id).first()
+            )
             return None if row is None else self._as_dict(row)
         finally:
             session.close()
 
-    def list_all(
-        self, status: str | None = None, limit: int = 50
-    ) -> list[dict[str, Any]]:
+    def list_all(self, status: str | None = None, limit: int = 50) -> list[dict[str, Any]]:
         """عرض النماذج مع فلترة اختيارية."""
         session_local = get_session_factory()
         session = session_local()
@@ -139,16 +137,14 @@ class PersistentModelRegistry:
         finally:
             session.close()
 
-    def update_status(
-        self, model_id: str, new_status: str
-    ) -> dict[str, Any] | None:
+    def update_status(self, model_id: str, new_status: str) -> dict[str, Any] | None:
         """تحديث حالة نموذج (registered → trained → evaluated → promoted)."""
         session_local = get_session_factory()
         session = session_local()
         try:
-            row = session.query(TrainingModelModel).filter(
-                TrainingModelModel.id == model_id
-            ).first()
+            row = (
+                session.query(TrainingModelModel).filter(TrainingModelModel.id == model_id).first()
+            )
             if row is None:
                 return None
             row.status = new_status

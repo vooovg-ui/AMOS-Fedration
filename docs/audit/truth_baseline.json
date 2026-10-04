@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-08-22T20:51:58+00:00",
-  "findings_total": 63,
+  "updated_at": "2026-10-04T21:07:08+00:00",
+  "findings_total": 62,
   "by_kind": {
     "HARDCODED_TRUTH": 2,
-    "IN_MEMORY_STORE": 60,
+    "IN_MEMORY_STORE": 59,
     "SANDBOX_DISABLED": 1
   },
   "by_severity": {
     "CRITICAL": 3,
-    "HIGH": 60
+    "HIGH": 59
   }
 }

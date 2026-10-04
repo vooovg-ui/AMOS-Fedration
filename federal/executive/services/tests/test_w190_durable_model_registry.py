@@ -34,14 +34,10 @@ def _phase_env(db_path: Path) -> dict[str, str]:
     env = dict(os.environ)
     env["AMOS_DATABASE_URL"] = f"sqlite:///{db_path}"
     env["AMOS_ENVIRONMENT"] = "test"
-    env.setdefault(
-        "AMOS_JWT_SECRET", "durable_registry_test_secret_at_least_32_chars"
-    )
+    env.setdefault("AMOS_JWT_SECRET", "durable_registry_test_secret_at_least_32_chars")
     env["AMOS_CLAUDE_API_KEY"] = "test_key_not_real"
     existing = env.get("PYTHONPATH", "")
-    env["PYTHONPATH"] = (
-        f"{_SERVICES_SRC}{os.pathsep}{existing}" if existing else str(_SERVICES_SRC)
-    )
+    env["PYTHONPATH"] = f"{_SERVICES_SRC}{os.pathsep}{existing}" if existing else str(_SERVICES_SRC)
     return env
 
 
@@ -167,12 +163,11 @@ def _run_script(script: str, db_path: Path, args: list[str] | None = None) -> di
     marker = "PROBE_RESULT:"
     for line in reversed(proc.stdout.splitlines()):
         if line.startswith(marker):
-            return json.loads(line[len(marker):])
+            return json.loads(line[len(marker) :])
 
     tail = (proc.stderr or proc.stdout).strip().splitlines()
     raise AssertionError(
-        f"script failed (exit {proc.returncode}): "
-        f"{tail[-1] if tail else 'no output'}"
+        f"script failed (exit {proc.returncode}): " f"{tail[-1] if tail else 'no output'}"
     )
 
 
@@ -188,29 +183,17 @@ def test_durable_model_survives_restart():
         # المرحلة 1: درّب ورقِّ في عمليّةٍ
         wrote = _run_script(_WRITE_SCRIPT, db_path)
         assert wrote.get("model_id"), f"لم يُنشأ نموذج: {wrote}"
-        assert wrote.get("status") == "promoted", (
-            f"النموذجُ لم يُرقَّ إلى الإنتاج: {wrote}"
-        )
+        assert wrote.get("status") == "promoted", f"النموذجُ لم يُرقَّ إلى الإنتاج: {wrote}"
         model_id = wrote["model_id"]
 
         # المرحلة 2: اقرأ في عمليّةٍ مستقلّةٍ
         read = _run_script(_READ_SCRIPT, db_path, args=[model_id])
-        assert read.get("survived"), (
-            f"النموذجُ لم ينجُ من إعادةِ التشغيل: {read}"
-        )
-        assert read.get("status") == "promoted", (
-            f"حالةُ النموذجِ لم تَنجُ: {read}"
-        )
-        assert read.get("card_ok"), (
-            f"بطاقةُ النموذجِ لم تَنجُ: {read}"
-        )
+        assert read.get("survived"), f"النموذجُ لم ينجُ من إعادةِ التشغيل: {read}"
+        assert read.get("status") == "promoted", f"حالةُ النموذجِ لم تَنجُ: {read}"
+        assert read.get("card_ok"), f"بطاقةُ النموذجِ لم تَنجُ: {read}"
         card = read.get("model_card", {})
-        assert card.get("base_model") == "llama-3-8b", (
-            f"تفاصيلُ البطاقةِ لم تَنجُ: {card}"
-        )
-        assert card.get("training_method") == "LoRA", (
-            f"تفاصيلُ البطاقةِ لم تَنجُ: {card}"
-        )
+        assert card.get("base_model") == "llama-3-8b", f"تفاصيلُ البطاقةِ لم تَنجُ: {card}"
+        assert card.get("training_method") == "LoRA", f"تفاصيلُ البطاقةِ لم تَنجُ: {card}"
 
 
 def test_durable_registry_counts_persist():
@@ -224,6 +207,4 @@ def test_durable_registry_counts_persist():
 
         # المرحلة 2: اقرأ العدّاد في عمليّةٍ مستقلّةٍ
         read = _run_script(_READ_SCRIPT, db_path, args=[wrote["model_id"]])
-        assert read.get("survived"), (
-            f"النموذجُ لم ينجُ: {read}"
-        )
+        assert read.get("survived"), f"النموذجُ لم ينجُ: {read}"
