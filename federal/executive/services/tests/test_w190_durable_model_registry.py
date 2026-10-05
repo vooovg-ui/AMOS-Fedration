@@ -96,6 +96,23 @@ print("PROBE_RESULT:" + json.dumps({{
 """
 
 
+_COUNT_SCRIPT = f"""
+import json
+import sys
+
+sys.path.insert(0, "{_SERVICES_SRC}")
+
+from amos_federation.services.training.persistent_registry import PersistentModelRegistry
+
+registry = PersistentModelRegistry()
+count = registry.count()
+
+print("PROBE_RESULT:" + json.dumps({{
+    "count": count,
+}}, ensure_ascii=False))
+"""
+
+
 _READ_SCRIPT = f"""
 import json
 import sys
@@ -197,7 +214,11 @@ def test_durable_model_survives_restart():
 
 
 def test_durable_registry_counts_persist():
-    """عدّادُ النماذجِ يُقرَأُ في عمليّةٍ ثانيةٍ بعدَ الكتابةِ في الأولى."""
+    """عدّادُ النماذجِ يُقرَأُ في عمليّةٍ ثانيةٍ بعدَ الكتابةِ في الأولى.
+
+    WI-057 · DISC-076: الاختبارُ كانَ يدّعي قراءةَ العدّادِ لكنّه لم يكن ينادي
+    count() — صُلِحَ ليُثبِتَ نجاةَ العدّادِ عبرَ العمليّتَينِ فعلًا.
+    """
     with tempfile.TemporaryDirectory(prefix="amos_durable_count_") as tmp:
         db_path = Path(tmp) / "test.db"
 
@@ -206,5 +227,5 @@ def test_durable_registry_counts_persist():
         assert wrote.get("model_id"), f"لم يُنشأ نموذج: {wrote}"
 
         # المرحلة 2: اقرأ العدّاد في عمليّةٍ مستقلّةٍ
-        read = _run_script(_READ_SCRIPT, db_path, args=[wrote["model_id"]])
-        assert read.get("survived"), f"النموذجُ لم ينجُ: {read}"
+        counted = _run_script(_COUNT_SCRIPT, db_path)
+        assert counted.get("count") == 1, f"العدّادُ لم يَنجُ من إعادةِ التشغيل: {counted}"
