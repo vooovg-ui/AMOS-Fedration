@@ -238,9 +238,7 @@ def test_durable_registry_counts_persist():
 
         # المرحلة 2: اقرأ العدّاد — يجب أن يكون 1
         counted1 = _run_script(_COUNT_SCRIPT, db_path)
-        assert counted1.get("count") == 1, (
-            f"العدّادُ بعدَ نموذجٍ واحدٍ يجب أن يكون 1: {counted1}"
-        )
+        assert counted1.get("count") == 1, f"العدّادُ بعدَ نموذجٍ واحدٍ يجب أن يكون 1: {counted1}"
 
         # المرحلة 3: درّب نموذجًا ثانيًا بمعرّفِ خبرةٍ مختلف
         wrote2 = _run_script(_write_script("exp-count-2"), db_path)
@@ -248,6 +246,4 @@ def test_durable_registry_counts_persist():
 
         # المرحلة 4: اقرأ العدّاد — يجب أن يكون 2
         counted2 = _run_script(_COUNT_SCRIPT, db_path)
-        assert counted2.get("count") == 2, (
-            f"العدّادُ بعدَ نموذجَينِ يجب أن يكون 2: {counted2}"
-        )
+        assert counted2.get("count") == 2, f"العدّادُ بعدَ نموذجَينِ يجب أن يكون 2: {counted2}"
