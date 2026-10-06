@@ -41,7 +41,9 @@ def _phase_env(db_path: Path) -> dict[str, str]:
     return env
 
 
-_WRITE_SCRIPT = f"""
+def _write_script(experience_id: str = "exp-1") -> str:
+    """نصُّ كتابةِ نموذجٍ بمعرّفِ خبرةٍ قابلٍ للتمرير."""
+    return f"""
 import json
 import sys
 
@@ -59,7 +61,7 @@ headers = {{"Authorization": f"Bearer {{token}}"}}
 ds = client.post("/v1/datasets", headers=headers, json={{
     "experiences": [
         {{
-            "experience_id": "exp-1",
+            "experience_id": "{experience_id}",
             "type": "success",
             "agent_id": "test-agent",
             "model_used": "alpha",
@@ -94,6 +96,9 @@ print("PROBE_RESULT:" + json.dumps({{
     "dataset_id": dataset_id,
 }}, ensure_ascii=False))
 """
+
+
+_WRITE_SCRIPT = _write_script("exp-1")
 
 
 _COUNT_SCRIPT = f"""
@@ -218,14 +223,31 @@ def test_durable_registry_counts_persist():
 
     WI-057 · DISC-076: الاختبارُ كانَ يدّعي قراءةَ العدّادِ لكنّه لم يكن ينادي
     count() — صُلِحَ ليُثبِتَ نجاةَ العدّادِ عبرَ العمليّتَينِ فعلًا.
+
+    WI-058 · DISC-077 (ب): التأكيدُ count == 1 كانَ يحرسُ القيمةَ لا القراءةَ —
+    طفرتا «count() يُعيدُ 1 ثابتًا» و«السكربتُ يطبعُ 1 بلا نداء» نجتا.
+    صُحِّحَ بكتابةِ نموذجَينِ والتحقُّقِ من العدّ في مرحلتَينِ: 1 ثمَّ 2.
+    فالقيمةُ الثابتةُ تفشلُ عندَ المرحلةِ الثانية، والقيمةُ الأولى تفشلُ عندَ الأولى.
     """
     with tempfile.TemporaryDirectory(prefix="amos_durable_count_") as tmp:
         db_path = Path(tmp) / "test.db"
 
-        # المرحلة 1: درّب نموذجًا
-        wrote = _run_script(_WRITE_SCRIPT, db_path)
-        assert wrote.get("model_id"), f"لم يُنشأ نموذج: {wrote}"
+        # المرحلة 1: درّب نموذجًا واحدًا
+        wrote1 = _run_script(_write_script("exp-count-1"), db_path)
+        assert wrote1.get("model_id"), f"لم يُنشأ النموذجُ الأوّل: {wrote1}"
 
-        # المرحلة 2: اقرأ العدّاد في عمليّةٍ مستقلّةٍ
-        counted = _run_script(_COUNT_SCRIPT, db_path)
-        assert counted.get("count") == 1, f"العدّادُ لم يَنجُ من إعادةِ التشغيل: {counted}"
+        # المرحلة 2: اقرأ العدّاد — يجب أن يكون 1
+        counted1 = _run_script(_COUNT_SCRIPT, db_path)
+        assert counted1.get("count") == 1, (
+            f"العدّادُ بعدَ نموذجٍ واحدٍ يجب أن يكون 1: {counted1}"
+        )
+
+        # المرحلة 3: درّب نموذجًا ثانيًا بمعرّفِ خبرةٍ مختلف
+        wrote2 = _run_script(_write_script("exp-count-2"), db_path)
+        assert wrote2.get("model_id"), f"لم يُنشأ النموذجُ الثاني: {wrote2}"
+
+        # المرحلة 4: اقرأ العدّاد — يجب أن يكون 2
+        counted2 = _run_script(_COUNT_SCRIPT, db_path)
+        assert counted2.get("count") == 2, (
+            f"العدّادُ بعدَ نموذجَينِ يجب أن يكون 2: {counted2}"
+        )
