@@ -2,12 +2,13 @@
 """
 اختبارُ الوجهِ الرابعِ: إزاحةُ رأسِ الفرعِ المدفوعِ (W-179 · WI-041 · DISC-049)
 
-الهدف: التحقُّقُ من أنَّ الوجهَ الرابعَ في `commit_timestamp_integrity.py`\n       يكشفُ الإزاحةَ المحلّيّةَ في رأسِ الفرعِ المدفوعِ لا المحلّيِّ وحدَه.\n
+الهدف: التحقُّقُ من أنَّ الوجهَ الرابعَ في `commit_timestamp_integrity.py`
+       يكشفُ الإزاحةَ المحلّيّةَ في رأسِ الفرعِ المدفوعِ لا المحلّيِّ وحدَه.
 النطاق: اختبارُ الوجهِ الجديدِ وحدَه — لا يُمسُّ الحرسانِ القائمانِ (W-110 · W-113).
-nالمالك: tools/governance — المجلس التأسيسي
+المالك: tools/governance — المجلس التأسيسي
 تاريخ الإنشاء: 2026-10-02 (W-179 · WI-041)
-nالمسار: tools/governance/commit_timestamp_integrity.py
-n"""
+المسار: tools/governance/commit_timestamp_integrity.py
+"""
 
 from __future__ import annotations
 
