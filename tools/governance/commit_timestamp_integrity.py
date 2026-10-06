@@ -10,7 +10,7 @@
         تاريخِ المستودعِ (‏`force-push` يمحو قيودًا مدفوعةً · § 10 حدًّا 9).
 المالك: tools/governance — المجلس التأسيسي
 تاريخ الإنشاء: 2026-09-02
-تاريخ آخر تعديل: 2026-09-14
+تاريخ آخر تعديل: 2026-10-06 (W-227 · WI-041 · DISC-071 (د): رسالةُ الوجهِ الرابعِ تُسمّي التصريحَ الغائبَ سببًا، ويقرؤها الفحصُ)
 
 ## الحدُّ المُعلَنُ في الأداةِ نفسِها
 القياسُ لا يصدُقُ إلّا على سجلٍّ كاملٍ. فعلى مرآةٍ ضحلةٍ (`--depth`) تُرى
@@ -394,6 +394,36 @@ def pushed_head_violation(repo: Path | None = None) -> dict[str, str] | None:
 
 
 
+# السببُ الذي تُسمّيه رسالةُ الوجهِ الرابعِ — معيارُ القبولِ 3 في `WI-041`:
+# «الرسالةُ تُسمّي التصريحَ الغائبَ سببًا». وكانت الرسالةُ قبلَ `W-227` تُسمّي
+# الدمجَ من جانبِ الخادمِ وحدَه، والفحصُ المُسمّى لا يقرؤها (‏`DISC-071` (د) · المراجعُ ب).
+PUSHED_HEAD_CAUSE = (
+    "السببُ: غيابُ التصريحِ بإزاحةِ `+00:00` عندَ إنشاءِ الالتزامِ "
+    "(‏`TZ=UTC` أو `GIT_COMMITTER_DATE` بإزاحةِ `+00:00`)، فوُرِثَت إزاحةُ بيئةِ المُنشِئِ"
+)
+
+
+def pushed_head_report(repo: Path | None = None) -> str | None:
+    """رسالةُ خرقِ الوجهِ الرابعِ كما يطبعُها `main()` — أو `None` إن سَلِمَ الرأسُ.
+
+    تُسمّي **التصريحَ الغائبَ** سببًا (‏`PUSHED_HEAD_CAUSE`)، ثمَّ تذكرُ الدمجَ من
+    جانبِ الخادمِ مثالًا لمُنشِئٍ لا يُصرِّحُ (`DISC-049`) لا سببًا بديلًا.
+    وغيابُ المرجعِ البعيدِ يبقى مُعلَنًا على stderr من `pushed_head_violation`.
+    """
+    pushed = pushed_head_violation(repo)
+    if pushed is None:
+        return None
+    return (
+        "[COMMIT STAMP] ✗ رأسُ الفرعِ المدفوعِ بإزاحةٍ محلّيّةٍ: "
+        + " · ".join(f"{ref}={stamp}" for ref, stamp in pushed.items())
+        + " — "
+        + PUSHED_HEAD_CAUSE
+        + " — ومنه الدمجُ من جانبِ الخادمِ إذ لا يُصرِّحُ (`DISC-049`)؛ "
+        "فيُعادُ الالتزامُ بالتصريحِ ويُدمَجُ محليًّا بـ`TZ=UTC` ثمَّ يُدفَعُ "
+        "(`git merge --ff-only` لا `gh pr merge --squash`)، ولا يُرفَعُ الرقمُ المُعلَنُ"
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="قياسُ صدقِ طوابعِ الالتزامِ")
     parser.add_argument("--check", action="store_true", help="يقيسُ ويُقارِنُ بالمُعلَنِ")
@@ -455,16 +485,10 @@ def main() -> int:
             return 1
         print(f"[COMMIT STAMP] ✓ كلُّ جديدٍ بعدَ {declared_baseline_node()[:10]} إزاحتُه عالميّةٌ.")
     # الوجهُ الرابعُ: إزاحةُ رأسِ الفرعِ المدفوعِ (W-179 · WI-041 · DISC-049)
-    pushed = pushed_head_violation(REPO_ROOT)
-    if pushed is not None:
-        print(
-            "[COMMIT STAMP] ✗ رأسُ الفرعِ المدفوعِ بإزاحةٍ محلّيّةٍ: "
-            + " · ".join(f"{ref}={stamp}" for ref, stamp in pushed.items())
-            + " — الدمجُ من جانبِ الخادمِ يُنشئُ طوابعَ غيرَ عالميّةٍ (`DISC-049`)، "
-            "ويُدمَجُ محليًّا بـ`TZ=UTC` ثمَّ يُدفَعُ (`git merge --ff-only` لا `gh pr merge --squash`)، "
-            "ولا يُرفَعُ الرقمُ المُعلَنُ",
-            file=sys.stderr,
-        )
+    # والرسالةُ تُبنى في `pushed_head_report` لا هنا (W-227 · DISC-071 (د))، فيقرؤها الفحصُ.
+    pushed_report = pushed_head_report(REPO_ROOT)
+    if pushed_report is not None:
+        print(pushed_report, file=sys.stderr)
         return 1
     print("[COMMIT STAMP] ✓ رأسُ الفرعِ المدفوعِ بإزاحةٍ عالميّةٍ.")
     print("[COMMIT STAMP] ✓ لا نموَّ في دَينِ الطوابعِ.")
