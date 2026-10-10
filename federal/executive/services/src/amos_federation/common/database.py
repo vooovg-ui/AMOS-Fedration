@@ -24,7 +24,18 @@ from sqlalchemy import (
     create_engine,
     event,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
+
+#: وثيقةُ JSON: `jsonb` على PostgreSQL و`JSON` على غيرِه (‏SQLite في الاختبار).
+#: قرارُ المالكِ في 2026-10-10 (‏`WI-065` · `DISC-088` (ب)): النموذجُ مصدرُ المخطّط،
+#: ويُعلِنُ `jsonb` الذي بنَتْه الهجرةُ 001 — لا يُخفِّضُها إلى `json`.
+JSONB_DOC = JSON().with_variant(JSONB(), "postgresql")
+
+#: لحظةٌ واعيةٌ بالمنطقة (‏`timestamptz`). الكودُ يكتبُ `datetime.now(UTC)`، و`DateTime`
+#: بلا منطقةٍ كانَ يُسقِطُها على PostgreSQL فتصيرُ القيمةُ تابعةً لمنطقةِ الجلسة.
+#: وSQLite لا يحفظُ المنطقةَ أصلًا فلا يتغيّرُ عليه شيء (‏`WI-065`).
+UTC_TIMESTAMP = DateTime(timezone=True)
 
 
 class Base(DeclarativeBase):
@@ -59,13 +70,13 @@ class AgentModel(Base):
     domain = Column(String, nullable=True)
     description = Column(Text, default="")
     status = Column(String, default="registered")
-    permissions = Column(JSON, default=list)
-    allowed_tools = Column(JSON, default=list)
+    permissions = Column(JSONB_DOC, default=list)
+    allowed_tools = Column(JSONB_DOC, default=list)
     token_budget = Column(Integer, default=10000)
     tenant_id = Column(String, default="default")
-    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+    created_at = Column(UTC_TIMESTAMP, default=lambda: datetime.now(UTC))
     updated_at = Column(
-        DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)
+        UTC_TIMESTAMP, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)
     )
 
 
@@ -85,16 +96,16 @@ class ToolModel(Base):
     name = Column(String, nullable=False, unique=True)
     description = Column(Text, default="")
     category = Column(String, default="general")
-    keywords = Column(JSON, default=list)
+    keywords = Column(JSONB_DOC, default=list)
     endpoint = Column(String, default="")
-    permissions_required = Column(JSON, default=list)
+    permissions_required = Column(JSONB_DOC, default=list)
     version = Column(String, default="1.0.0")
     risk_level = Column(String, default="low")
-    input_schema = Column(JSON, default=dict)
-    output_schema = Column(JSON, default=dict)
+    input_schema = Column(JSONB_DOC, default=dict)
+    output_schema = Column(JSONB_DOC, default=dict)
     sandbox_required = Column(Boolean, default=False)
     tenant_id = Column(String, default="default")
-    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+    created_at = Column(UTC_TIMESTAMP, default=lambda: datetime.now(UTC))
 
 
 class TaskModel(Base):
@@ -109,12 +120,12 @@ class TaskModel(Base):
     priority = Column(String, default="normal")
     domain = Column(String, default="general")
     assigned_agent = Column(String, nullable=True)
-    plan = Column(JSON, default=list)
-    result = Column(JSON, default=dict)
+    plan = Column(JSONB_DOC, default=list)
+    result = Column(JSONB_DOC, default=dict)
     tenant_id = Column(String, default="default")
-    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+    created_at = Column(UTC_TIMESTAMP, default=lambda: datetime.now(UTC))
     updated_at = Column(
-        DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)
+        UTC_TIMESTAMP, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)
     )
 
 
@@ -125,9 +136,9 @@ class MemoryModel(Base):
 
     key = Column(String, primary_key=True)
     value = Column(Text, nullable=False)
-    keywords = Column(JSON, default=list)
+    keywords = Column(JSONB_DOC, default=list)
     tenant_id = Column(String, default="default")
-    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+    created_at = Column(UTC_TIMESTAMP, default=lambda: datetime.now(UTC))
 
 
 class ExperienceModel(Base):
@@ -140,11 +151,11 @@ class ExperienceModel(Base):
     task_id = Column(String, nullable=True)
     agent_id = Column(String, nullable=True)
     model_used = Column(String, nullable=True)
-    outcome = Column(JSON, default=dict)
+    outcome = Column(JSONB_DOC, default=dict)
     quality_score = Column(Float, nullable=True)
-    provenance = Column(JSON, default=dict)
+    provenance = Column(JSONB_DOC, default=dict)
     tenant_id = Column(String, default="default")
-    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+    created_at = Column(UTC_TIMESTAMP, default=lambda: datetime.now(UTC))
 
 
 class ReviewModel(Base):
@@ -158,8 +169,8 @@ class ReviewModel(Base):
     quality_score = Column(Float, nullable=False)
     feedback = Column(Text, default="")
     approved = Column(Boolean, default=False)
-    criteria = Column(JSON, default=dict)
-    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+    criteria = Column(JSONB_DOC, default=dict)
+    created_at = Column(UTC_TIMESTAMP, default=lambda: datetime.now(UTC))
 
 
 class AuditEntryModel(Base):
@@ -170,10 +181,10 @@ class AuditEntryModel(Base):
     id = Column(String, primary_key=True)
     action = Column(String, nullable=False)
     actor = Column(String, nullable=False)
-    details = Column(JSON, default=dict)
+    details = Column(JSONB_DOC, default=dict)
     prev_hash = Column(String, nullable=False, default="0" * 64)
     hash = Column(String, nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+    created_at = Column(UTC_TIMESTAMP, default=lambda: datetime.now(UTC))
 
 
 class SystemStateModel(Base):

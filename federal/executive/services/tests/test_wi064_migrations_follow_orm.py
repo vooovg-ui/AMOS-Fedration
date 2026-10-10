@@ -5,7 +5,7 @@ AMOS-Federation — المخطّطُ المُرحَّلُ يتبعُ النمو�
 النطاق: federal/executive/services/tests
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-10-10 (WI-064)
-تاريخ آخر تعديل: 2026-10-10 (WI-064)
+تاريخ آخر تعديل: 2026-10-10 (WI-064 · بعدَ WI-065)
 
 ## القرار
 
@@ -15,8 +15,8 @@ AMOS-Federation — المخطّطُ المُرحَّلُ يتبعُ النمو�
 
 ## ما يبقى مُسمًّى لا مخفيًّا
 
-- `PENDING_TYPE_DOWNGRADE`: 22 عمودًا تخفيضُها `jsonb ⇒ json` أو `timestamptz ⇒ timestamp`
-  ينتظرُ سؤالًا محدَّدًا إلى المالك؛ فليسَ للحرسِ أن يقبلَها بصمتٍ ولا أن يُسقِطَ عليها.
+- `PENDING_TYPE_DOWNGRADE`: كانت 22 عمودًا (‏`jsonb`/`timestamptz`) تنتظرُ المالك؛ وبعدَ قرارِه
+  أعلنَها النموذجُ نفسُه في `WI-065`، فهي **فارغة**.
 - `MIGRATION_ONLY_*`: أعمدةٌ وجداولُ في الهجراتِ لا يعرفُها النموذج. حذفُها هجرةٌ هدّامة
   يمنعُها الموجِّهُ تلقائيًّا، فهي باقيةٌ ومُعدَّدة.
 
@@ -40,41 +40,11 @@ from amos_federation.common.database import Base
 MIGRATIONS_DIR = Path(__file__).resolve().parents[1] / "migrations"
 MIGRATION_018 = MIGRATIONS_DIR / "018_align_migrated_schema_with_orm.sql"
 
-#: (‏نوعُ الهجرة، نوعُ النموذج) — معلَّقٌ لقرارِ المالكِ في التخفيض.
-PENDING_TYPE_DOWNGRADE: dict[str, tuple[str, str]] = {
-    **dict.fromkeys(
-        (
-            "agents.allowed_tools",
-            "agents.permissions",
-            "audit_entries.details",
-            "experiences.outcome",
-            "experiences.provenance",
-            "memories.keywords",
-            "reviews.criteria",
-            "tasks.plan",
-            "tasks.result",
-            "tools.input_schema",
-            "tools.keywords",
-            "tools.output_schema",
-            "tools.permissions_required",
-        ),
-        ("jsonb", "json"),
-    ),
-    **dict.fromkeys(
-        (
-            "agents.created_at",
-            "agents.updated_at",
-            "audit_entries.created_at",
-            "experiences.created_at",
-            "memories.created_at",
-            "reviews.created_at",
-            "tasks.created_at",
-            "tasks.updated_at",
-            "tools.created_at",
-        ),
-        ("timestamp with time zone", "timestamp without time zone"),
-    ),
-}
+#: (‏نوعُ الهجرة، نوعُ النموذج) — كانت 22 عمودًا (‏13 `jsonb`↔`json` · 9 `timestamptz`↔`timestamp`)
+#: معلَّقةً لقرارِ المالك، فحسمَه في 2026-10-10: «غيّر نماذج ORM إلى JSONB وDateTime(timezone=True)».
+#: فأعلنَها النموذجُ في `WI-065` (‏`JSONB_DOC` · `UTC_TIMESTAMP` في `common/database.py`)، وصارت
+#: القائمةُ فارغةً — ومساواةُ المجموعاتِ تُسقِطُ كلَّ افتراقِ نوعٍ يعودُ بعدَها.
+PENDING_TYPE_DOWNGRADE: dict[str, tuple[str, str]] = {}
 
 MIGRATION_ONLY_COLUMNS = frozenset(
     {
