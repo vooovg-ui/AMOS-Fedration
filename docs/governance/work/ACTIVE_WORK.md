@@ -84,6 +84,7 @@
 | WI-061 | federal-executive | T0 (‏اكتمالُ البياناتِ الوصفيّةِ للمخطّطِ عندَ كلِّ مُستورِد · تصحيحُ `DISC-087`: `national_registry.models` يُعلِنُ مفاتيحَ أجنبيّةً إلى جداولِ `state_treasury` و`state_registry` ولا يُسجِّلُها) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_PROGRESS | federal/executive/services/src/amos_federation/services/national_registry/__init__.py · federal/executive/services/src/amos_federation/services/national_registry/models.py | 2026-10-10 | 2026-10-20 | **`RESERVED → IN_PROGRESS` في `W-264` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — ونُفِّذَ التصحيحُ في الالتزامِ نفسِه داخلَ المسارَين: `models.py` يستوردُ `state_registry.models` (‏لا دورة) و`__init__.py` يستوردُ `state_treasury.models` بعدَ `resolver`/`service` (‏`# isort: split` يحرسُ الترتيب). **المقيس (معيارُ 1–4):** (1) `test_r7_government_services.py` منفردًا 32 error ⇒ 32 passed · (2) 141 وحدةً كلٌّ منفردةً ثمَّ `init_db()` ⇒ 0 فشل (‏وكانت 2 على `3230b5c`) · (3) مجموعةُ الخدماتِ ملفًّا ملفًّا (81) ⇒ 1418 passed · 27 skipped (‏PostgreSQL غيرُ متاح) · 1 failed في `test_r7c_national_registry.py` لم يتكرّرْ في 4 إعاداتٍ (35/35) — سببُه المرجَّحُ حذفي ملفّاتِ التشغيلِ أثناءَ التشغيل، **ولم يُثبَت** · (4) استيرادٌ لا تعديلُ نموذجٍ ولا عمود · ruff check/format ⇒ نظيف · `truth_audit --ratchet` ⇒ ثابتٌ عندَ 62 · **`READY → RESERVED` في `W-263` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — حجزُ المسارَين — لا بندَ نشِطَ يُعلِنُهما (‏أُعيدَ القياسُ على `W-262`)؛ ولا تعديلَ للشِّفرةِ قبلَ `IN_PROGRESS` · **`PROPOSED → READY` في `W-262` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — نطاقٌ مُراجَعٌ (‏مساران في `national_registry` وحدَهما) ومالكٌ مُعيَّنٌ ولا تبعيّةَ مفتوحة · **سُجِّلَ `PROPOSED` في `W-261` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏الموجِّهُ التنفيذيُّ للمالك · `paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) و«لا تنفذ push أو merge.» (‏`:2537`) · `DISC-087` وُجِّهَ إلى هذا البند · لا عائقَ فنيًّا: لا بندَ نشِطَ يُعلِنُ المسارَين · **ولا تصحيحَ قبلَ `RESERVED → IN_PROGRESS`** · فرعٌ محلّيٌّ `qwen/complete-amos-federation` لا يُدفَع | `IN_PROGRESS → IN_REVIEW` بعدَ قراءةِ CI على عقدةٍ مدفوعة (‏معيارُ 5 — الدفعُ خارجَ الإذن: يقرّرُه المالك) | — (يُكتَبُ عندَ الإغلاق) |
 | WI-062 | data-migrations | T4 (‏الطبقةُ الحقيقيّة · تصحيحُ `DISC-088` (أ): `system_state` و`promotions` و`training_models` في `Base.metadata` ولا هجرةَ تُنشئُها) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_PROGRESS | federal/executive/services/migrations/017_orm_tables_without_migration.sql · federal/executive/services/migrations/README.md · federal/executive/services/tests/test_wi062_migrations_cover_orm_tables.py | 2026-10-10 | 2026-10-20 | **`RESERVED → IN_PROGRESS` في `W-268` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — ونُفِّذَت في الالتزامِ نفسِه: `017_orm_tables_without_migration.sql` (‏DDL الذي يُصدِرُه SQLAlchemy لـPostgreSQL حرفًا · `IF NOT EXISTS` · لا DROP/ALTER/كتابة) وبطاقتُه في `README.md` وحرسُ `test_wi062_migrations_cover_orm_tables.py`. **المقيس (معيارُ 1–4):** (1) الحرسُ الساكنُ على 017 أخضر · (2) الحرسُ الساكنُ بلا 017 أحمرُ بالثلاثةِ أسماءً، وبها أخضر · (3) PostgreSQL 18.6 محلّيٌّ بـSSL: 001–017 في مخطّطٍ مؤقّتٍ و`create_all` في آخرَ ⇒ أعمدةُ الثلاثةِ متطابقة، و017 مرّةً ثانيةً بلا خطأ (3 passed) · (4) الخدماتُ ملفًّا ملفًّا (82) ⇒ 1421 passed · 28 skipped · 0 failed؛ والجذرُ ⇒ 2521 passed · 1 skipped وفشلانِ كلاهما من هذا العملِ قبلَ تدوينِه (‏طزاجةُ `TRUTH_MATRIX` · رقمُ الحزمةِ في `PROJECT_HANDBOOK.md`) فأُعيدَ التوليدُ والقياسُ في هذا الالتزام. وكُشِفَ أثناءَه: `pkgutil.walk_packages` يتخطّى الحزمَ بلا `__init__.py` (‏`services/training/`) فالحرسُ يمشي على الملفّات · **`READY → RESERVED` في `W-267` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — حجزُ المساراتِ الثلاثة — لا بندَ نشِطَ يُعلِنُها (‏أُعيدَ القياسُ على `W-266`)؛ ولا هجرةَ قبلَ `IN_PROGRESS` · **`PROPOSED → READY` في `W-266` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — نطاقٌ مُراجَعٌ (‏017 وبطاقتُها وحرسٌ واحد) ومالكٌ مُعيَّنٌ وتبعيّتُه (`WI-061`) منفَّذةٌ محلّيًّا · **سُجِّلَ `PROPOSED` في `W-265` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏الموجِّهُ التنفيذيُّ للمالك · `paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) و«لا تنفذ push أو merge.» (‏`:2537`) · `DISC-088` (أ) وُجِّهَ إلى هذا البند و(ب) باقٍ لقرارِ المالك · لا عائقَ فنيًّا: لا بندَ نشِطَ يُعلِنُ المسارات · **ولا هجرةَ قبلَ `RESERVED → IN_PROGRESS`** · فرعٌ محلّيٌّ لا يُدفَع | `IN_PROGRESS → IN_REVIEW` بعدَ قراءةِ CI على عقدةٍ مدفوعة (‏معيارُ 5 — الدفعُ خارجَ الإذن) | — (يُكتَبُ عندَ الإغلاق) |
 | WI-063 | federal-executive | T3 (‏عزلُ المستأجرينَ عندَ نقاطِ HTTP في المخازنِ الدائمة · تصحيحُ `DISC-089`: رمزُ مستأجرٍ يقرأُ وكلاءَ وخبراتِ وذاكرةَ آخرَ ويكتبُ فوقَها) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_PROGRESS | federal/executive/services/src/amos_federation/common/principal.py · federal/executive/services/src/amos_federation/common/persistent.py · federal/executive/services/src/amos_federation/services/api_gateway/main.py · federal/executive/services/src/amos_federation/services/tool_registry/main.py · federal/executive/services/src/amos_federation/services/evaluation/main.py · federal/executive/services/src/amos_federation/services/memory_service/main.py · federal/executive/services/tests/test_wi063_tenant_isolation_http.py | 2026-10-10 | 2026-10-20 | **`RESERVED → IN_PROGRESS` في `W-273` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — الإصلاح: `tenant_scope` في `common/principal.py` (‏قاعدةُ `tenant_matches` بصيغةِ شرط) · `PersistentAgentStore` و`PersistentExperienceStore` و`PersistentMemoryStore` تُرشِّحُ القراءةَ بالنطاقِ وترفضُ الكتابةَ فوقَ مورِدِ مستأجرٍ آخر · `api_gateway` و`tool_registry` و`evaluation` و`memory_service` تأخذُ النطاقَ من `require_context` (‏404 للقراءة · 409 للكتابة بلا ذِكرِ المالك) · `control_console` فدراليٌّ بقرارِ المالك · **`READY → RESERVED` في `W-272` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — حجزُ مساراتِ المخازنِ الدائمةِ والخدماتِ الأربعِ والاختبار · **`PROPOSED → READY` في `W-271` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — قرارُ المالكِ (C3) مُسجَّلٌ في W-270؛ لا تداخلَ مساراتٍ مع بندٍ نشِط · **سُجِّلَ `PROPOSED` في `W-270` بقرارِ المالكِ (C3)** «طبّق الإصلاح المقترح على جميع النقاط، مع استثناء control_console ليبقى فدراليًا» (‏قرارُ المالكِ في المحادثة · 2026-10-10 · C3 بموجبِ THE_ROADMAP § 8.2) و«أنشئ commits منطقية.» (‏`paste.txt:2535`) و«لا تنفذ push أو merge.» (‏`:2537`) · `control_console` مستثنًى فدراليًّا بالقرارِ نفسِه · لا بندَ نشِطَ يُعلِنُ المسارات · **ولا شِفرةَ في قيدٍ قبلَ `RESERVED → IN_PROGRESS`** · فرعٌ محلّيٌّ لا يُدفَع | `IN_PROGRESS → IN_REVIEW` (يلزمُه دفعٌ وحكمُ CI — خارجَ الإذن) | — (يُكتَبُ عندَ الإغلاق) |
+| WI-064 | data-migrations | T4 (‏الطبقةُ الحقيقيّة · تنفيذُ قرارِ المالكِ في `DISC-088` (ب): النموذجُ مصدرُ المخطّط — الشقُّ الذي لا يُفقِدُ قيمة) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | PROPOSED | federal/executive/services/migrations/018_align_migrated_schema_with_orm.sql · federal/executive/services/tests/test_wi064_migrations_follow_orm.py | 2026-10-10 | 2026-10-20 | **سُجِّلَ `PROPOSED` في `W-274` بقرارِ المالك** «ORM» (‏قرارُ المالكِ في المحادثة · 2026-10-10 · جوابًا عن DISC-088 (ب): أيُّهما مصدرُ المخطّط) و«أنشئ migrations جديدة للإصلاحات.» (‏`paste.txt:511`) و«لا تنفذ destructive migrations تلقائيًا.» و«أنشئ commits منطقية.» (‏`:2535`) · لا بندَ نشِطَ يُعلِنُ المسارَين (‏`migrations/README.md` لـ`WI-062` فلم يُمَسّ) · **ولا هجرةَ في قيدٍ قبلَ `RESERVED → IN_PROGRESS`** · فرعٌ يُدفَعُ بإذنِ المالك ولا يُدمَج | `PROPOSED → READY` | — (يُكتَبُ عندَ الإغلاق) |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
 
@@ -3945,4 +3946,59 @@ PROGRESS (‏W-273): `RESERVED → IN_PROGRESS` — الإصلاح: `tenant_scop
 الخطوةُ التالية (قبلَ W-273 — أُدِّيَت): `RESERVED → IN_PROGRESS`
 الخطوةُ التالية: `IN_PROGRESS → IN_REVIEW` (يلزمُه دفعٌ وحكمُ CI — خارجَ الإذن)
 قيدُ السجلّ: W-270 قيدُ تسجيلٍ (PROPOSED) · لا شِفرة · W-271 `PROPOSED → READY` · W-272 `READY → RESERVED` · W-273 `RESERVED → IN_PROGRESS`
+```
+
+### WI-064 — تنفيذُ قرارِ المالكِ في `DISC-088` (ب): الهجراتُ تتبعُ النموذج — `PROPOSED` (‏سُجِّلَ في `W-274`)
+
+```text
+النطاق: data-migrations (‏هجرةٌ 018 توسيعيّةٌ وحرسٌ حيٌّ في tests/) · فئةُ التغيير: C2
+المسار/المرحلة: T4 (‏الطبقةُ الحقيقيّة — المخطّطُ المُرحَّلُ هو المخطّطُ الذي يُعلِنُه النموذج)
+المالك: Perplexity Computer            المراجع: مجلس المراجعة (GPT 5.6 + Grok 4.6)
+الحالة: PROPOSED   (‏سُجِّلَ في `W-274` (2026-10-10) بقرارِ المالكِ الصريحِ في المحادثة)
+المسارات: federal/executive/services/migrations/018_align_migrated_schema_with_orm.sql · federal/executive/services/tests/test_wi064_migrations_follow_orm.py
+
+سندُ التفويض:
+  «ORM» (‏قرارُ المالكِ في المحادثة · 2026-10-10 · جوابًا عن DISC-088 (ب): أيُّهما مصدرُ المخطّط) و«أنشئ migrations جديدة للإصلاحات.» (‏`paste.txt:511`) و«لا تنفذ destructive migrations تلقائيًا.» و«أنشئ commits منطقية.» (‏`:2535`)
+  — يُقرَأُ لكلِّ انتقالٍ حتى IN_PROGRESS وحدَه؛ ولا يُقرَأُ إذنًا بـIN_REVIEW ولا VERIFIED ولا CLOSED (‏§ 4.3)،
+  ولا بتطبيقِ 018 على قاعدةٍ قائمة، ولا بأيِّ تخفيضِ نوعٍ أو حذف.
+
+أسئلةُ § 5.1 الستّة:
+  (1) المشكلةُ: قِيسَ على PostgreSQL 18.6 (‏2026-10-10، على 8ad45e6): 63 عمودًا مشتركًا يفترقُ بينَ 001–017 و
+      Base.metadata — 41 في الطولِ أو الدقّةِ أو قبولِ الفراغ، و22 في النوع (‏13 jsonb↔json · 9 timestamptz↔timestamp)؛
+      و11 عمودًا و6 جداولَ في الهجراتِ وحدَها.
+  (2) القدرةُ بعدَه: الـ41 تُطابقُ النموذج، والباقي مُسمًّى في حرسٍ يُسقِطُ كلَّ افتراقٍ جديد.
+  (3) يعتمدُ على: WI-062 (‏017 — كلُّ جدولٍ نموذجيٍّ تُنشئُه هجرة).
+  (4) المستهلكُ: كلُّ نشرٍ يُرحِّلُ بالـSQL.
+  (5) مكوِّنٌ يؤدّيها؟ لا: init_db() لا يُعدِّلُ عمودًا قائمًا.
+  (6) حاليّةٌ — قِيسَت على 8ad45e6.
+
+فحصُ التداخلِ (§ 6.2):
+  WI-062 (IN_PROGRESS) يُعلِنُ 017 وmigrations/README.md وملفَّ حرسِه — لا يُمَسُّ منها شيء؛ فقائمةُ README
+  لا تذكرُ 018 حتى يُغلَقَ WI-062 (‏لا بوابةَ تُلزِمُ بها — check_repository_identity وgenerate_identity_cards --check نجحا).
+
+خارجَ النطاق:
+  - تخفيضُ jsonb ⇒ json (‏13) وtimestamptz ⇒ timestamp (‏9): الثاني يجعلُ قيمةَ الوقتِ تابعةً لمنطقةِ الجلسة والكودُ
+    يكتبُ datetime.now(UTC) — سؤالٌ محدَّدٌ مرفوعٌ إلى المالك (‏§ 38: لا يُخترَعُ قرار).
+  - حذفُ الأعمدةِ الـ11 والجداولِ الـ6 التي لا يعرفُها النموذج: هجرةٌ هدّامة يمنعُها الموجِّهُ تلقائيًّا.
+  - القيمُ الافتراضيّةُ في الخادم: تبقى.
+  - تطبيقُ 018 على قاعدةِ إنتاج: لا قاعدةَ ولا إذن.
+
+معيارُ القبول:
+  1. 018 توسيعٌ محض: ALTER COLUMN … TYPE character varying | TYPE double precision | DROP NOT NULL — ولا غير.
+  2. حرسٌ حيٌّ على PostgreSQL: 001–018 (‏و018 مرّةً ثانية) مقابلَ create_all ⇒ لا افتراقَ في الطولِ والدقّةِ وقبولِ
+     الفراغ، وافتراقُ النوعِ = القائمةُ المُسمّاةُ بالضبط، والأعمدةُ والجداولُ الزائدةُ = قائمتُها بالضبط.
+  3. الحرسُ أحمرُ بلا 018 وأخضرُ بها.
+  4. مجموعةُ الخدماتِ ملفًّا ملفًّا ⇒ لا فشلَ جديد.
+  5. حكمُ CI على العقدة.
+
+الدليلُ المطلوب:
+  مخرجُ pytest للحرسِ على PostgreSQL بـ018 وبدونِها · قائمةُ نتائجِ المجموعة.
+
+خطُّ الأساس (‏قِيسَ على 8ad45e6 · PostgreSQL 18.6 محلّيٌّ بـSSL):
+  63 عمودًا مشتركًا يفترق · 11 عمودًا و6 جداولَ في الهجراتِ وحدَها · 0 في النموذجِ وحدَه.
+
+بدأ: 2026-10-10        ينتهي الحجز: 2026-10-20
+العائق: — لا عائقَ فنيًّا
+الخطوةُ التالية: PROPOSED → READY
+قيدُ السجلّ: W-274 قيدُ تسجيلٍ (PROPOSED) · لا هجرة
 ```
