@@ -12,7 +12,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from amos_federation.common.auth_context import require_context
 from amos_federation.common.persistent import PersistentMemoryStore
-from amos_federation.common.principal import DEFAULT_TENANT, AuthorizationContext
+from amos_federation.common.principal import (
+    DEFAULT_TENANT,
+    AuthorizationContext,
+    TenantIsolationError,
+    tenant_scope,
+)
 from amos_federation.common.registry import SERVICES
 from amos_federation.common.schemas import MemoryQuery
 from amos_federation.common.schemas import MemoryStore as MemoryStoreModel
@@ -44,7 +49,15 @@ async def store_memory(entry: MemoryStoreModel, context: Context) -> dict[str, A
     عاملًا قبل هذا التغيير، وكان اختبار `test_tenant_isolation` يمرّ خاويًا:
     يبحث في `default` بينما لا شيء في `tenant_a` أصلًا. صار المُعامل مُسمّى.
     """
-    return memory_store.store(entry.key, entry.value, tenant_id=context.tenant_id or DEFAULT_TENANT)
+    try:
+        return memory_store.store(
+            entry.key, entry.value, tenant_id=context.tenant_id or DEFAULT_TENANT
+        )
+    except TenantIsolationError as exc:
+        # مفتاحٌ يملكُه مستأجرٌ آخر: لا كتابةَ فوقَه ولا ذِكرَ لمالكِه (‏`WI-063`).
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="مفتاحُ الذاكرةِ محجوز"
+        ) from exc
 
 
 @router.post("/memory/query", response_model=list[dict])
@@ -72,13 +85,14 @@ async def search_memory(query: MemoryQuery, context: Context) -> list[dict[str, 
 
 @router.get("/memory/{key}", response_model=dict)
 async def get_memory(key: str, context: Context) -> dict[str, Any]:
-    """إرجاع عنصر ذاكرة بالمفتاح.
+    """إرجاع عنصر ذاكرة بالمفتاح في نطاق مستأجر السياق.
 
-    حدٌّ يُقال: `PersistentMemoryStore.get` تقرأ بالمفتاح وحده هنا، ونظير المخزن
-    في الذاكرة يرتدّ إلى بحث عامّ عبر المستأجرين عند فشل الفهرس. فعزل المستأجرين
-    **غير مفروض في طبقة المخزن** — دَينٌ مُعلَن في وثيقة R6، ولا يُزعم سدّه.
+    كانت `PersistentMemoryStore.get` تقرأ بالمفتاح وحده — دَينٌ مُعلَنٌ في وثيقة R6،
+    وقِيسَ حيًّا على PostgreSQL في `DISC-089`: رمزُ مستأجرٍ قرأَ ذاكرةَ آخر. سُدَّ في
+    `WI-063` بترشيحِ الاستعلامِ نفسِه، فذاكرةُ مستأجرٍ آخرَ 404 لا 403. ونظيرُ المخزنِ
+    في الذاكرة (مخزنُ المتّجهاتِ العابر) لا تستعملُه هذه الخدمةُ ولم يُمَسّ.
     """
-    item = memory_store.get(key)
+    item = memory_store.get(key, tenant_id=tenant_scope(context))
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="العنصر غير موجود")
     return item
@@ -87,8 +101,7 @@ async def get_memory(key: str, context: Context) -> dict[str, Any]:
 @router.get("/memory/stats/summary", response_model=dict)
 async def memory_stats(context: Context) -> dict[str, Any]:
     """إحصائيات الذاكرة."""
-    _ = context.principal_id  # الاعتماد مطلوب للمصادقة، والإحصاء غير مُقسَّم بمستأجر
-    stats = memory_store.stats()
+    stats = memory_store.stats(tenant_id=tenant_scope(context))
     return {
         "total_items": stats.get("total_entries", 0),
         "store_type": "persistent_sqlalchemy",

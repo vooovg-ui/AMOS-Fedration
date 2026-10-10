@@ -26,6 +26,7 @@ from amos_federation.common.database import (
     get_session_factory,
     init_db,
 )
+from amos_federation.common.principal import TenantIsolationError
 from amos_federation.common.schemas import AgentManifestModel, ToolManifestModel
 
 # تهيئة قاعدة البيانات عند الاستيراد
@@ -93,8 +94,14 @@ class PersistentAgentStore:
     يُرقِّي ولا يُغيرُ حالةَ وكيلٍ قائمٍ أنشأته دورةُ الحياة.
     """
 
-    def register(self, manifest: AgentManifestModel) -> AgentManifestModel:
+    def register(
+        self, manifest: AgentManifestModel, *, tenant_id: str | None = None
+    ) -> AgentManifestModel:
         """اكتُبِ البيانَ في الجدولِ — ولا تُمسْسْ حالةَ وكيلٍ موجودٍ أو دورَه.
+
+        `tenant_id` (‏`WI-063`): مستأجرُ الصفِّ الجديد (‏`None` ⇒ `default` كما كان)،
+        وحدٌّ على الصفِّ القائم: بيانٌ لمستأجرٍ لا يُحدِّثُ وكيلَ مستأجرٍ آخر بل يُرفَضُ
+        بـ`TenantIsolationError` — وكانَ قبلَه يكتبُ فوقَه بلا سؤال (‏`DISC-089`).
 
         إعادةُ التسجيلِ تُحدِّثُ حقولَ البيانِ وحدَها. ولو أُرِيدَ تخفيضُ وكيلٍ
         مُوظَّفٍ إلى `declared` بنداءِ تسجيلٍ لصارتِ الواجهةُ العامّةُ بابًا لـ**عزلِ**
@@ -116,9 +123,14 @@ class PersistentAgentStore:
                         status=GATEWAY_DECLARED_AGENT_STATUS,
                         permissions=list(manifest.permissions),
                         allowed_tools=[],
+                        tenant_id=tenant_id or "default",
                     )
                 )
             else:
+                if tenant_id is not None and row.tenant_id != tenant_id:
+                    raise TenantIsolationError(
+                        f"عزل المستأجر: الوكيل '{manifest.agent_id}' ليس في مستأجر '{tenant_id}'"
+                    )
                 row.name = manifest.name
                 row.agent_type = manifest.agent_type
                 row.domain = manifest.domain
@@ -129,20 +141,28 @@ class PersistentAgentStore:
         finally:
             session.close()
 
-    def get(self, agent_id: str) -> AgentManifestModel | None:
+    def get(self, agent_id: str, *, tenant_id: str | None = None) -> AgentManifestModel | None:
+        """`tenant_id` غيرُ `None` ⇒ وكيلُ مستأجرٍ آخرَ «غيرُ موجود» لا يُكشَفُ (‏`WI-063`)."""
         session_local = get_session_factory()
         session = session_local()
         try:
-            row = session.query(AgentModel).filter(AgentModel.id == agent_id).first()
+            q = session.query(AgentModel).filter(AgentModel.id == agent_id)
+            if tenant_id is not None:
+                q = q.filter(AgentModel.tenant_id == tenant_id)
+            row = q.first()
             return _agent_from_row(row) if row is not None else None
         finally:
             session.close()
 
-    def list_all(self) -> list[AgentManifestModel]:
+    def list_all(self, *, tenant_id: str | None = None) -> list[AgentManifestModel]:
+        """`tenant_id=None` للمُستدعي الداخليِّ والفدراليِّ وحدَهما؛ النقاطُ تمرِّرُ النطاق."""
         session_local = get_session_factory()
         session = session_local()
         try:
-            rows = session.query(AgentModel).order_by(AgentModel.created_at.asc()).all()
+            q = session.query(AgentModel)
+            if tenant_id is not None:
+                q = q.filter(AgentModel.tenant_id == tenant_id)
+            rows = q.order_by(AgentModel.created_at.asc()).all()
             return [_agent_from_row(row) for row in rows]
         finally:
             session.close()
@@ -369,6 +389,12 @@ class PersistentMemoryStore:
         try:
             if tenant_id is None:
                 tenant_id = "default"
+            # `merge` بالمفتاحِ كانَ يكتبُ فوقَ ذاكرةِ مستأجرٍ آخرَ وينقلُ ملكيّتَها (‏`DISC-089`).
+            existing = session.get(MemoryModel, key)
+            if existing is not None and (existing.tenant_id or "default") != tenant_id:
+                raise TenantIsolationError(
+                    f"عزل المستأجر: مفتاح الذاكرة '{key}' ليس في مستأجر '{tenant_id}'"
+                )
             # تسلسل dict إلى JSON string
             if isinstance(value, dict):
                 value = json.dumps(value, ensure_ascii=False)
@@ -384,11 +410,15 @@ class PersistentMemoryStore:
         finally:
             session.close()
 
-    def get(self, key: str) -> dict[str, Any] | None:
+    def get(self, key: str, *, tenant_id: str | None = None) -> dict[str, Any] | None:
+        """`tenant_id` غيرُ `None` ⇒ ذاكرةُ مستأجرٍ آخرَ «غيرُ موجودة» (‏`WI-063`)."""
         session_local = get_session_factory()
         session = session_local()
         try:
-            row = session.query(MemoryModel).filter(MemoryModel.key == key).first()
+            q = session.query(MemoryModel).filter(MemoryModel.key == key)
+            if tenant_id is not None:
+                q = q.filter(MemoryModel.tenant_id == tenant_id)
+            row = q.first()
             if row is None:
                 return None
             return {"key": row.key, "value": row.value, "keywords": row.keywords or []}
@@ -443,11 +473,14 @@ class PersistentMemoryStore:
         finally:
             session.close()
 
-    def stats(self) -> dict[str, Any]:
+    def stats(self, *, tenant_id: str | None = None) -> dict[str, Any]:
         session_local = get_session_factory()
         session = session_local()
         try:
-            count = session.query(MemoryModel).count()
+            q = session.query(MemoryModel)
+            if tenant_id is not None:
+                q = q.filter(MemoryModel.tenant_id == tenant_id)
+            count = q.count()
             return {"total_entries": count}
         finally:
             session.close()
@@ -456,11 +489,18 @@ class PersistentMemoryStore:
 class PersistentExperienceStore:
     """تخزين الخبرات الدائم."""
 
-    def record(self, data: dict[str, Any]) -> dict[str, Any]:
+    def record(self, data: dict[str, Any], *, tenant_id: str | None = None) -> dict[str, Any]:
+        """`tenant_id` (‏`WI-063`): كانَ الصفُّ يُكتَبُ `default` حرفًا أيًّا كانَ الكاتب."""
         exp_id = data.get("experience_id") or f"exp-{uuid.uuid4()}"
+        owner = tenant_id or "default"
         session_local = get_session_factory()
         session = session_local()
         try:
+            existing = session.get(ExperienceModel, exp_id)
+            if existing is not None and (existing.tenant_id or "default") != owner:
+                raise TenantIsolationError(
+                    f"عزل المستأجر: الخبرة '{exp_id}' ليست في مستأجر '{owner}'"
+                )
             provenance = data.get("provenance", {})
             if not provenance:
                 provenance = {"source": "api", "recorded_at": datetime.now(UTC).isoformat()}
@@ -475,7 +515,7 @@ class PersistentExperienceStore:
                 outcome=data.get("outcome", {}),
                 quality_score=data.get("quality_score"),
                 provenance=provenance,
-                tenant_id="default",
+                tenant_id=owner,
             )
             session.merge(exp)
             session.commit()
@@ -483,11 +523,15 @@ class PersistentExperienceStore:
         finally:
             session.close()
 
-    def get(self, exp_id: str) -> dict[str, Any] | None:
+    def get(self, exp_id: str, *, tenant_id: str | None = None) -> dict[str, Any] | None:
+        """`tenant_id` غيرُ `None` ⇒ خبرةُ مستأجرٍ آخرَ «غيرُ موجودة» (‏`WI-063`)."""
         session_local = get_session_factory()
         session = session_local()
         try:
-            row = session.query(ExperienceModel).filter(ExperienceModel.id == exp_id).first()
+            q = session.query(ExperienceModel).filter(ExperienceModel.id == exp_id)
+            if tenant_id is not None:
+                q = q.filter(ExperienceModel.tenant_id == tenant_id)
+            row = q.first()
             if row is None:
                 return None
             return {
@@ -510,11 +554,15 @@ class PersistentExperienceStore:
         agent_id: str | None = None,
         min_score: float | None = None,
         limit: int = 50,
+        *,
+        tenant_id: str | None = None,
     ) -> list[dict[str, Any]]:
         session_local = get_session_factory()
         session = session_local()
         try:
             q = session.query(ExperienceModel)
+            if tenant_id is not None:
+                q = q.filter(ExperienceModel.tenant_id == tenant_id)
             if exp_type:
                 q = q.filter(ExperienceModel.type == exp_type)
             if agent_id:
@@ -536,19 +584,25 @@ class PersistentExperienceStore:
         finally:
             session.close()
 
-    def count(self) -> int:
+    def count(self, *, tenant_id: str | None = None) -> int:
         session_local = get_session_factory()
         session = session_local()
         try:
-            return session.query(ExperienceModel).count()
+            q = session.query(ExperienceModel)
+            if tenant_id is not None:
+                q = q.filter(ExperienceModel.tenant_id == tenant_id)
+            return q.count()
         finally:
             session.close()
 
-    def by_type(self) -> dict[str, int]:
+    def by_type(self, *, tenant_id: str | None = None) -> dict[str, int]:
         session_local = get_session_factory()
         session = session_local()
         try:
-            rows = session.query(ExperienceModel).all()
+            q = session.query(ExperienceModel)
+            if tenant_id is not None:
+                q = q.filter(ExperienceModel.tenant_id == tenant_id)
+            rows = q.all()
             counts: dict[str, int] = {}
             for r in rows:
                 counts[r.type] = counts.get(r.type, 0) + 1

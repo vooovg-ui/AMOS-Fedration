@@ -516,3 +516,20 @@ def assert_tenant(context: AuthorizationContext, resource_tenant: str | None) ->
             f"عزل المستأجر: سياق '{context.tenant_id or DEFAULT_TENANT}' "
             f"لا يملك مورد '{resource_tenant or DEFAULT_TENANT}'"
         )
+
+
+def tenant_scope(context: AuthorizationContext) -> str | None:
+    """نطاقُ قراءةِ السياقِ في مخزنٍ مُقسَّمٍ بالمستأجر — `tenant_matches` بصيغةِ شرطٍ.
+
+    يُرجِعُ اسمَ المستأجرِ الذي يُرشَّحُ به الاستعلام، أو `None` لـ`FEDERAL_TENANT`
+    وحدَه (‏يعبرُ الحدودَ بنصِّ القاعدةِ أعلاه). والسياقُ بلا مستأجرٍ نطاقُه `default`
+    لا «الكلّ». فلا قاعدةَ جديدةَ هنا: هي القاعدةُ نفسُها، مكتوبةً لمن يبني `WHERE`
+    بدلَ أن يُحمِّلَ الصفَّ ثمَّ يسأل (‏`WI-063` · `DISC-089`).
+
+    Raises:
+        TenantIsolationError: سياقٌ غيرُ موثوق — لا نطاقَ له أصلًا.
+    """
+    if not context.is_trusted:
+        raise TenantIsolationError("عزل المستأجر: سياقٌ غيرُ موثوقٍ لا نطاقَ له")
+    holder = context.tenant_id or DEFAULT_TENANT
+    return None if holder == FEDERAL_TENANT else holder

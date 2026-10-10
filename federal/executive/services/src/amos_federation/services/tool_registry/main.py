@@ -23,13 +23,23 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from amos_federation.common.auth import require_auth
+from amos_federation.common.auth_context import require_context
 from amos_federation.common.persistent import PersistentAgentStore, PersistentToolStore
+from amos_federation.common.principal import (
+    AuthorizationContext,
+    TenantIsolationError,
+    tenant_scope,
+)
 from amos_federation.common.registry import SERVICES
 from amos_federation.common.schemas import AgentManifestModel, ToolManifestModel
 from amos_federation.common.service import create_service_app
 from amos_federation.services.tool_registry.store import ToolStore
 
 router = APIRouter(prefix="/v1", tags=["tool-registry"])
+
+#: سياقُ التخويلِ الموثوقُ لا حمولةُ الرمزِ الخام: منه وحدَه يُؤخَذُ نطاقُ المستأجرِ
+#: (‏`tenant_scope` — قاعدةُ `tenant_matches` بصيغةِ شرط · `WI-063` · `DISC-089`).
+Context = Annotated[AuthorizationContext, Depends(require_context)]
 
 #: تصريحٌ مقروءٌ لمن يقرأُ الملفَّ وحدَه: مخزنا هذه الخدمةِ دائمانِ في
 #: قاعدةِ البياناتِ، وهي الخدمةُ المالكةُ للسجلَّينِ بنصِّ Q-39 (ب).
@@ -72,20 +82,18 @@ async def register_tool(
 
 
 @router.get("/agents", response_model=list[AgentManifestModel])
-async def list_agents(
-    _: Annotated[dict[str, object], Depends(require_auth)],
-) -> list[AgentManifestModel]:
-    """عرضُ بياناتِ الوكلاءِ المُسجَّلينَ من جدولِ `agents` — لا من ذاكرةِ عمليّة."""
-    return agent_store.list_all()
+async def list_agents(context: Context) -> list[AgentManifestModel]:
+    """عرضُ وكلاءِ مستأجرِ السياقِ من جدولِ `agents` — لا من ذاكرةِ عمليّة."""
+    return agent_store.list_all(tenant_id=tenant_scope(context))
 
 
 @router.get("/agents/{agent_id}", response_model=AgentManifestModel)
 async def get_agent(
     agent_id: str,
-    _: Annotated[dict[str, object], Depends(require_auth)],
+    context: Context,
 ) -> AgentManifestModel:
-    """إرجاعُ بيانِ وكيلٍ بالمعرّفِ أو 404."""
-    agent = agent_store.get(agent_id)
+    """إرجاعُ بيانِ وكيلٍ بالمعرّفِ أو 404 — ووكيلُ مستأجرٍ آخرَ 404 كذلك لا 403."""
+    agent = agent_store.get(agent_id, tenant_id=tenant_scope(context))
     if agent is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="الوكيل غير موجود")
     return agent
@@ -94,10 +102,18 @@ async def get_agent(
 @router.post("/agents", response_model=AgentManifestModel, status_code=status.HTTP_201_CREATED)
 async def register_agent(
     manifest: AgentManifestModel,
-    _: Annotated[dict[str, object], Depends(require_auth)],
+    context: Context,
 ) -> AgentManifestModel:
-    """تسجيلُ بيانِ وكيلٍ في الجدولِ — بحالةٍ لا تُوزَّعُ (`declared`)."""
-    return agent_store.register(manifest)
+    """تسجيلُ بيانِ وكيلٍ في مستأجرِ السياق — بحالةٍ لا تُوزَّعُ (`declared`).
+
+    وكيلٌ قائمٌ في مستأجرٍ آخرَ ⇒ `409` بلا ذِكرِ مستأجرِه.
+    """
+    try:
+        return agent_store.register(manifest, tenant_id=tenant_scope(context))
+    except TenantIsolationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="معرّفُ الوكيلِ محجوزٌ"
+        ) from exc
 
 
 @router.post("/tools/resolve", response_model=list[ToolManifestModel])
