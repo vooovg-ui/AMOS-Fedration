@@ -648,6 +648,7 @@ def test_12b_no_service_bypasses_governance_entry_point() -> None:
         "tool_registry/providers/network.py",  # فحص القدرة
         "tool_registry/providers/contract.py",  # تعريف الواجهة المُجرَّدة
         "tool_registry/providers/simulation_provider.py",  # لا تنفيذ حقيقي فيه
+        "tool_registry/providers/isolated_provider.py",  # مزوِّدُ bubblewrap (‏WI-067)
     }
     for path in (SRC / "services").rglob("*.py"):
         relative = path.relative_to(SRC / "services").as_posix()

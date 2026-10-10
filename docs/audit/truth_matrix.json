@@ -91,21 +91,21 @@
     "federal": {
       "domain": "federal",
       "md_files": 60,
-      "py_files": 234,
+      "py_files": 237,
       "yaml_files": 3,
-      "code_lines": 65824,
+      "code_lines": 66464,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
       },
       "has_readme": true,
-      "real_source_hits": 293,
+      "real_source_hits": 297,
       "fake_hits": 1,
       "in_memory_hits": 59,
       "secret_hits": 0,
-      "observed_hits": 152,
+      "observed_hits": 155,
       "api_routes": 182,
-      "test_refs": 223,
+      "test_refs": 225,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -126,7 +126,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 223
+        "TEST_NAME_MENTIONS": 225
       },
       "maturity": "UNIT_TESTED",
       "findings_count": 60
@@ -277,7 +277,7 @@
       "secret_hits": 0,
       "observed_hits": 9,
       "api_routes": 1,
-      "test_refs": 546,
+      "test_refs": 548,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -298,10 +298,10 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 546
+        "TEST_NAME_MENTIONS": 548
       },
       "maturity": "INTEGRATED",
-      "findings_count": 1
+      "findings_count": 0
     },
     "interfaces": {
       "domain": "interfaces",
@@ -492,7 +492,7 @@
       "secret_hits": 0,
       "observed_hits": 4,
       "api_routes": 0,
-      "test_refs": 306,
+      "test_refs": 307,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -513,7 +513,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 306
+        "TEST_NAME_MENTIONS": 307
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -946,13 +946,6 @@
       "line": 110,
       "detail": "مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة",
       "severity": "HIGH"
-    },
-    {
-      "kind": "SANDBOX_DISABLED",
-      "path": "tools/registry/tool-index.yaml",
-      "line": 49,
-      "detail": "أداة مسجّلة بلا عزل (sandbox=false)",
-      "severity": "CRITICAL"
     }
   ],
   "declared_not_secret": [
@@ -995,18 +988,17 @@
   "summary": {
     "domains_total": 12,
     "domains_proven": 0,
-    "findings_total": 62,
+    "findings_total": 61,
     "identity_violations": 0,
     "unreadable_files": 0,
     "unparsable_files": 0,
     "by_severity": {
-      "CRITICAL": 3,
+      "CRITICAL": 2,
       "HIGH": 59
     },
     "by_kind": {
       "HARDCODED_TRUTH": 2,
-      "IN_MEMORY_STORE": 59,
-      "SANDBOX_DISABLED": 1
+      "IN_MEMORY_STORE": 59
     },
     "evidence_state": "READ"
   }

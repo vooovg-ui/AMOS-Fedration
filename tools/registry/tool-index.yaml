@@ -41,12 +41,13 @@ tools:
     permissions_required: ["document.read"]
     owner: "states/law"
 
+  # Q-33 (‏قرارُ المالك 2026-10-10 · WI-067): معزولةٌ فعلًا — تُنفَّذُ في BubblewrapProvider وحدَه
   - id: "legal_search"
     name: "Legal Search Engine"
     version: "1.1.0"
     status: "active"
     risk_level: "low"
-    sandbox_required: false
+    sandbox_required: true
     permissions_required: ["search.execute"]
     owner: "states/law"
 
