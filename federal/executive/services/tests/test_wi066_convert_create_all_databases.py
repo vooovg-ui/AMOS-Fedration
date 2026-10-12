@@ -26,6 +26,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.pg_session import session_engine
+
 MIGRATIONS_DIR = Path(__file__).resolve().parents[1] / "migrations"
 MIGRATION_019 = MIGRATIONS_DIR / "019_convert_create_all_databases_to_jsonb_timestamptz.sql"
 
@@ -104,11 +106,7 @@ def legacy_schema():
     admin = create_engine(url, isolation_level="AUTOCOMMIT")
     with admin.connect() as conn:
         conn.execute(text(f'CREATE SCHEMA "{schema}"'))
-    utc = create_engine(
-        url,
-        isolation_level="AUTOCOMMIT",
-        connect_args={"options": f"-csearch_path={schema} -cTimeZone=UTC"},
-    )
+    utc = session_engine(url, search_path=schema, timezone="UTC", isolation_level="AUTOCOMMIT")
     models = (
         AgentModel,
         ToolModel,
@@ -169,13 +167,7 @@ def _types(admin, schema: str) -> dict[str, str]:
 
 
 def _run_019(url: str, schema: str, tz: str) -> None:
-    from sqlalchemy import create_engine
-
-    engine = create_engine(
-        url,
-        isolation_level="AUTOCOMMIT",
-        connect_args={"options": f"-csearch_path={schema} -cTimeZone={tz}"},
-    )
+    engine = session_engine(url, search_path=schema, timezone=tz, isolation_level="AUTOCOMMIT")
     raw = engine.raw_connection()
     try:
         cur = raw.cursor()
@@ -272,10 +264,8 @@ def test_a_migration_built_database_is_left_as_is() -> None:
     with admin.connect() as conn:
         conn.execute(text(f'CREATE SCHEMA "{schema}"'))
     try:
-        engine = create_engine(
-            url,
-            isolation_level="AUTOCOMMIT",
-            connect_args={"options": f"-csearch_path={schema} -cTimeZone=UTC"},
+        engine = session_engine(
+            url, search_path=schema, timezone="UTC", isolation_level="AUTOCOMMIT"
         )
         raw = engine.raw_connection()
         try:

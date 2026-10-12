@@ -43,6 +43,7 @@ import pytest
 
 import amos_federation
 from amos_federation.common.database import Base
+from tests.pg_session import session_engine
 
 MIGRATIONS_DIR = Path(__file__).resolve().parents[1] / "migrations"
 NEW_MIGRATION = MIGRATIONS_DIR / "017_orm_tables_without_migration.sql"
@@ -128,11 +129,7 @@ def test_migrations_and_engine_build_identical_tables_on_postgres() -> None:
             conn.execute(text(f'CREATE SCHEMA "{orm_schema}"'))
 
         # الهجراتُ كلُّها بالترتيبِ في مخطّطِها — وكلُّ ملفٍّ يحملُ BEGIN/COMMIT بنفسِه.
-        mig_engine = create_engine(
-            url,
-            isolation_level="AUTOCOMMIT",
-            connect_args={"options": f"-csearch_path={mig_schema}"},
-        )
+        mig_engine = session_engine(url, search_path=mig_schema, isolation_level="AUTOCOMMIT")
         files = sorted(MIGRATIONS_DIR.glob("[0-9][0-9][0-9]_*.sql"))
         raw = mig_engine.raw_connection()
         try:
@@ -146,7 +143,7 @@ def test_migrations_and_engine_build_identical_tables_on_postgres() -> None:
             raw.close()
         mig_engine.dispose()
 
-        orm_engine = create_engine(url, connect_args={"options": f"-csearch_path={orm_schema}"})
+        orm_engine = session_engine(url, search_path=orm_schema)
         tables = [Base.metadata.tables[name] for name in TABLES_ADDED_BY_017]
         Base.metadata.create_all(orm_engine, tables=tables)
         orm_engine.dispose()

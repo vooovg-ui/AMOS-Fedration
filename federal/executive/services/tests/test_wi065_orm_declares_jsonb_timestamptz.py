@@ -41,6 +41,7 @@ from amos_federation.common.database import (
     TaskModel,
     ToolModel,
 )
+from tests.pg_session import session_engine
 
 #: الجداولُ السبعةُ التي بنَتْها 001 بـ`jsonb`/`timestamptz` وكانَ النموذجُ يُعلِنُها أضعف.
 CORE_MODELS = (
@@ -125,9 +126,7 @@ def test_instant_and_containment_survive_a_non_utc_session_on_postgres() -> None
     with admin.connect() as conn:
         conn.execute(text(f'CREATE SCHEMA "{schema}"'))
     try:
-        engine = create_engine(
-            url, connect_args={"options": f"-csearch_path={schema} -cTimeZone=Asia/Riyadh"}
-        )
+        engine = session_engine(url, search_path=schema, timezone="Asia/Riyadh")
         Base.metadata.create_all(engine, tables=[m.__table__ for m in CORE_MODELS])
         written = datetime(2026, 10, 10, 12, 0, 0, tzinfo=UTC)
         with Session(engine) as session:

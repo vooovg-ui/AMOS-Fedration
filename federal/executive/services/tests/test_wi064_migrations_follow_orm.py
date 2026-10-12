@@ -36,6 +36,7 @@ import pytest
 
 import amos_federation
 from amos_federation.common.database import Base
+from tests.pg_session import session_engine
 
 MIGRATIONS_DIR = Path(__file__).resolve().parents[1] / "migrations"
 MIGRATION_018 = MIGRATIONS_DIR / "018_align_migrated_schema_with_orm.sql"
@@ -132,11 +133,7 @@ def test_migrated_schema_matches_the_orm_on_postgres() -> None:
         with admin.connect() as conn:
             conn.execute(text(f'CREATE SCHEMA "{mig_schema}"'))
             conn.execute(text(f'CREATE SCHEMA "{orm_schema}"'))
-        mig_engine = create_engine(
-            url,
-            isolation_level="AUTOCOMMIT",
-            connect_args={"options": f"-csearch_path={mig_schema}"},
-        )
+        mig_engine = session_engine(url, search_path=mig_schema, isolation_level="AUTOCOMMIT")
         raw = mig_engine.raw_connection()
         try:
             cur = raw.cursor()
@@ -148,7 +145,7 @@ def test_migrated_schema_matches_the_orm_on_postgres() -> None:
             raw.close()
         mig_engine.dispose()
 
-        orm_engine = create_engine(url, connect_args={"options": f"-csearch_path={orm_schema}"})
+        orm_engine = session_engine(url, search_path=orm_schema)
         Base.metadata.create_all(orm_engine)
         orm_engine.dispose()
 
