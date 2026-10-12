@@ -1,0 +1,89 @@
+test_1n_boundary_integration.py	0	10 passed in 2.04s 
+test_2a_precedent_correction.py	0	11 passed in 2.03s 
+test_2a_sovereign_runtime_integration.py	0	13 passed in 1.85s 
+test_2b_government_services_sovereign.py	0	39 passed in 22.77s 
+test_2b_state_registry_sovereign.py	0	53 passed in 12.78s 
+test_agent_runtime.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+test_api_gateway.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+test_audit_canonical_record.py	0	18 passed in 0.52s 
+test_auth.py	0	3 passed in 0.49s 
+test_benchmark.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+test_common_branches.py	0	47 passed in 0.70s 
+test_config.py	0	3 passed in 0.34s 
+test_control_console.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+test_critic.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+test_durable_bus_branches.py	0	11 passed in 0.40s 
+test_e2e.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+test_edge_branches.py	0	9 passed in 0.37s 
+test_event_bus.py	0	14 passed in 0.40s 
+test_event_schemas.py	0	5 passed in 0.38s 
+test_executive_core.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+test_expansion.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+test_experience.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_federation.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_governance.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_governance_phase3.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+test_hash_chain.py	0	6 passed in 0.37s 
+test_health.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_health_system.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+test_inmemory_stores.py	0	32 passed in 0.40s 
+test_king_login_boundary.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_memory_service.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_model_gateway.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+test_model_layer.py	0	14 passed in 0.43s 
+test_models.py	0	3 passed in 0.33s 
+test_orchestrator.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+test_p13_factories_sovereign.py	0	22 passed in 4.31s 
+test_persistence.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_phase12_states.py	0	17 passed in 0.63s 
+test_phase13_factories.py	0	13 passed in 6.62s 
+test_phase14_15_learning.py	0	14 passed in 0.44s 
+test_phase16_security.py	0	16 passed in 0.42s 
+test_phase17_system_life.py	0	12 passed in 0.47s 
+test_phase1_postgres.py	0	
+test_phase1_postgres_events.py	0	
+test_phase2_events.py	0	27 passed in 1.45s 
+test_phase3_governance.py	0	24 passed in 0.41s 
+test_phase4_tools.py	0	18 passed in 4.14s 
+test_phase5_models.py	0	11 passed in 0.39s 
+test_phase6_population.py	0	15 passed in 0.46s 
+test_phase7_health.py	0	9 passed in 0.47s 
+test_population.py	0	18 passed in 1.08s 
+test_q19_money_delegation.py	0	28 passed in 0.40s 
+test_q20_money_representation.py	0	25 passed, 2 skipped in 0.57s 
+test_q31_money_engine_wiring.py	0	12 passed in 0.66s 
+test_q32_money_enforcement_surface.py	0	15 passed in 0.43s 
+test_r1_canonical_execution_path.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_r2_task_execution_integration.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_r3_agent_runtime_integration.py	0	13 passed in 8.85s 
+test_r4_agent_identity_and_population.py	0	16 passed in 0.97s 
+test_r5_multi_provider_sandbox.py	0	19 passed in 1.55s 
+test_r6_1_authorization_closure.py	0	18 passed in 0.73s 
+test_r6_identity_authorization_root.py	0	17 passed in 0.77s 
+test_r7_government_services.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_r7_state_registry.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_r7b_state_treasury.py	0	36 passed in 26.40s 
+test_r7c_national_registry.py	0	35 passed in 15.75s 
+test_r7d_federal_judiciary.py	0	27 passed in 63.38s (0:01:03) 
+test_r7d_federal_judiciary.py	1	1 failed, 26 passed in 70.87s (0:01:10) 
+test_r8_federal_state_integration.py	0	33 passed in 46.82s 
+test_r9_national_economic_state.py	0	45 passed in 58.15s 
+test_real_tools.py	0	20 passed in 2.36s 
+test_shadow.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_step19_durable_governance_state.py	0	8 passed in 8.78s 
+test_step7_gate_denial.py	0	5 passed in 3.07s 
+test_tool_registry.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_training.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+test_treasury.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_w032_registry_ownership.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_w033_cost_record_durability.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+test_w036_cost_precision.py	0	11 passed in 0.69s 
+test_w166_postgres_driver_declared.py	0	16 passed in 1.24s 
+test_w190_durable_model_registry.py	0	2 passed in 31.66s 
+test_wi062_migrations_cover_orm_tables.py	0	2 passed, 1 skipped in 1.35s 
+test_wi063_tenant_isolation_http.py	0	Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+test_wi064_migrations_follow_orm.py	0	1 passed, 1 skipped in 0.34s 
+test_wi065_orm_declares_jsonb_timestamptz.py	0	2 passed, 1 skipped in 0.38s 
+test_wi066_convert_create_all_databases.py	0	1 passed, 5 skipped in 0.35s 
+test_wi066_pg_session_isolation.py	0	1 passed, 2 skipped in 0.37s 
+test_wi067_legal_search_isolated.py	0	23 passed in 0.98s 

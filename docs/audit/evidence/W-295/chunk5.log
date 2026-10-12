@@ -1,0 +1,25 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.1.1, pluggy-1.6.0
+rootdir: /home/user/workspace/AMOS-Fedration/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.0, cov-7.1.0, anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 51 items
+
+federal/executive/services/tests/test_w032_registry_ownership.py ....... [ 13%]
+......                                                                   [ 25%]
+federal/executive/services/tests/test_w033_cost_record_durability.py ... [ 31%]
+......                                                                   [ 43%]
+federal/executive/services/tests/test_w036_cost_precision.py ........... [ 64%]
+                                                                         [ 64%]
+federal/executive/services/tests/test_w166_postgres_driver_declared.py . [ 66%]
+...............                                                          [ 96%]
+federal/executive/services/tests/test_w190_durable_model_registry.py ..  [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /home/user/workspace/AMOS-Fedration/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 51 passed, 1 warning in 36.94s ========================

@@ -1,0 +1,46 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.1.1, pluggy-1.6.0
+rootdir: /home/user/workspace/AMOS-Fedration/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.0, cov-7.1.0, anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 194 items
+
+federal/executive/services/tests/test_shadow.py ..........               [  5%]
+federal/executive/services/tests/test_step19_durable_governance_state.py . [  5%]
+.......                                                                  [  9%]
+federal/executive/services/tests/test_step7_gate_denial.py .....         [ 11%]
+federal/executive/services/tests/test_tool_registry.py .......           [ 15%]
+federal/executive/services/tests/test_training.py ...............        [ 23%]
+federal/executive/services/tests/test_treasury.py ...................... [ 34%]
+..........                                                               [ 39%]
+federal/executive/services/tests/test_w032_registry_ownership.py ....... [ 43%]
+......                                                                   [ 46%]
+federal/executive/services/tests/test_w033_cost_record_durability.py ... [ 47%]
+......                                                                   [ 51%]
+federal/executive/services/tests/test_w036_cost_precision.py ........... [ 56%]
+                                                                         [ 56%]
+federal/executive/services/tests/test_w166_postgres_driver_declared.py . [ 57%]
+...............                                                          [ 64%]
+federal/executive/services/tests/test_w190_durable_model_registry.py ..  [ 65%]
+federal/executive/services/tests/test_wi062_migrations_cover_orm_tables.py . [ 66%]
+.s                                                                       [ 67%]
+federal/executive/services/tests/test_wi063_tenant_isolation_http.py ..s [ 69%]
+s..ss.s..ss.s.s.s..s.s.                                                  [ 80%]
+federal/executive/services/tests/test_wi064_migrations_follow_orm.py .s  [ 81%]
+federal/executive/services/tests/test_wi065_orm_declares_jsonb_timestamptz.py . [ 82%]
+.s                                                                       [ 83%]
+federal/executive/services/tests/test_wi066_convert_create_all_databases.py . [ 84%]
+sssss                                                                    [ 86%]
+federal/executive/services/tests/test_wi066_pg_session_isolation.py .ss  [ 88%]
+federal/executive/services/tests/test_wi067_legal_search_isolated.py ... [ 89%]
+....................                                                     [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /home/user/workspace/AMOS-Fedration/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============ 172 passed, 22 skipped, 1 warning in 62.08s (0:01:02) =============
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
