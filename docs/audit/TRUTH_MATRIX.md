@@ -19,11 +19,11 @@
 |---|---:|
 | الأقاليم المفحوصة | 12 |
 | الأقاليم بحالة PROVEN | 0 |
-| إجمالي المخالفات | 62 |
+| إجمالي المخالفات | 61 |
 | ملفات بلا ترويسة هوية (المادة 009) | 0 |
 | ملفات تعذّرت قراءتها (لم تُقَس) | 0 |
 | ملفات تعذّر تحليلها نحويًا (لم تُفحَص نحويًا) | 0 |
-| منها CRITICAL | 3 |
+| منها CRITICAL | 2 |
 | منها HIGH | 59 |
 
 ### توزيع المخالفات حسب النوع
@@ -32,7 +32,6 @@
 |---|---:|---|
 | IN_MEMORY_STORE | 59 | مخزن ذاكرة يُستخدم بديلًا عن تخزين دائم |
 | HARDCODED_TRUTH | 2 | قيمة ثابتة تُقدَّم كحقيقة تشغيلية بدل قاعدة البيانات |
-| SANDBOX_DISABLED | 1 | أداة خطرة مسجّلة بلا عزل |
 
 ---
 
@@ -63,7 +62,7 @@
 |---|---:|---:|---:|---:|---:|---:|---|
 | `core/` | 67 | 42 | 0 | 14913 | 14 | 0 | unspecified=14 |
 | `royal/` | 51 | 2 | 1 | 38 | 14 | 0 | unspecified=14 |
-| `federal/` | 60 | 229 | 3 | 64823 | 7 | 0 | unspecified=7 |
+| `federal/` | 60 | 239 | 3 | 66714 | 7 | 0 | unspecified=7 |
 | `states/` | 47 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
 | `institutions/` | 19 | 2 | 0 | 38 | 6 | 0 | unspecified=6 |
 | `agents/` | 601 | 4 | 283 | 532 | 11 | 0 | unspecified=11 |
@@ -78,13 +77,12 @@
 
 ## 4. سجل المخالفات بالأدلة
 
-### CRITICAL (3)
+### CRITICAL (2)
 
 | الموقع | النوع | الخطورة | التفصيل |
 |---|---|---|---|
 | `agents/registry/imported_agents_data.py:15` | HARDCODED_TRUTH | CRITICAL | `AGENTS` بيانات ثابتة بديلة عن قاعدة البيانات |
 | `federal/executive/services/src/amos_federation/services/governance/expansion.py:109` | HARDCODED_TRUTH | CRITICAL | `FULL_POPULATION_CATEGORIES` بيانات ثابتة بديلة عن قاعدة البيانات |
-| `tools/registry/tool-index.yaml:49` | SANDBOX_DISABLED | CRITICAL | أداة مسجّلة بلا عزل (sandbox=false) |
 
 ### HIGH (59)
 

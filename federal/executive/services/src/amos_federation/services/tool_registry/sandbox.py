@@ -315,6 +315,10 @@ AUTHORIZATION_SCOPES: tuple[str, ...] = ("AGENT_CHAIN", "ROLE_ONLY")
 #: أدوات تمرّ عبر طبقة المزوِّدات لا عبر مُعالِج محلّي.
 PROVIDER_BACKED_TOOLS: frozenset[str] = frozenset({"python_execute"})
 
+#: أدواتٌ قرّرَ المالكُ عزلَها فعلًا — تُنفَّذُ في `BubblewrapProvider` وحدَه، ولا سقوطَ إلى المضيف.
+#: `legal_search` بقرارِ Q-33 (‏2026-10-10). وغيرُها لا يُضافُ هنا إلّا بقرارٍ مثلِه (‏WI-067).
+ISOLATED_TOOLS: frozenset[str] = frozenset({"legal_search"})
+
 
 def execute_tool_with_governance(
     tool_id: str,
@@ -404,7 +408,9 @@ def execute_tool_with_governance(
         stages = ["principal", "role", "tool"]
 
     # 3. التنفيذ — الآن فقط يُنشأ صندوق.
-    if tool_id in PROVIDER_BACKED_TOOLS:
+    if tool_id in ISOLATED_TOOLS:
+        result = _execute_isolated(tool_id, params, agent_id=agent_id)
+    elif tool_id in PROVIDER_BACKED_TOOLS:
         result = _execute_via_provider(tool_id, params, agent_id=agent_id)
     else:
         result = _execute_locally(tool_id, params)
@@ -457,6 +463,39 @@ def execute_tool_for_principal(
     """
     context.assert_authorizable()
     return execute_tool_with_governance(tool_id, params, principal=context)
+
+
+def _execute_isolated(
+    tool_id: str,
+    params: dict[str, Any],
+    *,
+    agent_id: Any = None,
+    provider: Any = None,
+) -> dict[str, Any]:
+    """نفِّذْ أداةً قرّرَ المالكُ عزلَها في `BubblewrapProvider` — أو ارفضْ ولا تُنفِّذ (‏WI-067).
+
+    لا سقوطَ إلى المضيفِ ولا إلى المحاكاة: الغيابُ `sandbox_unavailable` بـ`UNAVAILABLE`.
+    `provider` للاختبارِ وحدَه (‏مزوِّدٌ يُحاكي الغياب).
+    """
+    from amos_federation.services.tool_registry import legal_search
+    from amos_federation.services.tool_registry.providers.contract import (
+        ProviderUnavailableError,
+    )
+    from amos_federation.services.tool_registry.providers.selection import execute_in_sandbox
+
+    if tool_id != "legal_search":
+        raise ValueError(f"لا مُنفِّذَ معزولًا مُسجَّلًا للأداة {tool_id!r}")
+    prepared = legal_search.prepare(params, agent_id=agent_id)
+    if "error" in prepared:
+        return prepared
+    try:
+        result = execute_in_sandbox(
+            prepared["spec"], prepared["request"], provider=provider or prepared["provider"]
+        )
+    except ProviderUnavailableError as exc:
+        _logger.warning("%s: الصندوقُ غيرُ متاح — رفضٌ بلا تنفيذ: %s", tool_id, exc)
+        return legal_search.unavailable(tool_id, str(exc))
+    return legal_search.interpret(result)
 
 
 def _execute_via_provider(

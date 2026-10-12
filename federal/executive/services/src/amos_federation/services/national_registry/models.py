@@ -71,6 +71,11 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 
+# `state_positions` و`state_official_positions` تشير بمفاتيح أجنبية إلى
+# `state_institutions` و`state_departments` و`state_officials` المعرَّفة في
+# `state_registry.models`. يُستورد هنا صريحًا حتى تكتمل البيانات الوصفية لكل من يحمّل
+# هذا الملف — فالاتجاه صحيح (السجل الوطني يقوم فوق سجل الدولة) ولا دورة استيراد.
+import amos_federation.services.state_registry.models  # noqa: F401
 from amos_federation.common.database import Base
 from amos_federation.common.money import MoneyType
 

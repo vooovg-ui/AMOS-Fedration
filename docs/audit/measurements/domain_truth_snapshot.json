@@ -53,10 +53,11 @@
   "tool_registry_yaml": {
     "path": "tools/registry/tool-index.yaml",
     "entries": 10,
-    "sandbox_required_true": 9,
-    "sandbox_required_false": 1,
-    "sandbox_false_ids": ["legal_search"],
-    "has_risk_level_field": true
+    "sandbox_required_true": 10,
+    "sandbox_required_false": 0,
+    "sandbox_false_ids": [],
+    "has_risk_level_field": true,
+    "remeasured": "2026-10-10 · W-289 · WI-067 — أُعيدَ عدُّ الملفِّ بعدَ أن صارَ legal_search sandbox_required: true بقرارِ المالكِ في Q-33 (‏9 ← 10 · 1 ← 0)؛ وقسمُ tool_registry_live لم يُعَدْ قياسُه ولم يتغيّرِ الجدولُ الحيّ"
   },
   "tool_registry_live": {
     "table": "public.tools",

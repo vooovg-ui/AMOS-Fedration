@@ -44,7 +44,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from amos_federation.common.auth import require_auth
+from amos_federation.common.auth_context import require_context
 from amos_federation.common.events import event_publisher
+from amos_federation.common.principal import AuthorizationContext, tenant_scope
 from amos_federation.common.registry import SERVICES
 from amos_federation.common.schemas import (
     AgentManifestModel,
@@ -60,6 +62,10 @@ from amos_federation.services.executive_core.http_errors import to_http_exceptio
 from amos_federation.services.tool_registry import main as owning_registry
 
 router = APIRouter(prefix="/v1", tags=["api-gateway"])
+
+#: سياقُ التخويلِ الموثوقُ لا حمولةُ الرمزِ الخام: منه وحدَه يُؤخَذُ نطاقُ المستأجرِ
+#: (‏`tenant_scope` — قاعدةُ `tenant_matches` بصيغةِ شرط · `WI-063` · `DISC-089`).
+Context = Annotated[AuthorizationContext, Depends(require_context)]
 
 # مصدر الحقيقة الدائم للمهام هو طبقة قاعدة البيانات (`TaskModel`) — لا بديل ذاكرة
 # تلقائي، ولا تحويل حقول يدوي هنا: التحويل كله في `store.py`.
@@ -149,20 +155,20 @@ def _conflict(exc: Exception, what: str) -> HTTPException:
 
 
 @router.get("/agents", response_model=list[AgentManifestModel])
-async def list_agents(
-    _: Annotated[dict[str, object], Depends(require_auth)],
-) -> list[AgentManifestModel]:
-    """عرضُ بياناتِ الوكلاءِ من الخدمةِ المالكةِ — لا من ذاكرةِ هذه البوّابة."""
-    return owning_registry.agent_store.list_all()
+async def list_agents(context: Context) -> list[AgentManifestModel]:
+    """عرضُ وكلاءِ مستأجرِ السياقِ من الخدمةِ المالكةِ — لا من ذاكرةِ هذه البوّابة."""
+    return owning_registry.agent_store.list_all(tenant_id=tenant_scope(context))
 
 
 @router.post("/agents", response_model=AgentManifestModel, status_code=status.HTTP_201_CREATED)
-async def register_agent(
-    manifest: AgentManifestModel, _: Annotated[dict[str, object], Depends(require_auth)]
-) -> AgentManifestModel:
-    """تمريرُ بيانِ الوكيلِ إلى المالكِ — ولا نسخةَ محليّةً هنا."""
+async def register_agent(manifest: AgentManifestModel, context: Context) -> AgentManifestModel:
+    """تمريرُ بيانِ الوكيلِ إلى المالكِ في مستأجرِ السياق — ولا نسخةَ محليّةً هنا.
+
+    وكيلٌ قائمٌ في مستأجرٍ آخرَ ⇒ `409` باسمِ نوعِ الرفضِ وحدَه (‏`_conflict`)،
+    فلا يُكشَفُ مستأجرُه.
+    """
     try:
-        return owning_registry.agent_store.register(manifest)
+        return owning_registry.agent_store.register(manifest, tenant_id=tenant_scope(context))
     except Exception as exc:  # noqa: BLE001
         raise _conflict(exc, "بيانُ الوكيلِ") from exc
 
