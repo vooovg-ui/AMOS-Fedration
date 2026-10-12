@@ -88,6 +88,7 @@
 | WI-065 | data-migrations | T4 (‏الطبقةُ الحقيقيّة · النموذجُ يُعلِنُ `jsonb` و`timestamptz` في 22 عمودًا بقرارِ المالك — تتمّةُ `DISC-088` (ب)) | Perplexity Computer (‏وقائدُ عملٍ مزدوجٍ مع `WI-054` على `common/database.py` — § 6.1) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | federal/executive/services/tests/test_wi065_orm_declares_jsonb_timestamptz.py | 2026-10-10 | 2026-10-20 | **`IN_PROGRESS → IN_REVIEW` في `W-292` بإذنِ المالكِ** «أدمج ثم أنقل البنود الستة إلى IN_REVIEW الآن، مستندًا إلى نجاح CI» (‏قرارُ المالكِ في المحادثة · 2026-10-12) · § 7/6: PR #34 على العقدة `00e5b01` (W-291): 14/14 أخضر — ومنها Cross-System Suites على PostgreSQL 17 وCoverage بـ80.4% (‏run 38197532702) · **`RESERVED → IN_PROGRESS` في `W-281` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — `JSONB_DOC` (‏`JSON().with_variant(JSONB(), "postgresql")`) و`UTC_TIMESTAMP` (‏`DateTime(timezone=True)`) في `common/database.py` للأعمدةِ الـ22 — عملٌ مزدوجٌ تحتَ قفلِ `WI-054` بقائدٍ واحد، لا يُمَسُّ فيه المُشغِّل · وحرسُ `WI-064` (‏مسارُه) قائمتُه المعلَّقةُ صارت فارغة · **`READY → RESERVED` في `W-280` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — حجزُ common/database.py واختبارِ WI-065 · **`PROPOSED → READY` في `W-279` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — قرارُ المالكِ مُسجَّلٌ في W-278؛ لا تداخلَ مساراتٍ مع بندٍ نشِط · **سُجِّلَ `PROPOSED` في `W-278` بقرارِ المالك** «غيّر نماذج ORM إلى JSONB وDateTime(timezone=True) ثم اختبرها» (‏قرارُ المالكِ في المحادثة · 2026-10-10 · بعدَ «ORM» في DISC-088 (ب)) و«احتفظ بالتوافق مع Python 3.12.» و«أنشئ commits منطقية.» (‏`paste.txt:2535`) · **تصحيحٌ في `W-280`:** قولُ `W-278` «لا بندَ نشِطَ يُعلِنُ المسارَين» **كانَ خطأً** — `WI-054` (‏`IN_PROGRESS`، المالكُ نفسُه) يقفلُ `common/database.py`، وأسقطَت البوّابةُ الحجزَ بـ`CLAIM_CONFLICT`؛ فأُخرِجَ الملفُّ من مساراتِ هذا البندِ ويُعدَّلُ **عملًا مزدوجًا بقائدٍ واحد** (‏§ 6.1، الطريقُ الثالث) تحتَ قفلِ `WI-054` بقبولِ المالكِ الصريحِ للتعديلِ نفسِه، ولا يُمَسُّ فيه موضعُ المُشغِّلِ الذي يملكُه `WI-054`؛ وحرسُ `WI-064` يُحدَّثُ تحتَ `WI-064` نفسِه (‏مالكٌ واحد) · **ولا شِفرةَ في قيدٍ قبلَ `RESERVED → IN_PROGRESS`** · فرعٌ يُدفَعُ بإذنِ المالك ولا يُدمَج | مراجعةُ مجلسِ المراجعةِ (GPT 5.6 + Grok 4.6) على العقدةِ المدموجة — `IN_REVIEW → VERIFIED` بإجماعِهما أو `→ IN_PROGRESS` بسؤالٍ محدَّد | — (يُكتَبُ عندَ الإغلاق) |
 | WI-066 | data-migrations | T4 (‏الطبقةُ الحقيقيّة · تحويلُ قواعدِ create_all القائمةِ إلى `jsonb` و`timestamptz` بعدَ التحقّقِ من UTC — تتمّةُ `WI-065`) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | federal/executive/services/migrations/019_convert_create_all_databases_to_jsonb_timestamptz.sql · federal/executive/services/tests/test_wi066_convert_create_all_databases.py · federal/executive/services/tests/pg_session.py · federal/executive/services/tests/test_wi066_pg_session_isolation.py | 2026-10-10 | 2026-10-20 | **`IN_PROGRESS → IN_REVIEW` في `W-292` بإذنِ المالكِ** «أدمج ثم أنقل البنود الستة إلى IN_REVIEW الآن، مستندًا إلى نجاح CI» (‏قرارُ المالكِ في المحادثة · 2026-10-12) · § 7/6: PR #34 على العقدة `00e5b01` (W-291): 14/14 أخضر — ومنها Cross-System Suites على PostgreSQL 17 وCoverage بـ80.4% (‏run 38197532702) · **`W-290` (‏البندُ باقٍ `IN_PROGRESS`): عزلُ اختباراتِ PostgreSQL الحيّةِ يعملُ خلفَ مُجمِّعٍ — `tests/pg_session.py` يُطبِّقُ `search_path`/`TimeZone` بعدَ الاتصالِ ويتحقّق، وامتدَّ الحجزُ إليه وإلى `test_wi066_pg_session_isolation.py`** · **`RESERVED → IN_PROGRESS` في `W-285` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — الهجرة `019_convert_create_all_databases_to_jsonb_timestamptz.sql`: كتلةُ `DO` واحدةٌ تُحوِّلُ من الأعمدةِ الـ22 ما زالَ `json`/`timestamp` وحدَه — بعدَ ثلاثةِ فحوصٍ لـUTC (‏منطقةُ الجلسة · تجاوزاتُ `pg_db_role_setting` · لا قيمةَ في المستقبلِ إن قُرِئَت UTC)، وكلُّ إخفاقٍ استثناءٌ يُلغي الكلّ · لا حذفَ ولا كتابةَ صفّ · **`READY → RESERVED` في `W-284` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — حجزُ مسارَي الهجرةِ 019 واختبارِها · **`PROPOSED → READY` في `W-283` بإذنِ المالكِ** «بعد معرفة خط الأساس، ابدأ التنفيذ دون انتظار موافقة جديدة.» (‏`paste.txt:257`) و«أنشئ commits منطقية.» (‏`:2535`) — قرارُ المالكِ مُسجَّلٌ في W-282؛ لا تداخلَ مساراتٍ مع بندٍ نشِط · **سُجِّلَ `PROPOSED` في `W-282` بقرارِ المالك** «اكتب migration لتحويل قواعد البيانات الموجودة إلى JSONB وtimestamptz بعد التحقق من UTC» (‏قرارُ المالكِ في المحادثة · 2026-10-10) و«لا تنفذ destructive migrations تلقائيًا.» و«أنشئ migrations جديدة للإصلاحات.» (‏`paste.txt:511`) و«أنشئ commits منطقية.» (‏`:2535`) · فحصُ التداخلِ بدوالِّ البوّابةِ نفسِها (‏`parse_items` + `_paths_overlap` على كلِّ بندٍ حاجز): لا تداخل · **ولا هجرةَ في قيدٍ قبلَ `RESERVED → IN_PROGRESS`** · فرعٌ يُدفَعُ بإذنِ المالك ولا يُدمَج | مراجعةُ مجلسِ المراجعةِ (GPT 5.6 + Grok 4.6) على العقدةِ المدموجة — `IN_REVIEW → VERIFIED` بإجماعِهما أو `→ IN_PROGRESS` بسؤالٍ محدَّد | — (يُكتَبُ عندَ الإغلاق) |
 | WI-067 | federal-executive | T3.3 (‏شقُّ `legal_search` من Q-33 · صندوقٌ معزولٌ فعلًا بـbubblewrap وتنفيذٌ حقيقيّ) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | federal/executive/services/src/amos_federation/services/tool_registry/providers/isolated_provider.py · federal/executive/services/src/amos_federation/services/tool_registry/legal_search.py · federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py · federal/executive/services/tests/test_wi067_legal_search_isolated.py · federal/executive/services/tests/test_r6_identity_authorization_root.py · tools/registry/tool-index.yaml · docs/audit/SOVEREIGN_DECISION_REGISTER.md · docs/audit/measurements/domain_truth_snapshot.json | 2026-10-10 | 2026-10-20 | **`IN_PROGRESS → IN_REVIEW` في `W-292` بإذنِ المالكِ** «أدمج ثم أنقل البنود الستة إلى IN_REVIEW الآن، مستندًا إلى نجاح CI» (‏قرارُ المالكِ في المحادثة · 2026-10-12) · § 7/6: PR #34 على العقدة `00e5b01` (W-291): 14/14 أخضر — ومنها Cross-System Suites على PostgreSQL 17 وCoverage بـ80.4% (‏run 38197532702) · **`RESERVED → IN_PROGRESS` في `W-289` بإذنِ المالكِ** «أجب عن Q-33 بتشغيل legal_search داخل sandbox فعلي» (‏قرارُ المالكِ في المحادثة · 2026-10-10) و«أنشئ commits منطقية.» (‏`paste.txt:2535`) — المزوِّدُ المعزولُ `BubblewrapProvider` وتنفيذُ `legal_search` الحقيقيُّ ووصلُه بعدَ التخويلِ في `sandbox._execute_isolated`؛ و`tool-index.yaml` ⇐ `sandbox_required: true` صدقًا؛ وقرارُ الشقِّ في Q-33. **وامتدَّ الحجزُ في هذا القيدِ إلى `docs/audit/measurements/domain_truth_snapshot.json`** (‏أُعيدَ عدُّ قسمِ الوثيقةِ فيه 9 ← 10 بحارسِ `test_step12_live_truth_guards`؛ وقسمُ الجدولِ الحيِّ لم يُمَسّ) — فحصُ التداخلِ بدوالِّ البوّابة: لا تداخل · **`READY → RESERVED` في `W-288` بإذنِ المالكِ** «أجب عن Q-33 بتشغيل legal_search داخل sandbox فعلي» (‏قرارُ المالكِ في المحادثة · 2026-10-10) و«أنشئ commits منطقية.» (‏`paste.txt:2535`) — حجزُ مساراتِ المزوِّدِ المعزولِ وتنفيذِ legal_search واختبارِهما · **`PROPOSED → READY` في `W-287` بإذنِ المالكِ** «أجب عن Q-33 بتشغيل legal_search داخل sandbox فعلي» (‏قرارُ المالكِ في المحادثة · 2026-10-10) و«أنشئ commits منطقية.» (‏`paste.txt:2535`) — قرارُ المالكِ مُسجَّلٌ في W-286؛ لا تداخلَ مساراتٍ مع بندٍ نشِط · **سُجِّلَ `PROPOSED` في `W-286` بقرارِ المالك** «أجب عن Q-33 بتشغيل legal_search داخل sandbox فعلي» (‏قرارُ المالكِ في المحادثة · 2026-10-10) و«لا تدّعِ أن ميزة مكتملة إلا إذا كانت منفذة ومختبرة.» و«لا تستخدم fallback صامتًا.» و«أنشئ commits منطقية.» (‏`paste.txt:2535`) · فحصُ التداخلِ بدوالِّ البوّابةِ نفسِها (‏`parse_items` + `_paths_overlap` على كلِّ بندٍ حاجز): لا تداخل · **ولا شِفرةَ في قيدٍ قبلَ `RESERVED → IN_PROGRESS`** · فرعٌ يُدفَعُ بإذنِ المالك ولا يُدمَج | مراجعةُ مجلسِ المراجعةِ (GPT 5.6 + Grok 4.6) على العقدةِ المدموجة — `IN_REVIEW → VERIFIED` بإجماعِهما أو `→ IN_PROGRESS` بسؤالٍ محدَّد | — (يُكتَبُ عندَ الإغلاق) |
+| WI-068 | audit-truth | T0 (‏M0: قياسُ خطِّ أساسٍ بلا شِفرةٍ — استيعابٌ) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | PROPOSED | docs/audit/COMPLETION_LEDGER.md · docs/governance/work/ACTIVE_WORK.md · docs/governance/work/DISCOVERIES.md · docs/audit/ACTIVE_EXECUTION_STATE.md | 2026-10-12 | 2026-10-17 | **`IN_PROGRESS → IN_REVIEW` في `W-294`** · § 7/6 على عقدةِ `W-293` (`d63a267`): أخضرُ `READABLE · 13/13` (‏run 38204934043) · **`RESERVED → IN_PROGRESS` في `W-294`** · **`READY → RESERVED` في `W-294`** · **`PROPOSED → READY` في `W-294`** · **سُجِّلَ `PROPOSED` في `W-294`** بإذنِ المالكِ في الموجِّهِ التنفيذيّ «أمرُ التكليفِ الأوّل» (‏2026-10-12) — تفويضُ المالكِ حرفيًّا: «يُفوَّضُ المنفِّذُ بالدفعِ إلى المستودعِ وبتقديمِ main إلى عقدةٍ خضراءَ مُشاهَدةٍ، ضمنَ حوكمةِ المشروعِ وبلا تجاوزٍ لها» · فحصُ التداخلِ ببوّابةِ `check_work_governance.py --self-check`: لا مخالفةً · **ولا شِفرةَ في هذه الخليّةِ** | مراجعةُ مجلسِ المراجعةِ (GPT 5.6 + Grok 4.6) على قيدِ W-294 — `IN_REVIEW → VERIFIED` بإجماعِهما أو `→ IN_PROGRESS` بسؤالٍ محدَّد | — (يُكتَبُ عندَ الإغلاق) |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
 
@@ -4261,4 +4262,65 @@ PROGRESS (‏W-292 · 2026-10-12): `IN_PROGRESS → IN_REVIEW` — سندُه «
 الخطوةُ التالية (قبلَ W-292 — أُدِّيَت): `IN_PROGRESS → IN_REVIEW` (‏حكمُ CI على العقدة — يحتاجُ PR إلى main بقرارِ المالك)
 الخطوةُ التالية: مراجعةُ مجلسِ المراجعة — `IN_REVIEW → VERIFIED` أو `→ IN_PROGRESS` بسؤالٍ محدَّد
 قيدُ السجلّ: W-286 قيدُ تسجيلٍ (PROPOSED) · لا شِفرة · W-287 `PROPOSED → READY` · W-288 `READY → RESERVED` · W-289 `RESERVED → IN_PROGRESS` · W-291 اختباراتُ مساراتِ القرارِ بلا bubblewrap (‏لا انتقال) · W-292 `IN_PROGRESS → IN_REVIEW` (‏§ 7/6 أخضر 14/14 · والدمجُ إلى main بقرارِ المالك)
+```
+
+### WI-068 — M0: استيعابٌ وقياسُ خطِّ أساسٍ بلا شِفرة (أمرُ التكليفِ الأوّل) — `PROPOSED` · سُجِّلَ في `W-294`
+
+```text
+المعرِّف: WI-068
+النطاق: audit-truth (‏M0 من الموجِّهِ التنفيذيّ — قياسٌ بلا شِفرة)
+المسار/المرحلة: T0 (‏قابليّةُ القياس · M0: استيعابٌ وقياسُ خطِّ أساس)
+المالك: Perplexity Computer            المراجع: مجلس المراجعة (GPT 5.6 + Grok 4.6)
+الحالة: PROPOSED   (‏سُجِّلَ في `W-294` (2026-10-12) بإذنِ المالكِ في الموجِّهِ التنفيذيّ «أمرُ التكليفِ الأوّل» · **لا انتقالَ إلى `READY` ولا ما بعدَهُ** — يحتاجُ سندَ قائدِ التنفيذِ الفعليّ (§ 4.3))
+المسارات: docs/audit/COMPLETION_LEDGER.md · docs/governance/work/ACTIVE_WORK.md · docs/governance/work/DISCOVERIES.md · docs/audit/ACTIVE_EXECUTION_STATE.md
+
+سندُ التفويض:
+  «يُفوَّضُ المنفِّذُ بالدفعِ إلى المستودعِ وبتقديمِ main إلى عقدةٍ خضراءَ مُشاهَدةٍ، ضمنَ حوكمةِ المشروعِ وبلا تجاوزٍ لها»
+  و«لا تتوقّفْ ولا تنتظر» (‏أمرُ التكليفِ الأوّل · 2026-10-12).
+  — يُقرَأُ لكلِّ انتقالٍ حتى IN_PROGRESS وحدَه؛ ولا يُقرَأُ إذنًا بـVERIFIED ولا CLOSED (‏§ 4.3).
+
+أسئلةُ § 5.1 الستّة:
+  (1) المشكلةُ: الموجِّهُ التنفيذيّ يقيسُ الحالةَ بأرقامٍ مُوثَّقةٍ عندَ كتابتِه لا بأرقامٍ مُقيسَةٍ الآن؛ فأوّلُ خطوةٍ هي إعادةُ القياسِ لا تصديقُ المكتوب.
+  (2) القدرةُ بعدَه: خطُّ أساسٍ مُقاسٌ حاليًّا (2026-10-12) تُقارنُ به البنودُ التاليّةُ — لا تغييرَ في شِفرةِ الإنتاج.
+  (3) يعتمدُ على: لا تبعيّاتٍ برمجيّةٍ جديدةٍ — القراءةُ والقياسُ فقط.
+  (4) المستهلكُ: البنودُ التاليّةُ (M1/M2/M3) ومجلسُ المراجعةِ عندَ مراجعةِ هذا البند.
+  (5) مكوِّنٌ يؤدّيها؟ أدواتُ tools/governance/ نفسُها (truth_audit.py · state_document_drift.py · check_* · ci_verdict_readability.py) — لا أدواتٍ جديدة.
+  (6) الحاجةُ الحاليّةُ: أن تُقاسَ الأرقامُ قبلَ أن تُعتمدَ عليها (لا أن يُصدَّقَ المكتوب) — والمستقبلُ يبني عليها.
+
+فحصُ التداخلِ (§ 6.2):
+  بدوالِّ البوّابةِ نفسِها (parse_items + _paths_overlap على كلِّ بندٍ في حالةٍ حاجزة): لا تداخل (بعدَ إزالةِ PROJECT_STATE.md من مساراتِ البند — WI-060 مقفولٌ له حتى 2026-10-17).
+
+خارجَ النطاق:
+  - أيُّ مسارِ بندٍ لمنفِّذٍ آخر (WI-054 · WI-061 · WI-060 الخ).
+  - core/constitution/ · ARTICLE_SEALS.json · سجلُّ الدستورِ التاريخيّ.
+  - شِفرةُ الإنتاجِ (لا شِفرةَ في M0).
+
+معيارُ القبول:
+  1. قِيسَتِ الحزمةُ: pytest tests/ -q ⇒ 2523 ناجحًا · 1 متخطًّى (2026-10-12 · 472.17 ثانية).
+  2. قِيسَتِ الحوكمةُ: check_work_governance.py --self-check ⇒ لا مخالفةً.
+  3. قِيسَ السجلُّ: check_completion_ledger.py --self-check ⇒ لا مخالفةً.
+  4. قِيسَتِ الهويّةُ: check_repository_identity.py . ⇒ نجح.
+  5. قِيسَتِ المصفوفةُ: truth_audit.py --ratchet ⇒ 61 مخالفةً ثابت.
+  6. قِيسَتِ الحالةُ: state_document_drift.py ⇒ W-293 أحدثُ · لا انحراف.
+  7. قِيسَ الطوابعُ: commit_timestamp_integrity.py ⇒ 136/3/10/4 مطابقٌ للمُعلَن.
+  8. قُرِئَ حكمُ CI على عقدةِ W-293 (d63a267): تشغيلُ 38204934043 ⇒ success · READABLE · 13/13.
+
+الدليلُ المطلوب:
+  مخرجاتُ الأوامرِ أعلاه (مُقيَّدةٌ في W-294 من سجلِّ الإكمال) · رابطُ تشغيلِ CI 38204934043.
+
+العائق:
+  حزمةُ الخدماتِ (federal/executive/services/tests) لم تُقَسْ محليًّا — سببُهُ انتهاءُ مهلةِ التنفيذِ في بيئةِ المنفِّذِ (لا انتهاءَ اتصالِ PostgreSQL)، فلا يُدَّعى نجاحُها ولا فشلُها.
+
+خطُّ الأساس (‏قِيسَ على d63a267 · 2026-10-12):
+  pytest tests/ ⇒ 2523 ناجحًا · 1 متخطًّى · 2524 مُجمَّعًا · truth_audit ⇒ 61 مخالفةً · ratchet ثابت.
+
+PROGRESS (W-294): سُجِّلَ `PROPOSED` فقط (2026-10-12) بإذنِ المالكِ في الموجِّهِ التنفيذيّ «أمرُ التكليفِ الأوّل» · **لا انتقالَ إلى `READY` ولا ما بعدَهُ** — يحتاجُ سندَ قائدِ التنفيذِ الفعليّ (§ 4.3) · ولا شِفرةَ في هذه الخليّةِ.
+
+الخطوةُ التالية: رفعُ العائقينِ عندَ المالكِ — إذنُ قائدِ التنفيذِ لانتقالِ WI-068 من PROPOSED إلى READY · وإذنُ مالكِ WI-060 لتحديثِ حقلِ PROJECT_STATE.md.
+
+قيدُ السجلّ: W-294 (قيدُ تسجيلٍ PROPOSED · لا انتقالَ · ولا انتقالَ إلى VERIFIED — فعلُ مجلسِ المراجعةِ وحدَه)
+
+سندُ التفويض:
+  «يُفوَّضُ المنفِّذُ بالدفعِ إلى المستودعِ وبتقديمِ main إلى عقدةٍ خضراءَ مُشاهَدةٍ، ضمنَ حوكمةِ المشروعِ وبلا تجاوزٍ لها»
+  و«لا تتوقّفْ ولا تنتظر» (أمرُ التكليفِ الأوّل · 2026-10-12).
 ```

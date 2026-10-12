@@ -5104,6 +5104,33 @@ BLOCKED: 2 مخالفة من 11 بوابة
 4. **حرسُ طزاجةٍ لبقيّةِ `tools/`** — ما زالَ فيها مُولِّداتٌ بلا رباطٍ مقيسٍ.
 5. **وبيدِ المالكِ كذلك:** `B-9` · `A-2` · `A-3` · و`Q-38`/`Q-29`/`Q-41`.
 
+## W-294 · M0: استيعابٌ وقياسُ خطِّ أساسٍ بلا شِفرة — 2026-10-12
+
+هذه الوثيقةُ سجلٌّ تاريخيٌّ من عصرِ `E2.2-G`/`W-006` (‏آخرُ تحديثٍ لأقسامِها الراهنةِ 2026-08-16–17). الحالةُ الراهنةُ **لا تُقرَأُ من هنا** بل من `PROJECT_STATE.md` و`docs/PROJECT_HANDBOOK.md` و`COMPLETION_LEDGER.md` (§ 7). هذا القسمُ يُسجِّلُ حالةَ `W-294` (M0) ليكونَ أمرًّا تاليًّا حرفيًّا محفوظًا في مكانِه.
+
+### ما قِيسَ في W-294 (M0 · 2026-10-12 · استنساخٌ حقيقيٌّ · Python 3.12.13)
+
+- **قراءةُ الوثائقِ المطلوبةِ أُدِّيَت بالترتيبِ** (README → PROJECT_HANDBOOK → WORKING_PRINCIPLE → THE_ROADMAP → DEFINITION_OF_DONE → TRUTH_MATRIX → COMPLETION_LEDGER §6/7/8/9/10 → ACTIVE_WORK → OWNERSHIP/RISK/DISCOVERIES → HANDOFFS → PHASE_E_ROADMAP/SOVEREIGN_DECISION_REGISTER/REMAINING_SURFACES_INVENTORY → PROJECT_STATE/ARCHITECTURE → core/constitution قراءةً لا تحريرًا).
+- **تفويضُ المالكِ حرفيًّا:** «يُفوَّضُ المنفِّذُ بالدفعِ إلى المستودعِ وبتقديمِ main إلى عقدةٍ خضراءَ مُشاهَدةٍ، ضمنَ حوكمةِ المشروعِ وبلا تجاوزٍ لها».
+- **القياساتُ:**
+  - `bash tools/dev/bootstrap.sh --verify` ⇒ clean.
+  - `pytest tests/ -q` ⇒ **2523 ناجحًا · 1 متخطًّى · 2524 مُجمَّعًا** (472.17 ثانية).
+  - `python tools/governance/check_work_governance.py --self-check` ✓.
+  - `python tools/governance/check_completion_ledger.py --self-check` ✓.
+  - `python tools/governance/check_repository_identity.py .` ✓.
+  - `python tools/governance/truth_audit.py --ratchet` ⇒ **61 مخالفةً** ثابت (59 `IN_MEMORY_STORE` · 2 `HARDCODED_TRUTH` · 0 `SANDBOX_DISABLED`).
+  - `python tools/governance/sovereign_decision_status.py` ⇒ **`ADVISORY_BASIS_EXPIRED`** (0 حاجب).
+  - `python tools/governance/state_document_drift.py` ⇒ W-293 أحدثُ · لا انحراف.
+  - `python tools/governance/commit_timestamp_integrity.py` ⇒ 136/3/10/4 مطابقٌ للمُعلَن.
+  - حكمُ CI على `W-293` (`d63a267`): **`success` · `READABLE · 13/13`** — [تشغيل 38204934043](https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/38204934043).
+- **عائقٌ بيئيٌّ مُسمًّى:** حزمةُ الخدماتِ (`federal/executive/services/tests`) لم تُقَسْ محليًّا — سببُهُ انتهاءُ مهلةِ التنفيذِ في بيئةِ المنفِّذِ (لا انتهاءَ اتصالِ PostgreSQL)، فلا يُدَّعى نجاحُها ولا فشلُها.
+- **فروقٌ قُيِّدَت:** `DISC-090` (الموثَّقُ في § 4 قال 63 والمقيسُ 61) و`DISC-091` و`DISC-092` (تقاطعُ مسارٍ يمنعُ تعديلَ `PROJECT_STATE.md`).
+- **ولا شِفرةَ ولا انتقالَ `VERIFIED`** — `WI-068` سُجِّلَ `PROPOSED` فقط · **حُلَّ عائقُ `PROJECT_STATE.md`/`PROJECT_HANDBOOK.md` (DISC-092) بإذنِ المالكِ الصريحِ (2026-10-12): «تفويضٌ صريحٌ بالتعديلِ»** — يُمنحُ المنفِّذُ إذنًا بتحديثِ الحقلينِ رغمَ قفلِ WI-060 وWI-041.
+
+### الأمرُ التالي حرفيًّا (بعد W-294 · M0)
+
+**M1 — إعدادُ حزمةِ مراجعةٍ موحَّدةٍ لمجلسِ المراجعةِ للبنودِ `IN_REVIEW` الحاليّةِ (مثل `WI-026`…`WI-067`).** أعدْ تشغيلَ دليلِ كلِّ بندٍ وسجِّلْ نتيجتَه اليومَ وإن اختلفتْ عن المُنشور. لا تُثبِّتْها (`VERIFIED` فعلُ المجلسِ). ضعها في `HANDOFFS/` أو في البنودِ. بندُ `WI-054` (‏`IN_PROGRESS` · مالكٌ آخر): اقرأ الكتلةَ ولا تدخل مساراتِه إلّا عبرَ تسليمٍ مُعلَنٍ. راقبْ `RESERVATION_EXPIRED` واستخدمْ مسارَ التسليم. ثم M2 (مزامنةُ الحقيقةِ الوثائقيةِ) ثم M3 (دَينُ مصفوفةِ الحقيقةِ) — بالترتيبِ المُلزِمِ في `COMPLETION_LEDGER.md § 7`.
+
 ## المراجع
 - تسليم 1N: [`STAGE_1N_HANDOFF.md`](STAGE_1N_HANDOFF.md)
 - تسليم 1M: [`STAGE_1M_HANDOFF.md`](STAGE_1M_HANDOFF.md)
