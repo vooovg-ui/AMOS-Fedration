@@ -242,3 +242,177 @@ def test_the_sandbox_argv_carries_every_isolation_flag(tmp_path: Path) -> None:
     assert argv[argv.index("/usr") - 1 : argv.index("/usr") + 2] == ["--ro-bind", "/usr", "/usr"]
     assert "--bind" in argv and argv[argv.index("--bind") + 2] == "/work"
     assert argv.count("--bind") == 1  # مجلّدُ العملِ وحدَه قابلٌ للكتابة
+
+
+# ── مساراتُ القرارِ بلا bubblewrap (‏W-291) ───────────────────────────────────
+#
+# تجري في كلِّ بيئة، وفي CI خاصّةً حيثُ لا bubblewrap: كلُّ فرعٍ في `availability` و`execute`
+# يُقاسُ بإبدالِ `shutil.which` و`subprocess.run` في الوحدةِ نفسِها — فلا يُنفَّذُ شيءٌ على المضيف،
+# ويُثبَتُ أنَّ كلَّ غيابٍ رفضٌ مُسمّى السبب، وأنَّ ما يصلُ إلى النواةِ هو الأمرُ المعزولُ بأعلامِه.
+
+import subprocess  # noqa: E402
+from types import SimpleNamespace  # noqa: E402
+
+from amos_federation.services.tool_registry.providers import isolated_provider as ip  # noqa: E402
+from amos_federation.services.tool_registry.providers.contract import (  # noqa: E402
+    ProviderUnavailableError,
+    SandboxHandle,
+)
+
+
+def _bwrap_present(monkeypatch: pytest.MonkeyPatch, run=None) -> list[list[str]]:  # noqa: ANN001
+    """`bwrap` «موجود» و`subprocess.run` مُسجِّل — يُعيدُ قائمةَ الأوامرِ التي وصلَته."""
+    calls: list[list[str]] = []
+
+    def fake_run(argv, **kwargs):  # noqa: ANN001, ANN202
+        calls.append(list(argv))
+        if run is not None:
+            return run(argv, **kwargs)
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(ip.shutil, "which", lambda name: "/usr/bin/bwrap")
+    monkeypatch.setattr(ip.subprocess, "run", fake_run)
+    return calls
+
+
+def test_absent_bwrap_is_named_and_unavailable(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(ip.shutil, "which", lambda name: None)
+    state = BubblewrapProvider().availability()
+    assert (state.available, state.fidelity, state.missing_package) == (
+        False,
+        "UNAVAILABLE",
+        "bubblewrap",
+    )
+
+
+def test_absent_interpreter_is_named(monkeypatch: pytest.MonkeyPatch) -> None:
+    _bwrap_present(monkeypatch)
+    monkeypatch.setattr(ip, "SANDBOX_PYTHON", "/nonexistent/python3")
+    state = BubblewrapProvider().availability()
+    assert not state.available and state.missing_package == "python3"
+
+
+def test_missing_mount_source_is_named(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    calls = _bwrap_present(monkeypatch)
+    state = BubblewrapProvider({"/corpus": str(tmp_path / "absent")}).availability()
+    assert not state.available and "/corpus" in state.reason
+    assert calls == []  # لا سبرَ قبلَ أن يثبتَ المصدر
+
+
+def test_probe_os_error_is_unavailable_not_raised(monkeypatch: pytest.MonkeyPatch) -> None:
+    def boom(argv, **kwargs):  # noqa: ANN001, ANN202
+        raise OSError("exec failed")
+
+    _bwrap_present(monkeypatch, run=boom)
+    state = BubblewrapProvider().availability()
+    assert not state.available and "exec failed" in state.reason
+
+
+def test_kernel_refusal_is_unavailable(monkeypatch: pytest.MonkeyPatch) -> None:
+    _bwrap_present(
+        monkeypatch,
+        run=lambda argv, **kw: SimpleNamespace(returncode=1, stdout="", stderr="no userns"),
+    )
+    state = BubblewrapProvider().availability()
+    assert not state.available and "no userns" in state.reason
+
+
+def test_successful_probe_runs_the_isolated_argv(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    calls = _bwrap_present(monkeypatch)
+    state = BubblewrapProvider({"/corpus": str(tmp_path)}).availability()
+    assert state.available and state.fidelity == "REAL"
+    (probe,) = calls
+    assert probe[0] == "bwrap" and "--unshare-all" in probe and probe[-2:] == ["-c", "pass"]
+
+
+def test_create_refuses_any_network_but_deny(monkeypatch: pytest.MonkeyPatch) -> None:
+    _bwrap_present(monkeypatch)
+    with pytest.raises(ProviderUnavailableError, match="الشبكة"):
+        BubblewrapProvider().create_sandbox(
+            SandboxSpec(tool_id="legal_search", network_policy="ALLOW_ALL")
+        )
+
+
+def _handle(monkeypatch: pytest.MonkeyPatch, run=None):  # noqa: ANN001, ANN202
+    """صندوقٌ أُنشِئَ بسبرٍ ناجح، ثمَّ يُبدَّلُ سلوكُ `run` للتنفيذِ وحدَه."""
+    phase = {"run": None}
+    calls = _bwrap_present(
+        monkeypatch,
+        run=lambda argv, **kw: (
+            phase["run"] or (lambda *a, **k: SimpleNamespace(returncode=0, stdout="", stderr=""))
+        )(argv, **kw),
+    )
+    provider = BubblewrapProvider()
+    handle = provider.create_sandbox(SandboxSpec(tool_id="legal_search"))
+    calls.clear()  # سبرُ assert_usable لا يُعَدُّ تنفيذًا
+    phase["run"] = run
+    return provider, handle, calls
+
+
+def test_code_runs_inside_bwrap_with_a_cleared_env_and_rlimit(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    provider, handle, calls = _handle(
+        monkeypatch, run=lambda argv, **kw: SimpleNamespace(returncode=0, stdout="ok", stderr="")
+    )
+    try:
+        result = provider.execute(handle, ExecutionRequest(code="print('ok')"))
+        (argv,) = calls
+        assert argv[0] == "bwrap" and "--clearenv" in argv
+        assert argv[-3:] == ["/usr/bin/python3", "-I", "/work/amos_tool_entry.py"]
+        assert "AMOS_SANDBOX_NETWORK_POLICY" in argv
+        entry = Path(str(handle.native)) / "amos_tool_entry.py"
+        assert entry.read_text(encoding="utf-8").startswith("import resource as _r")
+        assert (result.exit_code, result.stdout) == (0, "ok")
+    finally:
+        provider.cleanup(handle)
+    assert handle.native is None and handle.terminated
+
+
+def test_command_runs_as_given_inside_bwrap(monkeypatch: pytest.MonkeyPatch) -> None:
+    provider, handle, calls = _handle(monkeypatch)
+    try:
+        provider.execute(handle, ExecutionRequest(command=("/usr/bin/true",)))
+        assert calls[0][0] == "bwrap" and calls[0][-1] == "/usr/bin/true"
+    finally:
+        provider.cleanup(handle)
+
+
+def test_timeout_is_reported_not_raised(monkeypatch: pytest.MonkeyPatch) -> None:
+    def slow(argv, **kwargs):  # noqa: ANN001, ANN202
+        raise subprocess.TimeoutExpired(argv, kwargs["timeout"], output="part", stderr=None)
+
+    provider, handle, _ = _handle(monkeypatch, run=slow)
+    try:
+        result = provider.execute(handle, ExecutionRequest(code="x", timeout_seconds=3))
+        assert result.timed_out and result.exit_code is None and "timeout" in result.error
+        assert result.stdout == "part" and result.stderr == ""
+    finally:
+        provider.cleanup(handle)
+
+
+def test_os_error_during_execution_is_reported(monkeypatch: pytest.MonkeyPatch) -> None:
+    def broken(argv, **kwargs):  # noqa: ANN001, ANN202
+        raise OSError("no exec")
+
+    provider, handle, _ = _handle(monkeypatch, run=broken)
+    try:
+        result = provider.execute(handle, ExecutionRequest(code="x"))
+        assert result.exit_code is None and result.error.startswith("os_error")
+    finally:
+        provider.cleanup(handle)
+
+
+def test_foreign_handles_are_left_alone(tmp_path: Path) -> None:
+    provider = BubblewrapProvider()
+    foreign = SandboxHandle(
+        sandbox_id="x", provider="local", spec=SandboxSpec(tool_id="t"), native=str(tmp_path)
+    )
+    provider.terminate(foreign)
+    provider.cleanup(foreign)
+    assert not foreign.terminated and tmp_path.exists()
+    own = SandboxHandle(sandbox_id="y", provider="bwrap", spec=SandboxSpec(tool_id="t"))
+    provider.terminate(own)
+    assert own.terminated
