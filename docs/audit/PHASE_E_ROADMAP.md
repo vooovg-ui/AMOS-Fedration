@@ -111,7 +111,7 @@ Constitutional Federal Monarchy
 | E23 | Scale | `DESIGNED` | — | — |
 | E24 | Production State | `DESIGNED` | — | — |
 
-**التقدم:** 1 / 25 مرحلة بحالة `PROVEN`.
+**التقدم:** 4 / 25 مرحلة بحالة `PROVEN` (E0 · E1 · E2 · E2.1) · و 1 `SECURITY_TESTED` (E2.2) · و 1 `IN_PROGRESS` (E2.3 · E3) · و 18 `DESIGNED` (E4–E24) — **مُقاسَةٌ من الجدولِ أعلاه** (2026-10-12 · M2 · `W-300`).
 
 ---
 
