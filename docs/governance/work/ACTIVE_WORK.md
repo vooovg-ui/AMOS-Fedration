@@ -90,6 +90,7 @@
 | WI-067 | federal-executive | T3.3 (‏شقُّ `legal_search` من Q-33 · صندوقٌ معزولٌ فعلًا بـbubblewrap وتنفيذٌ حقيقيّ) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | federal/executive/services/src/amos_federation/services/tool_registry/providers/isolated_provider.py · federal/executive/services/src/amos_federation/services/tool_registry/legal_search.py · federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py · federal/executive/services/tests/test_wi067_legal_search_isolated.py · federal/executive/services/tests/test_r6_identity_authorization_root.py · tools/registry/tool-index.yaml · docs/audit/SOVEREIGN_DECISION_REGISTER.md · docs/audit/measurements/domain_truth_snapshot.json | 2026-10-10 | 2026-10-20 | **`IN_PROGRESS → IN_REVIEW` في `W-292` بإذنِ المالكِ** «أدمج ثم أنقل البنود الستة إلى IN_REVIEW الآن، مستندًا إلى نجاح CI» (‏قرارُ المالكِ في المحادثة · 2026-10-12) · § 7/6: PR #34 على العقدة `00e5b01` (W-291): 14/14 أخضر — ومنها Cross-System Suites على PostgreSQL 17 وCoverage بـ80.4% (‏run 38197532702) · **`RESERVED → IN_PROGRESS` في `W-289` بإذنِ المالكِ** «أجب عن Q-33 بتشغيل legal_search داخل sandbox فعلي» (‏قرارُ المالكِ في المحادثة · 2026-10-10) و«أنشئ commits منطقية.» (‏`paste.txt:2535`) — المزوِّدُ المعزولُ `BubblewrapProvider` وتنفيذُ `legal_search` الحقيقيُّ ووصلُه بعدَ التخويلِ في `sandbox._execute_isolated`؛ و`tool-index.yaml` ⇐ `sandbox_required: true` صدقًا؛ وقرارُ الشقِّ في Q-33. **وامتدَّ الحجزُ في هذا القيدِ إلى `docs/audit/measurements/domain_truth_snapshot.json`** (‏أُعيدَ عدُّ قسمِ الوثيقةِ فيه 9 ← 10 بحارسِ `test_step12_live_truth_guards`؛ وقسمُ الجدولِ الحيِّ لم يُمَسّ) — فحصُ التداخلِ بدوالِّ البوّابة: لا تداخل · **`READY → RESERVED` في `W-288` بإذنِ المالكِ** «أجب عن Q-33 بتشغيل legal_search داخل sandbox فعلي» (‏قرارُ المالكِ في المحادثة · 2026-10-10) و«أنشئ commits منطقية.» (‏`paste.txt:2535`) — حجزُ مساراتِ المزوِّدِ المعزولِ وتنفيذِ legal_search واختبارِهما · **`PROPOSED → READY` في `W-287` بإذنِ المالكِ** «أجب عن Q-33 بتشغيل legal_search داخل sandbox فعلي» (‏قرارُ المالكِ في المحادثة · 2026-10-10) و«أنشئ commits منطقية.» (‏`paste.txt:2535`) — قرارُ المالكِ مُسجَّلٌ في W-286؛ لا تداخلَ مساراتٍ مع بندٍ نشِط · **سُجِّلَ `PROPOSED` في `W-286` بقرارِ المالك** «أجب عن Q-33 بتشغيل legal_search داخل sandbox فعلي» (‏قرارُ المالكِ في المحادثة · 2026-10-10) و«لا تدّعِ أن ميزة مكتملة إلا إذا كانت منفذة ومختبرة.» و«لا تستخدم fallback صامتًا.» و«أنشئ commits منطقية.» (‏`paste.txt:2535`) · فحصُ التداخلِ بدوالِّ البوّابةِ نفسِها (‏`parse_items` + `_paths_overlap` على كلِّ بندٍ حاجز): لا تداخل · **ولا شِفرةَ في قيدٍ قبلَ `RESERVED → IN_PROGRESS`** · فرعٌ يُدفَعُ بإذنِ المالك ولا يُدمَج | مراجعةُ مجلسِ المراجعةِ (GPT 5.6 + Grok 4.6) على العقدةِ المدموجة — `IN_REVIEW → VERIFIED` بإجماعِهما أو `→ IN_PROGRESS` بسؤالٍ محدَّد | — (يُكتَبُ عندَ الإغلاق) |
 | WI-068 | audit-truth | T0 (‏M0: قياسُ خطِّ أساسٍ بلا شِفرةٍ — استيعابٌ) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | docs/audit/COMPLETION_LEDGER.md · docs/governance/work/ACTIVE_WORK.md · docs/governance/work/DISCOVERIES.md · docs/audit/ACTIVE_EXECUTION_STATE.md | 2026-10-12 | 2026-10-17 | **وثَّقَ مسارَهُ الكاملَ (`PROPOSED→READY→RESERVED→IN_PROGRESS→IN_REVIEW`) في `W-299`** — سندُ التفويضِ: «تفويض صريح بـREADY» (2026-10-12) · تعديلاتُ الملفاتِ المشتركةِ (COMPLETION_LEDGER · ACTIVE_WORK · PROJECT_STATE · PROJECT_HANDBOOK · ACTIVE_EXECUTION_STATE) مُسندَةٌ إلى `WI-068` · الحزمةُ (HANDOFFS) ومجلَّدُ الأدلةِ (evidence/W-295/) مُسندَةٌ إلى `WI-069` · ولا إسنادٌ بأثرٍ رجعيٍّ إلى W-294 | مراجعةُ مجلسِ المراجعةِ (GPT 5.6 + Grok 4.6) على قيدِ W-294 — `IN_REVIEW → VERIFIED` بإجماعِهما أو `→ IN_PROGRESS` بسؤالٍ محدَّد | — (يُكتَبُ عندَ الإغلاق) |
 | WI-069 | audit-truth | T0 (‏M1: إعدادُ حزمةِ مراجعةٍ للبنودِ IN_REVIEW · أمرُ التكليفِ الأوّل) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | docs/governance/work/HANDOFFS/WI-069-M1-REVIEW-PACKAGE.md · docs/audit/evidence/W-295/ | 2026-10-12 | 2026-10-17 | **`IN_REVIEW` في `W-299`** · سلسلةُ القيودِ: `W-295` تسجيلٌ · `W-296` `PROPOSED→READY` · `W-297` `READY→RESERVED` · `W-298` `RESERVED→IN_PROGRESS` · `W-299` `IN_PROGRESS→IN_REVIEW` — كلُّها بإذنِ المالكِ الصريحِ **«تفويض صريح بـREADY»** (2026-10-12) · ولا انتقالَ إلى `VERIFIED` · ولا إسنادٌ بأثرٍ رجعيٍّ | مراجعةُ مجلسِ المراجعةِ (GPT 5.6 + Grok 4.6) على حزمةِ W-295 — لكلِّ بندٍ `IN_REVIEW → VERIFIED` بإجماعٍ أو `→ IN_PROGRESS` بسؤالٍ محدَّد | — (يُكتَبُ عندَ الإغلاق) |
+| WI-070 | audit-truth | T0 (‏M2: مزامنةُ الحقيقةِ الوثائقيةِ بالقياسِ · أمرُ التكليفِ الأوّل) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | PROPOSED | PROJECT_STATE.md · docs/PROJECT_HANDBOOK.md · docs/audit/PHASE_E_ROADMAP.md | 2026-10-12 | 2026-10-18 | **مسجَّلٌ `PROPOSED` بقرارِ المالكِ «لا تتوقّفْ ولا تنتظر»** · ولا شِفرةَ ولا انتقالَ VERIFIED · القياساتُ من `W-295`/`W-294` تُستعملُ كما هي (لا تُعاد) | مزامنةُ الجداولِ التاريخيةِ (2026-08-18) بالقياسِ الحاضرِ · **الخطوةُ التالية:** قيدُ `W-300` | — (يُكتَبُ عندَ الإغلاق) |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
 
@@ -4374,4 +4375,40 @@ PROGRESS: سلسلةُ `WI-069` موزَّعةٌ على W-295…W-299 · وسل�
 الخطوةُ التالية: تسليمُ الحزمةِ لمجلسِ المراجعةِ · ثمّ M2 (مزامنةُ الحقيقةِ الوثائقيةِ).
 
 قيدُ السجلّ: W-295…W-299 (تسجيلٌ · READY · RESERVED · IN_PROGRESS · IN_REVIEW · ولا انتقالَ إلى VERIFIED — فعلُ مجلسِ المراجعةِ وحدَه)
+```
+
+### WI-070 — M2: مزامنةُ الحقيقةِ الوثائقيةِ بالقياس (أمرُ التكليفِ الأوّل) — `PROPOSED`
+
+```text
+## التعريف/النطاق/المالك/تاريخ الإنشاء/تاريخ آخر تعديل/المحتويات
+
+- التعريف: مزامنةُ الجداولِ التاريخيةِ في وثائقِ الحالةِ (`PROJECT_STATE.md` · `docs/PROJECT_HANDBOOK.md` · `docs/audit/PHASE_E_ROADMAP.md`) بالقياسِ الحاضرِ من M0/M1.
+- النطاق: تحديثُ جدولِ «المؤشرات الحالية — مقيسة 2026-08-18» · جدولِ Open Issues (24 صفًّا) · جدولِ Human Decisions (13 قرارًا) · عدّاداتِ PHASE_E_ROADMAP · ومقابلةُ `PROJECT_HANDBOOK.md` § 4.
+- المالك: Perplexity Computer (بقرارِ المالكِ «لا تتوقّفْ ولا تنتظر» · سندُ التسجيلِ).
+- تاريخ الإنشاء: 2026-10-12.
+- تاريخ آخر تعديل: 2026-10-12.
+- المحتويات: تعديلاتٌ توثيقيةٌ فقط · ولا شِفرةَ ولا تعديلَ في `core/` · ولا انتقالَ إلى `VERIFIED`.
+
+خارجَ النطاق:
+  - تعديلُ `core/` أو `src/` أو `federal/` (شِفرةُ الإنتاجِ).
+  - حسمُ القراراتِ السياديّةِ (Q-### · § 13.3) — `ADVISORY_BASIS_EXPIRED` يُبلَّغُ بيدِ المالكِ.
+  - تحديثُ `TRUTH_MATRIX.md` أو `truth_matrix.json` (مصنوعتانِ تُولَّدانِ بـ`truth_audit.py` لا باليَدِ).
+  - إغلاقُ أيِّ بندٍ (VERIFIED/CLOSED) — فعلُ المجلسِ وحدَه.
+
+معيار القبول:
+  1. كلُّ صفٍّ في جداولِ `PROJECT_STATE.md` (المؤشرات · Open Issues · Human Decisions) يحملُ قيمةً حاضرةً + دليلًا (أمرٌ · تاريخٌ · شجرةٌ) أو يُوسَمُ «لم يُعَد قياسُه».
+  2. عدّاداتُ `PHASE_E_ROADMAP.md` (سطرُ «التقدم») تُشتَقُّ من الجدولِ لا تُخمَّنُ.
+  3. `PROJECT_HANDBOOK.md` § 4 لا يناقضُ `PROJECT_STATE.md`.
+  4. كلُّ البواباتِ المحليّةِ خضراءُ (`work_gov` · `ledger` · `drift` · `identity` · `ratchet` · `timestamps` · `ruff` · `open_record_accountability`).
+
+الدليل المطلوب:
+  - خرجُ كلِّ أمرِ قياسٍ (بأرقامِهِ الحرفيّةِ) مُوثَّقٌ في القيدِ أو مُحالٌ إليهِ.
+  - `git diff` يُظهِرُ التعديلاتِ التوثيقيةَ فقط (لا شِفرةَ).
+
+الحالة: PROPOSED
+المسارات:
+  PROJECT_STATE.md                                                     (جدولُ المؤشراتِ · جدولُ Open Issues · جدولُ Human Decisions)
+  docs/PROJECT_HANDBOOK.md                                              (§ 4 · جدولُ المقاييس)
+  docs/audit/PHASE_E_ROADMAP.md                                         (عدّاداتُ المراحلِ · سطرُ «التقدم»)
+
 ```
