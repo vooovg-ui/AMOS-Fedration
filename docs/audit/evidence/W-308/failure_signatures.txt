@@ -1,0 +1,62 @@
+R4_p1.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-6581DBCE» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p1.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.official.appoint:default:JUD-F9D63953:-:agent-r7d-19dc9c85bc:قاضٍ» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p1.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «federal.executive.task.transition:task-9dc37773-bfed-4746-804a-150d7337ccac:planned->dispatched» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p1.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-31A5F229» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p1.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-2FF6BBC1» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p2.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-D9F884AB» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p2.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.official.appoint:default:JUD-1A01026B:-:agent-r7d-4c134f4da2:قاضٍ» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p2.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-8E521A14» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p2.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.official.appoint:default:JUD-199D4666:-:agent-r7d-c03b57dc96:قاضٍ» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p2.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.official.appoint:default:JUD-8D5BB0D5:-:agent-r7d-89e86187a0:قاضٍ» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p2.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-3FF0743D» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p2.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.official.appoint:default:JUD-81D606EF:-:agent-r7d-41180664c1:قاضٍ» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p2.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-53042B35» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p2.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.official.appoint:default:JUD-C9C71635:-:agent-r7d-c69769187c:قاضٍ» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p2.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-F2EA0B0D» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p3.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-018CAAFE» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p3.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «federal.executive.task.transition:task-9bf8fe2a-b4af-494f-9556-58df6d8d3d61:authorized->planned» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p3.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-5B314121» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p3.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-52F172DB» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p3.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-51089153» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p4.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-3A12F426» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p4.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-0C71E005» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p4.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-449183AF» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p4.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-04CAC623» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p4.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-79E353F9» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p4.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-BA0EB379» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p4.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.official.appoint:default:JUD-A09E1A53:-:agent-r7d-882232abdd:قاضٍ» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p4.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.official.appoint:default:JUD-5E3096E3:-:agent-r7d-be3054776d:قاضٍ» غيرُ محجوز. لا انتقالَ بلا حجز.
+A1.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-1E367870» غيرُ محجوز. لا انتقالَ بلا حجز.
+A1.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.official.appoint:default:JUD-90CC1F11:-:agent-r7d-a07694674a:قاضٍ» غيرُ محجوز. لا انتقالَ بلا حجز.
+A2.log:E   core.sovereignty.idempotency.IdempotencyError: المفتاحُ «state_registry.institution.register:default:JUD-9546BE60» غيرُ محجوز. لا انتقالَ بلا حجز.
+R4_p1.log:FAILED tests/test_r7d_federal_judiciary.py::test_03_judge_appointment_requires_the_whole_chain
+R4_p1.log:FAILED tests/test_r7d_federal_judiciary.py::test_10_evidence_is_a_deposit_record_and_claims_no_chain_of_custody
+R4_p1.log:FAILED tests/test_r7d_federal_judiciary.py::test_15_enforcement_goes_through_executive_core_task
+R4_p1.log:FAILED tests/test_r7d_federal_judiciary.py::test_16_ruling_never_bypasses_treasury_authorization
+R4_p1.log:FAILED tests/test_r7d_federal_judiciary.py::test_23_opening_and_assigning_a_case_enforces_every_named_row
+R4_p2.log:FAILED tests/test_r7d_federal_judiciary.py::test_03_judge_appointment_requires_the_whole_chain
+R4_p2.log:FAILED tests/test_r7d_federal_judiciary.py::test_05_suspended_judge_is_denied
+R4_p2.log:FAILED tests/test_r7d_federal_judiciary.py::test_06_judge_outside_the_courts_jurisdiction_is_denied
+R4_p2.log:FAILED tests/test_r7d_federal_judiciary.py::test_13_second_ruling_for_the_same_stage_is_denied
+R4_p2.log:FAILED tests/test_r7d_federal_judiciary.py::test_15_enforcement_goes_through_executive_core_task
+R4_p2.log:FAILED tests/test_r7d_federal_judiciary.py::test_16_ruling_never_bypasses_treasury_authorization
+R4_p2.log:FAILED tests/test_r7d_federal_judiciary.py::test_17_every_judicial_action_writes_audit_and_event
+R4_p2.log:FAILED tests/test_r7d_federal_judiciary.py::test_20_court_registration_rejects_unknown_levels_codes_and_institutions
+R4_p2.log:FAILED tests/test_r7d_federal_judiciary.py::test_24_a_case_is_never_closed_by_a_plain_transition_and_never_without_a_reason
+R4_p2.log:FAILED tests/test_r7d_federal_judiciary.py::test_27_listings_filter_by_jurisdiction_status_and_inactive_judges
+R4_p3.log:FAILED tests/test_r7d_federal_judiciary.py::test_05_suspended_judge_is_denied
+R4_p3.log:FAILED tests/test_r7d_federal_judiciary.py::test_15_enforcement_goes_through_executive_core_task
+R4_p3.log:FAILED tests/test_r7d_federal_judiciary.py::test_18_unauthorized_and_cross_tenant_actions_are_denied
+R4_p3.log:FAILED tests/test_r7d_federal_judiciary.py::test_20_court_registration_rejects_unknown_levels_codes_and_institutions
+R4_p3.log:FAILED tests/test_r7d_federal_judiciary.py::test_21_status_changes_need_a_written_reason_and_a_known_vocabulary
+R4_p4.log:FAILED tests/test_r7d_federal_judiciary.py::test_13_second_ruling_for_the_same_stage_is_denied
+R4_p4.log:FAILED tests/test_r7d_federal_judiciary.py::test_15_enforcement_goes_through_executive_core_task
+R4_p4.log:FAILED tests/test_r7d_federal_judiciary.py::test_17_every_judicial_action_writes_audit_and_event
+R4_p4.log:FAILED tests/test_r7d_federal_judiciary.py::test_21_status_changes_need_a_written_reason_and_a_known_vocabulary
+R4_p4.log:FAILED tests/test_r7d_federal_judiciary.py::test_23_opening_and_assigning_a_case_enforces_every_named_row
+R4_p4.log:FAILED tests/test_r7d_federal_judiciary.py::test_25_parties_claims_evidence_and_proceedings_enforce_closed_vocabularies
+R4_p4.log:FAILED tests/test_r7d_federal_judiciary.py::test_26_a_closed_case_accepts_no_new_parties_or_evidence
+R4_p4.log:FAILED tests/test_r7d_federal_judiciary.py::test_27_listings_filter_by_jurisdiction_status_and_inactive_judges
+A1.log:FAILED tests/test_r7d_federal_judiciary.py::test_21_status_changes_need_a_written_reason_and_a_known_vocabulary
+A1.log:FAILED tests/test_r7d_federal_judiciary.py::test_22_appointing_a_judge_reads_the_whole_chain_from_the_database
+A2.log:FAILED tests/test_r7d_federal_judiciary.py::test_22_appointing_a_judge_reads_the_whole_chain_from_the_database

@@ -5155,6 +5155,19 @@ BLOCKED: 2 مخالفة من 11 بوابة
 
 **M2 — مزامنةُ الحقيقةِ الوثائقيةِ بالقياسِ.** المرشّحات: `PROJECT_STATE.md` (مؤشراتٌ مُؤرَّخةٌ 2026-08-18 · جدولُ Open Issues وnext step متقادم) بـ`state_document_drift.py` و`suite_size_inventory.py` و`schema_inventory_drift.py` و`surface_debt_trend.py`. `PHASE_E_ROADMAP.md` (عدادُ التقدمِ يقولُ مرحلةً واحدةً PROVEN والجدولُ يقولُ أكثر · § 9 في السجلِّ يقولُ 4 · E4 ما زالت DESIGNED رغمَ أنّ الهجراتِ بلغتْ 019 واختباراتِ PostgreSQL الحيّةَ موجودة). لا رفعَ بلا إثبات (PROVEN تحتاجُ نشرًا ومشاهدةً). `sovereign_decision_status.py` يقولُ ADVISORY_BASIS_EXPIRED — السندُ في THE_ROADMAP § 16 معلَّقٌ على PROPOSED والحالةُ ACTIVE — فتحُ بندٍ لا تحريرٌ صامتٌ. ثم M3 (دَينُ مصفوفةِ الحقيقةِ) ثم M4 (الطبقةُ الحقيقيةُ).
 
+## W-308 · T0: تشخيصُ DISC-093 (الدفعةُ C) — 2026-10-13
+
+**الاستلام:** وكيلٌ جديدٌ بأمرِ التكليفِ الأوّل استلمَ من `W-307` (`52093ba` · حكمُ CI أخضرُ `READABLE · 13/13` · تشغيلُ `38344213147`). لا قسمَ هنا لـ`W-300`…`W-307` (آخرُ قسمٍ قبلَ هذا `W-295…W-299`)؛ وحالتُها في صفوفِها في `COMPLETION_LEDGER.md § 8` ولا تُروى هنا من غيرِ قياس.
+
+### ما قِيسَ في W-308
+1. إعادةُ إنتاجِ `IdempotencyError: … غيرُ محجوز` في `test_r7d_federal_judiciary.py` بتشغيلٍ متوازٍ (R4: 28/108).
+2. تجربةٌ ضابطةٌ تُغيِّرُ موضعَ ملفِّ سجلِّ الذرّيّةِ وحدَه: مشتركٌ ⇒ 3/50 · منفصلٌ ⇒ 0/50 · تسلسليٌّ ⇒ 0/75.
+3. السببُ: `federal/executive/services/tests/conftest.py` يضعُ سجلَّ الذرّيّةِ في مسارٍ ثابتٍ مشتركٍ ويمحوه في بدءِ كلِّ جلسةٍ وانتهائها؛ والقاعدةُ نفسُها فريدةٌ لكلِّ عمليّة (الفرضيّةُ الأولى منقوضة).
+4. الأدلّة: `docs/audit/evidence/W-308/` · البندُ `WI-071` (`IN_REVIEW`) · الإصلاحُ `WI-072` (`PROPOSED` · محجوبٌ بقفلِ `WI-026`) · `DISC-095`/`RK-023` للسجلِّ الإنتاجيّ.
+
+### الأمرُ التالي حرفيًّا (بعد W-308)
+اقرأْ حكمَ CI على عقدةِ `W-308` (`gh run list --repo vooovg-ui/AMOS-Fedration -L 4` ثمّ `gh api repos/vooovg-ui/AMOS-Fedration/actions/runs/<ID>/attempts/1/jobs > /tmp/j.json && python tools/governance/ci_verdict_readability.py --from-json /tmp/j.json`) وقيِّدْه أوّلَ بندٍ في `W-309`.
+
 ## المراجع
 - تسليم 1N: [`STAGE_1N_HANDOFF.md`](STAGE_1N_HANDOFF.md)
 - تسليم 1M: [`STAGE_1M_HANDOFF.md`](STAGE_1M_HANDOFF.md)

@@ -1,0 +1,12 @@
+run	setup	result_line	idempotency_errors
+R4_p1	shared-ledger·4-concurrent·27-tests	5 failed, 22 passed in 121.11s (0:02:01)	5
+R4_p2	shared-ledger·4-concurrent·27-tests	10 failed, 17 passed in 106.01s (0:01:46)	10
+R4_p3	shared-ledger·4-concurrent·27-tests	5 failed, 22 passed in 124.15s (0:02:04)	5
+R4_p4	shared-ledger·4-concurrent·27-tests	8 failed, 19 passed in 102.87s (0:01:42)	8
+A1	shared-ledger·2-concurrent·25-tests	2 failed, 23 passed, 2 deselected in 64.93s (0:01:04)	2
+A2	shared-ledger·2-concurrent·25-tests	1 failed, 24 passed, 2 deselected in 67.49s (0:01:07)	1
+B1	separate-ledger·2-concurrent·25-tests	25 passed, 2 deselected in 86.53s (0:01:26)	0
+B2	separate-ledger·2-concurrent·25-tests	25 passed, 2 deselected in 85.50s (0:01:25)	0
+C1	shared-ledger·sequential·25-tests	25 passed, 2 deselected in 37.82s	0
+C2	shared-ledger·sequential·25-tests	25 passed, 2 deselected in 38.10s	0
+C3	shared-ledger·sequential·25-tests	25 passed, 2 deselected in 38.96s	0
