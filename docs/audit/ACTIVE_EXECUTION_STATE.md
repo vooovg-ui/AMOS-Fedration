@@ -5187,6 +5187,13 @@ BLOCKED: 2 مخالفة من 11 بوابة
 ### الأمرُ التالي حرفيًّا (بعد W-311)
 اقرأْ حكمَ CI على عقدةِ `W-311` وقيِّدْه أوّلَ بندٍ في `W-312` · ثمّ `WI-072` `RESERVED→IN_PROGRESS` مع الشِّفرة.
 
+## W-312 · WI-072 RESERVED→IN_PROGRESS — الشِّفرةُ والدليل — 2026-10-13
+
+سجلُّ ذرّيّةِ الاختباراتِ والتصاريحُ المستهلَكةُ صارا في `TEST_ARTIFACT_DIR` لكلِّ جلسة · المقيس 31 ⇒ 0 `IdempotencyError` (`docs/audit/evidence/WI-072/`).
+
+### الأمرُ التالي حرفيًّا (بعد W-312)
+اقرأْ حكمَ CI على عقدةِ `W-312` وقيِّدْه أوّلَ بندٍ في `W-313` · ثمّ `WI-072` `IN_PROGRESS→IN_REVIEW`.
+
 ## المراجع
 - تسليم 1N: [`STAGE_1N_HANDOFF.md`](STAGE_1N_HANDOFF.md)
 - تسليم 1M: [`STAGE_1M_HANDOFF.md`](STAGE_1M_HANDOFF.md)

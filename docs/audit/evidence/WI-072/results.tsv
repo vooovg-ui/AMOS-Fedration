@@ -1,0 +1,9 @@
+run	setup	result_line	idempotency_errors
+A1	after-fix·same-dir·2-concurrent·27-tests	27 passed in 43.59s	0
+A2	after-fix·same-dir·2-concurrent·27-tests	27 passed in 42.02s	0
+A3	after-fix·same-dir·2-concurrent·27-tests	27 passed in 90.31s (0:01:30)	0
+A4	after-fix·same-dir·2-concurrent·27-tests	27 passed in 92.13s (0:01:32)	0
+R4_p1	after-fix·same-dir·4-concurrent·27-tests	27 passed in 171.81s (0:02:51)	0
+R4_p2	after-fix·same-dir·4-concurrent·27-tests	27 passed in 172.85s (0:02:52)	0
+R4_p3	after-fix·same-dir·4-concurrent·27-tests	27 passed in 170.62s (0:02:50)	0
+R4_p4	after-fix·same-dir·4-concurrent·27-tests	27 passed in 171.59s (0:02:51)	0

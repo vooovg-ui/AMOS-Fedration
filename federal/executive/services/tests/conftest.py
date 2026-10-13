@@ -235,7 +235,7 @@ TEST_IDEMPOTENCY_LEDGER_FILE = "amos_federation_test_idempotency.json"
 TEST_CONSUMED_PERMITS_FILE = "executive_core_consumed_permits.json"
 
 
-def _cleanup_test_ledger(workspace: Path) -> Path:
+def _cleanup_test_ledger(artifact_dir: Path) -> Path:
     """اعزِلْ سجلَّ الذرّيّةِ في ملفٍّ للاختباراتِ وامسَحْه مع قاعدةِ الاختبار.
 
     منذ 2A صارت كتابتانِ إنتاجيّتانِ تعبرانِ ضمانَ الذرّيّة (1H)، وسجلُّه ملفٌّ
@@ -245,8 +245,8 @@ def _cleanup_test_ledger(workspace: Path) -> Path:
     بل جعلُ حالتَي التخزينِ تُمسحانِ معًا. أمّا الإنتاجُ فسجلُّه دائمٌ كما هو،
     وتكرارُ النداءِ نفسِه فيه إعادةٌ لا أثرٌ ثانٍ.
     """
-    ledger = workspace / TEST_IDEMPOTENCY_LEDGER_FILE
-    for path in (ledger, workspace / TEST_CONSUMED_PERMITS_FILE):
+    ledger = artifact_dir / TEST_IDEMPOTENCY_LEDGER_FILE
+    for path in (ledger, artifact_dir / TEST_CONSUMED_PERMITS_FILE):
         with contextlib.suppress(OSError):
             path.unlink()
     return ledger
@@ -258,7 +258,12 @@ def pytest_sessionstart(session):
     # الأثرُ يُكتَبُ في مجلَّدٍ مُطلَقٍ خارجَ الشجرةِ، فيُنظَّفُ حيثُ كُتِبَ (`W-087`).
     _cleanup_test_db(TEST_ARTIFACT_DIR)
     _cleanup_egg_info(workspace)
-    os.environ["AMOS_EXECUTIVE_IDEMPOTENCY_LEDGER"] = str(_cleanup_test_ledger(workspace))
+    # سجلُّ الذرّيّةِ والتصاريحُ المستهلَكةُ في مجلَّدِ أثرِ **هذه** الجلسة
+    # (‏`W-312` · `WI-072` · `DISC-093`): كانا في مجلَّدِ الخدماتِ — مسارٌ ثابتٌ
+    # تشتركُ فيه كلُّ جلسةٍ متزامنةٍ فتمحو إحداها حجزَ الأخرى أو تكتبُ فوقَه.
+    # قِيسَ في `W-308`: مشتركٌ متوازٍ ⇒ 31 `IdempotencyError` · منفصلٌ ⇒ 0.
+    # وضمانُ «يُمسَحُ مع القاعدة» باقٍ كما هو: المجلَّدُ نفسُه مجلَّدُ القاعدة.
+    os.environ["AMOS_EXECUTIVE_IDEMPOTENCY_LEDGER"] = str(_cleanup_test_ledger(TEST_ARTIFACT_DIR))
 
 
 def pytest_sessionfinish(session, exitstatus):
@@ -266,7 +271,7 @@ def pytest_sessionfinish(session, exitstatus):
     workspace = Path(__file__).resolve().parent.parent
     _cleanup_test_db(TEST_ARTIFACT_DIR)
     _cleanup_egg_info(workspace)
-    _cleanup_test_ledger(workspace)
+    _cleanup_test_ledger(TEST_ARTIFACT_DIR)
 
 
 # ── رفعُ الإيقافِ بينَ الاختباراتِ (W-031 · قرارُ المالكِ Q-39 أ) ─────────────
