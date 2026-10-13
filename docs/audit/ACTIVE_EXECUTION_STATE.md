@@ -5171,6 +5171,15 @@ BLOCKED: 2 مخالفة من 11 بوابة
 ### الأمرُ التالي حرفيًّا (بعد W-309)
 اقرأْ حكمَ CI على عقدةِ `W-309` (`gh run list --repo vooovg-ui/AMOS-Fedration -L 4` ثمّ `gh api repos/vooovg-ui/AMOS-Fedration/actions/runs/<ID>/attempts/1/jobs > /tmp/j.json && python tools/governance/ci_verdict_readability.py --from-json /tmp/j.json`) وقيِّدْه أوّلَ بندٍ في `W-310`؛ وإن كانَ أخضرَ فقدِّمْ `main` إليها (`TZ=UTC git push origin <sha>:main`).
 
+## W-310 · قسمةُ WI-026 (Q-45) وWI-072 PROPOSED→READY — 2026-10-13
+
+- حكمُ CI على `8de0fed` (`W-309`) أخضرُ 13/13 على PR #37 (`38358676600`) وعلى `main` بعدَ الدمج (`38360628727`).
+- قرارُ المالكِ `Q-45`: `federal/executive/services/tests/conftest.py` أُفرِجَ عنه من `WI-026` إلى `WI-072`.
+- `WI-072` يُنفَّذُ على أربعِ دفعاتٍ (انتقالٌ لكلٍّ · `--range` يقيسُ `main` مقابلَ الفرع)؛ الإصلاحُ مقيسٌ محلّيًّا ولم يُدفَعْ بعد.
+
+### الأمرُ التالي حرفيًّا (بعد W-310)
+اقرأْ حكمَ CI على عقدةِ `W-310` وقيِّدْه أوّلَ بندٍ في `W-311` · ثمّ `WI-072` `READY→RESERVED`. وقبلَ أيِّ دفعٍ شغِّلْ أوامرَ `run: python tools/governance/…` في `ci.yml` كلَّها.
+
 ## المراجع
 - تسليم 1N: [`STAGE_1N_HANDOFF.md`](STAGE_1N_HANDOFF.md)
 - تسليم 1M: [`STAGE_1M_HANDOFF.md`](STAGE_1M_HANDOFF.md)
