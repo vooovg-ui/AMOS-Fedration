@@ -5165,8 +5165,11 @@ BLOCKED: 2 مخالفة من 11 بوابة
 3. السببُ: `federal/executive/services/tests/conftest.py` يضعُ سجلَّ الذرّيّةِ في مسارٍ ثابتٍ مشتركٍ ويمحوه في بدءِ كلِّ جلسةٍ وانتهائها؛ والقاعدةُ نفسُها فريدةٌ لكلِّ عمليّة (الفرضيّةُ الأولى منقوضة).
 4. الأدلّة: `docs/audit/evidence/W-308/` · البندُ `WI-071` (`IN_REVIEW`) · الإصلاحُ `WI-072` (`PROPOSED` · محجوبٌ بقفلِ `WI-026`) · `DISC-095`/`RK-023` للسجلِّ الإنتاجيّ.
 
-### الأمرُ التالي حرفيًّا (بعد W-308)
-اقرأْ حكمَ CI على عقدةِ `W-308` (`gh run list --repo vooovg-ui/AMOS-Fedration -L 4` ثمّ `gh api repos/vooovg-ui/AMOS-Fedration/actions/runs/<ID>/attempts/1/jobs > /tmp/j.json && python tools/governance/ci_verdict_readability.py --from-json /tmp/j.json`) وقيِّدْه أوّلَ بندٍ في `W-309`.
+### W-309 · تصحيحُ حمرةِ عقدةِ W-308
+حكمُ CI على `01b88b4` أحمرُ (12/13 · `Work Governance` · تشغيلُ `38355506523`): `OPEN_RECORD_WITHOUT_ANCHOR` لـ`DISC-095` و`RK-023`. صُحِّحَ بمِرساةِ «استحقاق: 2026-10-31» ولم يُدمَجْ شيءٌ قبلَ الخُضرة. **درسٌ للآتي:** شغِّلْ أوامرَ `run: python tools/governance/…` في `ci.yml` كلَّها قبلَ الدفع، لا قائمةَ § 7 من أمرِ التكليفِ وحدَها.
+
+### الأمرُ التالي حرفيًّا (بعد W-309)
+اقرأْ حكمَ CI على عقدةِ `W-309` (`gh run list --repo vooovg-ui/AMOS-Fedration -L 4` ثمّ `gh api repos/vooovg-ui/AMOS-Fedration/actions/runs/<ID>/attempts/1/jobs > /tmp/j.json && python tools/governance/ci_verdict_readability.py --from-json /tmp/j.json`) وقيِّدْه أوّلَ بندٍ في `W-310`؛ وإن كانَ أخضرَ فقدِّمْ `main` إليها (`TZ=UTC git push origin <sha>:main`).
 
 ## المراجع
 - تسليم 1N: [`STAGE_1N_HANDOFF.md`](STAGE_1N_HANDOFF.md)
