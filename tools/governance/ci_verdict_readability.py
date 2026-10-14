@@ -313,7 +313,19 @@ def measure(readings: list[RunReading], repo: str = "") -> dict[str, object]:
         "runs_unreadable": sum(r.verdict == RUN_UNREADABLE for r in readings),
         "runs_partially_readable": sum(r.verdict == RUN_PARTIAL for r in readings),
         "runs_undetermined": sum(r.verdict == RUN_UNDETERMINED for r in readings),
-        "runs": [asdict(r) for r in readings],
+        # `head_sha` حقلُ تشغيلٍ لا حقلَ قياسٍ منشورًا — لا يُكتبُ في الحِملِ
+        # الافتراضيِّ (لا تغييرَ في الخرجِ المنشورِ بلا `--require-readable`).
+        # يُستعملُه منطقُ البوّابةِ وحده لا الحُكمُ الافتراضيُّ.
+        "runs": [
+            {
+                **{k: v for k, v in asdict(r).items() if k != "jobs"},
+                "jobs": [
+                    {k: v for k, v in asdict(j).items() if k != "head_sha"}
+                    for j in r.jobs
+                ],
+            }
+            for r in readings
+        ],
     }
 
 
@@ -362,11 +374,14 @@ def _render_require_readable(
     readings: list[RunReading],
     *,
     expect_sha: str,
-) -> str:
-    """تقريرُ بوّابةِ الدمج — يُطبعُ السببَ باسمِ الوظيفةِ فلا يُكتَمُ عنه.
+) -> tuple[str, bool]:
+    """تقريرُ بوّابةِ الدمجِ وحكمُها في تقييمٍ واحدٍ — النصُّ والخروجُ لا يفترقان.
+
+    يُعادُ `(text, verdict_ok)` من تقييمٍ واحدٍ: فلا يمكنُ أن يُطبعَ ✗
+    ويُخرَجَ صفرًا (أو العكس) — عيبٌ في التصميمِ الأولِ (W-320 · المستشارِ).
 
     مقصودٌ للاستعمالِ معَ `--require-readable` وحدَه: يتحققُ أنّ كلَّ تشغيلٍ
-    `READABLE` **و**كلَّ وظيفةٍ `conclusion=success` **و**أنّ `head_sha`
+    `READABLE` **و**كلَّ وظيفةٍ `conclusion=success` (بلا استثناءٍ للمتخطّاةِ) **و**أنّ `head_sha`
     مطابقةٌ للعقدةِ المتوقَّعةِ (إن أُعطِيَت). بلا هذه، لا تُعادُ المقارنةُ ولا
     يُطبَعُ شيءٌ — فالحُكمُ الافتراضيُّ يبقى كما هو (`render`).
     """
@@ -384,12 +399,12 @@ def _render_require_readable(
                 "حكمًا على الشجرةِ قبلَ المقروئيّةِ."
             )
 
-    # (2) الخضرةُ: كلُّ وظيفةٍ غيرِ مُتخطّاةٍ يجبُ أنْ تكونَ `success`
-    #    (المتخطّاةُ تُخرَجُ من المقامِ لا من الجردِ — سابقةُ `classify_job`)
+    # (2) الخضرةُ: كلُّ وظيفةٍ يجبُ أنْ تكونَ `success` — **لا استثناءً للمتخطّاة**
+    #    في الوضعِ الصارمِ (معيارُ القبولِ 1 في WI-073). المتخطّاةُ تُخرَجُ
+    #    من المقامِ في الحُكمِ الافتراضيِّ لا في بوّابةِ الدمجِ (سابقةُ
+    #    `classify_job` للاحتياجِ على الخروجِ الافتراضيِّ وحده).
     for r in readings:
         for j in r.jobs:
-            if j.classification == JOB_SKIPPED:
-                continue
             if j.conclusion != "success":
                 verdict_ok = False
                 lines.append(
@@ -426,7 +441,7 @@ def _render_require_readable(
             "[CI VERDICT] ✗ بوّابةُ الدمجِ مُسقِطةٌ — الدفعُ إلى `main` لا يجوزُ "
             "حتى يزولَ السببُ المذكورُ أعلاه."
         )
-    return "\n".join(lines)
+    return "\n".join(lines), verdict_ok
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -496,8 +511,11 @@ def main(argv: list[str] | None = None) -> int:
     merge_gate_ok = True
     if args.require_readable:
         print()
-        print(_render_require_readable(readings, expect_sha=args.expect_sha))
-        merge_gate_ok = _require_readable_passes(readings, expect_sha=args.expect_sha)
+        # النصُّ والحكمُ من تقييمٍ واحدٍ — لا فصلَ بينَهما (W-320 · المستشارِ)
+        _gate_text, merge_gate_ok = _render_require_readable(
+            readings, expect_sha=args.expect_sha
+        )
+        print(_gate_text)
 
     if args.json:
         out = Path(args.json)
@@ -524,8 +542,6 @@ def _require_readable_passes(
         if r.conclusion_quotable is False:
             return False
         for j in r.jobs:
-            if j.classification == JOB_SKIPPED:
-                continue
             if j.conclusion != "success":
                 return False
             if expect_sha:

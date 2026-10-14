@@ -477,8 +477,13 @@ def test_expect_sha_without_require_readable_is_rejected(capsys) -> None:
     assert "--require-readable" in capsys.readouterr().err
 
 
-def test_require_readable_does_not_skip_a_skipped_job(tmp_path: Path) -> None:
-    """المتخطّاةُ تُخرَجُ من المقامِ لا من الجردِ — فحصٌ يقيسُ أنّها لا تُقيّدُ الخضرةَ."""
+def test_require_readable_rejects_a_skipped_job(tmp_path: Path) -> None:
+    """معيارُ القبولِ 1: كلُّ وظيفةٍ `conclusion=success` — **بلا استثناءٍ للمتخطّاة**.
+
+    المتخطّاةُ تُخرَجُ من المقامِ في الحُكمِ الافتراضيِّ (السابقُ `DISC-006`) لا
+    في بوّابةِ الدمجِ الصارمةِ (`WI-073` · معيارُ 1): بوّابةُ الدمجِ تُسقِطُ
+    أيَّ وظيفةٍ غيرِ `success` — و`skipped` ليسَ `success`.
+    """
     payload = tmp_path / "skipped.json"
     payload.write_text(
         json.dumps(
@@ -513,7 +518,51 @@ def test_require_readable_does_not_skip_a_skipped_job(tmp_path: Path) -> None:
                 _TEST_SHA,
             ]
         )
-        == 0
+        != 0
+    )
+
+
+def test_require_readable_skipped_job_does_not_count_as_success(tmp_path: Path) -> None:
+    """الحُكمُ الافتراضيُّ يُخرِجُ المتخطّاةَ من المقامِ (لا تغييرَ في ذلك) — وبوّابةُ الدمجِ تُسقِطُها.
+
+    هذا يفحصُ أنّ التصنيفَ `JOB_SKIPPED` لا يُشتمَلُ في حسابِ المقروئيّةِ
+    الافتراضيِّ — وبوّابةُ الدمجِ الصارمةُ تعتمدُ على النتيجةِ لا التصنيف.
+    """
+    payload = tmp_path / "skipped.json"
+    payload.write_text(
+        json.dumps(
+            {
+                "jobs": [
+                    _job(
+                        "a",
+                        steps=[_step(True)],
+                        runner_id=1,
+                        conclusion="success",
+                        head_sha=_TEST_SHA,
+                    ),
+                    _job(
+                        "optional",
+                        steps=[_step(True)],
+                        runner_id=2,
+                        conclusion="skipped",
+                        head_sha=_TEST_SHA,
+                    ),
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert (
+        tool.main(
+            [
+                "--from-json",
+                str(payload),
+                "--require-readable",
+                "--expect-sha",
+                _TEST_SHA,
+            ]
+        )
+        != 0
     )
 
 
