@@ -93,7 +93,7 @@
 | WI-070 | audit-truth | T0 (‏M2: مزامنةُ الحقيقةِ الوثائقيةِ بالقياسِ · أمرُ التكليفِ الأوّل · توجيهُ المستشارِ 1) | Perplexity Computer (وقائدُ عملٍ مزدوجٍ مع WI-060 على PROJECT_STATE.md ومع WI-041 على docs/PROJECT_HANDBOOK.md — § 6.1) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | docs/audit/PHASE_E_ROADMAP.md | 2026-10-12 | 2026-10-31 | **مسجَّلٌ `PROPOSED` بقرارِ المالكِ «لا تتوقّفْ ولا تنتظر»** · ولا شِفرةَ ولا انتقالَ VERIFIED · القياساتُ من `W-295`/`W-294` تُستعملُ كما هي (لا تُعاد) | تصحيحُ M2 وتنظيمُهُ (توجيهُ المستشارِ 1 · D1–D8) · **الخطوةُ التالية:** مرورُ الحالاتِ ثمَّ إصلاحُ العيوبِ | — (يُكتَبُ عندَ الإغلاقِ) |
 | WI-071 | audit-truth | T0 (‏قابليّةُ القياس · الدفعةُ C: تشخيصُ `DISC-093` — تشخيصٌ لا ترقيع) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | docs/audit/evidence/W-308/ | 2026-10-13 | 2026-10-31 | — (لا عائق · الإصلاحُ نفسُه محجوبٌ بقفلِ `WI-026` على `federal/executive/services/tests/conftest.py` فخرجَ إلى `WI-072`) | مراجعةُ المجلسِ لتجربةِ `docs/audit/evidence/W-308/README.md` بإعادتِها | — (يُكتَبُ عندَ الإغلاقِ) |
 | WI-072 | federal-executive | T0 (‏قابليّةُ القياس · إصلاحُ سببِ `DISC-093` المقيسِ في `W-308`) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | federal/executive/services/tests/conftest.py · federal/executive/services/tests/test_w308_test_ledger_is_per_session.py · docs/audit/evidence/WI-072/ | 2026-10-13 | 2026-10-31 | — (القفلُ رُفِعَ بقرارِ المالكِ `Q-45` · قسمةُ نطاقِ `WI-026`) | مراجعةُ المجلسِ بإعادةِ أوامرِ معيارِ القبول | — (يُكتَبُ عندَ الإغلاقِ) |
-| WI-073 | tooling-gates | T0 (‏قابليّةُ القياس · `DISC-096`: بوّابةُ دمجٍ آليّةٌ في قارئِ حكمِ CI — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | READY | tools/governance/ci_verdict_readability.py · tests/governance/test_w051_ci_verdict_readability.py | 2026-10-14 | 2026-10-31 | **حُلَّ الترتيبُ بقرارِ المالكِ الصريحِ في الجلسةِ (2026-10-14): «اجابه : المالك ليس تقنيًّا، لك حرية التنفيذ والتقرير نيابة عن المالك … لا تتوقف أطلقًا»** — سقطَ اشتراطُ قرارِ مالكِ `WI-048` (`Driving H`) لإسنادِ المالكِ والترتيبِ · **`PROPOSED → READY` بـ`W-317`** بقرارِ المالكِ نيابةً · مالكٌ مباشرٌ: `Perplexity Computer` · `WI-048` (`READY` · `DISC-056`) باقٍ كما هو ولم يُلمَسْ: بندٌ آخرُ مستقلٌ يخدمُ شقًّا آخرَ (تثبيتُ المحاولةِ في الاستدعاءِ الحيِّ) لا يشغَّلُ في هذه الدفعةِ | التنفيذُ (الشقُّ 1: `--require-readable` و`--expect-sha` في `ci_verdict_readability.py` وحرسُهُ في `test_w051`) | — (يُكتَبُ عندَ الإغلاق) |
+| WI-073 | tooling-gates | T0 (‏قابليّةُ القياس · `DISC-096`: بوّابةُ دمجٍ آليّةٌ في قارئِ حكمِ CI — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | RESERVED | tools/governance/ci_verdict_readability.py · tests/governance/test_w051_ci_verdict_readability.py | 2026-10-14 | 2026-10-31 | **حُلَّ الترتيبُ بقرارِ المالكِ الصريحِ في الجلسةِ (2026-10-14): «اجابه : المالك ليس تقنيًّا، لك حرية التنفيذ والتقرير نيابة عن المالك … لا تتوقف أطلقًا»** — سقطَ اشتراطُ قرارِ مالكِ `WI-048` (`Driving H`) لإسنادِ المالكِ والترتيبِ · **`PROPOSED → READY` بـ`W-317`** بقرارِ المالكِ نيابةً · مالكٌ مباشرٌ: `Perplexity Computer` · `WI-048` (`READY` · `DISC-056`) باقٍ كما هو ولم يُلمَسْ: بندٌ آخرُ مستقلٌ يخدمُ شقًّا آخرَ (تثبيتُ المحاولةِ في الاستدعاءِ الحيِّ) لا يشغَّلُ في هذه الدفعةِ | التنفيذُ (الشقُّ 1: `--require-readable` و`--expect-sha` في `ci_verdict_readability.py` وحرسُهُ في `test_w051`) | — (يُكتَبُ عندَ الإغلاق) |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
 
@@ -4524,14 +4524,14 @@ PROGRESS (انتقالٌ واحدٌ لكلِّ دفعة — check_work_governanc
 قيدُ السجلّ: W-308 (سُجِّلَ PROPOSED) · W-310 (PROPOSED→READY · Q-45) · W-311 (READY→RESERVED) · W-312 (RESERVED→IN_PROGRESS) · W-313 (IN_PROGRESS→IN_REVIEW) · W-314 (حزمةُ مراجعةٍ · بلا تغييرِ حالة)
 ```
 
-### WI-073 — بوّابةُ دمجٍ في `ci_verdict_readability.py`: `--require-readable` — `READY` (سُجِّلَ في `W-316` · انتقلَ بـ`W-317`)
+### WI-073 — بوّابةُ دمجٍ في `ci_verdict_readability.py`: `--require-readable` — `RESERVED` (سُجِّلَ في `W-316` · `READY` بـ`W-317` · `RESERVED` بـ`W-318`)
 
 ```text
 المعرِّف: WI-073
 النطاق: tooling-gates (أداةُ قراءةِ حكمِ CI وحرسُها وحدَهما)
 المسار/المرحلة: T0 (قابليّةُ القياس)
 المالك: Perplexity Computer      المراجع: مجلس المراجعة (GPT 5.6 + Grok 4.6)
-الحالة: READY  (PROPOSED ← READY · § 4.3 · لا قفزَ)
+الحالة: RESERVED  (PROPOSED ← READY ← RESERVED · سقفُ الدفعةِ 1 من 4 · § 4.3 · لا قفزَ)
 المسارات: tools/governance/ci_verdict_readability.py · tests/governance/test_w051_ci_verdict_readability.py
 الأصل: DISC-096 (W-315) — بأمرِ المالكِ في الجلسة (2026-10-14):
   «اجابه : المالك ليس تقنيًّا، لك حرية التنفيذ والتقرير نيابة عن المالك …
