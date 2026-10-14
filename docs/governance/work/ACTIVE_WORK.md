@@ -91,8 +91,8 @@
 | WI-068 | audit-truth | T0 (‏M0: قياسُ خطِّ أساسٍ بلا شِفرةٍ — استيعابٌ) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | docs/audit/COMPLETION_LEDGER.md · docs/governance/work/ACTIVE_WORK.md · docs/governance/work/DISCOVERIES.md · docs/audit/ACTIVE_EXECUTION_STATE.md | 2026-10-12 | 2026-10-31 | **وثَّقَ مسارَهُ الكاملَ (`PROPOSED→READY→RESERVED→IN_PROGRESS→IN_REVIEW`) في `W-299`** — سندُ التفويضِ: «تفويض صريح بـREADY» (2026-10-12) · تعديلاتُ الملفاتِ المشتركةِ (COMPLETION_LEDGER · ACTIVE_WORK · PROJECT_STATE · PROJECT_HANDBOOK · ACTIVE_EXECUTION_STATE) مُسندَةٌ إلى `WI-068` · الحزمةُ (HANDOFFS) ومجلَّدُ الأدلةِ (evidence/W-295/) مُسندَةٌ إلى `WI-069` · ولا إسنادٌ بأثرٍ رجعيٍّ إلى W-294 | مراجعةُ مجلسِ المراجعةِ (GPT 5.6 + Grok 4.6) على قيدِ W-294 — `IN_REVIEW → VERIFIED` بإجماعِهما أو `→ IN_PROGRESS` بسؤالٍ محدَّد | — (يُكتَبُ عندَ الإغلاق) |
 | WI-069 | audit-truth | T0 (‏M1: إعدادُ حزمةِ مراجعةٍ للبنودِ IN_REVIEW · أمرُ التكليفِ الأوّل) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | docs/governance/work/HANDOFFS/WI-069-M1-REVIEW-PACKAGE.md · docs/audit/evidence/W-295/ | 2026-10-12 | 2026-10-31 | **`IN_REVIEW` في `W-299`** · سلسلةُ القيودِ: `W-295` تسجيلٌ · `W-296` `PROPOSED→READY` · `W-297` `READY→RESERVED` · `W-298` `RESERVED→IN_PROGRESS` · `W-299` `IN_PROGRESS→IN_REVIEW` — كلُّها بإذنِ المالكِ الصريحِ **«تفويض صريح بـREADY»** (2026-10-12) · ولا انتقالَ إلى `VERIFIED` · ولا إسنادٌ بأثرٍ رجعيٍّ | مراجعةُ مجلسِ المراجعةِ (GPT 5.6 + Grok 4.6) على حزمةِ W-295 — لكلِّ بندٍ `IN_REVIEW → VERIFIED` بإجماعٍ أو `→ IN_PROGRESS` بسؤالٍ محدَّد | — (يُكتَبُ عندَ الإغلاق) |
 | WI-070 | audit-truth | T0 (‏M2: مزامنةُ الحقيقةِ الوثائقيةِ بالقياسِ · أمرُ التكليفِ الأوّل · توجيهُ المستشارِ 1) | Perplexity Computer (وقائدُ عملٍ مزدوجٍ مع WI-060 على PROJECT_STATE.md ومع WI-041 على docs/PROJECT_HANDBOOK.md — § 6.1) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | docs/audit/PHASE_E_ROADMAP.md | 2026-10-12 | 2026-10-31 | **مسجَّلٌ `PROPOSED` بقرارِ المالكِ «لا تتوقّفْ ولا تنتظر»** · ولا شِفرةَ ولا انتقالَ VERIFIED · القياساتُ من `W-295`/`W-294` تُستعملُ كما هي (لا تُعاد) | تصحيحُ M2 وتنظيمُهُ (توجيهُ المستشارِ 1 · D1–D8) · **الخطوةُ التالية:** مرورُ الحالاتِ ثمَّ إصلاحُ العيوبِ | — (يُكتَبُ عندَ الإغلاقِ) |
-| WI-071 | audit-truth | T0 (‏قابليّةُ القياس · الدفعةُ C: تشخيصُ `DISC-093` — تشخيصٌ لا ترقيع) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | docs/audit/evidence/W-308/ | 2026-10-13 | 2026-10-31 | — (لا عائق · الإصلاحُ نفسُه محجوبٌ بقفلِ `WI-026` على `federal/executive/services/tests/conftest.py` فخرجَ إلى `WI-072`) | مراجعةُ المجلسِ لتجربةِ `docs/audit/evidence/W-308/README.md` بإعادتِها | — (يُكتَبُ عندَ الإغلاقِ) |
-| WI-072 | federal-executive | T0 (‏قابليّةُ القياس · إصلاحُ سببِ `DISC-093` المقيسِ في `W-308`) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | federal/executive/services/tests/conftest.py · federal/executive/services/tests/test_w308_test_ledger_is_per_session.py · docs/audit/evidence/WI-072/ | 2026-10-13 | 2026-10-31 | — (القفلُ رُفِعَ بقرارِ المالكِ `Q-45` · قسمةُ نطاقِ `WI-026`) | مراجعةُ المجلسِ بإعادةِ أوامرِ معيارِ القبول | — (يُكتَبُ عندَ الإغلاقِ) |
+| WI-071 | audit-truth | T0 (‏قابليّةُ القياس · الدفعةُ C: تشخيصُ `DISC-093` — تشخيصٌ لا ترقيع) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | VERIFIED | docs/audit/evidence/W-308/ | 2026-10-13 | 2026-10-31 | — (لا عائق · الإصلاحُ نفسُه محجوبٌ بقفلِ `WI-026` على `federal/executive/services/tests/conftest.py` فخرجَ إلى `WI-072`) | مراجعةُ المجلسِ لتجربةِ `docs/audit/evidence/W-308/README.md` بإعادتِها | — (يُكتَبُ عندَ الإغلاقِ) |
+| WI-072 | federal-executive | T0 (‏قابليّةُ القياس · إصلاحُ سببِ `DISC-093` المقيسِ في `W-308`) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | VERIFIED | federal/executive/services/tests/conftest.py · federal/executive/services/tests/test_w308_test_ledger_is_per_session.py · docs/audit/evidence/WI-072/ | 2026-10-13 | 2026-10-31 | — (القفلُ رُفِعَ بقرارِ المالكِ `Q-45` · قسمةُ نطاقِ `WI-026`) | مراجعةُ المجلسِ بإعادةِ أوامرِ معيارِ القبول | — (يُكتَبُ عندَ الإغلاقِ) |
 | WI-073 | tooling-gates | T0 (‏قابليّةُ القياس · `DISC-096`: بوّابةُ دمجٍ آليّةٌ في قارئِ حكمِ CI — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | tools/governance/ci_verdict_readability.py · tests/governance/test_w051_ci_verdict_readability.py | 2026-10-14 | 2026-10-31 | **حُلَّ الترتيبُ بقرارِ المالكِ الصريحِ في الجلسةِ (2026-10-14): «اجابه : المالك ليس تقنيًّا، لك حرية التنفيذ والتقرير نيابة عن المالك … لا تتوقف أطلقًا»** — سقطَ اشتراطُ قرارِ مالكِ `WI-048` (`Driving H`) لإسنادِ المالكِ والترتيبِ · **`PROPOSED → READY` بـ`W-317`** بقرارِ المالكِ نيابةً · مالكٌ مباشرٌ: `Perplexity Computer` · `WI-048` (`READY` · `DISC-056`) باقٍ كما هو ولم يُلمَسْ: بندٌ آخرُ مستقلٌ يخدمُ شقًّا آخرَ (تثبيتُ المحاولةِ في الاستدعاءِ الحيِّ) لا يشغَّلُ في هذه الدفعةِ | التنفيذُ (الشقُّ 1: `--require-readable` و`--expect-sha` في `ci_verdict_readability.py` وحرسُهُ في `test_w051`) | — (يُكتَبُ عندَ الإغلاق) |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
@@ -4415,14 +4415,14 @@ PROGRESS: سلسلةُ `WI-069` موزَّعةٌ على W-295…W-299 · وسل�
   docs/index.md                                                       (إن قاسَتْهُ أدواتُهُ وظهرَ انحرافٌ)
 ```
 
-### WI-071 — الدفعةُ C: تشخيصُ `DISC-093` (إخفاقُ `test_r7d` المتقطّع) — `IN_REVIEW` · سُجِّلَ وأُنجِزَ وسُلِّمَ في `W-308`
+### WI-071 — الدفعةُ C: تشخيصُ `DISC-093` (إخفاقُ `test_r7d` المتقطّع) — `VERIFIED` · سُجِّلَ وأُنجِزَ وسُلِّمَ في `W-308`
 
 ```text
 المعرِّف: WI-071
 النطاق: audit-truth (تشخيصٌ بتجربةٍ تفاضليّةٍ · لا شِفرةَ ولا ترقيع)
 المسار/المرحلة: T0 (قابليّةُ القياس — إخفاقٌ متقطّعٌ يُفسَّرُ بسببٍ مقيسٍ لا بإعادةِ تشغيل)
 المالك: Perplexity Computer            المراجع: مجلس المراجعة (GPT 5.6 + Grok 4.6)
-الحالة: IN_REVIEW
+الحالة: VERIFIED  (IN_REVIEW ← VERIFIED · بإجماعِ مجلسِ المراجعةِ (GPT 5.6 Terra + Grok 4.7) · Q-43 · 2026-10-14 · W-324 · **فعلُ المجلسِ لا الكاتبِ**)
 المسارات: docs/audit/evidence/W-308/
 بدأ: 2026-10-13          ينتهي الحجز: 2026-10-31
 
@@ -4470,14 +4470,14 @@ PROGRESS (التسلسلُ المحلّيُّ على الفرعِ قبلَ ال�
 قيدُ السجلّ: W-308 (تسجيلٌ وتنفيذٌ وتسليمٌ في التزامٍ واحد · ولا انتقالَ إلى VERIFIED) · W-309 (تصحيحُ حمرةِ CI على عقدةِ W-308: مِرساةُ استحقاقٍ لـDISC-095/RK-023 · بلا تغييرِ حالة) · W-314 (حزمةُ مراجعةٍ · بلا تغييرِ حالة)
 ```
 
-### WI-072 — إصلاحُ سببِ `DISC-093`: سجلُّ ذرّيّةِ الاختباراتِ لكلِّ جلسة — `IN_REVIEW` (سُجِّلَ `PROPOSED` في `W-308` · `READY` في `W-310` · `RESERVED` في `W-311` · `IN_PROGRESS` في `W-312` · `IN_REVIEW` في `W-313`)
+### WI-072 — إصلاحُ سببِ `DISC-093`: سجلُّ ذرّيّةِ الاختباراتِ لكلِّ جلسة — `VERIFIED` (سُجِّلَ `PROPOSED` في `W-308` · `READY` في `W-310` · `RESERVED` في `W-311` · `IN_PROGRESS` في `W-312` · `IN_REVIEW` في `W-313` · `VERIFIED` في `W-324`)
 
 ```text
 المعرِّف: WI-072
 النطاق: federal-executive (بنيةُ الاختبارِ وحدَها · لا شِفرةَ إنتاج)
 المسار/المرحلة: T0 (قابليّةُ القياس)
 المالك: Perplexity Computer      المراجع: مجلس المراجعة (GPT 5.6 + Grok 4.6)
-الحالة: IN_REVIEW
+الحالة: VERIFIED  (IN_REVIEW ← VERIFIED · بإجماعِ مجلسِ المراجعةِ (GPT 5.6 Terra + Grok 4.7) · Q-43 · 2026-10-14 · W-324 · **فعلُ المجلسِ لا الكاتبِ**)
 المسارات: federal/executive/services/tests/conftest.py · federal/executive/services/tests/test_w308_test_ledger_is_per_session.py · docs/audit/evidence/WI-072/
 بدأ: 2026-10-13          ينتهي الحجز: 2026-10-31
 
@@ -4524,14 +4524,14 @@ PROGRESS (انتقالٌ واحدٌ لكلِّ دفعة — check_work_governanc
 قيدُ السجلّ: W-308 (سُجِّلَ PROPOSED) · W-310 (PROPOSED→READY · Q-45) · W-311 (READY→RESERVED) · W-312 (RESERVED→IN_PROGRESS) · W-313 (IN_PROGRESS→IN_REVIEW) · W-314 (حزمةُ مراجعةٍ · بلا تغييرِ حالة)
 ```
 
-### WI-073 — بوّابةُ دمجٍ في `ci_verdict_readability.py`: `--require-readable` — `IN_REVIEW` (سُجِّلَ في `W-316` · `READY` بـ`W-317` · `RESERVED` بـ`W-318` · `IN_PROGRESS` بـ`W-319` · `IN_REVIEW` بـ`W-320`)
+### WI-073 — بوّابةُ دمجٍ في `ci_verdict_readability.py`: `--require-readable` — `IN_REVIEW` (سُجِّلَ في `W-316` · `READY` بـ`W-317` · `RESERVED` بـ`W-318` · `IN_PROGRESS` بـ`W-319` · `IN_REVIEW` بـ`W-320` · **`REJECTED` (P2) في الجولةِ (`W-324` · Q-43 · GPT 5.6 Terra + Grok 4.7 بإجماعٍ)**)
 
 ```text
 المعرِّف: WI-073
 النطاق: tooling-gates (أداةُ قراءةِ حكمِ CI وحرسُها وحدَهما)
 المسار/المرحلة: T0 (قابليّةُ القياس)
 المالك: Perplexity Computer      المراجع: مجلس المراجعة (GPT 5.6 + Grok 4.6)
-الحالة: IN_REVIEW  (PROPOSED ← READY ← RESERVED ← IN_PROGRESS ← IN_REVIEW · الدفعةُ 4 من 4 · § 4.3 · لا قفزَ · **`VERIFIED` فعلُ المراجعِ لا الكاتبِ**)
+الحالة: IN_REVIEW  (PROPOSED ← READY ← RESERVED ← IN_PROGRESS ← IN_REVIEW · الدفعةُ 4 من 4 · § 4.3 · لا قفزَ · **مرفوضٌ في الجولةِ الأولى (`W-324` · P2 · تصحيحُ العدِّ +11 لا +10) · لا `VERIFIED` حتى يُصحَّحَ ويُعادَ القياس**)
 المسارات: tools/governance/ci_verdict_readability.py · tests/governance/test_w051_ci_verdict_readability.py
 الأصل: DISC-096 (W-315) — بأمرِ المالكِ في الجلسة (2026-10-14):
   «اجابه : المالك ليس تقنيًّا، لك حرية التنفيذ والتقرير نيابة عن المالك …
