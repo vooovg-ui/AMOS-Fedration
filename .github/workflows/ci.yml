@@ -243,6 +243,21 @@ jobs:
       - name: بوابة 6 — كلُّ سجلٍّ مفتوحٍ له مرسًى ومالِكٌ
         run: python tools/governance/open_record_accountability.py
 
+      # W-335 · WI-074 · قرارُ المالكِ `Q-E` (التفويضُ العامُّ 2026-10-15): حرسُ
+      # إزاحةِ التزامِ الدمجِ **قبلَ الدفعِ** لا بعدَه (`W-293`/`W-329`). الحدُّ
+      # المُعلَنُ: رفضُ التزامِ الدمجِ **الموجودِ فعليًّا** في المدى، لا منعُ
+      # التزامٍ سيُنشِئُهُ الخادمُ لاحقًا — فحظرُ `gh pr merge` وزرِّ الدمجِ
+      # (`W-293`) باقٍ نصًّا ولا تُكمِلُهُ هذه البوّابةُ ولا تُزعمُهُ.
+      # الاستثناءُ (`DISC-065`): عقدةُ الدمجِ العارضةُ التي وَلَّدَتها المنصّةُ في
+      # `refs/pull/N/merge` تُستثنى وحدَها (`--exclude-ephemeral`) — فلا يُحمَرُّ
+      # الحكمُ بسببِ إزاحةٍ لا يملكُها المستودعُ ولا يعيدُ إنشاءَها.
+      - name: بوابة 7 — حرسُ إزاحةِ التزامِ الدمجِ قبلَ الدفعِ (Q-E · WI-074 · W-335)
+        run: |
+          python tools/governance/pre_push_merge_guard.py \
+            --base-ref "origin/${{ github.base_ref || 'main' }}" \
+            --head HEAD \
+            --exclude-ephemeral
+
   constitutional-kernel:
     name: Constitutional Kernel (E1 — بوابات الدستور)
     runs-on: ubuntu-latest
