@@ -1,0 +1,21 @@
+{
+  "$comment": "الهدف: حِملٌ ثابتٌ لاختبارِ بوّابةِ الدمجِ — مقروءٌ أخضرُ وبصمةٌ مطابقةٌ (المعيارُ 1 · W-331)",
+  "jobs": [
+    {
+      "id": 1,
+      "name": "a",
+      "conclusion": "success",
+      "status": "completed",
+      "runner_id": 1,
+      "run_id": 1,
+      "steps": [
+        {
+          "name": "Run",
+          "conclusion": "success",
+          "started_at": "2026-08-25T21:58:11Z"
+        }
+      ],
+      "head_sha": "4230f581e9061adc1e8e056650ab82bf1bc8af0b"
+    }
+  ]
+}

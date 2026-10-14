@@ -1,0 +1,15 @@
+{
+  "$comment": "الهدف: حِملٌ ثابتٌ لاختبارِ المقارنةِ الحرفيّةِ — تشغيلٌ غيرُ مقروءٍ (steps=[]) (المعيارُ 3 · W-331)",
+  "jobs": [
+    {
+      "id": 1,
+      "name": "a",
+      "conclusion": "success",
+      "status": "completed",
+      "runner_id": 0,
+      "run_id": 1,
+      "steps": [],
+      "head_sha": "4230f581e9061adc1e8e056650ab82bf1bc8af0b"
+    }
+  ]
+}

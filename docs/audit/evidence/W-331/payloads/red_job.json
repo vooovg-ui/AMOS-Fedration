@@ -1,0 +1,21 @@
+{
+  "$comment": "الهدف: حِملٌ ثابتٌ لاختبارِ بوّابةِ الدمجِ — مقروءٌ فيه وظيفةٌ حمراءُ يجبُ أن تُسقِطَ البوّابةَ (المعيارُ 1 · W-331)",
+  "jobs": [
+    {
+      "id": 1,
+      "name": "Lint",
+      "conclusion": "failure",
+      "status": "completed",
+      "runner_id": 1,
+      "run_id": 1,
+      "steps": [
+        {
+          "name": "Run",
+          "conclusion": "success",
+          "started_at": "2026-08-25T21:58:11Z"
+        }
+      ],
+      "head_sha": "4230f581e9061adc1e8e056650ab82bf1bc8af0b"
+    }
+  ]
+}

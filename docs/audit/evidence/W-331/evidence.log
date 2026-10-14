@@ -1,0 +1,169 @@
+### AC1-positive
+CMD: python tools/governance/ci_verdict_readability.py --from-json docs/audit/evidence/W-331/payloads/ci_jobs_main_e7ebc79.json --require-readable --expect-sha e7ebc79421af385a1832b657172ca4ad0016ad1a
+EXIT: 0
+OUTPUT:
+[CI VERDICT] مقروئيّةُ الحكمِ تُقاسُ بالخطواتِ لا بالنتيجة
+  تشغيلٌ 38588301471: READABLE · نُفِّذَت 13/13 وظيفةً (لم يُسنَدْ عاملٌ لـ0 · مُتخطًّى 0 · مشكوكٌ 0)
+[CI VERDICT] ✓ كلُّ التشغيلاتِ (1) نُفِّذَت خطواتُها — فـ`conclusion` يُقرأُ حكمًا.
+
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+[CI VERDICT] ✓ كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — فالدمجُ جائزٌ إجرائيًّا.
+
+
+### AC2-direct-negative
+CMD: python tools/governance/ci_verdict_readability.py --from-json docs/audit/evidence/W-331/payloads/wrong_sha.json --require-readable --expect-sha 4230f581e9061adc1e8e056650ab82bf1bc8af0b
+EXIT: 1
+OUTPUT:
+[CI VERDICT] مقروئيّةُ الحكمِ تُقاسُ بالخطواتِ لا بالنتيجة
+  تشغيلٌ 1: READABLE · نُفِّذَت 1/1 وظيفةً (لم يُسنَدْ عاملٌ لـ0 · مُتخطًّى 0 · مشكوكٌ 0)
+[CI VERDICT] ✓ كلُّ التشغيلاتِ (1) نُفِّذَت خطواتُها — فـ`conclusion` يُقرأُ حكمًا.
+
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+  ✗ تشغيلٌ 1 · وظيفةٌ wrong: head_sha=9999999999999999999999999999999999999999 != العقدةِ المتوقَّعةِ 4230f581e9061adc1e8e056650ab82bf1bc8af0b — حِملُ تشغيلٍ آخرَ لا العقدةَ المرادَ دمجُها.
+[CI VERDICT] ✗ بوّابةُ الدمجِ مُسقِطةٌ — الدفعُ إلى `main` لا يجوزُ حتى يزولَ السببُ المذكورُ أعلاه.
+
+
+### AC3-default-green_matching.json
+CMD (ref d086f90 · worktree مؤقّت): python tools/governance/ci_verdict_readability.py --from-json <مسارٌ مطلقٌ إلى> docs/audit/evidence/W-331/payloads/green_matching.json
+CMD (cur e7ebc79): نفسُ الأمرِ في جذرِ العملِ الحاليِّ
+IDENTICAL: True
+REF EXIT: 0
+CUR EXIT: 0
+REF OUTPUT:
+[CI VERDICT] مقروئيّةُ الحكمِ تُقاسُ بالخطواتِ لا بالنتيجة
+  تشغيلٌ 1: READABLE · نُفِّذَت 1/1 وظيفةً (لم يُسنَدْ عاملٌ لـ0 · مُتخطًّى 0 · مشكوكٌ 0)
+[CI VERDICT] ✓ كلُّ التشغيلاتِ (1) نُفِّذَت خطواتُها — فـ`conclusion` يُقرأُ حكمًا.
+
+CUR OUTPUT:
+[CI VERDICT] مقروئيّةُ الحكمِ تُقاسُ بالخطواتِ لا بالنتيجة
+  تشغيلٌ 1: READABLE · نُفِّذَت 1/1 وظيفةً (لم يُسنَدْ عاملٌ لـ0 · مُتخطًّى 0 · مشكوكٌ 0)
+[CI VERDICT] ✓ كلُّ التشغيلاتِ (1) نُفِّذَت خطواتُها — فـ`conclusion` يُقرأُ حكمًا.
+
+
+### AC3-default-red_job.json
+CMD (ref d086f90 · worktree مؤقّت): python tools/governance/ci_verdict_readability.py --from-json <مسارٌ مطلقٌ إلى> docs/audit/evidence/W-331/payloads/red_job.json
+CMD (cur e7ebc79): نفسُ الأمرِ في جذرِ العملِ الحاليِّ
+IDENTICAL: True
+REF EXIT: 0
+CUR EXIT: 0
+REF OUTPUT:
+[CI VERDICT] مقروئيّةُ الحكمِ تُقاسُ بالخطواتِ لا بالنتيجة
+  تشغيلٌ 1: READABLE · نُفِّذَت 1/1 وظيفةً (لم يُسنَدْ عاملٌ لـ0 · مُتخطًّى 0 · مشكوكٌ 0)
+[CI VERDICT] ✓ كلُّ التشغيلاتِ (1) نُفِّذَت خطواتُها — فـ`conclusion` يُقرأُ حكمًا.
+
+CUR OUTPUT:
+[CI VERDICT] مقروئيّةُ الحكمِ تُقاسُ بالخطواتِ لا بالنتيجة
+  تشغيلٌ 1: READABLE · نُفِّذَت 1/1 وظيفةً (لم يُسنَدْ عاملٌ لـ0 · مُتخطًّى 0 · مشكوكٌ 0)
+[CI VERDICT] ✓ كلُّ التشغيلاتِ (1) نُفِّذَت خطواتُها — فـ`conclusion` يُقرأُ حكمًا.
+
+
+### AC3-default-unreadable.json
+CMD (ref d086f90 · worktree مؤقّت): python tools/governance/ci_verdict_readability.py --from-json <مسارٌ مطلقٌ إلى> docs/audit/evidence/W-331/payloads/unreadable.json
+CMD (cur e7ebc79): نفسُ الأمرِ في جذرِ العملِ الحاليِّ
+IDENTICAL: True
+REF EXIT: 1
+CUR EXIT: 1
+REF OUTPUT:
+[CI VERDICT] مقروئيّةُ الحكمِ تُقاسُ بالخطواتِ لا بالنتيجة
+  تشغيلٌ 1: UNREADABLE · نُفِّذَت 0/1 وظيفةً (لم يُسنَدْ عاملٌ لـ1 · مُتخطًّى 0 · مشكوكٌ 0)
+    ⇒ لا يُحتَجُّ بـ`conclusion` هنا حكمًا على الشجرةِ: لم تُنفَّذْ خطوةٌ واحدةٌ، فالحكمُ غيرُ مقروءٍ ولا يُنسَبُ إليها.
+[CI VERDICT] ✗ 1 من 1 تشغيلًا حكمُه غيرُ مقروءٍ — العطبُ في بنيةِ التشغيلِ لا في الشجرةِ (DISC-006 · RK-011)، وإصلاحُه بيدِ المالكِ في حسابِ Actions.
+
+CUR OUTPUT:
+[CI VERDICT] مقروئيّةُ الحكمِ تُقاسُ بالخطواتِ لا بالنتيجة
+  تشغيلٌ 1: UNREADABLE · نُفِّذَت 0/1 وظيفةً (لم يُسنَدْ عاملٌ لـ1 · مُتخطًّى 0 · مشكوكٌ 0)
+    ⇒ لا يُحتَجُّ بـ`conclusion` هنا حكمًا على الشجرةِ: لم تُنفَّذْ خطوةٌ واحدةٌ، فالحكمُ غيرُ مقروءٍ ولا يُنسَبُ إليها.
+[CI VERDICT] ✗ 1 من 1 تشغيلًا حكمُه غيرُ مقروءٍ — العطبُ في بنيةِ التشغيلِ لا في الشجرةِ (DISC-006 · RK-011)، وإصلاحُه بيدِ المالكِ في حسابِ Actions.
+
+
+### AC5-ruff-pinned
+CMD: python -m ruff check .
+EXIT: 0
+OUTPUT:
+All checks passed!
+
+
+### AC5-truth-ratchet
+CMD: python tools/governance/truth_audit.py . --ratchet
+EXIT: 0
+OUTPUT:
+[TRUTH AUDIT] أقاليم: 12 | مُثبَتة: 0 | مخالفات: 61
+  - IN_MEMORY_STORE: 59
+  - HARDCODED_TRUTH: 2
+[TRUTH AUDIT] كُتبت: /home/user/workspace/AMOS-Federation/docs/audit/TRUTH_MATRIX.md
+[RATCHET] ثابت عند 61 مخالفة.
+
+
+### AC5-commit-stamp
+CMD: python tools/governance/commit_timestamp_integrity.py --check
+EXIT: 0
+OUTPUT:
+COMMIT_STAMP: مقيسٌ non_utc=137 · duplicate_groups=3 · duplicate_commits=10 · non_monotonic=4 (‏من 599 التزامًا · سجلٌّ كاملٌ) · المُعلَنُ non_utc=137 · duplicate_groups=3 · duplicate_commits=10 · non_monotonic=4
+[COMMIT STAMP] ✓ كلُّ جديدٍ بعدَ 8186ec8735 إزاحتُه عالميّةٌ.
+[COMMIT STAMP] ✓ رأسُ الفرعِ المدفوعِ بإزاحةٍ عالميّةٍ.
+[COMMIT STAMP] ✓ لا نموَّ في دَينِ الطوابعِ.
+
+
+### AC5-work-governance
+CMD: python tools/governance/check_work_governance.py --self-check
+EXIT: 0
+OUTPUT:
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+
+### AC5-repo-identity
+CMD: python tools/governance/check_repository_identity.py .
+EXIT: 0
+OUTPUT:
+فحص هوية المستودع (المادة التاسعة): .
+==============================================================
+
+نجح: كل مجلد يحمل بطاقة هوية كاملة، وكل ملف يُعلن هدفه.
+
+
+### AC5-state-drift
+CMD: python tools/governance/state_document_drift.py
+EXIT: 0
+OUTPUT:
+[STATE DRIFT] موضعُ وثائقِ الحالةِ من سجلِّ الإكمالِ:
+  أحدثُ قيدٍ في § 8: W-330 (2026-10-14) · صفوفٌ: 328
+  PROJECT_STATE.md: أحدثُ قيدٍ مذكورٍ W-330 · تاريخٌ مُعلَنٌ 2026-10-14 · قيودٌ مذكورةٌ 245
+    الحقلُ المُعلَنُ حالةً: Last Completed Work · قيدُه W-330 · السطرُ 24
+  docs/PROJECT_HANDBOOK.md: أحدثُ قيدٍ مذكورٍ W-330 · تاريخٌ مُعلَنٌ 2026-10-14 · قيودٌ مذكورةٌ 193
+    الحقلُ المُعلَنُ حالةً: تاريخ آخر تعديل · قيدُه W-330 · السطرُ 12
+  ملاحظة · LEDGER_HEAD: أحدثُ قيدٍ مقروءٍ في § 8: W-330 (2026-10-14) · وعددُ الصفوفِ 328 · ووثائقُ الحالةِ المُعلَنةُ 2 منها 0 متأخِّرةٌ · وحقولٌ مُعلَنةٌ متأخِّرةٌ 0.
+  ✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ.
+
+
+### AC3-suite
+CMD: python -m pytest tests/governance/test_w051_ci_verdict_readability.py -q
+EXIT: 0
+OUTPUT:
+...................................                                      [100%]
+35 passed in 0.06s
+
+
+
+### AC4-mutation-A (إسقاطُ شرطِ الخضرةِ في المسارِ الحيِّ `_render_require_readable`)
+CMD: تحويرُ السطرِ `if j.conclusion != "success":` إلى `if False:` (تعطيلُ حارسِ الخضرةِ) ثمّ `python -m pytest tests/governance/test_w051_ci_verdict_readability.py -q`
+EXIT: 1
+OUTPUT (tail): 3 failed, 32 passed in 0.09s
+الحكم: التحويرُ مقتولٌ — الحارسُ يعرفُ الحُمرةَ.
+
+### AC4-mutation-B (إسقاطُ مقارنةِ sha في المسارِ الحيِّ)
+CMD: تحويرُ السطرِ `elif j.head_sha != expect_sha:` إلى `elif False and j.head_sha != expect_sha:` ثمّ `python -m pytest tests/governance/test_w051_ci_verdict_readability.py -q`
+EXIT: 1
+OUTPUT (tail): 1 failed, 34 passed in 0.08s
+الحكم: التحويرُ مقتولٌ — لا تشغيلٌ آخرَ يُمرَّرُ.
+
+### AC4-mutation-restore
+CMD: استعادةُ النسخةِ الأصليةِ ثمّ `python -m pytest tests/governance/test_w051_ci_verdict_readability.py -q`
+EXIT: 0
+OUTPUT (tail): 35 passed in 0.06s
+
+### ملاحظةٌ منهجيّةٌ
+الحارسانِ في `test_w051` يستدعيانِ `tool.main()` (المسارَ الحيَّ) و`_require_readable_passes`
+معًا — والتحويرُ على المسارِ الحيِّ مقتولٌ بفشلِ الحزمةِ كلِّها في الحالتينِ. طريقةُ
+القياسِ: تثبيتُ التحويرِ في ملفِّ الأداةِ مؤقّتًا ثمّ تشغيلُ الحزمةِ ثمّ الاستعادةُ والتحققُ.
+والمقارنةُ الحرفيّةُ للمعيارِ 3 أُجريتْ بworktree مؤقّتٍ على العقدةِ المرجعيّةِ d086f90
+بحِمالٍ مطلقِ المسارِ يراهُ الجذرانِ معًا.
