@@ -127,6 +127,10 @@ class JobReading:
     steps_total: int
     steps_started: int
     classification: str
+    #: `head_sha` في حِملِ الوظيفة — يُقرأُ لا يُفترَضُ. يُستعملُه
+    #: `--expect-sha` لمقارنةِ ما قُرِئَ بالعقدةِ المرادِ دمجُها. غيابُه
+    #: في الحِملِ لا يُخمَّنُ: يُعلَنُ نقصُه ولا تُطبَقُ مقارنةٌ عليه.
+    head_sha: str | None = None
 
 
 @dataclass
@@ -181,6 +185,7 @@ def classify_job(job: dict[str, object]) -> JobReading:
         steps_total=len(steps_list),
         steps_started=len(started),
         classification=classification,
+        head_sha=job.get("head_sha") if isinstance(job.get("head_sha"), str) else None,
     )
 
 
@@ -238,7 +243,7 @@ def _token() -> str:
         "لا توكنَ في البيئةِ: يُقرأُ من "
         + " أو ".join(TOKEN_ENV_VARS)
         + " — ولا يُقاسُ حكمٌ بلا وصولٍ إلى الواجهة. "
-          "وللقياسِ بلا شبكةٍ استُعمِلَ `--from-json` على حِملٍ محفوظ."
+        "وللقياسِ بلا شبكةٍ استُعمِلَ `--from-json` على حِملٍ محفوظ."
     )
 
 
@@ -301,8 +306,7 @@ def measure(readings: list[RunReading], repo: str = "") -> dict[str, object]:
         "measured_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "measured_by": "tools/governance/ci_verdict_readability.py",
         "rule": (
-            "لا يُقرأُ conclusion حكمًا إلّا إذا نُفِّذَت خطوةٌ فعلًا — "
-            "RK-011 · DISC-006"
+            "لا يُقرأُ conclusion حكمًا إلّا إذا نُفِّذَت خطوةٌ فعلًا — " "RK-011 · DISC-006"
         ),
         "runs_total": len(readings),
         "runs_readable": sum(r.verdict == RUN_READABLE for r in readings),
@@ -354,6 +358,77 @@ def render(readings: list[RunReading]) -> str:
     return "\n".join(lines)
 
 
+def _render_require_readable(
+    readings: list[RunReading],
+    *,
+    expect_sha: str,
+) -> str:
+    """تقريرُ بوّابةِ الدمج — يُطبعُ السببَ باسمِ الوظيفةِ فلا يُكتَمُ عنه.
+
+    مقصودٌ للاستعمالِ معَ `--require-readable` وحدَه: يتحققُ أنّ كلَّ تشغيلٍ
+    `READABLE` **و**كلَّ وظيفةٍ `conclusion=success` **و**أنّ `head_sha`
+    مطابقةٌ للعقدةِ المتوقَّعةِ (إن أُعطِيَت). بلا هذه، لا تُعادُ المقارنةُ ولا
+    يُطبَعُ شيءٌ — فالحُكمُ الافتراضيُّ يبقى كما هو (`render`).
+    """
+    lines: list[str] = [
+        "[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**"
+    ]
+    verdict_ok = True
+
+    # (1) المقروئيّةُ أصلًا: لا حُكمَ على شجرةٍ لم تُفحَصْ
+    for r in readings:
+        if r.conclusion_quotable is False:
+            verdict_ok = False
+            lines.append(
+                f"  ✗ تشغيلٌ {r.run_id}: حكمُه {r.verdict} — لا يُحتَجُّ بـ`conclusion` "
+                "حكمًا على الشجرةِ قبلَ المقروئيّةِ."
+            )
+
+    # (2) الخضرةُ: كلُّ وظيفةٍ غيرِ مُتخطّاةٍ يجبُ أنْ تكونَ `success`
+    #    (المتخطّاةُ تُخرَجُ من المقامِ لا من الجردِ — سابقةُ `classify_job`)
+    for r in readings:
+        for j in r.jobs:
+            if j.classification == JOB_SKIPPED:
+                continue
+            if j.conclusion != "success":
+                verdict_ok = False
+                lines.append(
+                    f"  ✗ تشغيلٌ {r.run_id} · وظيفةٌ «{j.name}»: "
+                    f"conclusion={j.conclusion!r} — مقروءٌ **لكنّه ليس أخضرَ** "
+                    "فلا يُدمَجُ."
+                )
+
+    # (3) العقدةُ نفسِها: `head_sha` في الحِملِ مقابلَ العقدةِ المتوقَّعةِ
+    if expect_sha:
+        for r in readings:
+            for j in r.jobs:
+                if j.head_sha is None:
+                    verdict_ok = False
+                    lines.append(
+                        f"  ✗ تشغيلٌ {r.run_id} · وظيفةٌ «{j.name}»: الحِملُ لا يصرّحُ "
+                        "بـ`head_sha` — لا يُخمَّنُ فتُطبَقُ المقارنةُ عليه."
+                    )
+                elif j.head_sha != expect_sha:
+                    verdict_ok = False
+                    lines.append(
+                        f"  ✗ تشغيلٌ {r.run_id} · وظيفةٌ {j.name}: "
+                        f"head_sha={j.head_sha} != العقدةِ المتوقَّعةِ {expect_sha} "
+                        "— حِملُ تشغيلٍ آخرَ لا العقدةَ المرادَ دمجُها."
+                    )
+
+    if verdict_ok:
+        lines.append(
+            "[CI VERDICT] ✓ كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — "
+            "فالدمجُ جائزٌ إجرائيًّا."
+        )
+    else:
+        lines.append(
+            "[CI VERDICT] ✗ بوّابةُ الدمجِ مُسقِطةٌ — الدفعُ إلى `main` لا يجوزُ "
+            "حتى يزولَ السببُ المذكورُ أعلاه."
+        )
+    return "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="مقروئيّةُ حكمِ CI: تُعَدُّ الخطواتُ المنفَّذةُ لا النتيجةُ المُعلَنة."
@@ -373,12 +448,34 @@ def main(argv: list[str] | None = None) -> int:
         help="حِملُ `.../jobs` محفوظًا على القرصِ (يُعاد) — قياسٌ بلا شبكةٍ ولا سرّ",
     )
     parser.add_argument("--json", default="", help="مسارُ كتابةِ حِملِ القياس")
+    parser.add_argument(
+        "--require-readable",
+        action="store_true",
+        help=(
+            "بوّابةُ الدمجِ (`WI-073` · `DISC-096`): يُرجِعُ 0 فقط إذا كانَ كلُّ "
+            "تشغيلٍ `READABLE` وكلُّ وظيفةٍ `conclusion=success`. بلا الخيارِ يبقى "
+            "الحُكمُ الافتراضيُّ كما هو: مقروئيّةٌ فقط."
+        ),
+    )
+    parser.add_argument(
+        "--expect-sha",
+        default="",
+        help=(
+            "مع `--require-readable`: `head_sha` الذي تُقارَنُ به العقدةُ. إن خالفَت "
+            "`head_sha` في أيِّ وظيفةٍ العقدةَ المتوقَّعةَ فالخروجُ غيرُ صفرٍ."
+        ),
+    )
     args = parser.parse_args(argv)
 
     if not args.run and not args.from_json:
         parser.error("لا مُدخَلَ: يلزمُ `--run` أو `--from-json`.")
     if args.run and not args.repo:
         parser.error("`--run` يلزمُه `--repo owner/name`.")
+    if args.expect_sha and not args.require_readable:
+        parser.error(
+            "`--expect-sha` يُستعملُ معَ `--require-readable` — مقارنةُ العقدةِ "
+            "جزءٌ من بوّابةِ الدمجِ لا من القياسِ المجرَّدِ."
+        )
 
     readings: list[RunReading] = []
     try:
@@ -393,6 +490,15 @@ def main(argv: list[str] | None = None) -> int:
 
     print(render(readings))
 
+    # بوّابةُ الدمجِ (`WI-073`) — تعملُ فقط بـ`--require-readable`. بلاها
+    # يبقى الخرجُ ورمزُ الخروجِ كما هما حرفًا. والأصلُ في القياسِ ليس دمجًا:
+    # الأداةُ تحكمُ ولا تدفعُ (`ci.yml` غيرُ مُعدَّلٍ ولا يُخدَعُ بها أليًّا).
+    merge_gate_ok = True
+    if args.require_readable:
+        print()
+        print(_render_require_readable(readings, expect_sha=args.expect_sha))
+        merge_gate_ok = _require_readable_passes(readings, expect_sha=args.expect_sha)
+
     if args.json:
         out = Path(args.json)
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -403,7 +509,29 @@ def main(argv: list[str] | None = None) -> int:
         )
         print(f"[CI VERDICT] كُتبت: {out}")
 
+    if not merge_gate_ok:
+        return 1
     return 0 if all(r.conclusion_quotable for r in readings) else 1
+
+
+def _require_readable_passes(
+    readings: list[RunReading],
+    *,
+    expect_sha: str,
+) -> bool:
+    """منطقُ بوّابةِ الدمجِ وحده — مفصولٌ عن العرضِ ليُختبرَ بالتحويرِ."""
+    for r in readings:
+        if r.conclusion_quotable is False:
+            return False
+        for j in r.jobs:
+            if j.classification == JOB_SKIPPED:
+                continue
+            if j.conclusion != "success":
+                return False
+            if expect_sha:
+                if j.head_sha is None or j.head_sha != expect_sha:
+                    return False
+    return True
 
 
 if __name__ == "__main__":

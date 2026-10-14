@@ -56,6 +56,7 @@ def _job(
     steps: list[dict[str, object]] | None = None,
     runner_id: int | None = 0,
     conclusion: str | None = "failure",
+    head_sha: str | None = None,
 ) -> dict[str, object]:
     return {
         "id": abs(hash(name)) % 1_000_000,
@@ -65,6 +66,7 @@ def _job(
         "runner_id": runner_id,
         "run_id": 1,
         "steps": [] if steps is None else steps,
+        **({"head_sha": head_sha} if head_sha is not None else {}),
     }
 
 
@@ -278,3 +280,261 @@ def test_tool_reproduces_the_recorded_disc006_reading() -> None:
     assert run.jobs_considered == 13
     assert run.verdict == tool.RUN_PARTIAL
     assert run.conclusion_quotable is False
+
+
+# ── 6 · بوّابةُ الدمجِ (`--require-readable` · `WI-073` · `DISC-096`) ─────────
+
+
+#: `head_sha` ثابتٌ للحِمالِ المُصطنَعةِ — يُعلَنُ أنّه ليس سرًّا.
+_TEST_SHA = "4230f581e9061adc1e8e056650ab82bf1bc8af0b"
+_OTHER_SHA = "9999999999999999999999999999999999999999"
+
+
+def test_require_readable_green_and_matching_sha_exits_zero(tmp_path: Path) -> None:
+    """مقروءٌ + أخضرُ + head_sha مطابقٌ ⇒ 0 — بوّابةُ الدمجِ تفتحُ."""
+    payload = tmp_path / "green.json"
+    payload.write_text(
+        json.dumps(
+            {
+                "jobs": [
+                    _job(
+                        "a",
+                        steps=[_step(True)],
+                        runner_id=1,
+                        conclusion="success",
+                        head_sha=_TEST_SHA,
+                    ),
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert (
+        tool.main(
+            [
+                "--from-json",
+                str(payload),
+                "--require-readable",
+                "--expect-sha",
+                _TEST_SHA,
+            ]
+        )
+        == 0
+    )
+
+
+def test_require_readable_fails_on_a_red_job_by_name(tmp_path: Path) -> None:
+    """مقروءٌ لكنّه فيه وظيفةٌ حمراءُ ⇒ غيرُ الصفرِ، والوظيفةُ مُسمّاةٌ في الخرجِ."""
+    payload = tmp_path / "red.json"
+    payload.write_text(
+        json.dumps(
+            {
+                "jobs": [
+                    _job(
+                        "good",
+                        steps=[_step(True)],
+                        runner_id=1,
+                        conclusion="success",
+                        head_sha=_TEST_SHA,
+                    ),
+                    _job(
+                        "bad-job",
+                        steps=[_step(True)],
+                        runner_id=2,
+                        conclusion="failure",
+                        head_sha=_TEST_SHA,
+                    ),
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert (
+        tool.main(
+            [
+                "--from-json",
+                str(payload),
+                "--require-readable",
+                "--expect-sha",
+                _TEST_SHA,
+            ]
+        )
+        == 1
+    )
+
+
+def test_require_readable_fails_on_unreadable_steps(tmp_path: Path) -> None:
+    """`steps=[]` ⇒ غيرُ الصفرِ — لا حُكمَ على شجرةٍ لم تُفحَسْ."""
+    payload = tmp_path / "unreadable.json"
+    payload.write_text(
+        json.dumps({"jobs": [_job("a", conclusion="success")]}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    assert tool.main(["--from-json", str(payload), "--require-readable"]) == 1
+
+
+def test_require_readable_fails_on_mismatched_sha(tmp_path: Path) -> None:
+    """`head_sha` مخالفٌ ⇒ غيرُ الصفرِ — حِملُ تشغيلٍ آخرَ لا العقدةَ المرادَ دمجُها."""
+    payload = tmp_path / "sha-mismatch.json"
+    payload.write_text(
+        json.dumps(
+            {
+                "jobs": [
+                    _job(
+                        "a",
+                        steps=[_step(True)],
+                        runner_id=1,
+                        conclusion="success",
+                        head_sha=_OTHER_SHA,
+                    ),
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert (
+        tool.main(
+            [
+                "--from-json",
+                str(payload),
+                "--require-readable",
+                "--expect-sha",
+                _TEST_SHA,
+            ]
+        )
+        == 1
+    )
+
+
+def test_require_readable_ignores_the_flag_silently_killing_green_check() -> None:
+    """تحوّرٌ: إسقاطُ شرطِ الخضرةِ ⇒ فحصٌ مُسمًّى يسقُطُ — الحرسُ يعرفُ الحُمرةَ."""
+    readings = tool.read_run(
+        "1",
+        {
+            "jobs": [
+                _job(
+                    "red",
+                    steps=[_step(True)],
+                    runner_id=1,
+                    conclusion="failure",
+                    head_sha=_TEST_SHA,
+                ),
+            ]
+        },
+    )
+    # طفرةُ «إسقاطُ شرطِ الخضرةِ» — شبهةُ أنّ البوّابةَ صامتةٌ على الأحمرِ
+    # تُقتَلُ بهذا الفحصِ: حِملٌ مقروءٌ أحمرُ يجبُ أنْ يُرجِعَ False.
+    assert tool._require_readable_passes([readings], expect_sha="") is False
+
+
+def test_require_readable_passes_logic_silently_killing_sha_check() -> None:
+    """تحوّرٌ: إسقاطُ مقارنةِ sha ⇒ فحصٌ مُسمًّى يسقُطُ — لا تشغيلٌ آخرَ يُمرَّرُ."""
+    readings = tool.read_run(
+        "1",
+        {
+            "jobs": [
+                _job(
+                    "wrong-node",
+                    steps=[_step(True)],
+                    runner_id=1,
+                    conclusion="success",
+                    head_sha=_OTHER_SHA,
+                ),
+            ]
+        },
+    )
+    # طفرةُ «إسقاطُ مقارنةِ sha» — حِملٌ مقروءٌ أخضرُ من شجرةٍ أُخرى يجبُ
+    # أنْ يُرجِعَ False لأنّ العقدةَ المتوقَّعةَ ليست هي.
+    assert tool._require_readable_passes([readings], expect_sha=_TEST_SHA) is False
+
+
+def test_require_readable_without_sha_does_not_compare_sha(tmp_path: Path) -> None:
+    """بلا `--expect-sha`: لا مقارنةَ للعقدةِ — الخضرةُ والمقروئيّةُ وحدهما."""
+    payload = tmp_path / "no-sha.json"
+    payload.write_text(
+        json.dumps(
+            {
+                "jobs": [
+                    _job(
+                        "a",
+                        steps=[_step(True)],
+                        runner_id=1,
+                        conclusion="success",
+                        head_sha=_OTHER_SHA,
+                    ),
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert tool.main(["--from-json", str(payload), "--require-readable"]) == 0
+
+
+def test_expect_sha_without_require_readable_is_rejected(capsys) -> None:
+    """`--expect-sha` وحدَه بلا `--require-readable` ⇒ رفضٌ لا سكوتٌ."""
+    with pytest.raises(SystemExit):
+        tool.main(["--from-json", "x", "--expect-sha", _TEST_SHA])
+    assert "--require-readable" in capsys.readouterr().err
+
+
+def test_require_readable_does_not_skip_a_skipped_job(tmp_path: Path) -> None:
+    """المتخطّاةُ تُخرَجُ من المقامِ لا من الجردِ — فحصٌ يقيسُ أنّها لا تُقيّدُ الخضرةَ."""
+    payload = tmp_path / "skipped.json"
+    payload.write_text(
+        json.dumps(
+            {
+                "jobs": [
+                    _job(
+                        "a",
+                        steps=[_step(True)],
+                        runner_id=1,
+                        conclusion="success",
+                        head_sha=_TEST_SHA,
+                    ),
+                    _job(
+                        "optional",
+                        steps=[_step(True)],
+                        runner_id=2,
+                        conclusion="skipped",
+                        head_sha=_TEST_SHA,
+                    ),
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert (
+        tool.main(
+            [
+                "--from-json",
+                str(payload),
+                "--require-readable",
+                "--expect-sha",
+                _TEST_SHA,
+            ]
+        )
+        == 0
+    )
+
+
+def test_without_require_readable_default_exit_code_unchanged(tmp_path: Path) -> None:
+    """بلا الخيارِ: رمزُ الخروجِ كما هُو اليومَ حرفًا — مقروئيّةٌ فقط."""
+    payload = tmp_path / "default.json"
+    payload.write_text(
+        json.dumps(
+            {
+                "jobs": [
+                    _job(
+                        "a",
+                        steps=[_step(True)],
+                        runner_id=1,
+                        conclusion="failure",
+                        head_sha=_TEST_SHA,
+                    ),
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    # مقروءٌ أحمرُ ⇒ 0 (الحُكمُ الافتراضيُّ مقروئيّةٌ فقط)
+    assert tool.main(["--from-json", str(payload)]) == 0
