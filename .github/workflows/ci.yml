@@ -671,7 +671,9 @@ jobs:
       # pg_dump يرفضُ الاختلافَ صراحةً. والأداةُ تختارُ أعلى عميلٍ راضٍ إن
       # وُجدَ، فتثبيتُ 17 هنا يكفي. (WI-076 · W-340)
       - name: تثبيتُ عميلِ PostgreSQL 17 المطابِقِ للخادمِ (WI-076)
-        run: sudo apt-get install -y -qq postgresql-client-17
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17
       # الحزم الثلاث تُشغَّل بالتسلسل داخل الأداة نفسها — التوازي يفسد ملف
       # قاعدة SQLite المشترك، وقد قيس ذلك فعلًا لا افتراضًا.
       - name: تشغيل الحزم الثلاث وتوليد المصفوفة
