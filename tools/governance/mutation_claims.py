@@ -12,12 +12,12 @@
     `tests/governance/test_w062_mutation_probe.py`.
 المالك: tools/governance — ديوانُ التدقيق، بتفويضٍ من المجلس التأسيسي
 تاريخ الإنشاء: 2026-08-29
-تاريخ آخر تعديل: 2026-09-01 (W-093 — الدعوى تُقرأُ بإعلانٍ صريحٍ · `DISC-033`)
+تاريخ آخر تعديل: 2026-10-15 (W-337 — دعوى حرسِ `WI-074` · قرارُ `Q-E` · أرقامٌ مقيسةٌ بيدٍ)
 
 الحدُّ المُعلَنُ — لا مطويٌّ:
     هذا المِلَفُّ **لا يُثبِتُ أنَّ كلَّ دعوى حرسٍ في المستودعِ مُجرَّبةٌ**؛ يُثبِتُ
     أنَّ الدعاوى **المُسجَّلةَ فيه** مُجرَّبةٌ بأمرٍ يُعادُ.
-    والمُسجَّلُ اليومَ ستّةُ قيودٍ: `W-055` · `W-056` · `W-059` · `W-061` · `W-062` · `W-063`
+    والمُسجَّلُ اليومَ سبعةُ قيودٍ: `W-055` · `W-056` · `W-059` · `W-061` · `W-062` · `W-063` · `W-337`
     (وفيها دعوى هذا المِلَفِّ نفسِه: من يحرسُ السجلَّ سؤالٌ مُجابٌ برقمٍ لا بثقةٍ).
     **والباقي غيرُ مُسجَّلٍ ومُسمّى لا مسكوتٌ عنه**: `W-029` · `W-030` · `W-051` ·
     `W-052` · `W-053` · `W-054` · `W-057` · `W-058` · `W-060` — وقِيدَ أنَّ
@@ -422,7 +422,49 @@ W063 = Claim(
 
 
 #: كلُّ الدعاوى المُسجَّلةِ — بالترتيبِ الذي سُجِّلَت به.
-CLAIMS: tuple[Claim, ...] = (W055, W056, W059, W061, W062, W063)
+#: دعوى `W-337`: حرسُ إزاحةِ التزامِ الدمجِ قبلَ الدفعِ (`WI-074` · قرارُ `Q-E`).
+#: الأرقامُ مقيسةٌ بيدٍ في نسخةٍ معزولةٍ (10 فحوصٍ · 10 نجحت بلا طفرةٍ) لا مُقدَّرةٌ.
+W337 = Claim(
+    work="W-337",
+    item="WI-074",
+    tests=("tests/governance/test_w074_pre_push_merge_guard.py",),
+    mutations=(
+        Mutation(
+            kind="UTC_CHECK_DISABLED",
+            target="tools/governance/pre_push_merge_guard.py",
+            old="    return stamp.endswith(UTC_SUFFIXES)",
+            new="    return True",
+            expected_failures=3,
+            note="رفضُ الإزاحةِ يُعطَّلُ فلا يُرى خرقُ +03:00 (الوجهُ الأصليُّ للحرسِ).",
+        ),
+        Mutation(
+            kind="VIOLATIONS_EMPTIED",
+            target="tools/governance/pre_push_merge_guard.py",
+            old="    violations = {k: v for k, v in merges.items() if not _is_utc_stamp(v)}",
+            new="    violations = {}",
+            expected_failures=3,
+            note="كشفُ الخرقِ يُصفَّرُ فيمرُّ كلُّ التزامِ دمجٍ حقيقيٍّ.",
+        ),
+        Mutation(
+            kind="SHALLOW_CHECK_DISABLED",
+            target="tools/governance/pre_push_merge_guard.py",
+            old="    if _is_shallow(repo):",
+            new="    if False and _is_shallow(repo):",
+            expected_failures=1,
+            note="فحصُ الضحالةِ يُعطَّلُ فيُقالَ «أخضرُ» على قياسٍ على جزءٍ (ثغرةُ W-336/ج).",
+        ),
+        Mutation(
+            kind="EMPTY_REFS_GUARD_REMOVED",
+            target="tools/governance/pre_push_merge_guard.py",
+            old="    if not refs or any(GENERATED_MERGE_REF.match(ref) is None for ref in refs):",
+            new="    if any(GENERATED_MERGE_REF.match(ref) is None for ref in refs):",
+            expected_failures=1,
+            note="حراسةُ القائمةِ الفارغةِ تُرفَعُ فيُستثنى دمجٌ حقيقيٌّ على detached HEAD (ثغرةُ W-336/أ).",
+        ),
+    ),
+)
+
+CLAIMS: tuple[Claim, ...] = (W055, W056, W059, W061, W062, W063, W337)
 
 
 def claims_for(work: str | None = None) -> tuple[Claim, ...]:
