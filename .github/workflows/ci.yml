@@ -673,7 +673,21 @@ jobs:
       - name: تثبيتُ عميلِ PostgreSQL 17 المطابِقِ للخادمِ (WI-076)
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq postgresql-client-17
+          if ! sudo apt-get install -y -qq postgresql-client-17; then
+            # فهرسُ المشغّلِ لا يُظهرُ الحزمةَ (قِيسَ فعلًا في تشغيلَيْ 38687588224
+            # و38689270545: «Unable to locate package» حتى بعدَ التحديثِ) — فيُضافُ
+            # مستودعُ PGDG صراحةً بمفتاحِهِ الموقَّعِ ثمَّ يُعادَ المحاولةُ.
+            sudo install -d /usr/share/postgresql-common/pgdg
+            sudo curl -fsSL -o /usr/share/keyrings/ACCC4CF8.asc \
+              https://www.postgresql.org/media/keys/ACCC4CF8.asc
+            echo "deb [signed-by=/usr/share/keyrings/ACCC4CF8.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main" \
+              | sudo tee /etc/apt/sources.list.d/pgdg-wi076.list
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client-17
+          fi
+          # تشخيصٌ مطبوعٌ: ماذا صارَ متاحًا فعلًا — لا يُخمَّنُ بعدَ اليومِ
+          ls /usr/lib/postgresql/ || true
+          pg_dump --version || true
       # الحزم الثلاث تُشغَّل بالتسلسل داخل الأداة نفسها — التوازي يفسد ملف
       # قاعدة SQLite المشترك، وقد قيس ذلك فعلًا لا افتراضًا.
       - name: تشغيل الحزم الثلاث وتوليد المصفوفة
