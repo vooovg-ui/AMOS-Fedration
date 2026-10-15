@@ -104,6 +104,7 @@ SUITES: tuple[Suite, ...] = (
         targets=(
             "tests/test_phase1_postgres.py",
             "tests/test_phase1_postgres_events.py",
+            "tests/test_wi076_pg_backup_restore.py",
         ),
         dialect=DIALECT_POSTGRES,
         purpose="إثبات لهجة PostgreSQL على قاعدة حقيقية — لا تُقبل خضرة بالتخطّي",

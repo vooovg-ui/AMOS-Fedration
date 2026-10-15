@@ -1,0 +1,14 @@
+[WI-076] الإثباتُ الكاملُ:
+  ✓ أنشأَ المصدرَ wi076_src_dbdfe31025
+  ✓ طبّقَ 19 هجرةً (001_init.sql…019_convert_create_all_databases_to_jsonb_timestamptz.sql)
+  ✓ كتبَ الحالةَ والترقيةَ عبرَ مسارِ الخدمةِ (والمرجعُ ما أعاده المسارُ)
+  ✓ نسخَ بـpg_dump إلى wi076_src_dbdfe31025.dump (312520 بايت)
+  ✓ أنشأَ هدفَ الاستعادةِ wi076_dst_dbdfe31025
+  ✓ استعادَ بـpg_restore
+  ✓ قرأَ من اتصالٍ جديدٍ على المستعادةِ ⇒ صفرُ اختلافٍ
+PROVE_EXIT=0
+[WI-076] السلبيّاتُ الثلاثةُ:
+  ✓ corrupt_dump: فشِلَ كما يجبُ (pg_restore خرجَ برمزِ 1 — stderr: pg_restore: error: input file does not appear to be a valid archive (too short?))
+  ✓ missing_dump: رُفضَ كما يجبُ (النسخةُ المطلوبةُ غيرُ موجودةٍ: /tmp/wi076_final/wi076_missing.dump)
+  ✓ same_target: رُفضَ كما يجبُ
+NEG_EXIT=0

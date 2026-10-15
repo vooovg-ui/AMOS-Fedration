@@ -91,15 +91,15 @@
     "federal": {
       "domain": "federal",
       "md_files": 60,
-      "py_files": 240,
+      "py_files": 241,
       "yaml_files": 3,
-      "code_lines": 66813,
+      "code_lines": 66909,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
       },
       "has_readme": true,
-      "real_source_hits": 296,
+      "real_source_hits": 299,
       "fake_hits": 1,
       "in_memory_hits": 59,
       "secret_hits": 0,
@@ -262,22 +262,22 @@
     },
     "tools": {
       "domain": "tools",
-      "md_files": 41,
-      "py_files": 52,
+      "md_files": 42,
+      "py_files": 53,
       "yaml_files": 2,
-      "code_lines": 17141,
+      "code_lines": 17510,
       "nucleus_count": 12,
       "nucleus_status": {
         "unspecified": 12
       },
       "has_readme": true,
-      "real_source_hits": 34,
+      "real_source_hits": 48,
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,
       "observed_hits": 9,
       "api_routes": 1,
-      "test_refs": 549,
+      "test_refs": 551,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -298,7 +298,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 549
+        "TEST_NAME_MENTIONS": 551
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -391,7 +391,7 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 122,
+      "md_files": 123,
       "py_files": 2,
       "yaml_files": 0,
       "code_lines": 100,
@@ -449,7 +449,7 @@
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 8,
+      "test_refs": 10,
       "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
@@ -470,7 +470,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 8
+        "TEST_NAME_MENTIONS": 10
       },
       "maturity": "SPECIFIED",
       "findings_count": 0
