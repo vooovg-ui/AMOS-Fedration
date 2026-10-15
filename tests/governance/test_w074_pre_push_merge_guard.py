@@ -265,3 +265,71 @@ def test_قدرةُ_الحرسِ_مُعلَنةٌ_لا_مُزعَمَةٌ():
     assert "لا يمنعُ التزامًا سيُنشِئُهُ الخادمُ لاحقًا" in doc or (
         "فحصُ `pull_request` **لا يمنعُ التزامًا سيُنشِئُهُ `gh pr merge` لاحقًا**"
     ) in doc, "التوثيقُ لا يُعلنُ حدودَ القدرةِ — ادِّعاءٌ أوسعُ من الواقعِ"
+
+def test_دمجٌ_على_detached_بلا_مرجعٍ_لا_يُستثنى(forged):
+    """ثغرةُ W-336: رأسٌ على detached HEAD لا يحويه مرجعٌ ليس عقدةَ منصةٍ.
+
+    قبلَ W-336 كانت قائمةُ المراجعِ الفارغةُ تمرُّ من شرطِ «كلُّها عارضةٌ» فَيُعَدُّ
+    التزامُ الدمجِ الحقيقيَّ عارضًا ويُستثنى — فاستُثنيَ خرقٌ حقيقيٌّ بغيابِ مرجعٍ.
+    """
+    repo = forged["repo"]
+    # عقدةُ دمجٍ حقيقيّةٍ على detached HEAD بلا أيِّ مرجعٍ يحويها
+    _git(repo, ["checkout", "-q", "--detach", "work"])
+    _git(
+        repo,
+        ["merge", "-q", "--no-ff", "--no-edit", "-m", "Merge main", "main"],
+        env_extra={
+            "GIT_AUTHOR_DATE": "2026-01-08T10:00:00+03:00",
+            "GIT_COMMITTER_DATE": "2026-01-08T10:00:00+03:00",
+        },
+    )
+    detached_merge = _git(repo, ["rev-parse", "HEAD"])
+    refs = _git(repo, ["for-each-ref", "--contains", detached_merge, "--format=%(refname)"])
+    assert refs == "", "الفحصُ يفترضُ لا مرجعَ يحوي العقدةَ"
+
+    # الاستثناءُ لا يعُدُّها عارضةً: الخرقُ مقيسٌ (خرجٌ 1)
+    report, code = guard.guard_report(
+        repo=repo,
+        base_ref=forged["base"],
+        head_ref=detached_merge,
+        exclude_ephemeral=True,
+    )
+    assert code == 1, (report, code)
+    assert detached_merge[:10] in report, report
+
+
+def test_سجلٌّ_ضحلٌ_يُعلِنُ_عجزَهُ_بلا_خُضرةٍ(forged):
+    """ثغرةُ W-336: استنساخٌ ضحلٌ = قياسٌ على جزءٍ فخرجٌ 2 لا صفرٌ يوهمُ التمامَ.
+
+    قبلَ W-336 كانَ المدى يُقرأُ من مرآةٍ ضحلةٍ فتخرجُ قائمةُ الدمجِ فارغةً
+    ويُقالَ «أخضرُ» على شجرةٍ لم يُقرأْ آباؤُها.
+    """
+    import subprocess as sp
+    repo = forged["repo"]
+    # استنساخٌ ضحلٌ (عمقٌ 1) من الشجرةِ المُصنوعةِ
+    shallow = repo.parent / "shallow_clone"
+    sp.run(
+        ["git", "clone", "-q", "--depth", "1", f"file://{repo}", str(shallow)],
+        check=True, capture_output=True, text=True, timeout=60,
+    )
+    # العقدةُ في الاستنساخِ موجودةٌ لكنّ آباءَها خارجَ المرآةِ
+    report, code = guard.guard_report(
+        repo=shallow,
+        base_ref="HEAD",
+        head_ref="HEAD",
+    )
+    assert code == 2, (report, code)
+    assert "ضحلٌ" in report or "ضحل" in report, report
+
+
+def test_غيابُ_رأسِ_المدى_خرجٌ_2_لا_صفرٌ(forged):
+    """ثغرةُ W-336: رأسٌ غائبٌ = عجزٌ مُعلَنٌ (خرجٌ 2) لا نجاحٌ صامتٌ."""
+    repo = forged["repo"]
+    report, code = guard.guard_report(
+        repo=repo,
+        base_ref=forged["base"],
+        head_ref="refs/heads/does-not-exist",
+    )
+    assert code == 2, (report, code)
+    assert "لم يُقَس" in report, report
+

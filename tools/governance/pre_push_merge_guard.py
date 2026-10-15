@@ -88,7 +88,7 @@ if _ROOT_FINDER_SPEC is None or _ROOT_FINDER_SPEC.loader is None:
     raise ImportError(f"repo_root.py not loadable from {_ROOT_FINDER_PATH}")
 _ROOT_FINDER = importlib.util.module_from_spec(_ROOT_FINDER_SPEC)
 _ROOT_FINDER_SPEC.loader.exec_module(_ROOT_FINDER)
-REPO_ROOT = _ROOT_FINDER.discover_repo_root(Path(__file__).resolve().parent)
+REPO_ROOT = _ROOT_FINDER.discover_repo_root(__file__)
 
 
 class GuardRefUnreachable(RuntimeError):
@@ -123,7 +123,7 @@ def _resolve_ref(repo: Path, ref: str) -> str:
     return _git(["rev-parse", "--verify", ref], repo).strip()
 
 
-def platform_merge_head(repo: Path) -> str | None:
+def platform_merge_head(repo: Path, head_rev: str = "HEAD") -> str | None:
     """عقدةُ الدمجِ العارضةُ التي وَلَّدَتها المنصّةُ — نفسُ شرطِ `DISC-065`.
 
     ثلاثيّةٌ مُقيَّسةٌ: رأسٌ التزامُ دمجٍ · لا يحويه إلّا مرجعُ دمجٍ عارضٌ ·
@@ -131,7 +131,7 @@ def platform_merge_head(repo: Path) -> str | None:
     منه خرقٌ.
     """
     try:
-        head_line = _git(["rev-list", "--parents", "-n", "1", "HEAD"], repo).split()
+        head_line = _git(["rev-list", "--parents", "-n", "1", head_rev], repo).split()
     except GuardRefUnreachable as unreachable:
         # الغيابُ مُعلَنٌ لا مَطويٌّ: عقدةٌ لا تُقَرأُ لا تُخمَّنُ «عارضةً» ولا «حقيقيةً»
         print(
@@ -145,11 +145,18 @@ def platform_merge_head(repo: Path) -> str | None:
     refs = _git(
         ["for-each-ref", "--contains", head, "--format=%(refname)"], repo
     ).split()
-    if any(GENERATED_MERGE_REF.match(ref) is None for ref in refs):
+    # قائمةٌ فارغةٌ ليست «كلُّها عارضةٌ»: رأسٌ على detached HEAD لا يحويه مرجعٌ
+    # أصلًا ليس عقدةَ منصةٍ — فلا يُستثنى التزامٌ حقيقيٌّ بغيابِ مرجعٍ (ثغرةُ W-336)
+    if not refs or any(GENERATED_MERGE_REF.match(ref) is None for ref in refs):
         return None
     if any(not _rev_exists(repo, parent) for parent in parents):
         return None
     return head
+
+
+def _is_shallow(repo: Path) -> bool:
+    """أسجلٌّ ضحلٌ بعَلَمِ git؟ — يُعلَنُ ولا يُطوى (لا حكمَ «أخضرُ» على جزءٍ)."""
+    return _git(["rev-parse", "--is-shallow-repository"], repo).strip() == "true"
 
 
 def _merge_commits_in_range(repo: Path, base: str, head: str) -> dict[str, str]:
@@ -198,10 +205,19 @@ def guard_report(
             "عالميّةٍ» لم يُقَس هنا ولا يُدَّعى خُضرةً"
         ), 2
 
+    # سجلٌّ ضحلٌ = قياسٌ على جزءٍ: لا يُقالَ «أخضرُ» على مدىً قد يكونُ أبواهُ خارجَ
+    # المرآةِ — يُعلَنُ عجزُ القياسِ (خرجٌ 2) لا يُطوى ولا يُخمَّنُ (ثغرةُ W-336)
+    if _is_shallow(repo):
+        return (
+            "[MERGE GUARD] ✗ لم يُقَس: سجلٌّ ضحلٌ (استنساخٌ بعمقٍ محدودٍ) — "
+            "آباءُ التزاماتِ الدمجِ قد يكونونَ خارجَ المرآةِ فلا يُقاسُ المدى كاملًا "
+            "ولا يُدَّعى خُضرةً"
+        ), 2
+
     merges = _merge_commits_in_range(repo, base_sha, head_sha)
     ephemeral: str | None = None
     if exclude_ephemeral:
-        ephemeral = platform_merge_head(repo)
+        ephemeral = platform_merge_head(repo, head_sha)
     if ephemeral is not None and ephemeral in merges:
         merges = {k: v for k, v in merges.items() if k != ephemeral}
         print(
@@ -228,7 +244,8 @@ def guard_report(
     if not merges and ephemeral is None:
         return (
             f"[MERGE GUARD] ✓ المدى `{base_sha[:10]}..{head_sha[:10]}` لا يحتوي "
-            "على التزامِ دمجٍ — تقديمٌ سريعٌ أو التزامٌ واحدٌ (fast-forward-safe)"
+            "على التزامِ دمجٍ — فلا خرقَ يُقاسُ على التزاماتِ الدمجِ (وليسَ هذا "
+            "إثباتًا للتقديمِ السريعِ: انعدامُ الدمجِ شرطٌ لا برهانُ ff)"
         ), 0
     return (
         f"[MERGE GUARD] ✓ كلُّ التزامِ دمجٍ ({len(merges)}) في المدى "

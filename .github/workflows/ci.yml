@@ -251,11 +251,19 @@ jobs:
       # الاستثناءُ (`DISC-065`): عقدةُ الدمجِ العارضةُ التي وَلَّدَتها المنصّةُ في
       # `refs/pull/N/merge` تُستثنى وحدَها (`--exclude-ephemeral`) — فلا يُحمَرُّ
       # الحكمُ بسببِ إزاحةٍ لا يملكُها المستودعُ ولا يعيدُ إنشاءَها.
-      - name: بوابة 7 — حرسُ إزاحةِ التزامِ الدمجِ قبلَ الدفعِ (Q-E · WI-074 · W-335)
+      - name: بوابة 7 — حرسُ إزاحةِ التزامِ الدمجِ قبلَ الدفعِ (Q-E · WI-074 · W-336)
         run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+          else
+            # حدثُ push: مدى الحدثِ قبل..بعد لا رأسُ الفرعِ المُسمّى (ثغرةُ W-336)
+            BASE="${{ github.event.before }}"
+            HEAD="${{ github.event.after }}"
+          fi
           python tools/governance/pre_push_merge_guard.py \
-            --base-ref "origin/${{ github.base_ref || 'main' }}" \
-            --head HEAD \
+            --base-ref "$BASE" \
+            --head "$HEAD" \
             --exclude-ephemeral
 
   constitutional-kernel:
