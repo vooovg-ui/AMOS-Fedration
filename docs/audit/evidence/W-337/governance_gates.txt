@@ -1,0 +1,48 @@
+# بوابات الحوكمة عند إعداد الدفعة (W-337 · 2026-10-15)
+
+$ python tools/governance/check_work_governance.py --self-check
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+$ python tools/governance/check_completion_ledger.py --self-check
+[LEDGER GATE] ✓ التوثيقُ مقيَّدٌ مع العمل — لا مخالفة.
+
+$ python tools/governance/check_repository_identity.py .
+فحص هوية المستودع (المادة التاسعة): .
+==============================================================
+
+نجح: كل مجلد يحمل بطاقة هوية كاملة، وكل ملف يُعلن هدفه.
+
+$ python tools/governance/truth_audit.py --ratchet
+  - IN_MEMORY_STORE: 59
+  - HARDCODED_TRUTH: 2
+[TRUTH AUDIT] كُتبت: /home/user/workspace/amos/docs/audit/TRUTH_MATRIX.md
+[RATCHET] ثابت عند 61 مخالفة.
+
+$ python tools/governance/state_document_drift.py
+  ملاحظة · DATE_OLDER_THAN_LATEST_ENTRY: «PROJECT_STATE.md» تذكرُ أحدثَ قيدٍ «W-336» وتاريخُها المُعلَنُ 2026-10-14 أقدمُ من تاريخِ القيدِ 2026-10-15 — إبلاغٌ لا إسقاطٌ: قد يكونُ النصُّ صحيحًا وتاريخُه ناقصًا.
+  ملاحظة · DATE_OLDER_THAN_LATEST_ENTRY: «docs/PROJECT_HANDBOOK.md» تذكرُ أحدثَ قيدٍ «W-336» وتاريخُها المُعلَنُ 2026-10-14 أقدمُ من تاريخِ القيدِ 2026-10-15 — إبلاغٌ لا إسقاطٌ: قد يكونُ النصُّ صحيحًا وتاريخُه ناقصًا.
+  ملاحظة · LEDGER_HEAD: أحدثُ قيدٍ مقروءٍ في § 8: W-336 (2026-10-15) · وعددُ الصفوفِ 334 · ووثائقُ الحالةِ المُعلَنةُ 2 منها 0 متأخِّرةٌ · وحقولٌ مُعلَنةٌ متأخِّرةٌ 0.
+  ✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ.
+
+$ python tools/governance/open_record_accountability.py
+  ملاحظة · OWNER_HELD_WITHOUT_GUARD: RK-021 (docs/governance/work/RISK_REGISTER.md:38): مُعلَنٌ بيدِ المالكِ ولا حرسَ له — إبلاغٌ لا إسقاطٌ: لا فعلَ لمنفِّذٍ فيه، وتاريخُ استحقاقِه قرارُ المالكِ لا اختراعُ عاملٍ.
+  ملاحظة · OWNER_HELD_WITHOUT_GUARD: RK-022 (docs/governance/work/RISK_REGISTER.md:39): مُعلَنٌ بيدِ المالكِ ولا حرسَ له — إبلاغٌ لا إسقاطٌ: لا فعلَ لمنفِّذٍ فيه، وتاريخُ استحقاقِه قرارُ المالكِ لا اختراعُ عاملٍ.
+  ملاحظة · ANCHOR_TALLY: صفوفٌ مقروءةٌ 118 · مفتوحةٌ 93 · محروسةٌ 32 · باستحقاقٍ 34 · بيدِ المالكِ 27 · بلا مِرساةٍ 0.
+  ✓ لا مخالفةَ مقيسةً: كلُّ قيدٍ مفتوحٍ له مِرساةُ مساءلةٍ.
+
+$ python tools/governance/suite_size_inventory.py --check
+SUITE SIZE: 16 دعوى مقروءةً · 4 حيّةً · 12 مُعلَنةً تاريخيّةً
+  ✓ لا مخالفةَ مقيسةً: كلُّ رقمِ حزمةٍ **مقروءٍ بالصيغتَينِ المُعلَنتَينِ** («N نجحَت · M مُتخطّاة» و«المُجمَّعُ حيًّا N») يُطابِقُ الجمعَ الحيَّ — وما غيرُ مقيسٍ هنا مُعلَنٌ أعلاه، وصيغةٌ ثالثةٌ لا تُقرأُ (‏حدُّ قارئِ النصِّ).
+
+$ python tools/governance/commit_timestamp_integrity.py
+COMMIT_STAMP: مقيسٌ non_utc=137 · duplicate_groups=3 · duplicate_commits=10 · non_monotonic=4 (‏من 608 التزامًا · سجلٌّ كاملٌ) · المُعلَنُ non_utc=137 · duplicate_groups=3 · duplicate_commits=10 · non_monotonic=4
+
+$ python tools/governance/sovereign_decision_status.py
+  استُثنيَ من عدِّ الإشاراتِ: docs/governance/work/THE_ROADMAP.md · tools/governance/sovereign_decision_status.py · tests/governance/test_w056_sovereign_decision_status.py
+  A-1 · APPROVED   · تاريخٌ: 2026-08-26 · إشاراتٌ: 15 · اعتمادُ الخارطةِ الحاكمةِ مصدرًا وحيدًا لترتيبِ العملِ وملكي
+  A-2 · APPROVED   · تاريخٌ: 2026-08-30 · إشاراتٌ: 277 · تعيينُ قائدِ التنفيذِ والمراجعِ المستقلّ
+  A-3 · APPROVED   · تاريخٌ: 2026-09-07 · إشاراتٌ: 133 · تفعيلُ بوّابةِ `work-governance-gate` بوضعِ الإسقاط
+
+$ ruff check .
+All checks passed!
+

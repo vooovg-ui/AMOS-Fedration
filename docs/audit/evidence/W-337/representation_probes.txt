@@ -1,0 +1,28 @@
+# خرج فحوص صدق التمثيل (W-337 · 2026-10-15 · عقدة 7775ae1)
+
+$ python -c (constitutional engine smoke)
+ConstitutionalViolation DENY — 1 مخالفة دستورية:
+  [CRITICAL] A003 (المادة الثالثة — الفصل بين السلطات) · البند: الفروع الأربعة — الحدود · القاعدة R-003-1
+      السبب: الفرع «executive» يمارس «legislate» وهو اختصاص حصري للفرع «legislative». الفصل بين السلطات يمنع ذلك.
+
+$ python tools/crown/verify_crown_root_of_trust.py
+✓ بوابة 11 — وثيقة التهديد مطابقة للتنفيذ
+───────────────────────────
+ناجح: 11 · مخالف: 0
+✓ جذر ثقة التاج سليم.
+
+$ python tools/sovereignty/prove_supreme_authority.py
+
+========================================================================
+✓ الإثبات تام: السيادي نُفِّذ، والتابع مُنع، والمنتحِل رُفض بحدث أمني.
+
+$ python tools/governance/constitutional_reconciliation.py (head)
+[RECONCILE] المصالحة الدستوريّة — المرحلة 1B
+
+  مخالفاتٌ تُسَدُّ بالتنفيذ : 7
+  قراراتٌ لا تُتَّخَذ آليًّا : 8
+
+── HUMAN DECISION REQUIRED — لا يُخترَع لها قرار ──
+
+$ seals check (12 articles)
+seals: ok=12 bad=0
