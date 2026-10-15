@@ -265,13 +265,13 @@
       "md_files": 42,
       "py_files": 53,
       "yaml_files": 2,
-      "code_lines": 17510,
+      "code_lines": 17567,
       "nucleus_count": 12,
       "nucleus_status": {
         "unspecified": 12
       },
       "has_readme": true,
-      "real_source_hits": 48,
+      "real_source_hits": 51,
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,

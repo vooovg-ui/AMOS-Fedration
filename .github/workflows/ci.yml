@@ -665,6 +665,13 @@ jobs:
           git rev-parse --verify --quiet refs/heads/main >/dev/null \
             || git fetch --no-tags origin +refs/heads/main:refs/heads/main
           echo "main = $(git rev-parse --short refs/heads/main)"
+      # عميلُ PostgreSQL المطابِقُ للخادمِ قبلَ الحزمِ: القياسُ الأولُ لحزمةِ
+      # services-postgres معَ حارسِ WI-076 (النسخُ والاستعادةُ) أسقطَه فعلًا
+      # (تشغيلُ 38685270090): عميلُ ubuntu الافتراضيُّ 16 والخادمُ حاويةُ 17 —
+      # pg_dump يرفضُ الاختلافَ صراحةً. والأداةُ تختارُ أعلى عميلٍ راضٍ إن
+      # وُجدَ، فتثبيتُ 17 هنا يكفي. (WI-076 · W-340)
+      - name: تثبيتُ عميلِ PostgreSQL 17 المطابِقِ للخادمِ (WI-076)
+        run: sudo apt-get install -y -qq postgresql-client-17
       # الحزم الثلاث تُشغَّل بالتسلسل داخل الأداة نفسها — التوازي يفسد ملف
       # قاعدة SQLite المشترك، وقد قيس ذلك فعلًا لا افتراضًا.
       - name: تشغيل الحزم الثلاث وتوليد المصفوفة

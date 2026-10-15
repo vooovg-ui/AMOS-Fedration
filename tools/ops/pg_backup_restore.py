@@ -35,6 +35,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import os
+import re
 import subprocess
 import sys
 import uuid
@@ -78,6 +79,69 @@ class ProofError(RuntimeError):
 def _sslmode() -> str:
     """نمطُ SSL من البيئةِ كما تفعلُ CI لحاويتِها الزائلةِ (AMOS_DB_SSLMODE)."""
     return os.environ.get("AMOS_DB_SSLMODE", "require")
+
+
+def _server_major_version(url: str, database: str) -> int:
+    """الإصدارُ الأكبرُ للخادمِ — يُقرأُ منه لا يُخمَّنُ (اختيارُ العميلِ يعتمدُ عليه)."""
+    from sqlalchemy import create_engine, text
+
+    engine = create_engine(_url_for(url, database))
+    try:
+        with engine.connect() as conn:
+            version = conn.execute(text("SELECT current_setting('server_version')")).scalar_one()
+    finally:
+        engine.dispose()
+    return int(str(version).split(".")[0])
+
+
+def _client_major_version(executable: str) -> int | None:
+    """الإصدارُ الأكبرُ لعميلٍ مُرشَّحٍ — أو None إن تعذَّرَ قراءتُه."""
+    proc = subprocess.run(
+        [executable, "--version"], capture_output=True, text=True
+    )  # noqa: S603 - أوامر مبنية داخليًا
+    if proc.returncode != 0:
+        return None
+    match = re.search(r"(\d+)\.", proc.stdout)
+    return int(match.group(1)) if match else None
+
+
+def _resolve_pg_tool(name: str, server_major: int) -> str:
+    """أفضلُ عميلٍ متاحٍ لا يقلُّ إصدارُه عن الخادمِ.
+
+    مشغّلو CI يُثبّتونَ عميلًا واحدًا في `/usr/bin` وقد يخالِفُ إصدارُه الخادمَ
+    (قِيسَ فعلًا: خادمُ 17 وعميلُ 16 في تشغيلِ 38685270090 — pg_dump يرفضُ الاختلافَ).
+    فتُفحَصُ المرشّحاتُ كلُّها (بدائلُ النظامِ ومجلداتُ `/usr/lib/postgresql/*/bin`)
+    ويُختارُ أعلاها إصدارًا راضيًا؛ فإن لم يوجدْ فعيبُ البيئةِ يُسمّى لا يُخفى.
+    """
+    import shutil
+
+    candidates: list[str] = []
+    which = shutil.which(name)
+    if which:
+        candidates.append(which)
+    candidates.extend(
+        str(p) for p in sorted(Path("/usr/lib/postgresql").glob(f"*/bin/{name}"))
+    )
+    best: tuple[int, str] | None = None
+    seen: set[str] = set()
+    for candidate in candidates:
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        version = _client_major_version(candidate)
+        if version is None or version < server_major:
+            continue
+        if best is None or version > best[0]:
+            best = (version, candidate)
+    if best is None:
+        available = ", ".join(
+            f"{c} (v{_client_major_version(c) or '?'})" for c in candidates
+        ) or "لا شيءٌ"
+        raise ProofError(
+            f"لا {name} بإصدارٍ ≥ {server_major} متاحًا — الخادمُ {server_major} والمرشّحاتُ: "
+            f"{available}. عيبُ بيئةٍ يُسمّى: ثبّتْ postgresql-client-{server_major}+"
+        )
+    return best[1]
 
 
 def _with_driver(url: str) -> str:
@@ -238,8 +302,9 @@ def _read_through_service_path(url: str, database: str) -> dict:
 def dump_database(url: str, database: str, out: Path) -> None:
     """النسخُ الاحتياطيُّ بصيغةٍ مخصّصةٍ (`-Fc`) — رمزُ خروجِ pg_dump هو الحكم."""
     out.parent.mkdir(parents=True, exist_ok=True)
+    tool = _resolve_pg_tool("pg_dump", _server_major_version(url, database))
     _run(
-        ["pg_dump", "--format=custom", f"--file={out}", _dsn_for(url, database)],
+        [tool, "--format=custom", f"--file={out}", _dsn_for(url, database)],
         label=f"pg_dump لقاعدةِ {database}",
     )
     if not out.exists() or out.stat().st_size == 0:
@@ -253,8 +318,9 @@ def restore_database(
     if not dump.exists():
         raise ProofError(f"النسخةُ المطلوبةُ غيرُ موجودةٍ: {dump}")
     _assert_restore_target_safe(url, database)
+    tool = _resolve_pg_tool("pg_restore", _server_major_version(url, database))
     proc = subprocess.run(
-        ["pg_restore", "--dbname", _dsn_for(url, database), str(dump)],
+        [tool, "--dbname", _dsn_for(url, database), str(dump)],
         capture_output=True,
         text=True,
     )  # noqa: S603 - أوامر مبنية داخليًا
