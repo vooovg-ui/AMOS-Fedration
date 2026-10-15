@@ -94,7 +94,7 @@
 | WI-071 | audit-truth | T0 (‏قابليّةُ القياس · الدفعةُ C: تشخيصُ `DISC-093` — تشخيصٌ لا ترقيع) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_PROGRESS | docs/audit/evidence/W-308/ | 2026-10-13 | 2026-10-31 | — (لا عائق · الإصلاحُ نفسُه محجوبٌ بقفلِ `WI-026` على `federal/executive/services/tests/conftest.py` فخرجَ إلى `WI-072`) | مراجعةُ المجلسِ لتجربةِ `docs/audit/evidence/W-308/README.md` بإعادتِها | — (يُكتَبُ عندَ الإغلاقِ) |
 | WI-072 | federal-executive | T0 (‏قابليّةُ القياس · إصلاحُ سببِ `DISC-093` المقيسِ في `W-308`) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_PROGRESS | federal/executive/services/tests/conftest.py · federal/executive/services/tests/test_w308_test_ledger_is_per_session.py · docs/audit/evidence/WI-072/ | 2026-10-13 | 2026-10-31 | — (القفلُ رُفِعَ بقرارِ المالكِ `Q-45` · قسمةُ نطاقِ `WI-026`) | مراجعةُ المجلسِ بإعادةِ أوامرِ معيارِ القبول | — (يُكتَبُ عندَ الإغلاقِ) |
 | WI-073 | tooling-gates | T0 (‏قابليّةُ القياس · `DISC-096`: بوّابةُ دمجٍ آليّةٌ في قارئِ حكمِ CI — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.6) | IN_REVIEW | tools/governance/ci_verdict_readability.py · tests/governance/test_w051_ci_verdict_readability.py · docs/audit/evidence/W-331 · docs/audit/evidence/W-334/README.md | 2026-10-14 | 2026-10-31 | **حُلَّ الترتيبُ بقرارِ المالكِ الصريحِ في الجلسةِ (2026-10-14): «اجابه : المالك ليس تقنيًّا، لك حرية التنفيذ والتقرير نيابة عن المالك … لا تتوقف أطلقًا»** — سقطَ اشتراطُ قرارِ مالكِ `WI-048` (`Driving H`) لإسنادِ المالكِ والترتيبِ · **`PROPOSED → READY` بـ`W-317`** بقرارِ المالكِ نيابةً · مالكٌ مباشرٌ: `Perplexity Computer` · `WI-048` (`READY` · `DISC-056`) باقٍ كما هو ولم يُلمَسْ: بندٌ آخرُ مستقلٌ يخدمُ شقًّا آخرَ (تثبيتُ المحاولةِ في الاستدعاءِ الحيِّ) لا يشغَّلُ في هذه الدفعةِ | التنفيذُ (الشقُّ 1: `--require-readable` و`--expect-sha` في `ci_verdict_readability.py` وحرسُهُ في `test_w051`) | — (يُكتَبُ عندَ الإغلاق) |
-| WI-074 | tooling-gates | T0 (قابليّةُ القياس · قرارُ `Q-E` · `W-335`: حرسُ إزاحةِ التزامِ الدمجِ **قبلَ الدفعِ** — الوجهُ الصريحُ للمدى `base..head` بمدىٍ مُثبَتٍ بـSHA) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.7 — التشكيلُ `Q-46` المُثبَّتُ) | IN_PROGRESS | tools/governance/pre_push_merge_guard.py · tests/governance/test_w074_pre_push_merge_guard.py · .github/workflows/ci.yml · docs/audit/evidence/W-335/README.md | 2026-10-15 | 2026-10-31 | **القرارُ `Q-E` مُعتمَدٌ نيابةً بالجوابِ العامِّ (2026-10-15 · `W-334`)** — «ادرس كل خيار ثم قرر نيابه عن المالك · اذا كان الأمر يتطلب مراجعة خارجية فاعقد مجلس ونفذ جولة مجلس · لا تتوقف اطلاقا» · والحدُّ المُعلَنُ: **رفضُ التزامِ الدمجِ الموجودِ فعليًّا** في المدى لا منعُ التزامٍ سيُنشِئُهُ الخادمُ لاحقًا (فحظرُ `gh pr merge` وزرِّ الدمجِ `W-293` باقٍ نصًّا ولا يُزعَمُ سدُّهُ بهذا الحرسِ) · **تغييرُ `ci.yml` في هذه الدفعةِ نفسِها مع هذه الأداةِ واختبارِها** (لا انفصالَ بينَ حكمٍ وتوصيلِهِ) · لا `VERIFIED` ولا `CLOSED` بيدِ المنفِّذِ · `IN_PROGRESS → IN_REVIEW` في الدفعةِ نفسِها أو التاليةِ | التنفيذُ (الشقُّ 1: أداةٌ وفحصٌ وخطوةُ CI) | — (يُكتَبُ عندَ الإغلاق) |
+| WI-074 | tooling-gates | T0 (قابليّةُ القياس · قرارُ `Q-E` · `W-335`: حرسُ إزاحةِ التزامِ الدمجِ **قبلَ الدفعِ** — الوجهُ الصريحُ للمدى `base..head` بمدىٍ مُثبَتٍ بـSHA) | Perplexity Computer | مجلس المراجعة (GPT 5.6 + Grok 4.7 — التشكيلُ `Q-46` المُثبَّتُ) | IN_REVIEW | tools/governance/pre_push_merge_guard.py · tests/governance/test_w074_pre_push_merge_guard.py · .github/workflows/ci.yml · docs/audit/evidence/W-335/README.md · docs/audit/evidence/W-337/README.md · docs/audit/evidence/W-337/probe-run.log | 2026-10-15 | 2026-10-31 | **القرارُ `Q-E` مُعتمَدٌ نيابةً بالجوابِ العامِّ (2026-10-15 · `W-334`)** — «ادرس كل خيار ثم قرر نيابه عن المالك · اذا كان الأمر يتطلب مراجعة خارجية فاعقد مجلس ونفذ جولة مجلس · لا تتوقف اطلاقا» · والحدُّ المُعلَنُ: **رفضُ التزامِ الدمجِ الموجودِ فعليًّا** في المدى لا منعُ التزامٍ سيُنشِئُهُ الخادمُ لاحقًا (فحظرُ `gh pr merge` وزرِّ الدمجِ `W-293` باقٍ نصًّا ولا يُزعَمُ سدُّهُ بهذا الحرسِ) · **تغييرُ `ci.yml` في هذه الدفعةِ نفسِها مع هذه الأداةِ واختبارِها** (لا انفصالَ بينَ حكمٍ وتوصيلِهِ) · لا `VERIFIED` ولا `CLOSED` بيدِ المنفِّذِ · `IN_PROGRESS → IN_REVIEW` في الدفعةِ نفسِها أو التاليةِ | التنفيذُ (الشقُّ 1: أداةٌ وفحصٌ وخطوةُ CI) | — (يُكتَبُ عندَ الإغلاق) |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
 
@@ -4599,15 +4599,15 @@ PROGRESS (انتقالٌ واحدٌ لكلِّ دفعة — check_work_governanc
 قيدُ السجلّ: W-316 (سُجِّلَ PROPOSED) · W-317 (PROPOSED→READY · قرارُ المالكِ نيابةً · 2026-10-14)
 ```
 
-### WI-074 — حرسُ إزاحةِ التزامِ الدمجِ قبلَ الدفعِ (قرارُ `Q-E` · `W-335`) — `IN_PROGRESS`
+### WI-074 — حرسُ إزاحةِ التزامِ الدمجِ قبلَ الدفعِ (قرارُ `Q-E` · `W-335`) — `IN_REVIEW` (منذُ `W-337`)
 
 ```text
 المعرِّف: WI-074
 النطاق: tooling-gates (حرسُ إزاحةِ التزامِ الدمجِ قبلَ الدفعِ وحده)
 المسار/المرحلة: T0 (قابليّةُ القياس)
 المالك: Perplexity Computer      المراجع: مجلس المراجعة (GPT 5.6 + Grok 4.7 — التشكيلُ Q-46 المُثبَّتُ)
-الحالة: IN_PROGRESS  (PROPOSED ← READY ← RESERVED ← IN_PROGRESS · الدفعةُ 1 · § 4.3 · لا قفزَ · لا VERIFIED ولا CLOSED بيدِ المنفِّذِ)
-المسارات: tools/governance/pre_push_merge_guard.py · tests/governance/test_w074_pre_push_merge_guard.py · .github/workflows/ci.yml
+الحالة: IN_REVIEW  (PROPOSED ← READY ← RESERVED ← IN_PROGRESS ← IN_REVIEW · الدفعةُ 2 (W-337) · § 4.3 · لا قفزَ · لا VERIFIED ولا CLOSED بيدِ المنفِّذِ)
+المسارات: tools/governance/pre_push_merge_guard.py · tests/governance/test_w074_pre_push_merge_guard.py · .github/workflows/ci.yml · docs/audit/evidence/W-337/README.md · docs/audit/evidence/W-337/probe-run.log
 الأصل: قرارُ المالكِ `Q-E` (سجلُّ `SOVEREIGN_DECISION_REGISTER` · `W-334` · التفويضُ العامُّ 2026-10-15):
   «ادرس كل خيار ثم قرر نيابه عن المالك · اذا كان الأمر يتطلب مراجعة خارجية فاعقد مجلس
   ونفذ جولة مجلس · لا تتوقف اطلاقا».
@@ -4659,6 +4659,10 @@ PROGRESS (انتقالٌ واحدٌ لكلِّ دفعة — check_work_governanc
   7. القدرةُ مُعلَنةٌ في التوثيقِ لا مُزعَمةٌ (حدودُ المنعِ الشاملِ مكتوبةٌ في `__doc__`).
 
 قياسُ القياس (تُغيِّرُ `ci.yml` في الدفعةِ نفسِها مع الأداةِ والاختبارِ):
+  * **[W-337 · مِسبارُ الطفرةِ:** دعوى الحرسِ مُسجَّلةٌ في `tools/governance/mutation_claims.py`
+    (ملفُ `WI-028` · لا يُستلَمُ ولا يُقسَمُ — أُضيفَ قيدُ `W-337` تحتَ ملكيّتِهِ بإعلانٍ مؤرَّخٍ
+    لا بمطالبةٍ ثانيةٍ) · 4 طفراتٍ · 4 مُلتقَطةٌ (CAUGHT) · 0 ناجيةٌ · والتشغيلُ محفوظٌ في
+    `evidence/W-337/probe-run.log`
   * الخطوةُ 7 في وظيفةِ `work-governance-gate` (`ci.yml`) تُشغِّلُ الأداةَ على
     `origin/${{ github.base_ref || 'main' }}..HEAD` معَ `--exclude-ephemeral` — على
     حدثَي `pull_request` و`push`.
@@ -4673,4 +4677,5 @@ PROGRESS (انتقالٌ واحدٌ لكلِّ دفعة — check_work_governanc
 وهذا القيدُ نفسُهُ.
 
 قيدُ السجلّ: W-335 (سُجِّلَ PROPOSED · READY · RESERVED · IN_PROGRESS في الدفعةِ نفسِها بقرارِ المالكِ `Q-E` · التفويضُ العامُّ 2026-10-15)
+قيدُ السجلّ: W-337 (IN_PROGRESS → IN_REVIEW · انتقالٌ واحدٌ · مِسبارُ الطفرةِ 4/4 CAUGHT)
 ```
