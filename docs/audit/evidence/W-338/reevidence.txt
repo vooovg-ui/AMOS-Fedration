@@ -1,0 +1,33 @@
+# أدلة إعادة القياس لجولة W-338 (2026-10-15 · عقدة 179f21c · حكم CI: success · READABLE · بوابة الدمج ✓)
+
+## WI-071 (تشخيص DISC-093 — معايير W-308)
+- دليل التشخيص الأصلي قائم في الشجرة: docs/audit/evidence/W-308/ (results.tsv · failure_signatures.txt)
+- إعادة تجارب اليوم على الشجرة المصححة (WI-072 مدموج):
+  R4 (4 متزامنة × 27) ⇒ 4×27 passed · 0 IdempotencyError
+  A (متزامنتان × 27) ⇒ 27+27 passed · 0 IdempotencyError (انحراف بيئي معلن: قذيفة واحدة من الأزواج فقدت venv في رمل المنفذ — أثر بيئة القياس لا الشجرة)
+
+## WI-072 (معايير القبول 1-4)
+1. pytest tests/test_w308_test_ledger_is_per_session.py -q ⇒ 3 passed
+2. تحوير _cleanup_test_ledger(TEST_ARTIFACT_DIR)→(workspace) في الندائين ⇒ 2 failed, 1 passed (مقتول) · استعادة ⇒ 3 passed · git diff نظيف
+3. تجربة A ⇒ 27+27 · 0 IdempotencyError · تجربة R4 ⇒ 4×27 · 0 IdempotencyError
+4. حزمة الجذر على العقدة 179f21c (CI) ⇒ success · READABLE 13/13 · وبوابة الدمج --require-readable --expect-sha 179f21c… ⇒ خرج 0
+
+## WI-073 (معايير القبول 1-5 من ACTIVE_WORK)
+- pytest tests/governance/test_w051_ci_verdict_readability.py -q ⇒ 35 passed
+- بوابة الدمج على حِمل CI الفعلي للعقدة 179f21c ⇒ ✓ مقروء وأخضر وعلى العقدة نفسها (خرج 0)
+- الحارسان السالبان مغطيان بحزمة test_w051 (35)
+
+## WI-074 (معايير القبول 1-7 من test_w074)
+- pytest tests/governance/test_w074_pre_push_merge_guard.py -q ⇒ 10 passed
+- مسبار الطفرة (W-337): تعطيل رفض الإزاحة ⇒ 3 failed · استعادة ⇒ 10 passed
+- خطوة CI (بوابة 7) في ci.yml تشغل الأداة على مدى الحدث الصريح (مقيس في CI: work-governance-gate خضراء)
+
+## WI-068/069/070 (M0/M1/M2)
+- البوابات الثماني لمعيار WI-068 أعد تشغيلها اليوم (evidence/W-337/governance_gates.txt): الحوكمة ✓ · السجل ✓ · الهوية ✓ · الراتشيت 61 ✓ · الانحراف ✓ · الطوابع 137 ✓ · CI READABLE 13/13 ✓ · الحزمة 2544/1/0 ✓
+- أوامر حزمة WI-069 (البوابات) خضراء اليوم · حزمة الخدمات تقاس في CI (Cross-System Suites خضراء على 179f21c)
+- معايير WI-070: البوابات المحلية كلها خضراء (أعلاه) · عدادات المراحل مشتقة (suite_size_inventory ✓ · state_document_drift ✓)
+
+## إضافة (W-338 · بعد المراجعة الاستشارية): الأدلة المكملة
+- تجربة A أعيدت بنطاق قذيفة صحيح (تصحيح أسبقية أوامر bash التي فسدت الزوج الأول): p1=0 · p2=0 · 27 passed لكل منهما · 0 IdempotencyError (السجلان /tmp/w338-a/p1.log وp2.log محفوظان برمزي خروجهما)
+- تحويرا WI-073 على المسار الحي: تعطيل حارس الخضرة (سطر 408 في _render_require_readable) ⇒ 3 failed, 32 passed · تعطيل مقارنة sha (elif j.head_sha != expect_sha) ⇒ 1 failed, 34 passed · استعادة ⇒ 35 passed · git diff نظيف
+- المقارنة الحرفية بلا الخيار (معيار 3): النسخة المرجعية d086f90 (worktree مؤقت أزيل بعد القياس) مقابل الحالية على الحمال الثابتة الثلاثة ⇒ متطابق حرفًا في الخرج ورمز الخروج (green_matching 0=0 · red_job 0=0 · unreadable 1=1)
