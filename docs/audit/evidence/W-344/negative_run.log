@@ -1,0 +1,4 @@
+[WI-076] السلبيّاتُ الثلاثةُ:
+  ✓ corrupt_dump: فشِلَ كما يجبُ (pg_restore خرجَ برمزِ 1 — stderr: pg_restore: error: input file does not appear to be a valid archive (too short?))
+  ✓ missing_dump: رُفضَ كما يجبُ (النسخةُ المطلوبةُ غيرُ موجودةٍ: /tmp/wi076_review/negative/wi076_missing.dump)
+  ✓ same_target: رُفضَ كما يجبُ
