@@ -1,0 +1,7 @@
+$ python tools/audit/sovereign_write_inventory.py --json /tmp/inv_w374.json >/dev/null && python3 -c "import json,collections;d=json.load(open(\"/tmp/inv_w374.json\"));debt=[s for s in d[\"sites\"] if s[\"public\"] and not s[\"guarded\"] and not s[\"closed_legacy\"]];cat=lambda s:\"INFRASTRUCTURE\" if (\"/common/\" in s[\"path\"] or s[\"path\"].startswith(\"tools/\")) else (\"DELEGATING\" if (not s[\"writes\"] and s[\"writes_via\"]) else \"INDEPENDENT\");c=collections.Counter(cat(s) for s in debt);print(\"D-4\",len(debt),dict(sorted(c.items())))"
+# تشغيل 1
+D-4 184 {'DELEGATING': 18, 'INDEPENDENT': 137, 'INFRASTRUCTURE': 29}
+EXIT=0
+# تشغيل 2
+D-4 184 {'DELEGATING': 18, 'INDEPENDENT': 137, 'INFRASTRUCTURE': 29}
+EXIT=0
