@@ -1,0 +1,12 @@
+# تحويرٌ 1 على الملفِّ الحقيقيّ: «    if slug != CANONICAL_SLUG:» ⇒ «    if False:»
+10 failed, 30 passed in 5.98s
+# تحويرٌ 2 على الملفِّ الحقيقيّ: «    if slug != CANONICAL_SLUG:» ⇒ «    if not slug.startswith(CANONICAL_SLUG):»
+6 failed, 34 passed in 3.13s
+# تحويرٌ 3 على الملفِّ الحقيقيّ: «    "https://git-agent-proxy.perplexity.ai/",» ⇒ «    "https://git-agent-proxy.perplexity.ai",»
+6 failed, 34 passed in 5.26s
+# تحويرٌ 4 على الملفِّ الحقيقيّ: «    if path.count("/") != 1 or not path:» ⇒ «    if False:»
+2 failed, 38 passed in 2.51s
+# تحويرٌ 5 على الملفِّ الحقيقيّ: «        slug = _canonical_slug(_origin_url(repo_root))» ⇒ «        slug = _slug_from_url(_origin_url(repo_root))»
+2 failed, 38 passed in 6.45s
+# بعدَ الردِّ
+40 passed in 2.62s

@@ -18,8 +18,28 @@ governance/
 كل ملف داخله يجب أن يحتوي على ترويسة تعريفية.
 
 ## تاريخ آخر تعديل
-2026-08-21
+2026-10-16 (W-387 · WI-083 — صيغُ origin المقبولةُ لوجهِ `--merge`) · ووقبله 2026-08-21
 
 ## المحتويات
 - `bootstrap.sh` — تهيئةُ بيئةٍ صالحةٍ للقياسِ بأمرٍ واحد (T0.2)
+- `prepush_gate.py` — الحرسُ السبعةُ قبلَ الدفع (WI-077) ووجهُ الدمجِ `--merge <sha>` (WI-078 · WI-083)
+- `hooks/` — مصدرُ خُطّافِ `pre-push` المتتبَّع (WI-078)
 - `README.md` — بطاقة هوية هذا المجلد (المادة التاسعة)
+
+## صيغُ origin المقبولةُ لوجهِ `--merge` (WI-083)
+
+بيئاتُ العمّالِ تختلف: بعضُها يدفعُ إلى GitHub مباشرةً، وبعضُها عبرَ وسيطٍ يُعيدُ كتابةَ العنوانِ بإعدادٍ
+مفروضٍ من البيئة (`url.<الوسيط>.insteadof https://github.com/`) فيقرأُ `git remote get-url origin`
+عنوانَ الوسيطِ لا github.com. فالوجهُ يقبلُ **ثلاثَ صيغٍ لا رابعَ لها** (`ACCEPTED_ORIGIN_PREFIXES`):
+
+| البيئة | الصيغة |
+|---|---|
+| مباشرٌ (https) | `https://github.com/vooovg-ui/AMOS-Fedration(.git)` |
+| مباشرٌ (ssh) | `git@github.com:vooovg-ui/AMOS-Fedration(.git)` |
+| وسيط | `https://git-agent-proxy.perplexity.ai/vooovg-ui/AMOS-Fedration(.git)` |
+
+**وشرطٌ لا يُرخى:** owner/repo المستخرَجُ يُطابِقُ `vooovg-ui/AMOS-Fedration` **مطابقةً تامّةً**
+(`CANONICAL_SLUG` — لا بادئةَ ولا لاحقةَ مثلَ `…-fork` ولا مالكَ آخرَ ولا تطبيعَ لحالةِ الأحرف)، وإلّا
+رفضٌ مُصنَّفٌ **بالرمزِ 2** قبلَ أيِّ قراءةِ حكمٍ أو دفع. وأيُّ عنوانٍ خارجَ الصيغِ الثلاثِ يُرفَضُ بالرمزِ نفسِه.
+وإضافةُ صيغةٍ رابعةٍ بندٌ مُسجَّلٌ بفحوصِه في `tests/governance/test_wi083_merge_origin_slug.py`.
+

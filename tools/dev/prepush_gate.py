@@ -18,6 +18,14 @@
     أحمرَ فلا دمجَ. ولا يُستعمَلُ `gh pr merge` ولا force-push ولا يُخفَّفُ
     حرسٌ ولا يُغيَّرُ سلوكُ أداةِ الحكمِ.
 
+    [إضافةٌ مؤرَّخةٌ (W-387 · WI-083 · توجيهُ المستشارِ 9 § 2 · 2026-10-16)]:
+    أوّلُ `--merge` حيٍّ رُفِضَ بالرمزِ 2 (W-381) لأنَّ origin في بيئةِ العاملِ
+    وسيطٌ (`https://git-agent-proxy.perplexity.ai/…`). فصارت الصيغُ المقبولةُ ثلاثًا
+    لا رابعَ لها (`ACCEPTED_ORIGIN_PREFIXES`)، **وشُرِطَ** أن يُطابِقَ owner/repo
+    المستخرَجُ `CANONICAL_SLUG` (`vooovg-ui/AMOS-Fedration`) **مطابقةً تامّةً** قبلَ
+    أيِّ قراءةِ حكمٍ أو دفعٍ — وإلّا الرمزُ 2 كما كان. ولا تغيّرَ في أداةِ الحكمِ
+    ولا في الرموزِ الأخرى.
+
 النطاق:
     بندُ WI-077 (توجيهُ المستشارِ 5 · G3 · DISC-098): الحرسُ السبعةُ المُلزِمةُ
     قبلَ الدفعِ — عقدتا 70441f8 و597d8bb بلغتا `main` حمراوَينِ لأنّ هذه
@@ -27,7 +35,7 @@
     Perplexity Computer (WI-077 · بإذنِ المالكِ العامِّ وتوجيهِ المستشارِ 5).
 
 تاريخ الإنشاء: 2026-10-16 (WI-077 · W-348)
-تاريخ آخر تعديل: 2026-10-15 (WI-077 · المرّةُ الأولى)
+تاريخ آخر تعديل: 2026-10-16 (W-387 · WI-083 — صيغةُ الوسيطِ والمطابقةُ التامّةُ لاسمِ المستودع) · ووقبله 2026-10-15 (WI-077 · المرّةُ الأولى)
 
 المحتويات (الحرسُ السبعةُ — بترتيبٍ ثابتٍ):
     1. `check_work_governance.py --commit HEAD` — كلُّ عملٍ مُسجَّلٌ ومملوكٌ
@@ -66,7 +74,9 @@ from pathlib import Path
 
 #: الجذرُ يُعرَفُ بعلامةٍ لا بعُمقٍ (نمطُ `repo_root.py` · سابقةُ W-336) —
 #: فلا يُحتسَبُ هذا الاشتقاقُ في دَينِ الجذرِ الثابتِ، ولا يُقاسُ على شجرةٍ غيرِ مقصودةٍ.
-_ROOT_FINDER_PATH = Path(__file__).resolve().with_name("..").resolve() / "governance" / "repo_root.py"
+_ROOT_FINDER_PATH = (
+    Path(__file__).resolve().with_name("..").resolve() / "governance" / "repo_root.py"
+)
 _ROOT_FINDER_SPEC = importlib.util.spec_from_file_location(
     "amos_repo_root_finder", _ROOT_FINDER_PATH
 )
@@ -79,8 +89,11 @@ REPO_ROOT = _ROOT_FINDER.discover_repo_root(__file__)
 PY = sys.executable
 GOVERNANCE = REPO_ROOT / "tools" / "governance"
 
+
 #: الحرسُ السبعةُ: (الاسمُ، الأمرُ) — الأمرُ يُبنى بدالّةٍ لأنّ بعضَهُ يحتاجُ الجذرَ.
-def _gates(repo_root: Path, today_plus_4: str) -> list[tuple[str, list[str], Path | None]]:
+def _gates(
+    repo_root: Path, today_plus_4: str
+) -> list[tuple[str, list[str], Path | None]]:
     return [
         (
             "1· حوكمةُ العملِ (--commit HEAD)",
@@ -147,17 +160,32 @@ def _gates(repo_root: Path, today_plus_4: str) -> list[tuple[str, list[str], Pat
 # امتناعٌ مُعلَّنٌ برمزٍ غيرِ صفريٍّ — ولا بديلَ صامتًا.
 
 
+#: الصيغُ المقبولةُ لعنوانِ origin — ثلاثٌ لا رابعَ لها (WI-083 · توجيهُ المستشارِ 9 § 2):
+#: مباشرةٌ بـhttps أو ssh، أو وسيطُ بيئةِ العاملِ الذي يُعيدُ كتابةَ github.com بإعدادٍ
+#: مفروضٍ (`url.….insteadof`). والبادئةُ تنتهي بـ`/` أو `:` فلا يمرُّ مضيفٌ مخادعٌ
+#: يحملُ الاسمَ بادئةً (مثلَ `github.com.evil/…`).
+ACCEPTED_ORIGIN_PREFIXES = (
+    "https://github.com/",
+    "git@github.com:",
+    "https://git-agent-proxy.perplexity.ai/",
+)
+
+#: المستودعُ الوحيدُ الذي يُقدِّمُ إليه الوجهُ main — مطابقةٌ تامّةٌ لا بادئةٌ (WI-083):
+#: لا مالكَ آخرَ ولا لاحقةَ (`…-fork`) ولا اختلافَ حرف.
+CANONICAL_SLUG = "vooovg-ui/AMOS-Fedration"
+
+
 def _slug_from_url(url: str) -> str:
     """`owner/name` من عنوانِ origin — بعلامةٍ لا بافتراضٍ ولا شبكةٍ.
 
-    يقبلُ صيغتَي https وssh، بلاحقةِ `.git` وبها. ما لم يُفهَمْ يُرفَضُ نصًّا
-    (رفضٌ مُصنَّفٌ لا تسامحُ تحليلٍ).
+    يقبلُ الصيغَ الثلاثَ في `ACCEPTED_ORIGIN_PREFIXES`، بلاحقةِ `.git` وبها. ما لم
+    يُفهَمْ يُرفَضُ نصًّا (رفضٌ مُصنَّفٌ لا تسامحُ تحليلٍ).
     """
     cleaned = url.strip()
-    if cleaned.startswith("https://github.com/"):
-        path = cleaned[len("https://github.com/") :]
-    elif cleaned.startswith("git@github.com:"):
-        path = cleaned[len("git@github.com:") :]
+    for prefix in ACCEPTED_ORIGIN_PREFIXES:
+        if cleaned.startswith(prefix):
+            path = cleaned[len(prefix) :]
+            break
     else:
         raise ValueError(
             f"عنوانُ origin غيرُ مفهومٍ لاستخراجِ owner/name منه: {cleaned!r} — "
@@ -165,10 +193,23 @@ def _slug_from_url(url: str) -> str:
         )
     path = path.removesuffix(".git").strip("/")
     if path.count("/") != 1 or not path:
-        raise ValueError(
-            f"عنوانُ origin لا يحملُ owner/name واحدًا: {cleaned!r} — يُرفَضُ."
-        )
+        raise ValueError(f"عنوانُ origin لا يحملُ owner/name واحدًا: {cleaned!r} — يُرفَضُ.")
     return path
+
+
+def _canonical_slug(url: str) -> str:
+    """`owner/name` المستخرَجُ **مطابقًا تمامًا** لـ`CANONICAL_SLUG` — وإلّا رفض (WI-083).
+
+    المطابقةُ مساواةٌ لا `startswith` ولا تطبيعُ حالةِ أحرف: مستودعٌ مخادعٌ أو فرعٌ
+    منسوخٌ يُرفَضُ قبلَ أيِّ قراءةِ حكمٍ أو دفعٍ.
+    """
+    slug = _slug_from_url(url)
+    if slug != CANONICAL_SLUG:
+        raise ValueError(
+            f"المستودعُ المُستخرَجُ {slug!r} ليسَ {CANONICAL_SLUG!r} مطابقةً تامّةً — "
+            "يُرفَضُ ولا يُقدَّمُ إلى main مستودعٌ آخر."
+        )
+    return slug
 
 
 def _origin_url(repo_root: Path) -> str:
@@ -234,9 +275,7 @@ def _fetch_jobs_payload(repo_root: Path, slug: str, run_id: str) -> dict:
         )
     payload = json.loads(result.stdout)
     if not isinstance(payload, dict):
-        raise RuntimeError(
-            f"حِملُ التشغيلِ {run_id} ليسَ كائنَ JSON — لا يُقاسُ ما لا يُعرَف."
-        )
+        raise RuntimeError(f"حِملُ التشغيلِ {run_id} ليسَ كائنَ JSON — لا يُقاسُ ما لا يُعرَف.")
     return payload
 
 
@@ -291,7 +330,7 @@ def _merge_flow(sha: str, repo_root: Path, failures: list) -> int:
         return 2
 
     try:
-        slug = _slug_from_url(_origin_url(repo_root))
+        slug = _canonical_slug(_origin_url(repo_root))
     except (RuntimeError, ValueError) as exc:
         print(f"[PREPUSH] ✗ رفضٌ مُصنَّفٌ: {exc}")
         return 2
