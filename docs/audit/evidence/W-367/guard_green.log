@@ -1,0 +1,11 @@
+$ python -m pytest tests/governance/test_w367_sensitive_verified_rerun.py -v
+tests/governance/test_w367_sensitive_verified_rerun.py::test_law_text_is_in_roadmap_verbatim PASSED [ 12%]
+tests/governance/test_w367_sensitive_verified_rerun.py::test_sensitive_list_has_four_categories_and_live_prefixes PASSED [ 25%]
+tests/governance/test_w367_sensitive_verified_rerun.py::test_live_tree_has_no_q_h_violation PASSED [ 37%]
+tests/governance/test_w367_sensitive_verified_rerun.py::test_wi076_is_sensitive_and_declared_unmet PASSED [ 50%]
+tests/governance/test_w367_sensitive_verified_rerun.py::test_negative_removing_wi076_marker_is_caught PASSED [ 62%]
+tests/governance/test_w367_sensitive_verified_rerun.py::test_negative_closed_with_unmet_is_caught PASSED [ 75%]
+tests/governance/test_w367_sensitive_verified_rerun.py::test_negative_met_with_missing_report_is_caught PASSED [ 87%]
+tests/governance/test_w367_sensitive_verified_rerun.py::test_documentation_item_is_not_sensitive PASSED [100%]
+============================== 8 passed in 0.10s ===============================
+EXIT=0

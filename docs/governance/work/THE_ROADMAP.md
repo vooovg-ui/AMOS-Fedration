@@ -4,7 +4,7 @@
 ## النطاق: **ترتيبُ العملِ وملكيّتُه وقيدُه**. لا تُنشئُ هذه الوثيقةُ حقيقةً تقنيّةً جديدةً، ولا تنسخُ حالةَ تنفيذٍ، ولا تُعدِّلُ نصًّا دستوريًّا. تحكمُ **الطريقةَ** لا **المضمون**
 ## المالك: docs/governance — المجلس التأسيسي، بتفويضٍ من المالك
 ## تاريخ الإنشاء: 2026-08-25
-## تاريخ آخر تعديل: 2026-09-08 (‏`W-154` — إجراءُ `Q-43` على نصِّ § 16.4 بند 4: `A-2` صارَ `APPROVED` والمراجعُ مجلسُ المراجعةِ، فرُفِعَ نصُّ «لا مراجعَ مستقلًّا مُعَيَّنًا بعد». وقبلَه `W-057` — انحرافُ وثائقِ الحالةِ عن § 8 صارَ مقيسًا ومُسقِطًا)
+## تاريخ آخر تعديل: 2026-10-16 (‏`W-368` — قرارُ المالكِ `Q-H` في القانون: شرطٌ رابعٌ في § 16 لكلِّ `VERIFIED` حسّاسٍ (إعادةُ تشغيلٍ من المراجعِ وتقريرٌ حرفيٌّ) بقائمةِ «الحسّاسِ» المقيسةِ وحارسِها · لا تخفيفَ لشيءٍ قائم) · ووقبله 2026-09-08 (‏`W-154` — إجراءُ `Q-43` على نصِّ § 16.4 بند 4: `A-2` صارَ `APPROVED` والمراجعُ مجلسُ المراجعةِ، فرُفِعَ نصُّ «لا مراجعَ مستقلًّا مُعَيَّنًا بعد». وقبلَه `W-057` — انحرافُ وثائقِ الحالةِ عن § 8 صارَ مقيسًا ومُسقِطًا)
 
 > **الحالة:** `ACTIVE — معتمدةٌ بأمرِ المالكِ الصريحِ في 2026-08-26 (A-1).` صارتْ مُلزِمةً بقيدِ الاعتمادِ
 > المؤرَّخِ في § 16. ولا يُقبَلُ عملٌ خارجَها ولا يُدمَجُ سطرٌ بلا تسجيلِ بندِه وحجزِ مساراتِه.
@@ -609,6 +609,61 @@ pytest tests/governance/test_w054_post_merge_reverse_link.py -q
    > متى عادَ `--advisory` إلى بوّابةِ الحوكمةِ، ويُثبِتُ أنَّ الفاحصَ يُخرِجُ
    > **رمزًا غيرَ صفرٍ على مخالفةٍ حقيقيّةٍ** تُصطنَعُ في شجرةٍ مؤقتةٍ — فلا
    > تُقرأُ «البوّابةُ نافذةٌ» دعوى مرّةً أخرى.
+
+4. **إضافةٌ مؤرَّخةٌ (2026-10-16 · `W-368` · قرارُ المالكِ `Q-H` بتوجيهِ المستشارِ 8 — شرطٌ رابعٌ يُضافُ ولا يُخفِّفُ الثلاثةَ):**
+   «VERIFIED لبند حساس (أمن/مال/سيادة/بيانات) يشترط أن يعيد المراجع تشغيل أوامر معاييره الأساسية بنفسه ويحفظ تقريره حرفيًّا؛ بنود التوثيق لا تشترط».
+
+   - **«الحسّاسُ» مقيسٌ لا مُقدَّر:** البندُ حسّاسٌ إن مسَّ مسارٌ واحدٌ من خليّةِ «المسارات» في صفِّه
+     ([`ACTIVE_WORK.md § 1`](ACTIVE_WORK.md)) بادئةً من القائمةِ أدناه (مساواةً أو بادئةَ مجلَّد). وما لم
+     يمسَّ شيئًا منها فهو **بندُ توثيقٍ أو أدواتٍ** لا يشترطُ إعادةَ التشغيل (ويبقى عليه الشرطُ 1).
+     والقائمةُ **مصدرٌ واحدٌ** يقرؤه الحارسُ من هنا لا من نسخةٍ في الشِّفرة، وكلُّ بادئةٍ فيها
+     يجبُ أن توجدَ في الشجرة (لا بادئةَ ميتةً تُطمئِنُ ولا تقيس).
+   - **إثباتُ إعادةِ التشغيلِ في كتلةِ البند:** سطرٌ يبدأُ بـ`Q-H-STATUS:` — `MET <مسارُ التقريرِ الحرفيِّ>`
+     (تقريرُ المراجعِ كما خرجَ من الأوامرِ برموزِ خروجِها) أو `UNMET — <السبب>`. **والحاكمُ آخرُ سطرٍ**
+     (التصحيحُ بالإضافةِ لا بالمحو).
+   - **الحارسُ** [`tests/governance/test_w367_sensitive_verified_rerun.py`](../../../tests/governance/test_w367_sensitive_verified_rerun.py)
+     يُسقِطُ: (أ) بندًا `VERIFIED` حسّاسًا بلا سطرِ `Q-H-STATUS:` · (ب) `MET` بمسارِ تقريرٍ غيرِ موجود ·
+     (ج) بندًا `CLOSED` حسّاسًا آخرُ سطرِه `UNMET`. **ولا يُطبَّقُ بأثرٍ رجعيٍّ** على `CLOSED` سابقٍ
+     لا يحملُ السطرَ أصلًا — مُعلَنٌ لا مطويّ — **إلّا `WI-076`** الذي نصَّ عليه التوجيه: يبقى
+     `VERIFIED` وكتلتُه تحملُ `UNMET` حتى مقعدينِ يُعيدانِ التشغيل.
+
+   ```text
+   Q-H-SENSITIVE-PATHS
+   أمن:
+     core/sovereignty/
+     core/crown/
+     core/constitutional_engine/
+     tools/crown/
+     tools/sovereignty/
+     tests/crown/
+     tests/sovereignty/
+     .github/workflows/
+     federal/executive/services/src/amos_federation/services/tool_registry/
+     federal/executive/services/src/amos_federation/services/api_gateway/
+   مال:
+     federal/executive/services/src/amos_federation/services/state_treasury/
+     federal/executive/services/src/amos_federation/services/governance/treasury.py
+     federal/executive/services/src/amos_federation/services/national_economy/
+     federal/executive/services/src/amos_federation/services/model_gateway/
+   سيادة:
+     core/constitution/
+     federal/executive/services/src/amos_federation/services/federal_judiciary/
+     federal/executive/services/src/amos_federation/services/governance/
+     federal/executive/services/src/amos_federation/services/royal/
+     federal/executive/services/src/amos_federation/services/executive_core/
+     federal/executive/services/src/amos_federation/services/government_services/
+   بيانات:
+     federal/executive/services/migrations/
+     federal/executive/services/src/amos_federation/common/database.py
+     federal/executive/services/src/amos_federation/common/persistent.py
+     federal/executive/services/src/amos_federation/common/durable_event_bus.py
+     tools/ops/
+     tools/migrations/
+     docs/audit/backups/
+   END-Q-H-SENSITIVE-PATHS
+   ```
+
+   **ولا تُضيَّقُ القائمةُ إلّا بقرارِ مالكٍ مُقيَّد** — توسيعُها جائزٌ ببندٍ، وحذفُ بادئةٍ منها تخفيفٌ للشرط.
 
 ---
 

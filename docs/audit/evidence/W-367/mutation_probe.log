@@ -1,0 +1,8 @@
+# طفرةٌ 1: تعطيلُ القاعدةِ (أ) — «if False and status == VERIFIED and last is None»
+FAILED tests/governance/test_w367_sensitive_verified_rerun.py::test_negative_removing_wi076_marker_is_caught
+1 failed, 7 passed in 0.10s
+# طفرةٌ 2: حذفُ بادئةِ «tools/ops/» من قائمةِ الحسّاسِ في THE_ROADMAP.md (تخفيفٌ للشرط)
+FAILED tests/governance/test_w367_sensitive_verified_rerun.py::test_documentation_item_is_not_sensitive
+1 failed, 7 passed in 0.10s
+# بعدَ الردِّ
+8 passed in 0.09s
