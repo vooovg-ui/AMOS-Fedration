@@ -263,9 +263,9 @@
     "tools": {
       "domain": "tools",
       "md_files": 42,
-      "py_files": 53,
+      "py_files": 54,
       "yaml_files": 2,
-      "code_lines": 17567,
+      "code_lines": 17709,
       "nucleus_count": 12,
       "nucleus_status": {
         "unspecified": 12
@@ -391,7 +391,7 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 127,
+      "md_files": 128,
       "py_files": 3,
       "yaml_files": 0,
       "code_lines": 180,

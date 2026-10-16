@@ -1,0 +1,36 @@
+[PREPUSH] الجذرُ المقيسُ: /tmp/wt70441f8
+
+[PREPUSH] ▶ 1· حوكمةُ العملِ (--commit HEAD)
+[WORK GATE] ✗ مخالفات: 7
+  PATH_UNCLAIMED: «docs/audit/evidence/W-344/README.md» تغيَّرَ ولا بندَ نشِطٌ يُعلِنُه في مساراتِه — سجِّلْ بندَك في docs/governance/work/ACTIVE_WORK.md قبلَ العمل (THE_ROADMAP § 2 قاعدة 1)
+  PATH_UNCLAIMED: «docs/audit/evidence/W-344/advisory_review.md» تغيَّرَ ولا بندَ نشِطٌ يُعلِنُه في مساراتِه — سجِّلْ بندَك في docs/governance/work/ACTIVE_WORK.md قبلَ العمل (THE_ROADMAP § 2 قاعدة 1)
+  PATH_UNCLAIMED: «docs/audit/evidence/W-344/ci_jobs_843f3aa_cross_system.log» تغيَّرَ ولا بندَ نشِطٌ يُعلِنُه في مساراتِه — سجِّلْ بندَك في docs/governance/work/ACTIVE_WORK.md قبلَ العمل (THE_ROADMAP § 2 قاعدة 1)
+  PATH_UNCLAIMED: «docs/audit/evidence/W-344/guardian_run.log» تغيَّرَ ولا بندَ نشِطٌ يُعلِنُه في مساراتِه — سجِّلْ بندَك في docs/governance/work/ACTIVE_WORK.md قبلَ العمل (THE_ROADMAP § 2 قاعدة 1)
+  PATH_UNCLAIMED: «docs/audit/evidence/W-344/negative_run.log» تغيَّرَ ولا بندَ نشِطٌ يُعلِنُه في مساراتِه — سجِّلْ بندَك في docs/governance/work/ACTIVE_WORK.md قبلَ العمل (THE_ROADMAP § 2 قاعدة 1)
+  PATH_UNCLAIMED: «docs/audit/evidence/W-344/prove_run.log» تغيَّرَ ولا بندَ نشِطٌ يُعلِنُه في مساراتِه — سجِّلْ بندَك في docs/governance/work/ACTIVE_WORK.md قبلَ العمل (THE_ROADMAP § 2 قاعدة 1)
+  PATH_UNCLAIMED: «docs/audit/evidence/W-344/suite_run.log» تغيَّرَ ولا بندَ نشِطٌ يُعلِنُه في مساراتِه — سجِّلْ بندَك في docs/governance/work/ACTIVE_WORK.md قبلَ العمل (THE_ROADMAP § 2 قاعدة 1)
+
+  القانونُ الملزم: docs/governance/work/THE_ROADMAP.md § 2 · § 6 · § 7
+[PREPUSH] ✗ فشلَ: 1· حوكمةُ العملِ (--commit HEAD)
+
+[PREPUSH] ▶ 2· حوكمةُ العملِ (--self-check --today +4)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+[PREPUSH] ▶ 3· صدقُ طوابعِ الالتزامِ (UTC)
+[COMMIT STAMP] ✓ لا نموَّ في دَينِ الطوابعِ.
+
+[PREPUSH] ▶ 4· سجلُّ الإكمالِ (--commit HEAD)
+[LEDGER GATE] ✓ التوثيقُ مقيَّدٌ مع العمل — لا مخالفة.
+
+[PREPUSH] ▶ 5· راتشيتُ مصفوفةِ الحقيقةِ
+[RATCHET] ثابت عند 61 مخالفة.
+
+[PREPUSH] ▶ 6· انحرافُ وثائقِ الحالةِ
+  ✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ.
+
+[PREPUSH] ▶ 7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)
+32 passed in 15.84s
+
+============================================================
+[PREPUSH] ✗ 1· حوكمةُ العملِ (--commit HEAD)
+[PREPUSH] ممنوعٌ الدفعُ — الحرسُ لم يخضرَّ كلُّه.

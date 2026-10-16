@@ -1,0 +1,60 @@
+[PREPUSH] الجذرُ المقيسُ: /tmp/wt597d8bb
+
+[PREPUSH] ▶ 1· حوكمةُ العملِ (--commit HEAD)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+[PREPUSH] ▶ 2· حوكمةُ العملِ (--self-check --today +4)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+[PREPUSH] ▶ 3· صدقُ طوابعِ الالتزامِ (UTC)
+[COMMIT STAMP] ✓ لا نموَّ في دَينِ الطوابعِ.
+
+[PREPUSH] ▶ 4· سجلُّ الإكمالِ (--commit HEAD)
+[LEDGER GATE] ✓ التوثيقُ مقيَّدٌ مع العمل — لا مخالفة.
+
+[PREPUSH] ▶ 5· راتشيتُ مصفوفةِ الحقيقةِ
+[RATCHET] ثابت عند 61 مخالفة.
+
+[PREPUSH] ▶ 6· انحرافُ وثائقِ الحالةِ
+  ✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ.
+
+[PREPUSH] ▶ 7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)
+_______ test_row_reviewer_matches_block_reviewer_for_active_items ___________
+
+    def test_row_reviewer_matches_block_reviewer_for_active_items() -> None:
+        lines = ACTIVE_WORK.read_text(encoding="utf-8").split("\n")
+        rows = _read_rows(lines)
+        blocks = _read_blocks(lines)
+        assert rows, "لم يُقرأْ أيُّ صفٍّ من § 1 — الحارسُ نفسُه معطوبٌ لا الوثيقةُ"
+    
+        mismatches: list[str] = []
+        for item, (row_line, row_status, row_reviewer) in sorted(rows.items()):
+            if row_status.startswith("CLOSED"):
+                continue
+            block = blocks.get(item)
+            if block is None:
+                continue
+            block_line, _block_status, block_reviewer = block
+            if _normalise(row_reviewer) != _normalise(block_reviewer):
+                mismatches.append(
+                    f"{item}: الصفُّ (‏سطر {row_line}) «{_normalise(row_reviewer)}» "
+                    f"≠ الكتلةُ (‏سطر {block_line}) «{_normalise(block_reviewer)}»"
+                )
+    
+>       assert not mismatches, (
+            "REVIEWER_ROW_BLOCK_MISMATCH — حقلُ المراجعِ مُعلَنٌ مرَّتَينِ بقيمتَينِ "
+            "مختلفتَينِ لبندٍ غيرِ مُغلَقٍ:\n  " + "\n  ".join(mismatches)
+        )
+E       AssertionError: REVIEWER_ROW_BLOCK_MISMATCH — حقلُ المراجعِ مُعلَنٌ مرَّتَينِ بقيمتَينِ مختلفتَينِ لبندٍ غيرِ مُغلَقٍ:
+E           WI-076: الصفُّ (‏سطر 99) «مجلس المراجعة (التشكيل Q-46 · وبجولة W-346: المقعد الوحيد بقرار Q-G)» ≠ الكتلةُ (‏سطر 4754) «مجلس المراجعة (التشكيل Q-46)»
+E       assert not ['WI-076: الصفُّ (\u200fسطر 99) «مجلس المراجعة (التشكيل Q-46 · وبجولة W-346: المقعد الوحيد بقرار Q-G)» ≠ الكتلةُ (\u200fسطر 4754) «مجلس المراجعة (التشكيل Q-46)»']
+
+tests/governance/test_w154_reviewer_consistency.py:118: AssertionError
+=========================== short test summary info ============================
+FAILED tests/governance/test_w154_reviewer_consistency.py::test_row_reviewer_matches_block_reviewer_for_active_items
+1 failed, 31 passed in 16.32s
+[PREPUSH] ✗ فشلَ: 7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)
+
+============================================================
+[PREPUSH] ✗ 7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)
+[PREPUSH] ممنوعٌ الدفعُ — الحرسُ لم يخضرَّ كلُّه.
