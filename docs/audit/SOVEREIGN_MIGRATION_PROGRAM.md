@@ -302,6 +302,13 @@ IMPLEMENT → VERIFY → DOCUMENT → COMMIT → PUSH
 > - **على أساسِ P8 (171) بنصِّ القرار:** `DELEGATING` **18** · `INFRASTRUCTURE` **15** · فما بقيَ مستقلًّا **138**.
 > - **D-4 مُعادَ القياسِ حيًّا (2026-10-16 · `W-374` · الأمرُ وخرجُه مرّتينِ في `docs/audit/evidence/W-374/d4_breakdown.log`):** **184** = `INDEPENDENT` **137** + `DELEGATING` **18** + `INFRASTRUCTURE` **29**.
 > - **الفرقُ مُعلَنٌ بسببِه لا مُسوًّى:** `DELEGATING` مطابقٌ (18 = 18) · و`INFRASTRUCTURE` صارَ **29 لا 15** في الملفّاتِ نفسِها التي سمّاها السؤال: `common/persistent.py` **20** (كانَ 7 — مخازنُ الإدامةِ المضافةُ في E4 بعدَ P8) · `common/database.py` **4** (كانَ 3) · `durable_event_bus.py` 2 · `event_bus.py` 1 · `events.py` 1 · سكربتُ الهجرةِ في `tools/` 1. والإجماليُّ الحيُّ 184 لا 171 لأنَّ ما أُضيفَ بعدَ P8 يُحصى بالمعيارِ نفسِه (سابقةُ `W-205`).
+> - **أمرُ القياسِ (I2) حرفيًّا** *(إضافةٌ · 2026-10-16 · `W-382` · توجيهُ المستشارِ 9 J4 — تعريفُه عملُ المنفِّذ)*: أداةُ D-4 المعتمدةُ فعلًا ثمَّ التصنيفُ من خرجِها، بلا أداةٍ جديدة:
+>
+>   ```bash
+>   python tools/audit/sovereign_write_inventory.py --json /tmp/inv_w374.json >/dev/null && python3 -c "import json,collections;d=json.load(open(\"/tmp/inv_w374.json\"));debt=[s for s in d[\"sites\"] if s[\"public\"] and not s[\"guarded\"] and not s[\"closed_legacy\"]];cat=lambda s:\"INFRASTRUCTURE\" if (\"/common/\" in s[\"path\"] or s[\"path\"].startswith(\"tools/\")) else (\"DELEGATING\" if (not s[\"writes\"] and s[\"writes_via\"]) else \"INDEPENDENT\");c=collections.Counter(cat(s) for s in debt);print(\"D-4\",len(debt),dict(sorted(c.items())))"
+>   ```
+>
+>   وخرجُه (مرّتينِ · `docs/audit/evidence/W-374/d4_breakdown.log`): `D-4 184 {'DELEGATING': 18, 'INDEPENDENT': 137, 'INFRASTRUCTURE': 29}`.
 > - **فما يُقرأُ من D-4 اليوم:** الدَّينُ المُعلَنُ **184** (لا يتغيّرُ بهذه الإضافة) · ومنه **137** فعلًا مستقلًّا هو ما تُغلِقُه الهجراتُ الحكوميّة · والفئتانِ (47) تُهاجَرانِ أو تُسوَّيانِ بقرارٍ أو بندٍ لاحقٍ لا بإعادةِ تعريف. والفئةُ الثالثةُ (كتابةٌ خاصّةُ الاسمِ من مدخلٍ عامّ · `W-024`) **ليست في القرار** فتبقى بلا حسم.
 
 | المرحلة | الحالة | ما تمّ | ما بقي | الدَّينُ بعدَها | الالتزام |
