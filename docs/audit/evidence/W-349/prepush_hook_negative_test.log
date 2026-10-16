@@ -1,0 +1,66 @@
+=== الاختبار السلبي لخُطّاف pre-push (W-349 · 2026-10-16) ===
+--- (1) شجرةٌ فيها خرقٌ: ملفٌّ غيرُ مُعلَنٍ في مساراتِ أيِّ بندٍ (PATH_UNCLAIMED) ---
+[PREPUSH] الجذرُ المقيسُ: /home/user/workspace/amos
+
+[PREPUSH] ▶ 1· حوكمةُ العملِ (--commit HEAD)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+[PREPUSH] ▶ 2· حوكمةُ العملِ (--self-check --today +4)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+[PREPUSH] ▶ 3· صدقُ طوابعِ الالتزامِ (UTC)
+[COMMIT STAMP] ✓ لا نموَّ في دَينِ الطوابعِ.
+
+[PREPUSH] ▶ 4· سجلُّ الإكمالِ (--commit HEAD)
+[LEDGER GATE] ✓ التوثيقُ مقيَّدٌ مع العمل — لا مخالفة.
+
+[PREPUSH] ▶ 5· راتشيتُ مصفوفةِ الحقيقةِ
+[RATCHET] ثابت عند 61 مخالفة.
+
+[PREPUSH] ▶ 6· انحرافُ وثائقِ الحالةِ
+  ✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ.
+
+[PREPUSH] ▶ 7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)
+.....................F..........                                         [100%]
+=================================== FAILURES ===================================
+_____________________ test_the_repository_itself_conforms ______________________
+
+    def test_the_repository_itself_conforms() -> None:
+        """المستودع الحقيقي — لا نسخة تجريبية — يمتثل للمادة التاسعة."""
+        r = subprocess.run(
+            [sys.executable, str(TOOLS / "check_repository_identity.py"),
+             str(REPO_ROOT), "--quiet"],
+            capture_output=True, text=True, timeout=180, check=False,
+        )
+>       assert r.returncode == 0, f"المستودع مخالف:\n{r.stdout}\n{r.stderr}"
+E       AssertionError: المستودع مخالف:
+E         فحص هوية المستودع (المادة التاسعة): /home/user/workspace/amos
+E         ==============================================================
+E         
+E         فشل: 2 مخالفة هوية
+E           - MISSING_PURPOSE: 1
+E           - MISSING_README: 1
+E         
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/user/workspace/amos/.venv/bin/python', '/home/user/workspace/amos/tools/governance/check...===================================\n\nفشل: 2 مخالفة هوية\n  - MISSING_PURPOSE: 1\n  - MISSING_README: 1\n', stderr='').returncode
+
+tests/governance/test_identity_law.py:276: AssertionError
+=========================== short test summary info ============================
+FAILED tests/governance/test_identity_law.py::test_the_repository_itself_conforms
+1 failed, 31 passed in 3.93s
+[PREPUSH] ✗ فشلَ: 7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)
+
+============================================================
+[PREPUSH] ✗ 7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)
+[PREPUSH] ممنوعٌ الدفعُ — الحرسُ لم يخضرَّ كلُّه.
+error: failed to push some refs to 'https://git-agent-proxy.perplexity.ai/vooovg-ui/AMOS-Fedration.git'
+خرجُ الدفعِ الجافِّ = 1
+--- (2) المُشغّلُ وحدهُ على الشجرةِ المُخترَقةِ ---
+[PREPUSH] ممنوعٌ الدفعُ — الحرسُ لم يخضرَّ كلُّه.
+خرجُ المُشغّلِ = 0
+
+[توضيحٌ (W-349): «خرجُ المُشغّلِ = 0» في القسمِ (2) هو خرجُ أنبوبِ grep لا خرجُ
+المُشغّلِ — سطرُ «ممنوعٌ الدفعُ» المطبوعُ فوقَهُ هو حكمُ المُشغّلِ نفسِهِ (رفضٌ)،
+والدفعُ الجافُّ في القسمِ (1) حُبِسَ بالخُطّافِ: «error: failed to push some refs»
+وخرجُهُ 1 — وهذا هو المطلوبُ إثباتُهُ: فشلُ الحرسِ يمنعُ الدفعَ فعليًّا.]

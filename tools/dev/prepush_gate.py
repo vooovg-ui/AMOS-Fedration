@@ -1,8 +1,6 @@
 """مُشغّلُ حرسِ ما قبلَ الدفعِ — أمرٌ واحدٌ يُشغّلُ البواباتِ كلَّها ويمنعُ الدفعَ عندَ أيِّ فشلٍ.
 
-طريقُ الإنفاذ: PENDING_GATE_ITEM · مؤجَّلٌ ببندِ WI-077 (قيدُ المراجعةِ) — ربطُه
-    خطوةَ CI أو فحصًا يشملُهُ ينتظرُ إغلاقَ البندِ وقرارَ المالكِ في مسلكِ الدمجِ
-    (`Q-F`)؛ ودليلُ تشغيلِهِ المباشرِ قيَّدهُ W-348.
+طريقُ الإنفاذ: PENDING_GATE_ITEM · مؤجَّلٌ ببندِ WI-077 — ربطُه خطوةَ CI أو فحصًا يشملُهُ ينتظرُ إغلاقَ البندِ وقرارَ المالكِ في مسلكِ الدمجِ (`Q-F`)؛ ودليلُ تشغيلِهِ المباشرِ قيَّدهُ W-348 · ورُبِطَ بمسارِ الدفعِ خُطّافَ `pre-push` محليًّا (دليلُ W-349).
 
 التعريف:
     مُشغّلُ البواباتِ المحليةِ قبلَ أيِّ دفعٍ إلى `main`: يُشغّلُ الحرسَ القائمَ كلَّهُ
@@ -44,12 +42,24 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import subprocess
 import sys
 from datetime import date, timedelta
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+#: الجذرُ يُعرَفُ بعلامةٍ لا بعُمقٍ (نمطُ `repo_root.py` · سابقةُ W-336) —
+#: فلا يُحتسَبُ هذا الاشتقاقُ في دَينِ الجذرِ الثابتِ، ولا يُقاسُ على شجرةٍ غيرِ مقصودةٍ.
+_ROOT_FINDER_PATH = Path(__file__).resolve().with_name("..").resolve() / "governance" / "repo_root.py"
+_ROOT_FINDER_SPEC = importlib.util.spec_from_file_location(
+    "amos_repo_root_finder", _ROOT_FINDER_PATH
+)
+if _ROOT_FINDER_SPEC is None or _ROOT_FINDER_SPEC.loader is None:
+    raise ImportError(f"repo_root.py not loadable from {_ROOT_FINDER_PATH}")
+_ROOT_FINDER = importlib.util.module_from_spec(_ROOT_FINDER_SPEC)
+_ROOT_FINDER_SPEC.loader.exec_module(_ROOT_FINDER)
+
+REPO_ROOT = _ROOT_FINDER.discover_repo_root(__file__)
 PY = sys.executable
 GOVERNANCE = REPO_ROOT / "tools" / "governance"
 
