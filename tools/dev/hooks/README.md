@@ -14,3 +14,6 @@
 - `pre-push` — خُطّافُ git يُشغِّلُ `tools/dev/prepush_gate.py` قبلَ كلِّ دفعٍ
   (الحرسُ السبعةُ · WI-077) ووجهَ الدمجِ `--merge` (WI-078). يُثبِّتُهُ
   `bootstrap.sh` في `.git/hooks/pre-push`.
+
+## تاريخ آخر تعديل
+2026-10-16
