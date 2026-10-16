@@ -141,13 +141,55 @@ def test_slug_from_url_rejects_the_unknown() -> None:
 
 def test_select_completed_runs_filters_by_sha_and_completion() -> None:
     runs = [
-        {"databaseId": 1, "headSha": _FAKE_SHA, "status": "completed"},
-        {"databaseId": 2, "headSha": _FAKE_SHA, "status": "in_progress"},
-        {"databaseId": 3, "headSha": _OTHER_SHA, "status": "completed"},
+        {
+            "databaseId": 1,
+            "headSha": _FAKE_SHA,
+            "status": "completed",
+            "workflowName": gate.CI_WORKFLOW_NAME,
+        },
+        {
+            "databaseId": 2,
+            "headSha": _FAKE_SHA,
+            "status": "in_progress",
+            "workflowName": gate.CI_WORKFLOW_NAME,
+        },
+        {
+            "databaseId": 3,
+            "headSha": _OTHER_SHA,
+            "status": "completed",
+            "workflowName": gate.CI_WORKFLOW_NAME,
+        },
         "ليس قاموسًا",
     ]
     selected = gate._select_completed_runs(runs, _FAKE_SHA)
     assert [r["databaseId"] for r in selected] == [1]
+
+
+def test_matrix_run_alone_is_not_a_ci_verdict() -> None:
+    """مصفوفةُ الحقيقةِ خضراءُ مكتملةٌ وتشغيلُ CI جارٍ ⇒ لا حكمَ فلا دمجَ.
+
+    عيبٌ رصدهُ مراجعُ التسليمِ (W-362): انتقاءُ «كلِّ تشغيلٍ مكتملٍ» كانَ
+    يقبلُ تشغيلَ المصفوفةِ وحدَهُ حكمًا أخضرَ فيُقدِّمُ الوجهُ العقدةَ بلا
+    انتظارِ حكمِ CI — وهوَ عينُ ما وُضعَ الوجهُ لأجلِ منعِهِ.
+    """
+    runs = [
+        {
+            "databaseId": 11,
+            "headSha": _FAKE_SHA,
+            "status": "completed",
+            "conclusion": "success",
+            "workflowName": "مصفوفةُ الحقيقةِ المولَّدة",
+        },
+        {
+            "databaseId": 12,
+            "headSha": _FAKE_SHA,
+            "status": "in_progress",
+            "conclusion": None,
+            "workflowName": gate.CI_WORKFLOW_NAME,
+        },
+    ]
+    selected = gate._select_completed_runs(runs, _FAKE_SHA)
+    assert selected == [], "تشغيلُ المصفوفةِ وحدَهُ ليسَ حكمَ CI — لا يُنتقى أصلًا"
 
 
 def test_verdict_green_on_crafted_payload(tmp_path: Path) -> None:

@@ -189,14 +189,25 @@ def _origin_url(repo_root: Path) -> str:
     return result.stdout.strip()
 
 
+#: حكمُ الدمجِ حكمُ وظائفِ CI نفسِها — لا يُستبدَلُ بتشغيلٍ أخضرَ منَ
+#: مصفوفةِ الحقيقةِ وحدَه: مصفوفةٌ خضراءُ وتشغيلُ CI جارٍ أو غائبٌ يعني
+#: «لا حكمَ بعدُ» لا «أخضرُ» (W-362 · عيبٌ رصدهُ مراجعُ التسليمِ: الوجهُ
+#: كانَ يقبلُ المصفوفةَ وحدها حكمًا فيُقدِّمُ بلا انتظارِ CI).
+CI_WORKFLOW_NAME = "AMOS-Federation CI"
+
+
 def _select_completed_runs(runs: list, sha: str) -> list:
-    """التشغيلاتُ المكتملةُ على العقدةِ نفسِها — المعلَّقُ لا يُحتسَبُ حكمًا."""
+    """تشغيلاتُ **CI** المكتملةُ على العقدةِ نفسِها — المعلَّقُ لا يُحتسَبُ
+    حكمًا · وتشغيلُ المصفوفةِ وحدَهُ ليسَ حكمَ CI فلا يُقدَّمُ بهِ شيءٌ."""
     selected: list = []
     for run in runs:
         if not isinstance(run, dict):
             continue
-        if run.get("headSha") == sha and run.get("status") == "completed":
-            selected.append(run)
+        if run.get("headSha") != sha or run.get("status") != "completed":
+            continue
+        if run.get("workflowName") != CI_WORKFLOW_NAME:
+            continue
+        selected.append(run)
     return selected
 
 
@@ -319,8 +330,10 @@ def _merge_flow(sha: str, repo_root: Path, failures: list) -> int:
     completed = _select_completed_runs(runs, sha)
     if not completed:
         print(
-            f"[PREPUSH] ✗ رفضٌ: لا تشغيلَ مكتملًا على العقدةِ {sha[:12]} — "
-            "لا حكمَ بعدُ فلا دمجَ: «غيرُ مقروءٍ» ليسَ أخضرَ ولا أحمرَ (WI-078)."
+            f"[PREPUSH] ✗ رفضٌ: لا تشغيلَ مكتملًا لوظائفِ CI "
+            f"(‎{CI_WORKFLOW_NAME}‎) على العقدةِ {sha[:12]} — لا حكمَ بعدُ فلا "
+            "دمجَ: «غيرُ مقروءٍ» ليسَ أخضرَ ولا أحمرَ · وتشغيلُ المصفوفةِ وحدَهُ "
+            "ليسَ حكمَ CI (WI-078 · W-362)."
         )
         return 3
 
