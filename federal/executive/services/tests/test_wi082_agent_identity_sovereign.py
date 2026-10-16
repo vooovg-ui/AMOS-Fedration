@@ -114,9 +114,7 @@ def test_register_identity_crosses_boundary_with_mandatory_stages(agent_id: str)
     assert _row_exists(agent_id)
     assert len(authorizer.results) == 1
     outcome = authorizer.results[0].outcome
-    passed_stages = {
-        str(getattr(stage, "name", stage)) for stage in outcome.stages
-    }
+    passed_stages = {str(getattr(stage, "name", stage)) for stage in outcome.stages}
     for mandatory in MANDATORY_INTERNAL_STAGES:
         mandatory_name = str(getattr(mandatory, "name", mandatory))
         assert mandatory_name in passed_stages, f"مرحلةٌ إلزاميّةٌ لم تمرّ: {mandatory_name}"
@@ -164,9 +162,9 @@ def test_register_identity_compensator_is_real_reversal(agent_id: str) -> None:
     assert plan is not None, "لم تُبنَ خطّةُ تعويض."
     applied = set(outcome.applied_signatures)
     assert applied, "لا أثرًا مُطبَّقًا مُسجَّلًا."
-    assert applied <= plan.covered_signatures, (
-        f"أثرٌ بلا معوّضٍ مربوط: {applied - plan.covered_signatures}"
-    )
+    assert (
+        applied <= plan.covered_signatures
+    ), f"أثرٌ بلا معوّضٍ مربوط: {applied - plan.covered_signatures}"
     assert _row_exists(agent_id)
 
     entry = plan.compensator_for(next(iter(applied)))
