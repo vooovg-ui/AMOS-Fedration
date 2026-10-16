@@ -1,0 +1,18 @@
+#!/bin/sh
+# الهدف: حرسُ ما قبلَ الدفعِ — يمنعُ أيَّ دفعٍ إلا بخُضرةِ الحرسِ السبعةِ (WI-078 · W-360)
+# المالك: tools/dev — Perplexity Computer (بإذنِ المالكِ العامِّ · وتوجيهُ المستشارِ 6)
+# النطاق: يُشغِّلُ tools/dev/prepush_gate.py على جذرِ الشجرةِ الحاضرةِ فقط — لا يضيفُ
+#         حكمًا ولا يُخفِّفُ حرسًا؛ التنسيقُ لا الاستبدال. يُثبِّتُهُ bootstrap.sh
+#         (الخطوةُ 1 الإلزاميةُ من PROJECT_HANDBOOK.md) ولا يُحذفُ إلا ببندٍ.
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+    echo "✗ pre-push: تعذَّرَ تحديدُ جذرِ الشجرةِ — يُرفَضُ الدفعُ لا يُمرَّرُ صامتًا." >&2
+    exit 1
+}
+if [ -x "$REPO_ROOT/.venv/bin/python" ]; then
+    PY="$REPO_ROOT/.venv/bin/python"
+elif command -v python3 >/dev/null 2>&1; then
+    PY=python3
+else
+    PY=python
+fi
+exec "$PY" "$REPO_ROOT/tools/dev/prepush_gate.py"

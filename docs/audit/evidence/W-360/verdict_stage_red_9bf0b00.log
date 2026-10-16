@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<stdin>", line 8, in <module>
+  File "/home/user/workspace/amos/tools/dev/prepush_gate.py", line 220, in _fetch_jobs_payload
+    raise RuntimeError(
+RuntimeError: تعذَّرَ جلبُ وظائفِ التشغيلِ 33570417864: gh: Not Found (HTTP 404) — يُعلَنُ العجزُ ولا يُستبدَلُ بحكمٍ.

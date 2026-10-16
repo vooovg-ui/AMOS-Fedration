@@ -1,0 +1,79 @@
+[PREPUSH] الجذرُ المقيسُ: /home/user/workspace/amos
+
+[PREPUSH] ▶ 1· حوكمةُ العملِ (--commit HEAD)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+[PREPUSH] ▶ 2· حوكمةُ العملِ (--self-check --today +4)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+[PREPUSH] ▶ 3· صدقُ طوابعِ الالتزامِ (UTC)
+[COMMIT STAMP] ✓ لا نموَّ في دَينِ الطوابعِ.
+
+[PREPUSH] ▶ 4· سجلُّ الإكمالِ (--commit HEAD)
+[LEDGER GATE] ✓ التوثيقُ مقيَّدٌ مع العمل — لا مخالفة.
+
+[PREPUSH] ▶ 5· راتشيتُ مصفوفةِ الحقيقةِ
+[TRUTH AUDIT] أقاليم: 12 | مُثبَتة: 0 | مخالفات: 62
+  - IN_MEMORY_STORE: 59
+  - HARDCODED_TRUTH: 2
+  - SILENT_FALLBACK: 1
+[TRUTH AUDIT] كُتبت: /home/user/workspace/amos/docs/audit/TRUTH_MATRIX.md
+[RATCHET] فشلت بوابة عدم التراجع:
+  - إجمالي المخالفات ارتفع من 61 إلى 62
+  - SILENT_FALLBACK ارتفع من 0 إلى 1
+  الدولة لا تتراجع. أصلح المخالفات الجديدة قبل الدفع.
+[PREPUSH] ✗ فشلَ: 5· راتشيتُ مصفوفةِ الحقيقةِ
+
+[PREPUSH] ▶ 6· انحرافُ وثائقِ الحالةِ
+[STATE DRIFT] موضعُ وثائقِ الحالةِ من سجلِّ الإكمالِ:
+  أحدثُ قيدٍ في § 8: W-356 (2026-10-16) · صفوفٌ: 354
+  PROJECT_STATE.md: أحدثُ قيدٍ مذكورٍ W-356 · تاريخٌ مُعلَنٌ 2026-10-16 · قيودٌ مذكورةٌ 261
+    الحقلُ المُعلَنُ حالةً: Last Completed Work · قيدُه W-356 · السطرُ 24
+  docs/PROJECT_HANDBOOK.md: أحدثُ قيدٍ مذكورٍ W-360 · تاريخٌ مُعلَنٌ 2026-10-16 · قيودٌ مذكورةٌ 211
+    الحقلُ المُعلَنُ حالةً: تاريخ آخر تعديل · قيدُه W-356 · السطرُ 12
+  ملاحظة · LEDGER_HEAD: أحدثُ قيدٍ مقروءٍ في § 8: W-356 (2026-10-16) · وعددُ الصفوفِ 354 · ووثائقُ الحالةِ المُعلَنةُ 2 منها 0 متأخِّرةٌ · وحقولٌ مُعلَنةٌ متأخِّرةٌ 0.
+  ✗ STATE_DOC_CITES_UNKNOWN_WORK: «docs/PROJECT_HANDBOOK.md:542» تذكرُ «W-360» ولا صفَّ له في § 8 — دعوى عملٍ غيرِ مقيَّدٍ.
+[PREPUSH] ✗ فشلَ: 6· انحرافُ وثائقِ الحالةِ
+
+[PREPUSH] ▶ 7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)
+E           - MISSING_README: 1
+E           - README_MISSING_FIELD: 1
+E         
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/user/workspace/amos/.venv/bin/python', '/home/user/workspace/amos/tools/governance/check...==============================\n\nفشل: 2 مخالفة هوية\n  - MISSING_README: 1\n  - README_MISSING_FIELD: 1\n', stderr='').returncode
+
+tests/governance/test_identity_law.py:276: AssertionError
+_____ test_generators_are_settled_on_the_repository[stamp_readme_identity] _____
+
+tool = 'stamp_readme_identity'
+
+    @pytest.mark.parametrize("tool", ["write_domain_readmes", "stamp_readme_identity",
+                                      "generate_identity_cards"])
+    def test_generators_are_settled_on_the_repository(tool: str) -> None:
+        """`--check` يجب أن يمرّ: لا بطاقة ناقصة ولا حقل مشتقّ غير مختوم."""
+        r = subprocess.run(
+            [sys.executable, str(TOOLS / f"{tool}.py"), "--check"],
+            cwd=REPO_ROOT, capture_output=True, text=True, timeout=180, check=False,
+        )
+>       assert r.returncode == 0, f"{tool} --check فشل:\n{r.stdout}\n{r.stderr}"
+E       AssertionError: stamp_readme_identity --check فشل:
+E         [README STAMP] ✗ 1 بطاقة ينقصها حقل مشتقّ.
+E           - /home/user/workspace/amos/tools/dev/hooks/README.md
+E         
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/user/workspace/amos/.venv/bin/python', '/home/user/workspace/amos/tools/governance/stamp...out='[README STAMP] ✗ 1 بطاقة ينقصها حقل مشتقّ.\n  - /home/user/workspace/amos/tools/dev/hooks/README.md\n', stderr='').returncode
+
+tests/governance/test_identity_law.py:287: AssertionError
+=========================== short test summary info ============================
+FAILED tests/governance/test_identity_law.py::test_the_repository_itself_conforms
+FAILED tests/governance/test_identity_law.py::test_generators_are_settled_on_the_repository[stamp_readme_identity]
+2 failed, 30 passed in 15.85s
+[PREPUSH] ✗ فشلَ: 7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)
+
+============================================================
+[PREPUSH] ✗ 5· راتشيتُ مصفوفةِ الحقيقةِ
+[PREPUSH] ✗ 6· انحرافُ وثائقِ الحالةِ
+[PREPUSH] ✗ 7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)
+[PREPUSH] ✗ ممنوعٌ الدفعُ — الحرسُ لم يخضرَّ كلَّهُ، فلا يُقرأُ حكمُ الدمجِ أصلًا ولا يُقدَّمُ شيءٌ (WI-078).

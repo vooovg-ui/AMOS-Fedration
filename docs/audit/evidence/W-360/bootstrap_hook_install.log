@@ -1,0 +1,19 @@
+• الجذر: /home/user/workspace/amos
+• ثُبِّتَ خُطّافُ pre-push (يُشغِّلُ حرسَ ما قبلَ الدفعِ على كلِّ دفعٍ — WI-078)
+• تركيبُ تبعيّاتِ الجذر (requirements-dev.txt)
+• تركيبُ حزمةِ الخدماتِ (قد تطولُ: تبعيّاتٌ كثيرة)
+• تركيبُ ruff==0.6.9 (‏المُثبَّتُ في .github/workflows/ci.yml)
+✓ البيئةُ جاهزة. للتنشيطِ في جلسةٍ جديدة: source .venv/bin/activate
+
+الأوامرُ الواجبةُ قبلَ أيِّ دفع (دليلُ المشروع § 8 و§ 9):
+  python -m pytest tests/ -q
+  AMOS_DATABASE_URL="sqlite:////tmp/amos_test.db" \
+    python -m pytest federal/executive/services/tests -q
+  python tools/governance/truth_audit.py .
+  python tools/governance/check_repository_identity.py .
+  python tools/governance/check_completion_ledger.py --commit HEAD
+  python tests/smoke/run_smoke_tests.py
+  ruff check . && ruff format --check \
+    federal/executive/services/src federal/executive/services/tests
+
+وتذكّرْ: آخرُ أمرٍ يُغيِّرُ بايتًا من الكودِ يسبقُ آخرَ توليدٍ للمصفوفة.
