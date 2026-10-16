@@ -30,7 +30,9 @@ Perplexity Computer — بقرارِ المالكِ الواردِ في توجي
      `TZ=UTC git push origin 81b0071ff6655a3982119ba7f0fde10ed239869e:main` ⇒ **`19eab59..81b0071`** · **`EXIT=0`** ⇒ `push_ff_main.log`.
 
 ## الحدودُ المُعلنة
-- حكمُ تشغيلِ `push` على main للعقدةِ `81b0071` يُقيَّدُ في قيدٍ لاحقٍ من هذه الدفعةِ (حكمُ الدفعةِ N في N+1).
+- **حكمُ تشغيلِ `push` على main للعقدةِ `81b0071`** *(أُضيفَ في `W-393`)*: التشغيلُ **38873871966** (AMOS-Federation CI) —
+  `ci_verdict_readability.py --require-readable --expect-sha 81b0071…` ⇒ **EXIT=0 · 13/13 success** على العقدةِ نفسِها ⇒
+  `verdict_main_push_81b0071.log` · `jobs_main_38873871966.json` · ومصفوفةُ الحقيقةِ (38873871812) success.
 - الخُطّافُ (`pre-push`) شغّلَ الحرسَ السبعةَ مرّةً أخرى عندَ الدفعِ وخرجَ أخضرَ (ذيلُ `push_ff_main.log`).
 
 ## تاريخ آخر تعديل
