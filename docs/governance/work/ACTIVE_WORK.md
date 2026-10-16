@@ -102,7 +102,7 @@
 | WI-079 | audit-truth | T3 (‏خفضُ مخالفاتِ مصفوفةِ الحقيقةِ D-1 بإصلاحاتٍ غيرِ C3 مرتَّبةٍ بالأثرِ — توجيهُ المستشارِ 6) | Perplexity Computer (بإذنِ المالكِ العامِّ · وتوجيهِ المستشارِ 6) | ديوانُ التدقيقِ (قيدُ تسجيلِ البندِ) | IN_REVIEW | docs/audit/TRUTH_MATRIX.md · docs/audit/measurements/in_memory_inventory.json · docs/audit/evidence/W-350/ | 2026-10-16 | 2026-10-31 | **سندُ التسجيلِ:** توجيهُ المستشارِ 6 («بندُ D-1 لا تؤجّلْهُ أكثر») — والفحصُ محدودٌ كما أمرَتْ قناةُ المراجعةِ الاستشاريةِ: المواضعُ الثمانيةُ SRC_DOUBLE_NOT_WIRED فحصًا محدودًا لا جولةَ بحثٍ مفتوحةً · والقيودُ القائمةُ: قانونُ T3 (لا تضييقَ كاشفٍ بلا تفسيرٍ دستوريٍّ) وQ-35 (العدُّ يبقى 2 ولا يُمَسّ) وQ-38 (قرارُ إعادةِ تعريفِ العدّادِ) | الفحصُ تمَّ (W-354): لا إصلاحً مأذونًا — العوائقُ موثَّقةٌ · التالي: IN_REVIEW | — (يُكتَبُ عندَ الإغلاقِ) |
 | WI-080 | governance-docs | T2 (‏قرارُ المالكِ Q-H في القانون · توجيهُ المستشارِ 8 § 3-ب: `VERIFIED` لبندٍ حسّاسٍ يشترطُ إعادةَ تشغيلٍ من المراجعِ بتعريفٍ مقيسٍ لـ«الحسّاس» وحارسٍ يُسقِطُ عليه) | Perplexity Computer (بقرارِ المالكِ Q-H · وتوجيهِ المستشارِ 8) | مجلسُ المراجعةِ (التشكيلُ Q-46) — ولا VERIFIED بيدِ المنفِّذِ (§ 4.3) | IN_REVIEW | tests/governance/test_w367_sensitive_verified_rerun.py · docs/audit/evidence/W-367/ | 2026-10-16 | 2026-10-31 | **سندُ التسجيلِ:** قرارُ المالكِ Q-H (2026-10-16 · الرياض 10:00 · W-363) وتوجيهُ المستشارِ 8 § 3-ب — والمساراتُ مُعلنةٌ قبلَ العمل · و`THE_ROADMAP.md` و`HANDOFFS/TEMPLATE.md` و`ACTIVE_WORK.md` معفاةٌ من الحجزِ (§ 6.4) | PROPOSED → READY بقيدٍ مستقلٍّ (H3) | — (يُكتَبُ عندَ الإغلاقِ) |
 | WI-081 | audit-truth | T1 (‏قرارُ المالكِ Q-25 ① · توجيهُ المستشارِ 8 § 3-د: تصحيحُ خطِّ أساسِ الدَّينِ بفئتينِ مُعلَنتينِ `DELEGATING` و`INFRASTRUCTURE` مع إبقاءِ 171 رقمًا تاريخيًّا — توثيقٌ بلا كود — ثمَّ إعادةُ قياسِ D-4) | Perplexity Computer (بقرارِ المالكِ Q-25 · وتوجيهِ المستشارِ 8) | مجلسُ المراجعةِ (التشكيلُ Q-46) — ولا VERIFIED بيدِ المنفِّذِ (§ 4.3) | IN_REVIEW | docs/audit/SOVEREIGN_MIGRATION_PROGRAM.md · docs/audit/evidence/W-374/ | 2026-10-16 | 2026-10-31 | **سندُ التسجيلِ:** قرارُ المالكِ Q-25 ① (2026-10-16 · الرياض 10:00 · W-363) «تعديل توثيقي لا كود» — والمساراتُ مُعلنةٌ قبلَ العمل | PROPOSED → READY بقيدٍ مستقلٍّ (H3) | — (يُكتَبُ عندَ الإغلاقِ) |
-| WI-082 | federal-executive | T1 (‏قرارُ المالكِ Q-15 ① · توجيهُ المستشارِ 8 § 3-هـ: أوّلُ الهجراتِ الأربعِ — `agent_identity` (P4) — إنشاءُ الهويّةِ يُعلَنُ بالفعلِ `spawn_agent` فيقفُ عندَ المستوى الثالثِ من زرِّ الإيقاف) | Perplexity Computer (بقرارِ المالكِ Q-15 · وتوجيهِ المستشارِ 8) | مجلسُ المراجعةِ (التشكيلُ Q-46) — **حسّاسٌ (سيادة · Q-H): يُعيدُ المراجعُ التشغيلَ ويحفظُ تقريرَه حرفيًّا** — ولا VERIFIED بيدِ المنفِّذِ (§ 4.3) | PROPOSED | federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py · federal/executive/services/tests/test_wi082_agent_identity_sovereign.py · docs/audit/evidence/W-382/ | 2026-10-16 | 2026-11-15 | **قياسُ ما قبلُ (W-380):** دَينُ الملفِّ 3 · ومواضعُ النداءِ الإنتاجيّةُ 8 · ومساراتُ إنشاءِ الهويّةِ 2 — والتصميمُ يُعرَضُ قبلَ الشِّفرة | PROPOSED → READY بعدَ عرضِ أثرِ تغييرِ العقدِ (القياسُ في الكتلة) | — (يُكتَبُ عندَ الإغلاقِ) |
+| WI-082 | federal-executive | T1 (‏قرارُ المالكِ Q-15 ① · توجيهُ المستشارِ 8 § 3-هـ: أوّلُ الهجراتِ الأربعِ — `agent_identity` (P4) — إنشاءُ الهويّةِ يُعلَنُ بالفعلِ `spawn_agent` فيقفُ عندَ المستوى الثالثِ من زرِّ الإيقاف) | Perplexity Computer (بقرارِ المالكِ Q-15 · وتوجيهِ المستشارِ 8) | مجلسُ المراجعةِ (التشكيلُ Q-46) — **حسّاسٌ (سيادة · Q-H): يُعيدُ المراجعُ التشغيلَ ويحفظُ تقريرَه حرفيًّا** — ولا VERIFIED بيدِ المنفِّذِ (§ 4.3) | PROPOSED | federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py · federal/executive/services/tests/test_wi082_agent_identity_sovereign.py · docs/audit/evidence/W-390/ | 2026-10-16 | 2026-11-15 | **قياسُ ما قبلُ (W-380):** دَينُ الملفِّ 3 · ومواضعُ النداءِ الإنتاجيّةُ 8 · ومساراتُ إنشاءِ الهويّةِ 2 — والتصميمُ يُعرَضُ قبلَ الشِّفرة | PROPOSED → READY بعدَ عرضِ أثرِ تغييرِ العقدِ (القياسُ في الكتلة) | — (يُكتَبُ عندَ الإغلاقِ) |
 | WI-083 | tooling-gates | T0 (‏توجيهُ المستشارِ 9 § 2: إصلاحُ وجهِ `--merge` ليقرأَ عنوانَ الوسيطِ بتحقُّقٍ صارمٍ من owner/repo — مطابقةٌ تامّةٌ لـ`vooovg-ui/AMOS-Fedration` — بعدَ أن رُفِضَ أوّلُ دمجٍ حيٍّ بالرمزِ 2 · W-381) | Perplexity Computer (بتوجيهِ المستشارِ 9 · عملٌ مزدوجٌ تحتَ دعوى WI-077 على `tools/dev/prepush_gate.py` — المالكُ المُسجَّلُ واحدٌ § 6.1) | مجلسُ المراجعةِ (التشكيلُ Q-46) — ولا VERIFIED بيدِ المنفِّذِ (§ 4.3) | IN_REVIEW | tests/governance/test_wi083_merge_origin_slug.py · tools/dev/README.md · docs/audit/evidence/W-387/ | 2026-10-16 | 2026-10-31 | **سندُ التسجيل:** توجيهُ المستشارِ 9 § 2 بشروطِه نصًّا — والمساراتُ مُعلنةٌ قبلَ العمل | PROPOSED → READY بقيدٍ مستقلٍّ (H3) | — (يُكتَبُ عندَ الإغلاقِ) |
 
 ## 2 · البنودُ المؤجَّلةُ صراحةً
@@ -5119,7 +5119,7 @@ PROGRESS (W-360):
 المالك: Perplexity Computer (بقرارِ المالكِ Q-15 · وتوجيهِ المستشارِ 8)
 المراجع: مجلسُ المراجعةِ (التشكيلُ Q-46) — **حسّاسٌ (سيادة · Q-H): يُعيدُ المراجعُ التشغيلَ ويحفظُ تقريرَه حرفيًّا** — ولا VERIFIED بيدِ المنفِّذِ (§ 4.3)
 الحالة: PROPOSED   (قيدُ W-380 · وكلُّ انتقالٍ قيدٌ مستقلٌّ — H3)
-المسارات: federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py · federal/executive/services/tests/test_wi082_agent_identity_sovereign.py · docs/audit/evidence/W-382/
+المسارات: federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py · federal/executive/services/tests/test_wi082_agent_identity_sovereign.py · docs/audit/evidence/W-390/
 بدأ: 2026-10-16 · ينتهي الحجز: 2026-11-15
 
 قياسُ ما قبلُ (2026-10-16 · W-380 · tools/audit/sovereign_write_inventory.py ثمَّ rg — يُعادُ):
@@ -5138,15 +5138,24 @@ PROGRESS (W-360):
   population.py ولا health.py إلّا ما يفرضُه العقدُ وبإعلانٍ في التصميم (وهما غيرُ محجوزَينِ بعد)
 
 معيار القبول: (1) **قبلَ الشِّفرة** (شرطُ السجلِّ السياديِّ في Q-15): عرضُ أثرِ إلزامِ الدوالِّ الثلاثِ
-  بـAuthorizationContext على المواضعِ الثمانيةِ مقيسًا في evidence/W-382/ — فإن مسَّ العقدُ العامُّ
+  بـAuthorizationContext على المواضعِ الثمانيةِ مقيسًا في evidence/W-390/ — فإن مسَّ العقدُ العامُّ
   ما لم يُقرَّرْ يُكتَبُ سؤالٌ PENDING_OWNER ولا يُخمَّن (2) register_identity يعبرُ الحدَّ السياديَّ
   بالفعلِ spawn_agent فيُرفَضُ عندَ المستوى 3 — بفحصٍ يُسقِطُ (طفرةٌ: تبديلُ الفعلِ إلى register_agent
   تُسقِطُ الفحص) (3) دَينُ agent_identity.py بعدُ = 0 بالأداةِ نفسِها (من 3) وD-4 ينقصُ 3 بلا نموٍّ في
   غيرِه (4) حزمُ services كاملةٌ خضراءُ في CI ومنها 13 ملفَّ اختبارٍ تنادي الدوالّ (5) مراجعةٌ تُعيدُ
   التشغيلَ (Q-H) — لا VERIFIED بمراجعةِ أدلّةٍ وحدَها
 
-الدليل المطلوب: docs/audit/evidence/W-382/ (قياسُ الأثرِ قبلَ · خرجُ الجردِ قبلُ/بعدُ · الطفرة · CI)
+الدليل المطلوب: docs/audit/evidence/W-390/ (قياسُ الأثرِ قبلَ · خرجُ الجردِ قبلُ/بعدُ · الطفرة · CI)
 الحالة الراهنة بصدق: سُجِّلَ ولم تبدأ الشِّفرة — ينتظرُ (1) قبلَ أيِّ كتابة
+
+إضافةٌ مؤرَّخةٌ (2026-10-16 · W-390): (أ) المعيارُ 1 أُنجِز — عرضُ الأثرِ في «#### WI-082 · عرضُ الأثرِ قبلَ الشِّفرة» تحتَ هذه الكتلة:
+  عقدٌ بلا كسرٍ (معاملٌ اختياريٌّ بالاسمِ ومُفوِّضٌ افتراضيٌّ على سابقةِ factories.py) ⇒ صفرُ كسرٍ على
+  المواضعِ الثمانيةِ والنداءاتِ الـ28 · ومسارا الإنشاءِ يقفانِ عندَ المستوى 3 (ب) PENDING_OWNER: اسما فعلَي
+  update_identity وset_lifecycle_state يُحدِّدانِ مدى زرِّ الإيقافِ ولم يُسمِّهما Q-15 — فلا يُخمَّنان
+  (ج) المعيارُ 3 يُقرأُ بعدَها: دَينُ agent_identity.py 3 → 2 (register_identity وحدَه) إلى حسمِ التسمية،
+  والاثنانِ دَينٌ مُعلَنٌ بسببِه — والصيغةُ الأولى (3 → 0) باقيةٌ فوقُ للتاريخ لا تُمحى
+  (د) مسارُ الأدلّةِ صارَ evidence/W-390/ بدلَ W-382/ (W-382 صارَ قيدَ ملاحظاتِ J1–J4 ولم يُنشأْ مجلَّدُه) —
+  ولا يُنشأُ إلّا عندَ RESERVED فما بعدُ (بندٌ PROPOSED لا يحجزُ مسارًا § 6.1)، فعرضُ الأثرِ وقياسُه هنا في الكتلة
 ```
 
 ### WI-083 — T0: وجهُ `--merge` يقرأُ عنوانَ الوسيطِ بمطابقةٍ تامّةٍ لاسمِ المستودع (توجيهُ المستشارِ 9 § 2) — `PROPOSED`
@@ -5182,3 +5191,91 @@ PROGRESS (W-360):
 الدليل المطلوب: docs/audit/evidence/W-387/ (فحوصٌ خضراءُ · سجلُّ التحويرات · تشغيلُ --merge الجافُّ حتى
   قراءةِ الحكمِ في بيئةِ الوسيط)
 ```
+
+#### WI-082 · عرضُ الأثرِ قبلَ الشِّفرة (W-390 · شرطُ السجلِّ السياديِّ في Q-15)
+
+**لم يُكتَبْ سطرُ شِفرة.**
+
+##### 1 · قياسُ ما قبلُ (يُعادُ — الأوامرُ وخرجُها أدناه)
+
+| المقياس | القيمة |
+|---|---|
+| دَينُ `agent_identity.py` (عامٌّ · لا يعبرُ الحدّ) | **3** (`register_identity` add+commit · `update_identity` commit · `set_lifecycle_state` commit) · وD-4 الكلّيُّ **184** |
+| مواضعُ النداءِ الإنتاجيّة | **8** — `register_identity` ×2 (`population.py:187` داخلَ `register_agent` · `tools/migrations/r4_unify_agent_identity.py:322`) · `set_lifecycle_state` ×6 (`population.py:273` · `health.py` ×5) · `update_identity` ×0 |
+| نداءاتُ الاختبارات | **28 في 13 ملفًّا** تحتَ `federal/executive/services/tests/` |
+| مساراتُ إنشاءِ هويّةِ وكيل | **2** — `population.register_agent` (الحيّ) · سكربتُ r4 (أداةٌ لمرّةٍ) |
+| الفعلُ `spawn_agent` | مُعلَنٌ في `core/constitutional_engine/rules.py` ضمنَ `KILL_SWITCH_BLOCKS[3]` — ولا يمرُّ به اليومَ أيُّ إنشاءِ هويّة |
+
+##### 2 · التصميمُ المقترَحُ (على سابقةِ الهجراتِ المنجَزة · `governance/factories.py` P13)
+
+- **عقدٌ بلا كسر:** معاملٌ اختياريٌّ بالاسمِ فقط `authorizer: ConstitutionalAuthorizer | None = None`، وغيابُه يبني
+  مُفوِّضًا افتراضيًّا بفاعلٍ مُسمّى (`ConstitutionalAuthorizer(actor=AGENT_IDENTITY_ACTOR)`) كما في `factories.py:152-156`.
+  ⇒ **صفرُ كسرٍ في التوقيع** على المواضعِ الثمانيةِ والنداءاتِ الـ28: لا يُلزَمُ مُنادٍ بـ`AuthorizationContext`
+  (وهو ما قالَ السجلُّ إنّه «يُقرَّرُ لا يُفرَض» — فلا يُفرَض).
+- **`register_identity` يعبرُ الحدَّ بالفعلِ `spawn_agent`** (`guard_declared`) بأثرٍ مُعلَنٍ (صفُّ `agents`) ومُعوِّضٍ
+  حقيقيٍّ (حذفُ الصفِّ المُنشَأ) ومفتاحِ ذرّيّةٍ من `agent_id` — فيُرفَضُ عندَ المستوى 3 من زرِّ الإيقاف.
+
+##### 3 · الأثرُ السلوكيُّ (الأثرُ الواسعُ بنصِّ المالك)
+
+- **المساران كلاهما** يقفانِ عندَ المستوى ≥ 3: `population.register_agent` (فيمرُّ الاسمُ `register_agent` **عبرَ**
+  `spawn_agent` لا حولَه — وهو ما منعَه القرار) وسكربتُ r4.
+- **الاختباراتُ** التي تُنشئُ هويّاتٍ تمرُّ بالحدِّ فعلًا — يُقاسُ في الشِّفرةِ أيُّها يحتاجُ قاعدةً سياديّةً مُهيَّأة؛ وكلُّ
+  تعديلِ اختبارٍ يُعلَنُ ولا يُرخى فيه شرط.
+- **خطّةُ الرجوع:** الالتزامُ وحدَه يُعكَس (`git revert`) — لا هجرةَ بياناتٍ ولا تغييرَ مخطَّط.
+
+##### 4 · ما لا يُحسَمُ هنا — سؤالٌ للمالك (`PENDING_OWNER` · لا يُخمَّن)
+
+قرارُ Q-15 سمّى فعلَ **الإنشاء** وحدَه. أمّا `update_identity` و`set_lifecycle_state` فلا فعلَ مُسمًّى لهما، **واسمُ الفعلِ
+يُحدِّدُ مدى زرِّ الإيقافِ** (عينُ سؤالِ Q-15): أيُّ اسمٍ خارجَ `KILL_SWITCH_BLOCKS` يمرُّ في كلِّ المستويات.
+فاختيارُ اسمَيهما قرارُ مالك. **إلى أن يُحسَم:** يُهاجَرُ `register_identity` وحدَه (دَينُ الملفِّ **3 → 2** متوقَّعًا)، ويبقى
+الاثنانِ دَينًا مُعلَنًا بسببِه — ويُعدَّلُ المعيارُ 3 في كتلةِ البندِ بالإضافةِ لا بالمحو.
+
+##### تاريخ آخر تعديل
+2026-10-16
+
+##### المحتويات
+- `README.md` — بطاقة هوية هذا المجلد (المادة التاسعة)
+- `measure_before.log` — ملف تابع
+
+
+<details><summary>الأوامرُ وخرجُها حرفيًّا (2026-10-16)</summary>
+
+```text
+$ python tools/audit/sovereign_write_inventory.py --json /tmp/inv_w390.json  (ثمَّ تصفيةُ agent_identity.py)
+EXIT=0
+D-4 184
+register_identity public= True guarded= False writes= ['add()', 'commit()']
+set_lifecycle_state public= True guarded= False writes= ['commit()']
+update_identity public= True guarded= False writes= ['commit()']
+agent_identity.py debt = 3
+
+$ rg -n "register_identity\(|update_identity\(|set_lifecycle_state\(" --type py federal core tools | rg -v /tests/ | rg -v "def "
+federal/executive/services/src/amos_federation/services/agent_runtime/population.py:187:        identity = register_identity(
+federal/executive/services/src/amos_federation/services/agent_runtime/population.py:273:        canonical_updated = set_lifecycle_state(agent_id, new_state)
+federal/executive/services/src/amos_federation/services/agent_runtime/health.py:373:            set_lifecycle_state(agent_id, AgentLifecycleState.TRAINING.value)
+federal/executive/services/src/amos_federation/services/agent_runtime/health.py:403:        set_lifecycle_state(agent_id, AgentLifecycleState.ACTIVE.value)
+federal/executive/services/src/amos_federation/services/agent_runtime/health.py:514:            set_lifecycle_state(agent_id, AgentLifecycleState.PAUSED.value)
+federal/executive/services/src/amos_federation/services/agent_runtime/health.py:593:            set_lifecycle_state(agent_id, AgentLifecycleState.RETIRED.value)
+federal/executive/services/src/amos_federation/services/agent_runtime/health.py:595:            set_lifecycle_state(agent_id, AgentLifecycleState.ACTIVE.value)
+tools/migrations/r4_unify_agent_identity.py:322:                register_identity(
+
+$ rg -c "register_identity\(|spawn_agent\(|update_identity\(|set_lifecycle_state\(" federal/executive/services/tests
+federal/executive/services/tests/test_2b_government_services_sovereign.py:3
+federal/executive/services/tests/test_2b_state_registry_sovereign.py:2
+federal/executive/services/tests/test_r4_agent_identity_and_population.py:11
+federal/executive/services/tests/test_r5_multi_provider_sandbox.py:1
+federal/executive/services/tests/test_r6_1_authorization_closure.py:1
+federal/executive/services/tests/test_r6_identity_authorization_root.py:2
+federal/executive/services/tests/test_r7_government_services.py:1
+federal/executive/services/tests/test_r7_state_registry.py:1
+federal/executive/services/tests/test_r7b_state_treasury.py:1
+federal/executive/services/tests/test_r7c_national_registry.py:1
+federal/executive/services/tests/test_r7d_federal_judiciary.py:1
+federal/executive/services/tests/test_r8_federal_state_integration.py:2
+federal/executive/services/tests/test_r9_national_economic_state.py:1
+
+$ rg -n "spawn_agent" core/constitutional_engine/rules.py
+144:    3: frozenset({"dispatch_agent", "spawn_agent", "expand_state"}),
+```
+
+</details>
