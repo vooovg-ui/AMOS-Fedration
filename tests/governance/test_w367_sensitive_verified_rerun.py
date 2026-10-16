@@ -12,7 +12,7 @@
 ولا يُطبَّقُ بأثرٍ رجعيٍّ على `CLOSED` سابقٍ للقانونِ لا يحملُ السطرَ أصلًا (مُعلَنٌ
 في نصِّ القانون). والحاكمُ **آخرُ** سطرٍ: التصحيحُ بالإضافةِ لا بالمحو.
 
-المالك: WI-080 (قيدُ W-368 · قرارُ المالكِ Q-H · توجيهُ المستشارِ 8).
+المالك: WI-080 (قيدُ W-368 · وشطرُ الفئاتِ W-377 · قرارُ المالكِ Q-H · توجيهُ المستشارِ 8).
 """
 
 from __future__ import annotations
@@ -32,6 +32,7 @@ def _discover_root() -> Path:
 REPO_ROOT = _discover_root()
 ROADMAP = REPO_ROOT / "docs" / "governance" / "work" / "THE_ROADMAP.md"
 ACTIVE_WORK = REPO_ROOT / "docs" / "governance" / "work" / "ACTIVE_WORK.md"
+OWNERSHIP = REPO_ROOT / "docs" / "governance" / "work" / "OWNERSHIP.md"
 
 LAW_TEXT = (
     "«VERIFIED لبند حساس (أمن/مال/سيادة/بيانات) يشترط أن يعيد المراجع تشغيل أوامر "
@@ -63,6 +64,20 @@ def parse_sensitive(roadmap_text: str) -> dict[str, list[str]]:
     return out
 
 
+def parse_scopes(roadmap_text: str) -> dict[str, list[str]]:
+    """كتلةُ `Q-H-SENSITIVE-SCOPES` ⇒ {فئةٌ: [نطاقاتٌ من OWNERSHIP.md]} (شطرُ الفئات · W-377)."""
+    start = roadmap_text.find("Q-H-SENSITIVE-SCOPES\n")
+    end = roadmap_text.find("END-Q-H-SENSITIVE-SCOPES", start)
+    if start < 0 or end < 0:
+        return {}
+    out: dict[str, list[str]] = {}
+    for raw in roadmap_text[start:end].splitlines()[1:]:
+        category, sep, rest = raw.strip().partition(":")
+        if sep:
+            out[category.strip()] = [v.strip() for v in rest.split("·") if v.strip()]
+    return out
+
+
 def _covers(prefix: str, path: str) -> bool:
     if prefix.endswith("/"):
         return path == prefix.rstrip("/") or path.startswith(prefix)
@@ -86,7 +101,12 @@ def parse_items(active_text: str) -> dict[str, dict[str, object]]:
                 for part in cells[7].split("·")
                 if part.strip()
             ]
-            items[cells[1]] = {"status": cells[6], "paths": paths, "qh": []}
+            items[cells[1]] = {
+                "status": cells[6],
+                "scope": cells[2],
+                "paths": paths,
+                "qh": [],
+            }
     current = None
     for line in lines:
         block = _BLOCK.match(line)
@@ -111,11 +131,23 @@ def sensitive_hits(paths: list[str], sensitive: dict[str, list[str]]) -> list[st
     return hits
 
 
+def scope_hits(scope: str, scopes: dict[str, list[str]]) -> list[str]:
+    return [
+        f"{category}:{scope}" for category, names in scopes.items() if scope in names
+    ]
+
+
+def item_hits(item: dict[str, object], roadmap_text: str) -> list[str]:
+    """شطرا «الحسّاسِ»: بادئةُ مسارٍ من القائمة **أو** نطاقُ الصفِّ من الفئات."""
+    return sensitive_hits(item["paths"], parse_sensitive(roadmap_text)) + scope_hits(  # type: ignore[arg-type]
+        str(item["scope"]), parse_scopes(roadmap_text)
+    )
+
+
 def violations(active_text: str, roadmap_text: str, root: Path) -> list[str]:
-    sensitive = parse_sensitive(roadmap_text)
     found: list[str] = []
     for wid, item in parse_items(active_text).items():
-        hits = sensitive_hits(item["paths"], sensitive)  # type: ignore[arg-type]
+        hits = item_hits(item, roadmap_text)
         if not hits:
             continue
         qh = item["qh"]
@@ -126,7 +158,9 @@ def violations(active_text: str, roadmap_text: str, root: Path) -> list[str]:
         if last and last[0] == "MET":
             report = last[1].split()[0].strip("`") if last[1] else ""
             if not report or not (root / report).exists():
-                found.append(f"{wid}: Q-H-STATUS: MET بمسارِ تقريرٍ غائبٍ «{report}» — (ب)")
+                found.append(
+                    f"{wid}: Q-H-STATUS: MET بمسارِ تقريرٍ غائبٍ «{report}» — (ب)"
+                )
         if status == "CLOSED" and last and last[0] == "UNMET":
             found.append(f"{wid}: CLOSED حسّاسٌ وآخرُ سطرِه UNMET — (ج)")
     return found
@@ -151,9 +185,34 @@ def test_sensitive_list_has_four_categories_and_live_prefixes() -> None:
     for category, prefixes in sensitive.items():
         assert prefixes, f"فئةُ «{category}» فارغة"
         for prefix in prefixes:
-            assert (REPO_ROOT / prefix.rstrip("/")).exists(), (
-                f"بادئةٌ ميتةٌ في قائمةِ الحسّاس: {prefix} — تُطمئِنُ ولا تقيس"
-            )
+            assert (
+                REPO_ROOT / prefix.rstrip("/")
+            ).exists(), f"بادئةٌ ميتةٌ في قائمةِ الحسّاس: {prefix} — تُطمئِنُ ولا تقيس"
+
+
+def test_sensitive_scopes_are_real_ownership_scopes() -> None:
+    _, roadmap = _texts()
+    scopes = parse_scopes(roadmap)
+    assert tuple(scopes) == CATEGORIES, scopes.keys()
+    ownership = OWNERSHIP.read_text(encoding="utf-8")
+    for category, names in scopes.items():
+        assert names, f"فئةُ «{category}» بلا نطاق"
+        for name in names:
+            assert re.search(
+                rf"^\|\s*{re.escape(name)}\s*\|", ownership, re.M
+            ), f"نطاقٌ ميتٌ في Q-H-SENSITIVE-SCOPES: {name} — ليس في OWNERSHIP.md"
+
+
+def test_scope_branch_catches_data_item_with_test_only_paths() -> None:
+    """WI-065 (data-migrations) لا يُعلِنُ إلّا ملفَّ اختبارٍ — ويبقى حسّاسًا بشطرِ الفئات."""
+    active, roadmap = _texts()
+    item = parse_items(active)["WI-065"]
+    assert not sensitive_hits(item["paths"], parse_sensitive(roadmap))  # type: ignore[arg-type]
+    assert item_hits(item, roadmap), "شطرُ الفئاتِ لا يرى بندَ بياناتٍ — الثغرةُ عادت"
+    weakened = roadmap.replace(
+        "بيانات: data-migrations · ops-capability", "بيانات: ops-capability"
+    )
+    assert not item_hits(item, weakened), "الفحصُ لا يُميِّزُ حذفَ النطاقِ — لا يقيس"
 
 
 def test_live_tree_has_no_q_h_violation() -> None:
@@ -164,7 +223,7 @@ def test_live_tree_has_no_q_h_violation() -> None:
 def test_wi076_is_sensitive_and_declared_unmet() -> None:
     active, roadmap = _texts()
     item = parse_items(active)["WI-076"]
-    assert sensitive_hits(item["paths"], parse_sensitive(roadmap))  # type: ignore[arg-type]
+    assert item_hits(item, roadmap)
     assert item["status"] == "VERIFIED", "حالةُ WI-076 لا تُغيَّرُ بيدِ المنفِّذ"
     assert item["qh"] and item["qh"][-1][0] == "UNMET"  # type: ignore[index]
     assert "لا يستوفي Q-H الجديد؛ لا CLOSED حتى مقعدين يعيدان التشغيل" in active
@@ -205,5 +264,7 @@ def test_negative_met_with_missing_report_is_caught() -> None:
 def test_documentation_item_is_not_sensitive() -> None:
     _, roadmap = _texts()
     sensitive = parse_sensitive(roadmap)
-    assert sensitive_hits(["docs/audit/SOVEREIGN_DECISION_REGISTER.md"], sensitive) == []
+    assert (
+        sensitive_hits(["docs/audit/SOVEREIGN_DECISION_REGISTER.md"], sensitive) == []
+    )
     assert sensitive_hits(["tools/ops/pg_backup_restore.py"], sensitive)

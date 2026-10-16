@@ -6,3 +6,9 @@ FAILED tests/governance/test_w367_sensitive_verified_rerun.py::test_documentatio
 1 failed, 7 passed in 0.10s
 # بعدَ الردِّ
 8 passed in 0.09s
+
+# طفرةٌ 3 (W-377): حذفُ النطاقِ «data-migrations» من Q-H-SENSITIVE-SCOPES في THE_ROADMAP.md
+FAILED tests/governance/test_w367_sensitive_verified_rerun.py::test_scope_branch_catches_data_item_with_test_only_paths
+1 failed, 9 passed in 0.12s
+# بعدَ الردِّ
+10 passed in 0.11s
