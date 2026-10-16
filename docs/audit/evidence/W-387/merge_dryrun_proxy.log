@@ -1,0 +1,10 @@
+$ git remote get-url origin
+https://git-agent-proxy.perplexity.ai/vooovg-ui/AMOS-Fedration.git
+$ python tools/dev/prepush_gate.py --merge 03fda58405e46c1d02728321acf42be8d87e14a8   # HEAD = W-387 ملتزَمةٌ ولم تُدفَعْ — فلا تشغيلَ CI لها
+
+[PREPUSH] ▶ 7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)
+32 passed in 16.28s
+
+============================================================
+[PREPUSH] ✗ رفضٌ: لا تشغيلَ مكتملًا لوظائفِ CI (‎AMOS-Federation CI‎) على العقدةِ 03fda58405e4 — لا حكمَ بعدُ فلا دمجَ: «غيرُ مقروءٍ» ليسَ أخضرَ ولا أحمرَ · وتشغيلُ المصفوفةِ وحدَهُ ليسَ حكمَ CI (WI-078 · W-362).
+EXIT=3
