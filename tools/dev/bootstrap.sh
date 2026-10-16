@@ -84,6 +84,17 @@ if [ "$(git rev-list --count HEAD 2>/dev/null || echo 0)" -le 1 ]; then
   echo "  فتُعلَنُ بطاقاتٌ مخالفةً وهي صحيحة. الحلّ: git fetch --unshallow"
 fi
 
+# ── 1ب) خُطّافُ pre-push (WI-078 · W-360): الحرسُ يُمنعُ الدفعَ قبلَه ──────────
+# المصدرُ متتبَّعٌ في الشجرةِ (tools/dev/hooks/) والخُطّافُ المحليُّ نسخةٌ منه:
+# التثبيتُ إعادةُ كتابةٍ صريحةٌ مُعلَنةٌ — لا صمتَ ولا اكتشافَ متأخِّرًا.
+if [ -f tools/dev/hooks/pre-push ]; then
+  install -m 0755 tools/dev/hooks/pre-push .git/hooks/pre-push
+  echo "• ثُبِّتَ خُطّافُ pre-push (يُشغِّلُ حرسَ ما قبلَ الدفعِ على كلِّ دفعٍ — WI-078)"
+else
+  echo "✗ tools/dev/hooks/pre-push مفقودٌ — لا يُثبَّتُ خُطّافٌ غيرُ موجودٍ (WI-078)." >&2
+  exit 1
+fi
+
 # ── 2) مُفسِّرٌ يوافقُ CI إن وُجد ───────────────────────────────────────────────
 if command -v python3.12 >/dev/null 2>&1; then
   PY=python3.12

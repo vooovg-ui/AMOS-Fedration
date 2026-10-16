@@ -262,10 +262,10 @@
     },
     "tools": {
       "domain": "tools",
-      "md_files": 42,
+      "md_files": 43,
       "py_files": 54,
       "yaml_files": 2,
-      "code_lines": 17716,
+      "code_lines": 17948,
       "nucleus_count": 12,
       "nucleus_status": {
         "unspecified": 12
@@ -277,7 +277,7 @@
       "secret_hits": 0,
       "observed_hits": 9,
       "api_routes": 1,
-      "test_refs": 551,
+      "test_refs": 561,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -298,7 +298,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 551
+        "TEST_NAME_MENTIONS": 561
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -406,7 +406,7 @@
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 181,
+      "test_refs": 182,
       "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
@@ -427,7 +427,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 181
+        "TEST_NAME_MENTIONS": 182
       },
       "maturity": "IMPLEMENTED",
       "findings_count": 0
@@ -478,9 +478,9 @@
     "tests": {
       "domain": "tests",
       "md_files": 14,
-      "py_files": 101,
+      "py_files": 102,
       "yaml_files": 0,
-      "code_lines": 27750,
+      "code_lines": 27930,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
@@ -492,7 +492,7 @@
       "secret_hits": 0,
       "observed_hits": 4,
       "api_routes": 0,
-      "test_refs": 320,
+      "test_refs": 321,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -513,7 +513,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 320
+        "TEST_NAME_MENTIONS": 321
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
