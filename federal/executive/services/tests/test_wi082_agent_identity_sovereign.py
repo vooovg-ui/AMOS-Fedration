@@ -157,6 +157,7 @@ def test_wi082_2_duplicate_rejected_before_boundary() -> None:
 def test_wi082_3_kill_switch_level_3_blocks_spawn_agent() -> None:
     authorizer = KillSwitchLevelAuthorizer(level=3, actor=AGENT_IDENTITY_ACTOR)
     from core.sovereignty.gateway import SovereigntyViolation  # داخل الفحص: الجسرُ يُتاحُ أولًا
+
     with pytest.raises(SovereigntyViolation) as excinfo:
         register_identity(
             "wi082-halted",
