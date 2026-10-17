@@ -7,19 +7,19 @@
       "md_files": 67,
       "py_files": 42,
       "yaml_files": 0,
-      "code_lines": 14913,
+      "code_lines": 14995,
       "nucleus_count": 14,
       "nucleus_status": {
         "unspecified": 14
       },
       "has_readme": true,
-      "real_source_hits": 8,
+      "real_source_hits": 9,
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,
       "observed_hits": 3,
       "api_routes": 0,
-      "test_refs": 488,
+      "test_refs": 495,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -40,7 +40,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 488
+        "TEST_NAME_MENTIONS": 495
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -391,10 +391,10 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 144,
-      "py_files": 5,
+      "md_files": 145,
+      "py_files": 6,
       "yaml_files": 0,
-      "code_lines": 460,
+      "code_lines": 540,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -406,7 +406,7 @@
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 187,
+      "test_refs": 188,
       "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
@@ -427,7 +427,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 187
+        "TEST_NAME_MENTIONS": 188
       },
       "maturity": "IMPLEMENTED",
       "findings_count": 0
@@ -478,15 +478,15 @@
     "tests": {
       "domain": "tests",
       "md_files": 14,
-      "py_files": 104,
+      "py_files": 106,
       "yaml_files": 0,
-      "code_lines": 28357,
+      "code_lines": 28691,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
       },
       "has_readme": true,
-      "real_source_hits": 38,
+      "real_source_hits": 43,
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,
