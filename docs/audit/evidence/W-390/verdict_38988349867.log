@@ -1,0 +1,9 @@
+$ .venv/bin/python tools/governance/ci_verdict_readability.py --from-json docs/audit/evidence/W-390/jobs_38988349867.json --require-readable --expect-sha fa22b092b7191520a0930e87d314bc3c58d99e6b
+[CI VERDICT] مقروئيّةُ الحكمِ تُقاسُ بالخطواتِ لا بالنتيجة
+  تشغيلٌ 38988349867: READABLE · نُفِّذَت 13/13 وظيفةً (لم يُسنَدْ عاملٌ لـ0 · مُتخطًّى 0 · مشكوكٌ 0)
+[CI VERDICT] ✓ كلُّ التشغيلاتِ (1) نُفِّذَت خطواتُها — فـ`conclusion` يُقرأُ حكمًا.
+
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+  ✗ تشغيلٌ 38988349867 · وظيفةٌ «Coverage (≥80%, L5)»: conclusion='failure' — مقروءٌ **لكنّه ليس أخضرَ** فلا يُدمَجُ.
+[CI VERDICT] ✗ بوّابةُ الدمجِ مُسقِطةٌ — الدفعُ إلى `main` لا يجوزُ حتى يزولَ السببُ المذكورُ أعلاه.
+EXIT=1

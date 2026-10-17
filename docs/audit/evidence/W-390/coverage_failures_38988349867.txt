@@ -1,0 +1,79 @@
+FAILED tests/test_health_system.py::test_ui_health_endpoint - assert 401 == 200
+FAILED tests/test_health_system.py::test_ui_health_all_endpoint - assert 401 == 200
+FAILED tests/test_health_system.py::test_ui_health_check_endpoint - assert 401 == 200
+FAILED tests/test_health_system.py::test_ui_isolate_endpoint - assert 401 == 200
+FAILED tests/test_health_system.py::test_ui_treat_endpoint - assert 401 == 200
+FAILED tests/test_health_system.py::test_ui_isolations_list_endpoint - assert 401 == 200
+FAILED tests/test_health_system.py::test_ui_health_status_visible_after_check - TypeError: string indices must be integers, not 'str'
+FAILED tests/test_memory_service.py::test_store_and_get_memory - assert 401 == 200
+FAILED tests/test_memory_service.py::test_query_memory_by_keyword - assert 401 == 200
+FAILED tests/test_memory_service.py::test_query_no_match_returns_404 - assert 401 == 404
+FAILED tests/test_memory_service.py::test_search_alias_works - assert 401 == 200
+FAILED tests/test_memory_service.py::test_get_nonexistent_returns_404 - assert 401 == 404
+FAILED tests/test_memory_service.py::test_memory_stats - assert 401 == 200
+FAILED tests/test_model_gateway.py::test_route_model_returns_recommendation - assert 401 == 200
+FAILED tests/test_model_gateway.py::test_invoke_model_with_local_fallback - assert 401 == 200
+FAILED tests/test_model_gateway.py::test_invoke_model_rejects_empty_prompt - assert 401 == 422
+FAILED tests/test_orchestrator.py::test_preview_plan_endpoint_returns_unpersisted_steps - assert 401 == 200
+FAILED tests/test_persistence.py::test_persistence_via_api_memory - assert 401 == 200
+FAILED tests/test_persistence.py::test_persistence_via_api_experience - KeyError: 'experience_id'
+FAILED tests/test_persistence.py::test_persistence_via_api_critic - KeyError: 'review_id'
+FAILED tests/test_r1_canonical_execution_path.py::test_gateway_task_is_canonical_in_executive_repository - assert 401 == 202
+FAILED tests/test_r1_canonical_execution_path.py::test_gateway_read_and_executive_repository_agree_on_one_row - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}
+FAILED tests/test_r1_canonical_execution_path.py::test_every_external_transition_carries_sovereign_authorization - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}
+FAILED tests/test_r1_canonical_execution_path.py::test_execution_response_declares_authority_and_fidelity - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}
+FAILED tests/test_r1_canonical_execution_path.py::test_dispatch_uses_registered_agent_from_registry - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}
+FAILED tests/test_r1_canonical_execution_path.py::test_execution_fails_explicitly_when_no_eligible_agent - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}
+FAILED tests/test_r1_canonical_execution_path.py::test_runtime_available_agents_reads_registry_not_hardcoded_list - AssertionError: assert {'detail': 'ر...الح أو منتهي'} == ['r1-worker']
+FAILED tests/test_r1_canonical_execution_path.py::test_external_path_leaves_intact_audit_chain_and_durable_events - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}
+FAILED tests/test_r1_canonical_execution_path.py::test_raw_payload_execution_is_forbidden - assert 401 == 403
+FAILED tests/test_r1_canonical_execution_path.py::test_execution_of_unknown_task_is_not_invented - assert 401 == 404
+FAILED tests/test_r1_canonical_execution_path.py::test_persistent_planning_requires_canonical_task - assert 401 == 400
+FAILED tests/test_r1_canonical_execution_path.py::test_planning_unknown_task_is_rejected - assert 401 == 404
+FAILED tests/test_r1_canonical_execution_path.py::test_full_external_chain_gateway_orchestrator_runtime - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}
+FAILED tests/test_r2_task_execution_integration.py::test_model_invocation_with_ghost_task_is_rejected - assert 401 == 404
+FAILED tests/test_r2_task_execution_integration.py::test_model_invocation_linked_to_canonical_task_is_recorded - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}
+FAILED tests/test_r2_task_execution_integration.py::test_model_invocation_without_key_declares_unavailable_not_simulation - assert 401 == 200
+FAILED tests/test_r2_task_execution_integration.py::test_training_declares_simulation_and_metric_origin - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}
+FAILED tests/test_r2_task_execution_integration.py::test_training_with_ghost_task_is_rejected - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}
+FAILED tests/test_r2_task_execution_integration.py::test_training_linked_to_task_does_not_move_its_state - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}
+FAILED tests/test_r2_task_execution_integration.py::test_critic_scores_canonical_result_not_caller_payload - assert 401 == 403
+FAILED tests/test_r2_task_execution_integration.py::test_critic_marks_unlinked_review_as_unverified - assert 401 == 201
+FAILED tests/test_r2_task_execution_integration.py::test_experience_records_task_provenance - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}
+FAILED tests/test_shadow.py::test_shadow_test_creates_comparison - assert 401 == 201
+FAILED tests/test_shadow.py::test_shadow_comparison_has_similarity - KeyError: 'comparison'
+FAILED tests/test_shadow.py::test_shadow_results_list - assert 401 == 200
+FAILED tests/test_shadow.py::test_shadow_result_by_id - KeyError: 'shadow_id'
+FAILED tests/test_shadow.py::test_shadow_nonexistent_404 - assert 401 == 404
+FAILED tests/test_shadow.py::test_shadow_stats - assert 401 == 200
+FAILED tests/test_shadow.py::test_invoke_tracks_cost - assert 401 == 200
+FAILED tests/test_shadow.py::test_cost_summary - assert 401 == 200
+FAILED tests/test_shadow.py::test_cost_summary_by_model - KeyError: 'by_model'
+FAILED tests/test_tool_registry.py::test_list_tools_returns_seed_data - assert 401 == 200
+FAILED tests/test_tool_registry.py::test_get_tool_by_id - assert 401 == 200
+FAILED tests/test_tool_registry.py::test_get_nonexistent_tool_returns_404 - assert 401 == 404
+FAILED tests/test_tool_registry.py::test_register_new_tool - assert 401 == 201
+FAILED tests/test_tool_registry.py::test_resolve_tools_by_keyword - assert 401 == 200
+FAILED tests/test_tool_registry.py::test_resolve_tools_no_match_returns_404 - assert 401 == 404
+FAILED tests/test_training.py::test_api_create_dataset - assert 401 == 201
+FAILED tests/test_training.py::test_api_list_datasets - assert 401 == 200
+FAILED tests/test_training.py::test_api_get_dataset - KeyError: 'dataset_id'
+FAILED tests/test_training.py::test_api_train_model - KeyError: 'dataset_id'
+FAILED tests/test_training.py::test_api_train_nonexistent_dataset - assert 401 == 404
+FAILED tests/test_training.py::test_api_list_models - KeyError: 'dataset_id'
+FAILED tests/test_training.py::test_api_get_model - KeyError: 'dataset_id'
+FAILED tests/test_training.py::test_api_update_model_status - KeyError: 'dataset_id'
+FAILED tests/test_training.py::test_api_get_model_card - KeyError: 'dataset_id'
+FAILED tests/test_treasury.py::test_ui_treasury_balance - assert 401 == 200
+FAILED tests/test_treasury.py::test_ui_treasury_transactions - assert 401 == 200
+FAILED tests/test_treasury.py::test_ui_treasury_verify - assert 401 == 200
+FAILED tests/test_treasury.py::test_ui_treasury_reward - assert 401 == 200
+FAILED tests/test_treasury.py::test_ui_treasury_charge - assert 401 == 200
+FAILED tests/test_treasury.py::test_ui_treasury_reports - assert 401 == 200
+FAILED tests/test_treasury.py::test_ui_treasury_generate_report - assert 401 == 200
+FAILED tests/test_w032_registry_ownership.py::test_agent_registered_via_gateway_is_visible_from_owning_service - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}
+FAILED tests/test_w032_registry_ownership.py::test_tool_registered_via_gateway_is_visible_from_owning_service - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}
+FAILED tests/test_w032_registry_ownership.py::test_gateway_reads_tools_from_owner_including_seeded_ones - assert 401 == 200
+FAILED tests/test_w032_registry_ownership.py::test_registered_manifest_reaches_the_database_row_itself - AssertionError: بيانُ الوكيلِ لم يصلْ جدولَ `agents`
+FAILED tests/test_w032_registry_ownership.py::test_registering_an_existing_agent_does_not_demote_it - assert 401 == 201
+FAILED tests/test_w032_registry_ownership.py::test_duplicate_tool_name_returns_409_not_500 - AssertionError: {"detail":"رمز الوصول غير صالح أو منتهي"}

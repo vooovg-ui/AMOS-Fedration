@@ -1,0 +1,37 @@
+$ .venv/bin/python -m pytest tests/constitutional tests/sovereignty tests/crown -q -p no:cacheprovider
+1330 passed, 1 skipped in 17.61s
+
+$ .venv/bin/python -m pytest tests/constitutional/test_ledger_verified_state.py tests/constitutional/test_ledger_append_performance.py tests/constitutional/test_ledger_concurrency.py -v -p no:cacheprovider
+tests/constitutional/test_ledger_verified_state.py::TestFullVerificationOncePerPath::test_first_append_in_a_fresh_process_verifies_the_whole_chain PASSED [  4%]
+tests/constitutional/test_ledger_verified_state.py::TestFullVerificationOncePerPath::test_later_appends_verify_only_the_tail PASSED [  8%]
+tests/constitutional/test_ledger_verified_state.py::TestFullVerificationOncePerPath::test_M10_two_objects_for_one_path_verify_fully_once PASSED [ 13%]
+tests/constitutional/test_ledger_verified_state.py::TestTamperBetweenAppendsIsRefusedImmediately::test_M1_size_changing_edit_of_an_old_entry PASSED [ 17%]
+tests/constitutional/test_ledger_verified_state.py::TestTamperBetweenAppendsIsRefusedImmediately::test_M2_same_size_in_place_edit_with_mtime_restored PASSED [ 21%]
+tests/constitutional/test_ledger_verified_state.py::TestTamperBetweenAppendsIsRefusedImmediately::test_M3_deleting_a_middle_entry PASSED [ 26%]
+tests/constitutional/test_ledger_verified_state.py::TestTamperBetweenAppendsIsRefusedImmediately::test_M4_truncating_the_last_entry PASSED [ 30%]
+tests/constitutional/test_ledger_verified_state.py::TestTamperBetweenAppendsIsRefusedImmediately::test_M5_reordering_two_equal_length_entries PASSED [ 34%]
+tests/constitutional/test_ledger_verified_state.py::TestTamperBetweenAppendsIsRefusedImmediately::test_M7_replacing_the_file_even_with_identical_bytes PASSED [ 39%]
+tests/constitutional/test_ledger_verified_state.py::TestTamperBetweenAppendsIsRefusedImmediately::test_deleting_the_whole_ledger_after_verification PASSED [ 43%]
+tests/constitutional/test_ledger_verified_state.py::TestBrokenChainAtStart::test_M6_broken_chain_in_a_fresh_process_refuses_and_writes_nothing PASSED [ 47%]
+tests/constitutional/test_ledger_verified_state.py::TestTailWrittenByOthers::test_M8_legitimate_appends_by_another_process_are_accepted PASSED [ 52%]
+tests/constitutional/test_ledger_verified_state.py::TestTailWrittenByOthers::test_M9_a_tail_with_a_wrong_prev_hash_is_refused PASSED [ 56%]
+tests/constitutional/test_ledger_verified_state.py::TestTailWrittenByOthers::test_M9_a_tail_that_skips_an_index_is_refused PASSED [ 60%]
+tests/constitutional/test_ledger_verified_state.py::TestTailWrittenByOthers::test_M9_an_unreadable_tail_is_refused PASSED [ 65%]
+tests/constitutional/test_ledger_verified_state.py::TestConsistentRewrite::test_rewrite_after_verification_is_refused_though_verify_chain_accepts_it PASSED [ 69%]
+tests/constitutional/test_ledger_verified_state.py::TestConsistentRewrite::test_rewrite_before_a_process_starts_is_still_accepted_as_before PASSED [ 73%]
+tests/constitutional/test_ledger_append_performance.py::test_append_costs_a_small_fraction_of_a_full_chain_verification PASSED [ 78%]
+tests/constitutional/test_ledger_concurrency.py::Testالإلحاقالمتزامن::test_ستُّ_عمليّاتٍ_متزامنةٍ_تُنتِج_سلسلةً_سليمةً_كاملة PASSED [ 82%]
+tests/constitutional/test_ledger_concurrency.py::Testالإلحاقالمتزامن::test_كلُّ_قيدٍ_يشير_إلى_بصمة_سابقه_تحت_التزامن PASSED [ 86%]
+tests/constitutional/test_ledger_concurrency.py::Testالإلحاقالمتزامن::test_كلُّ_القيود_المُلحَقة_موجودةٌ_ولا_عمليّةَ_صامتةُ_الفقد PASSED [ 91%]
+tests/constitutional/test_ledger_concurrency.py::Testالحراسةلمتُخفَّف::test_العبثُ_اليدويُّ_ما_زال_يُكتشَف PASSED [ 95%]
+tests/constitutional/test_ledger_concurrency.py::Testالحراسةلمتُخفَّف::test_ملفُّ_القفل_جانبيٌّ_لا_يُلوِّث_السجل PASSED [100%]
+============================== 23 passed in 2.44s ==============================
+
+$ PATH=$PWD/.venv/bin:$PATH .venv/bin/python -m pytest tests/governance -q -p no:cacheprovider  # خلاصتُه قبلَ إعادةِ توليدِ المصفوفة
+FAILED tests/governance/test_w099_generated_artifact_freshness.py::test_الأثرُ_المُولَّدُ_في_المستودعِ_طازجٌ_لا_متقادمٌ
+1 failed, 1298 passed in 453.28s (0:07:33)
+# ثمَّ: truth_audit.py . --ratchet (ثابت عند 61) ⇒ test_w099_generated_artifact_freshness.py: 6 passed
+
+$ (cd federal/executive/services && ../../../.venv/bin/python -m pytest tests -q -p no:cacheprovider)  # خلاصتُه
+=========== 1473 passed, 53 skipped, 1 warning in 2032.80s (0:33:52) ===========
+EXIT=0
