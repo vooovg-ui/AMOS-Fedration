@@ -19,7 +19,7 @@
       "secret_hits": 0,
       "observed_hits": 3,
       "api_routes": 0,
-      "test_refs": 485,
+      "test_refs": 488,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -40,7 +40,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 485
+        "TEST_NAME_MENTIONS": 488
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -91,9 +91,9 @@
     "federal": {
       "domain": "federal",
       "md_files": 60,
-      "py_files": 241,
+      "py_files": 242,
       "yaml_files": 3,
-      "code_lines": 66909,
+      "code_lines": 67151,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -105,7 +105,7 @@
       "secret_hits": 0,
       "observed_hits": 155,
       "api_routes": 182,
-      "test_refs": 231,
+      "test_refs": 232,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -126,7 +126,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 231
+        "TEST_NAME_MENTIONS": 232
       },
       "maturity": "UNIT_TESTED",
       "findings_count": 60
@@ -234,7 +234,7 @@
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 189,
+      "test_refs": 191,
       "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
@@ -255,7 +255,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 189
+        "TEST_NAME_MENTIONS": 191
       },
       "maturity": "IMPLEMENTED",
       "findings_count": 1
@@ -391,16 +391,16 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 141,
-      "py_files": 3,
+      "md_files": 144,
+      "py_files": 5,
       "yaml_files": 0,
-      "code_lines": 180,
+      "code_lines": 460,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
       },
       "has_readme": true,
-      "real_source_hits": 5,
+      "real_source_hits": 9,
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,
