@@ -109,6 +109,22 @@
    "kind": "work_drift",
    "reason": "تحديث خط أساس الدَّين بعد W-200: زيادة مواقع الكتابة من 217 إلى 219 بعد إدخال persistent_registry.py",
    "recorded_at": "2026-10-04T21:45:52+00:00"
+  },
+  {
+   "debt": 183,
+   "sovereign": 17,
+   "closed_legacy": 7,
+   "write_sites_total": 220,
+   "git_head": "7aa74d6",
+   "waves": {
+    "W1": 52,
+    "W2": 34,
+    "W3": 97
+   },
+   "decision": "W-402",
+   "kind": "work_drift",
+   "reason": "هجرةُ register_identity عبرَ الحدِّ السياديِّ بالفعلِ spawn_agent (قرارُ المالكِ Q-15 ① · WI-082 · W-402): دَينُ agent_identity.py 3 ← 2 · D-4: 184 ← 183 · sovereign: 16 ← 17 · بلا نموٍ في غيرِهِ — بقياسِ tools/audit/sovereign_write_inventory.py",
+   "recorded_at": "2026-10-17T21:28:59+00:00"
   }
  ]
 }
