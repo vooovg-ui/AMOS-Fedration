@@ -3,7 +3,7 @@
 النطاق: federal/executive/services — النواة التنفيذية
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-16
-تاريخ آخر تعديل: 2026-08-16
+تاريخ آخر تعديل: 2026-10-16 (WI-082 · Q-15 ① — `register_identity` تعبرُ الحدَّ السياديَّ بالفعلِ `spawn_agent`)
 
 حقائق مقيسة قبل هذه الوحدة (R4-A):
 
@@ -47,6 +47,13 @@ from typing import Any
 
 from amos_federation.common.database import AgentModel, get_session_factory
 from amos_federation.services.executive_core.dispatcher import EMPLOYABLE_STATUSES
+from amos_federation.services.executive_core.sovereignty_bridge import (
+    ConstitutionalAuthorizer,
+    compensator,
+    declared_effect,
+    get_authorizer,
+    operation_key,
+)
 
 #: اسم الجدول الكانوني للهوية.
 CANONICAL_IDENTITY_TABLE = "agents"
@@ -62,6 +69,20 @@ POPULATION_FIDELITY = "REAL"
 
 #: نشاط التشغيل (executing/failed) يُقرأ من أحداث دورة الحياة المسجَّلة في R3.
 RUNTIME_ACTIVITY_SUBJECT = "amos_federation.executive.agent_lifecycle"
+
+#: فاعلُ إنشاءِ الهويّةِ — تنفيذيٌّ على سابقةِ المصانعِ (P13 · `FACTORY_ACTOR`):
+#: قِيسَ أنَّ البوّابةَ تُجيزُ الفعلَ لكلِّ الفروعِ بلا قاعدةٍ حاصرةٍ تدعو لتسميةِ فرعٍ.
+AGENT_IDENTITY_ACTOR = "EXECUTIVE"
+
+#: فعلُ إنشاءِ الهويّةِ الدستوريُّ — قرارُ المالكِ Q-15 ① (2026-10-16 · `W-363`):
+#: «spawn_agent: إنشاء الوكلاء يتوقف عند زر الإيقاف» — فيقفُ إنشاءُ الهويّةِ عندَ
+#: المستوى الثالثِ من زرِّ الإيقافِ (المادة الثامنة · `KILL_SWITCH_BLOCKS[3]`).
+#: ولا يُستعمَلُ `register_agent` ولا `create_agent` اسمًا يمرُّ منه ما أرادَ الزرُّ منعَه.
+ACTION_SPAWN_AGENT = "spawn_agent"
+
+#: نطاقُ مفتاحِ الذرّيّةِ (1H) لإنشاءِ الهويّةِ — مفتاحُه `agent_id` نفسُه فلا تُنشأ
+#: الهويّةُ مرّتينِ ولا يُعادُ الحجزُ بعدَ حذفٍ خارجيٍّ.
+IDENTITY_REGISTER_SCOPE = "executive_core.agent_identity.register"
 
 
 class AgentLifecycleState(StrEnum):
@@ -201,6 +222,50 @@ def list_identities(
         session.close()
 
 
+def _write_identity_row(row: AgentModel) -> None:
+    """كتابةُ صفِّ هويّةٍ — تُستعمَلُ للأثرِ المُعلَنِ وحدَهُ لا كمسارٍ ثانٍ للكتابة."""
+    session = get_session_factory()()
+    try:
+        session.add(row)
+        session.commit()
+    finally:
+        session.close()
+
+
+def _delete_identity_row(agent_id: str) -> bool:
+    """حذفُ صفِّ الهويّةِ المُنشَأِ — عكسٌ حقيقيٌّ للإنشاءِ (1I).
+
+    `False` إن غابَ الصفُّ فلا يُزعَمَ عكسٌ وقعَ. والحذفُ مقصورٌ على الصفِّ الذي
+    أنشأته هذه العمليّةُ: فحصُ التكرارِ قبلَ الحدِّ يمنعُ أن يكونَ الصفُّ لغيرِها.
+    """
+    session = get_session_factory()()
+    try:
+        row = session.query(AgentModel).filter(AgentModel.id == agent_id).first()
+        if row is None:
+            return False
+        session.delete(row)
+        session.commit()
+        return True
+    finally:
+        session.close()
+
+
+_DEFAULT_AUTHORIZER: ConstitutionalAuthorizer | None = None
+
+
+def _default_authorizer() -> ConstitutionalAuthorizer:
+    """المُصرِّحُ الافتراضيُّ لإنشاءِ الهويّةِ — كائنٌ واحدٌ يُبنى عندَ أوّلِ حاجةٍ (سابقةُ P13).
+
+    المُصرِّحُ يحملُ سجلَّ ذرّيّةٍ واحدًا (1H) وبناءَه في كلِّ نداءٍ يُجزّئ الأثرَ بينَ
+    سجلّاتٍ متعدّدةٍ — فالكائنُ واحدٌ للوحدةِ، وبيئةُ الاختباراتِ (conftest) تُعيّنُ
+    موضعه قبلَ أوّلِ نداءٍ.
+    """
+    global _DEFAULT_AUTHORIZER
+    if _DEFAULT_AUTHORIZER is None:
+        _DEFAULT_AUTHORIZER = get_authorizer()
+    return _DEFAULT_AUTHORIZER
+
+
 def register_identity(
     agent_id: str,
     name: str,
@@ -211,33 +276,68 @@ def register_identity(
     lifecycle_state: str = AgentLifecycleState.REGISTERED.value,
     token_budget: int = 10_000,
     tenant_id: str = "default",
+    authorizer: ConstitutionalAuthorizer | None = None,
 ) -> AgentIdentity:
-    """إنشاء هوية كانونية جديدة — ترفض التكرار.
+    """إنشاء هوية كانونية جديدة — ترفض التكرار، وتعبر الحد السيادي منذ WI-082.
+
+    الكتابةُ لا تقعُ إلا عبرَ الحدِّ السياديِّ بالفعلِ `spawn_agent` (قرارُ المالكِ
+    Q-15 ①): أثرٌ مُعلَنٌ قبلَ وقوعِه (صفٌّ في `agents`)، ومفتاحُ ذرّيّةٍ من
+    `agent_id`، ومعوّضٌ حقيقيٌّ يحذفُ الصفَّ المُنشَأَ عندَ الفشلِ. وزرُّ الإيقافِ
+    عندَ المستوى الثالثِ يُجمّدُ الفعلَ فلا تُنشأُ هويّةٌ (المادةُ الثامنة).
+
+    `authorizer` معاملٌ اختياريٌّ بالاسمِ لا يكسرُ نداءً قائمًا (صفرُ كسرٍ قيسَ على
+    المواضعِ الثمانيةِ والنداءاتِ الـ28): غيابُه يستعملُ المُصرِّحَ الافتراضيَّ للوحدةِ.
 
     Raises:
         DuplicateAgentIdentityError: المعرّف مُستخدَم فعلًا. التحديث يجري عبر
             `update_identity` صراحةً، لا عبر «تسجيل» صامت يمسح ما قبله.
+        UnknownAgentIdentityError: إعادةُ نداءٍ على مفتاحٍ مُثبَّتٍ والجدولُ لا يحملُ
+            الصفَّ (حُذفَ خارجيًّا): الإعادةُ لا تُختلِقُ وكيلًا ولا تُزعَمُ أثرًا ثانيًا.
     """
     session = get_session_factory()()
     try:
         existing = session.query(AgentModel).filter(AgentModel.id == agent_id).first()
         if existing is not None:
             raise DuplicateAgentIdentityError(f"هوية موجودة فعلًا بهذا المعرّف: {agent_id}")
-        session.add(
-            AgentModel(
-                id=agent_id,
-                name=name,
-                role=role,
-                status=lifecycle_state,
-                permissions=permissions or [],
-                allowed_tools=allowed_tools or [],
-                token_budget=token_budget,
-                tenant_id=tenant_id,
-            )
-        )
-        session.commit()
     finally:
         session.close()
+
+    auth = authorizer if authorizer is not None else _default_authorizer()
+    target = f"agent/{agent_id}"
+    effect = declared_effect("CREATE", target, f"هوية وكيل جديدة «{name}» في الجدول الكانوني")
+    row = AgentModel(
+        id=agent_id,
+        name=name,
+        role=role,
+        status=lifecycle_state,
+        permissions=permissions or [],
+        allowed_tools=allowed_tools or [],
+        token_budget=token_budget,
+        tenant_id=tenant_id,
+    )
+
+    guarded = auth.guard_declared(
+        ACTION_SPAWN_AGENT,
+        target,
+        declared_effects=(effect,),
+        applier=lambda _effect: _write_identity_row(row),
+        operation_key=operation_key(IDENTITY_REGISTER_SCOPE, agent_id),
+        compensators=(
+            compensator(
+                effect.signature,
+                lambda: _delete_identity_row(agent_id),
+                "حذف صف الهوية المُنشَأ — عكسٌ حقيقيٌّ للإنشاء",
+            ),
+        ),
+    )
+    if guarded.is_replay:
+        # إعادةٌ لمفتاحٍ مُثبَّتٍ: الحدُّ لم يُطبِّق الأثرَ مرّةً ثانيةً — والجدولُ لا
+        # يحملُ الصفَّ (وإلّا لرفعه فحصُ التكرارِ). فالصدقُ أن يُقالَ «لا هويّة» لا
+        # أن يُختلَقَ وكيلٌ من سجلٍّ يشهدُ بعمليّةٍ لا أثرَ لها في الجدول.
+        raise UnknownAgentIdentityError(
+            f"إعادةُ إنشاءِ الهويّةِ «{agent_id}» على مفتاحٍ مُثبَّتٍ والجدولُ لا يحملُها — "
+            "لا يُختلَقُ وكيلٌ من إعادة"
+        )
     return require_identity(agent_id, tenant_id=tenant_id)
 
 
