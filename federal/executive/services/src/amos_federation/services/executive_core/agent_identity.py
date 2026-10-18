@@ -3,9 +3,7 @@
 النطاق: federal/executive/services — النواة التنفيذية
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-16
-تاريخ آخر تعديل: 2026-10-17 (W-402 — WI-082: هجرةُ register_identity عبرَ الحدِّ
-السياديِّ بالفعلِ «spawn_agent» بقرارِ المالكِ Q-15 ① · بلا مساسٍ بالاثنَينِ
-الباقيَينِ المعلَّقَينِ على حسمِ التسميةِ عندَ المالكِ)
+تاريخ آخر تعديل: 2026-08-16
 
 حقائق مقيسة قبل هذه الوحدة (R4-A):
 
@@ -49,12 +47,6 @@ from typing import Any
 
 from amos_federation.common.database import AgentModel, get_session_factory
 from amos_federation.services.executive_core.dispatcher import EMPLOYABLE_STATUSES
-from amos_federation.services.executive_core.sovereignty_bridge import (
-    ConstitutionalAuthorizer,
-    compensator,
-    declared_effect,
-    operation_key,
-)
 
 #: اسم الجدول الكانوني للهوية.
 CANONICAL_IDENTITY_TABLE = "agents"
@@ -70,20 +62,6 @@ POPULATION_FIDELITY = "REAL"
 
 #: نشاط التشغيل (executing/failed) يُقرأ من أحداث دورة الحياة المسجَّلة في R3.
 RUNTIME_ACTIVITY_SUBJECT = "amos_federation.executive.agent_lifecycle"
-
-#: فاعلُ إنشاءِ الهويّة (WI-082 · قرارُ المالكِ Q-15 ①): إنشاءُ هويةِ وكيلٍ في
-#: السجلِّ الكانونيِّ عملُ السلطةِ التنفيذيّةِ، فالفاعلُ يُعلَنُ تنفيذيًّا ولا يُثبَّتُ —
-#: المُصرِّحُ يبقى قابلاً للتمريرِ صراحةً (`authorizer`) والافتراضُ لا يوسِّعُ شيئًا.
-AGENT_IDENTITY_ACTOR = "EXECUTIVE"
-
-#: الفعلُ السياديُّ لإنشاءِ الهويّة — قرارُ المالكِ Q-15 ①: يُعلَنُ إنشاءُ الهويّةِ
-#: بالفعلِ «spawn_agent» فيقفُ عندَ المستوى الثالثِ من زرِّ الإيقافِ (المادةُ الثامنة).
-#: ولا يُسمَّى باسمٍ نطاقيٍّ هروبًا من الدستورِ: البوابةُ تعرفُ هذا الاسمَ فعلًا.
-ACTION_SPAWN_AGENT = "spawn_agent"
-
-#: نطاقُ مفتاحِ الذرّيّةِ لإنشاءِ الهويّةِ (1H): القيمةُ هي `agent_id` الكانونيُّ —
-#: الهويةُ الواحدةُ لا تُنشأُ مرتَينِ لمفتاحٍ واحد.
-IDENTITY_SPAWN_SCOPE = "agents.identity.spawn"
 
 
 class AgentLifecycleState(StrEnum):
@@ -129,14 +107,6 @@ class DuplicateAgentIdentityError(RuntimeError):
 
 class UnknownAgentIdentityError(RuntimeError):
     """لا هوية كانونية بهذا المعرّف — لا يُخترَع وكيل."""
-
-
-class IdentityLedgerDivergenceError(RuntimeError):
-    """سجلُّ الذرّيّةِ يقولُ «نجحت» وصفُّ الهويّةِ غائبٌ — تفرُّقٌ يُرفَعُ لا يُسكَتُ عنه.
-
-    لا يُزعَمُ إنشاءٌ لم يقعْ، ولا يُعادُ الإنشاءُ خارجَ الحدِّ: الحالةُ تحتاجُ
-    استعادةً (1H) لا تجاهلًا. وهو مُعلَنٌ حدٌّ لا يُبتلَعُ استثناءً عامًّا.
-    """
 
 
 @dataclass(frozen=True)
@@ -231,25 +201,6 @@ def list_identities(
         session.close()
 
 
-def _delete_identity_row(agent_id: str) -> bool:
-    """حذفُ صفِّ هويةٍ موجودٍ فعلًا — عكسٌ حقيقيٌّ للإنشاءِ (معوّضُ 1I).
-
-    يعيدُ `False` إن لم يكنِ الصفُّ موجودًا: لا يُزعَمُ عكسُ أثرٍ لا وجودَ له.
-    وهذا نطاقُهُ محصورٌ في صفِّ هذهِ العمليّةِ (مفتاحُ الذرّيّةِ من `agent_id`)،
-    والقيدُ الأوليُّ في الجدولِ يمنعُ أن يكونَ الصفُّ لغيرِها أصلًا.
-    """
-    session = get_session_factory()()
-    try:
-        row = session.get(AgentModel, agent_id)
-        if row is None:
-            return False
-        session.delete(row)
-        session.commit()
-        return True
-    finally:
-        session.close()
-
-
 def register_identity(
     agent_id: str,
     name: str,
@@ -260,84 +211,33 @@ def register_identity(
     lifecycle_state: str = AgentLifecycleState.REGISTERED.value,
     token_budget: int = 10_000,
     tenant_id: str = "default",
-    authorizer: ConstitutionalAuthorizer | None = None,
 ) -> AgentIdentity:
-    """إنشاء هوية كانونية جديدة — ترفض التكرار — عبر الحد السيادي منذ WI-082.
-
-    الكتابةُ في `agents` لا تقعُ إلّا بإذنٍ دستوريٍّ بالفعلِ «spawn_agent» (قرارُ
-    المالكِ Q-15 ①)، فيقفُ الإنشاءُ عندَ المستوى الثالثِ من زرِّ الإيقافِ (المادةُ
-    الثامنة) ويعلنُ أثرَهُ ويحملُ معوّضًا حقيقيًّا ومفتاحَ ذرّيّةٍ من المعرِّفِ نفسِه.
-
-    `authorizer` اختياريٌّ Named كما في `governance/factories.py` (السابقةِ P13):
-    لا يغيّرُ سلوكَ مُنادٍ قائمٍ — من لا يمرّرُ مُصرِّحًا يُبنى له المبدئيُّ بفاعلٍ
-    مسمّى، ولا يُبنى جسرٌ ثانٍ ولا بدائيّةٌ سياديّةٌ جديدة.
+    """إنشاء هوية كانونية جديدة — ترفض التكرار.
 
     Raises:
         DuplicateAgentIdentityError: المعرّف مُستخدَم فعلًا. التحديث يجري عبر
             `update_identity` صراحةً، لا عبر «تسجيل» صامت يمسح ما قبله.
-        IdentityLedgerDivergenceError: سجلُّ الذرّيّةِ يُثبِتُ نجاحَ العمليّةِ
-            وصفُّ الهويّةِ غائبٌ — استعادةٌ مطلوبةٌ لا إنشاءٌ يُزعَم.
     """
-    actor_authorizer = (
-        authorizer
-        if authorizer is not None
-        else ConstitutionalAuthorizer(actor=AGENT_IDENTITY_ACTOR)
-    )
-    # قاعدةُ نطاقٍ **قبلَ** الحدِّ (قراءةٌ لا كتابةٌ): رفضٌ مبكّرٌ صريحٌ للتكرارِ.
-    # وهو ليس حمايةَ التزامنِ — ذاك قيدُ المفتاحِ الأوليُّ في الجدولِ — بل إبقاءُ
-    # العقدِ القائمِ: المكرّرُ يُرفضُ قبلَ عبورِ الحدِّ لا بعده.
     session = get_session_factory()()
     try:
         existing = session.query(AgentModel).filter(AgentModel.id == agent_id).first()
         if existing is not None:
             raise DuplicateAgentIdentityError(f"هوية موجودة فعلًا بهذا المعرّف: {agent_id}")
+        session.add(
+            AgentModel(
+                id=agent_id,
+                name=name,
+                role=role,
+                status=lifecycle_state,
+                permissions=permissions or [],
+                allowed_tools=allowed_tools or [],
+                token_budget=token_budget,
+                tenant_id=tenant_id,
+            )
+        )
+        session.commit()
     finally:
         session.close()
-
-    target = f"agents/{agent_id}"
-    effect = declared_effect("CREATE", target, f"هويةُ وكيلٍ «{name}» في السجلِّ الكانونيِّ الواحد")
-
-    def _apply(_effect: Any) -> None:
-        write_session = get_session_factory()()
-        try:
-            write_session.add(
-                AgentModel(
-                    id=agent_id,
-                    name=name,
-                    role=role,
-                    status=lifecycle_state,
-                    permissions=permissions or [],
-                    allowed_tools=allowed_tools or [],
-                    token_budget=token_budget,
-                    tenant_id=tenant_id,
-                )
-            )
-            write_session.commit()
-        finally:
-            write_session.close()
-
-    guarded = actor_authorizer.guard_declared(
-        ACTION_SPAWN_AGENT,
-        target,
-        declared_effects=(effect,),
-        applier=_apply,
-        operation_key=operation_key(IDENTITY_SPAWN_SCOPE, agent_id),
-        compensators=(
-            compensator(
-                effect.signature,
-                lambda: _delete_identity_row(agent_id),
-                "حذفُ صفِّ الهويّةِ المُنشَأ — عكسٌ حقيقيٌّ للإنشاءِ",
-            ),
-        ),
-    )
-    if guarded.is_replay and get_identity(agent_id, tenant_id=tenant_id) is None:
-        # العمليّةُ مُثبَتةٌ ناجحةٌ لهذا المفتاحِ: لا كتابةً ثانيةً ولا يُزعَمُ إنشاءٌ
-        # جديدٌ. والصدقُ أن يُتحقَّقَ من أثرِها: الهويّةُ موجودةٌ فعلًا، أو الحالةُ
-        # متفرّقةٌ فتُرفَعُ صريحةً ولا يُعادُ الإنشاءُ خارجَ الحدّ.
-        raise IdentityLedgerDivergenceError(
-            f"سجلُّ الذرّيّةِ يُثبِتُ إنشاءَ «{agent_id}» وصفُّ الهويّةِ غائبٌ — "
-            "استعادةٌ مطلوبةٌ (1H) لا إنشاءٌ يُزعَم"
-        )
     return require_identity(agent_id, tenant_id=tenant_id)
 
 
