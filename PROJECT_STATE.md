@@ -21,6 +21,7 @@ tags: project-state, handoff, quick-reference, governance-active
 | المستودع | `https://github.com/vooovg-ui/AMOS-Fedration` (‏وكانَ يقولُ `xoos-beep/AMOS-Fedration` بعدَ الانتقالِ المُعلَنِ أدناه، فأسقطَه المراجعانِ معًا عيبًا في الجولةِ الرابعةِ فصُحِّحَ في `W-157` — والمقياسُ `git remote get-url origin`) |
 | الفرع | `main` |
 | **Current Stage** | المسارات الحاكمة (T0: قابليّة القياس · T2: الحوكمة والقرارات السيادية · T4: الطبقة الحقيقية) |
+| **Last Completed Work** | **W-415 · 2026-10-18**: قيدُ أحكامِ CI لدفعةِ WI-087 كاملةً · DISC-102 (جذرُ حمرةِ Coverage مقيسًا: WI-082 × DISC-100) · DISC-103 (تصادمُ أرقامِ القيود) · OWNER-DECISIONS-D11 |
 | **Last Completed Work** | **W-414 · 2026-10-18**: تجديدُ القياسِ المنشورِ final_audit_p14.json (أسئلة السجل السيادي 46→49) بعد سقوط عقد النسب (W-037) |
 | **Last Completed Work** | **W-413 · 2026-10-18**: تصحيحٌ مؤرَّخٌ بقرارِ المالكِ Q-49 — رفعُ سقفِ non_monotonic 4→5 (التزامُ البوتِ ابنٌ يسبقُ أباهُ بطوابعٍ مستقبليةٍ من المنفِّذِ) |
 | **Last Completed Work** | **W-412 · 2026-10-18**: WI-087 IN_PROGRESS→IN_REVIEW (H3) — مُسلَّمٌ للمراجعةِ المستقلّةِ (Q-48) · حكمُ CI على الدفعةِ يُقيَّدُ في القيدِ التاليّ |
