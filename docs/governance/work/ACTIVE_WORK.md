@@ -3571,7 +3571,7 @@
   العقدةُ المراجَعة: 746d9e7 (W-222)
 ```
 
-### WI-059 — تصحيحُ `DISC-082` (أ)–(ج): الحكمُ يُقيَّدُ في الخليّةِ التي يقولُ السجلُّ إنّه فيها — `IN_REVIEW` · `PROPOSED → READY` في `W-241` · `READY → RESERVED` في `W-247` · `RESERVED → IN_PROGRESS` في `W-248` · `IN_PROGRESS → IN_REVIEW` في `W-249` · `IN_REVIEW → VERIFIED` في `W-250` · `VERIFIED → CLOSED` في `W-251`
+### WI-059 — تصحيحُ `DISC-082` (أ)–(ج): الحكمُ يُقيَّدُ في الخليّةِ التي يقولُ السجلُّ إنّه فيها — `READY` · `PROPOSED → READY` في `W-241` · `READY → RESERVED` في `W-247` · `RESERVED → IN_PROGRESS` في `W-248` · `IN_PROGRESS → IN_REVIEW` في `W-249` · `IN_REVIEW → VERIFIED` في `W-250` · `VERIFIED → CLOSED` في `W-251`
 
 ```text
 النطاق: governance-docs (‏docs/governance/work/ACTIVE_WORK.md — تصحيحُ نثرٍ في سجلِّ العمل) · فئةُ التغيير: C0
