@@ -1,0 +1,36 @@
+الهدف: core/constitutional_engine/ledger.py · sha256 4458577e96391f9a02db1ce33cf9f8238643e082e6b7786e54d854172dd04fd1
+
+[K1] تعطيلُ مطابقةِ بصمةِ البادئة
+  ⇒ قُتِل · 1 failed, 95 passed in 0.95s
+    FAILED tests/constitutional/test_constitutional_engine.py::TestLedger::test_cannot_append_onto_broken_chain
+
+[K2] تعطيلُ التحقّقِ من الذيل
+  ⇒ قُتِل · 1 failed, 116 passed in 2.53s
+    FAILED tests/constitutional/test_ledger_verified_state.py::TestTailWrittenByOthers::test_M8_legitimate_appends_by_another_process_are_accepted
+
+[K3] تعطيلُ فحصِ (dev, ino)
+  ⇒ قُتِل · 1 failed, 113 passed in 2.18s
+    FAILED tests/constitutional/test_ledger_verified_state.py::TestTamperBetweenAppendsIsRefusedImmediately::test_M7_replacing_the_file_even_with_identical_bytes
+
+[K4] تخطّي التحقّقِ الكاملِ الأوّلِ حينَ لا حالة
+  ⇒ قُتِل · 1 failed, 105 passed in 2.27s
+    FAILED tests/constitutional/test_ledger_verified_state.py::TestFullVerificationOncePerPath::test_first_append_in_a_fresh_process_verifies_the_whole_chain
+
+[K5] مفتاحُ الحالةِ بالكائنِ لا بالمسارِ الحقيقيّ (في القراءةِ والكتابة)
+  ⇒ قُتِل · 1 failed, 7 passed in 0.14s
+    FAILED tests/constitutional/test_constitutional_cli.py::TestEvaluateCommand::test_every_evaluation_is_written_to_the_ledger
+
+[K6] تعطيلُ فحصِ اختفاءِ الملف
+  ⇒ قُتِل · 1 failed, 114 passed in 2.18s
+    FAILED tests/constitutional/test_ledger_verified_state.py::TestTamperBetweenAppendsIsRefusedImmediately::test_deleting_the_whole_ledger_after_verification
+
+[K7] عدمُ تحديثِ الحالةِ بعدَ الإلحاق (كلُّ إلحاقٍ تحقّقٌ كامل — انحدارُ الأداء)
+  ⇒ قُتِل · 1 failed, 99 passed in 1.38s
+    FAILED tests/constitutional/test_ledger_append_performance.py::test_append_costs_a_small_fraction_of_a_full_chain_verification
+
+[K8] بدءُ الذيلِ من موضعٍ خاطئ (index الذيلِ يبدأ بصفر)
+  ⇒ قُتِل · 1 failed, 102 passed in 2.16s
+    FAILED tests/constitutional/test_ledger_concurrency.py::Testالإلحاقالمتزامن::test_كلُّ_القيود_المُلحَقة_موجودةٌ_ولا_عمليّةَ_صامتةُ_الفقد
+
+أُعيدَ الملفُّ بايتًا ببايت: نعم
+الحصيلة: 8/8 قُتِلت · الناجية: لا شيء
