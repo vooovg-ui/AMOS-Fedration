@@ -125,6 +125,22 @@
    "kind": "work_drift",
    "reason": "هجرةُ register_identity عبرَ الحدِّ السياديِّ بالفعلِ spawn_agent (قرارُ المالكِ Q-15 ① · WI-082 · W-402): دَينُ agent_identity.py 3 ← 2 · D-4: 184 ← 183 · sovereign: 16 ← 17 · بلا نموٍ في غيرِهِ — بقياسِ tools/audit/sovereign_write_inventory.py",
    "recorded_at": "2026-10-17T21:28:59+00:00"
+  },
+  {
+   "debt": 184,
+   "sovereign": 16,
+   "closed_legacy": 7,
+   "write_sites_total": 219,
+   "git_head": "a5103fe",
+   "waves": {
+    "W1": 52,
+    "W2": 34,
+    "W3": 98
+   },
+   "decision": "W-427",
+   "kind": "work_drift",
+   "reason": "ارتدادُ شِفرةِ WI-082 بقرارِ المالكِ Q-51 ① (W-425): يعودُ الدَّينُ إلى قيمةِ W-401 بالضبط (لقطةُ W-203): D-4 183 ← 184 · sovereign 17 ← 16 · write_sites 220 ← 219 — ليس رفعًا جديدًا لخطِّ الأساسِ بل نقضُ خفضِ W-402 مع شِفرتِه؛ ولقطةُ W-402 باقيةٌ لا تُمحى — بقياسِ tools/audit/sovereign_write_inventory.py",
+   "recorded_at": "2026-10-18T07:25:01+00:00"
   }
  ]
 }
