@@ -1,11 +1,11 @@
 {
   "$comment": "الهدف: 21 قياسَ مطابقةٍ بينَ ما يقولُه المستودعُ وما تقولُه الوثيقةُ — مُخرَجُ tools/audit/final_audit.py (P14). يقيسُ ولا يُصلِح، ولا يُقرَأُ شهادةَ نجاح. المادةُ التاسعةُ · 2.",
-  "debt_summary_field": 184,
-  "debt_recount": 184,
-  "sovereign": 16,
+  "debt_summary_field": 183,
+  "debt_recount": 183,
+  "sovereign": 17,
   "closed_legacy": 7,
   "public": 202,
-  "total_sites": 219,
+  "total_sites": 220,
   "program_mentions_168": 73,
   "program_placeholders": 0,
   "program_todo_markers": 0,
@@ -120,6 +120,7 @@
     "guard"
   ],
   "sovereign_sites": [
+    "agent_identity.py::register_identity",
     "engine.py::submit",
     "factories.py::assign_manager",
     "factories.py::complete_step",

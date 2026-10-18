@@ -62,16 +62,16 @@
 |---|---:|---:|---:|---:|---:|---:|---|
 | `core/` | 67 | 42 | 0 | 14913 | 14 | 0 | unspecified=14 |
 | `royal/` | 51 | 2 | 1 | 38 | 14 | 0 | unspecified=14 |
-| `federal/` | 60 | 241 | 3 | 66909 | 7 | 0 | unspecified=7 |
+| `federal/` | 60 | 242 | 3 | 67156 | 7 | 0 | unspecified=7 |
 | `states/` | 47 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
 | `institutions/` | 19 | 2 | 0 | 38 | 6 | 0 | unspecified=6 |
 | `agents/` | 601 | 4 | 283 | 532 | 11 | 0 | unspecified=11 |
 | `tools/` | 43 | 54 | 2 | 17980 | 12 | 0 | unspecified=12 |
 | `interfaces/` | 14 | 2 | 0 | 38 | 4 | 0 | unspecified=4 |
 | `runtime/` | 20 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
-| `docs/` | 141 | 3 | 0 | 180 | 7 | 0 | unspecified=7 |
+| `docs/` | 142 | 3 | 0 | 180 | 7 | 0 | unspecified=7 |
 | `ops/` | 38 | 2 | 0 | 38 | 12 | 0 | unspecified=12 |
-| `tests/` | 14 | 104 | 0 | 28357 | 5 | 0 | unspecified=5 |
+| `tests/` | 14 | 104 | 0 | 28361 | 5 | 0 | unspecified=5 |
 
 ---
 

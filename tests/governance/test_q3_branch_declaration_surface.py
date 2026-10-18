@@ -273,11 +273,15 @@ def test_bridge_actor_is_declared_parameter_defaulting_to_executive() -> None:
 
 
 # ── 4. مواضعُ بناءِ المُصرِّحِ: أربعةٌ تُعلِنُ فاعلَها وأربعةٌ تتَّكِلُ على الافتراض ──
-def test_production_authorizer_sites_split_four_declared_four_defaulted() -> None:
+def test_production_authorizer_sites_split_five_declared_four_defaulted() -> None:
+    """(محدّثة في W-402 · WI-082): المُصرِّحُ الخامسُ المُعلِنُ فاعلَهُ — إنشاءُ
+    الهويّةِ بقرارِ المالكِ Q-15 ① — على سابقةِ factories.py نفسِها، لا هروبًا
+    من الإعلانِ. والافتراضيّةُ الأربعُ كما هي."""
     sites = _authorizer_construction_sites()
-    assert len(sites["declared"]) == 4, sites["declared"]
+    assert len(sites["declared"]) == 5, sites["declared"]
     assert len(sites["defaulted"]) == 4, sites["defaulted"]
     assert sorted(Path(p.split(":")[0]).name for p in sites["declared"]) == [
+        "agent_identity.py",
         "factories.py",
         "factories.py",
         "money_authority.py",
