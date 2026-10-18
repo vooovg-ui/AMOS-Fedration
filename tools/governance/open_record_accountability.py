@@ -242,9 +242,30 @@ def _cells(line: str) -> list[str]:
     return [c.strip().replace("\\|", "|") for c in _CELL_SPLIT_RE.split(body)]
 
 
+#: فاتحةُ سردِ الماضي في خليّةِ الحالة (WI-088 · DISC-061): ما بعدَها تاريخُ الصفِّ لا حالتُه.
+PAST_NARRATION_MARKER = "وكان"
+
+
+def _present_clause(cell: str) -> str:
+    """الحاضرُ من الخليّةِ المُطبَّعةِ = ما قبلَ أوّلِ «وكان»؛ وإن لم يسبقْها نصٌّ فالخليّةُ كلُّها."""
+    i = cell.find(_norm(PAST_NARRATION_MARKER))
+    return cell[:i] if i > 0 else cell
+
+
 def _classify_open(status_cell: str) -> tuple[bool, str]:
-    """هل الصفُّ مفتوحٌ؟ ومن أيِّ نصٍّ عُرِفَ ذلك — لا من ظنٍّ."""
+    """هل الصفُّ مفتوحٌ؟ ومن أيِّ نصٍّ عُرِفَ ذلك — لا من ظنٍّ.
+
+    الحاضرُ يحسمُ أوّلًا (WI-088 · DISC-061): «مُغلَق — … وكانَ: مفتوح» مُغلَقٌ بنصِّه الحاضرِ،
+    و«مفتوح» في الحاضرِ يبقى مفتوحًا ولو تلاه ماضٍ مُغلَق. فإن خلا الحاضرُ من العلامتَينِ
+    قُرِئَت الخليّةُ كلُّها بالترتيبِ القديمِ (المفتوحُ يغلبُ) — فلا يُخفَّفُ شيء.
+    """
     cell = _norm(status_cell)
+    present = _present_clause(cell)
+    if present is not cell:
+        if _has_marker(present, OPEN_MARKERS):
+            return True, "STATUS_SAYS_OPEN"
+        if _has_marker(present, CLOSED_MARKERS):
+            return False, "STATUS_SAYS_CLOSED"
     if _has_marker(cell, OPEN_MARKERS):
         return True, "STATUS_SAYS_OPEN"
     if _has_marker(cell, CLOSED_MARKERS):
