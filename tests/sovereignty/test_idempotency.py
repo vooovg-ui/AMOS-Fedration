@@ -723,20 +723,32 @@ class TestGuardIntegrity:
         assert "private_key" not in source
 
     def test_ledger_persistence_on_disk(self, tmp_path):
-        """السجلُّ مكتوبٌ على القرصِ لا في الذاكرة."""
+        """السجلُّ مكتوبٌ على القرصِ لا في الذاكرة (سجلٌّ إلحاقيٌّ: WI-096)."""
         ledger = _make_ledger(tmp_path)
         key = _make_key()
         fp = _make_fingerprint()
         ledger.reserve(key=key, fingerprint=fp)
         assert ledger.path.exists()
-        data = json.loads(ledger.path.read_text(encoding="utf-8"))
-        assert key.composite in data
+        # الصيغةُ الإلحاقيّةُ: كلُّ سطرٍ حدثٌ واحدٌ — الحدثُ يحملُ المفتاحَ والسجلَّ
+        events = [
+            json.loads(line)
+            for line in ledger.path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        assert any(
+            event.get("key") == key.composite and "record" in event
+            for event in events
+        )
 
     def test_ledger_corrupted_file_raises(self, tmp_path):
-        """ملفٌّ تالفٌ = استثناءٌ صريح، لا ابتلاعٌ صامت."""
+        """ملفٌّ تالفٌ = استثناءٌ صريح، لا ابتلاعٌ صامت.
+
+        السطرُ الذيليُّ الممزّقُ (لا `\n`) يُهمَلُ — خاصيّةُ التحطّمِ الآمنِ
+        (WI-096 § 2.2) — أما السطرُ **الكاملُ** التالفُ فيُرفَعُ صريحًا.
+        """
         ledger = _make_ledger(tmp_path)
         ledger.path.parent.mkdir(parents=True, exist_ok=True)
-        ledger.path.write_text("NOT JSON", encoding="utf-8")
+        ledger.path.write_text("NOT JSON\n", encoding="utf-8")
         with pytest.raises(IdempotencyError, match="تالف"):
             ledger.get(_make_key())
 

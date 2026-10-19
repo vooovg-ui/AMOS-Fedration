@@ -38,22 +38,24 @@ tags: idempotency, atomicity, retry, recovery, sovereignty
 
 from __future__ import annotations
 
+import fcntl
 import hashlib
 import json
 import os
 import tempfile
 from collections.abc import Callable
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from threading import RLock
-from typing import Any, Final, Generic, TypeVar
+from typing import Any, Final, Generic, TextIO, TypeVar
 
 from core.sovereignty.runtime_identity import (
+    IDENTITY_KEY,
     RuntimeStateCard,
     ensure_directory_card,
-    stamped,
     strip_identity,
 )
 
@@ -156,25 +158,6 @@ IDEMPOTENCY_STATE_CARD = RuntimeStateCard(
         "حسمُ المالكِ في 2026-08-23 على Q-40 «(ج) بطاقةُ هويّةٍ للأثرِ نفسِه» — نُفِّذَ في العملِ `W-034`"
     ),
 )
-
-
-def _atomic_write(path: Path, payload: dict[str, Any]) -> None:
-    """كتابةٌ ذرّيّة: إمّا السجلُّ القديمُ كاملًا أو الجديدُ كاملًا."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    ensure_directory_card(path.parent, card=IDEMPOTENCY_STATE_CARD)
-    handle = tempfile.NamedTemporaryFile(  # noqa: SIM115 — إدارةٌ يدويّةٌ للإغلاقِ الذرّيّ
-        "w", encoding="utf-8", dir=path.parent, delete=False, suffix=".tmp"
-    )
-    try:
-        with handle as stream:
-            json.dump(stamped(payload, card=IDEMPOTENCY_STATE_CARD), stream, ensure_ascii=False, indent=2, sort_keys=True)
-            stream.write("\n")
-            stream.flush()
-            os.fsync(stream.fileno())
-        os.replace(handle.name, path)
-    except BaseException:
-        Path(handle.name).unlink(missing_ok=True)
-        raise
 
 
 def _now_iso() -> str:
@@ -290,40 +273,233 @@ class IdempotencyRecord:
         )
 
 
+#: إصدارُ صيغةِ السجلِّ الإلحاقيِّ — يُكتبُ في كلِّ سطرِ حدثٍ (WI-096 § 2.1)
+APPEND_LOG_VERSION: Final[int] = 1
+#: عتبةُ الضغطِ: يُضغَطُ السجلُّ متى تجاوزت سطورُه هذا الضعفَ من مفاتيحِه الحيّةِ (§ 2.3)
+COMPACTION_FACTOR: Final[int] = 4
+#: حدٌّ أدنى لعددِ السطورِ قبلَ الضغطِ — لا ضغطَ لسجلٍّ صغيرٍ فلا معنى لتحسينِ ما لا يثقلُ
+COMPACTION_MIN_LINES: Final[int] = 64
+
+
 @dataclass(slots=True)
 class IdempotencyLedger:
-    """سجلُّ الذرّيّةِ على القرص — يبقى بعدَ سقوطِ العمليّة.
+    """سجلُّ الذرّيّةِ على القرصِ — يبقى بعدَ سقوطِ العمليّة.
 
-    كلُّ سجلٍّ يُكتَبُ ذرّيًّا على القرصِ قبلَ أن تُكمَلَ العمليّة. فلو انقطعت
-    العمليّةُ، يبقى السجلُّ شاهدًا على ما جرى. ولو أُعيدَ تشغيلُ النظام، يقرأُ
-    السجلُّ ما كانَ ويستعيدُ الحالاتِ الوسيطة.
+    **السجلُّ الإلحاقيُّ (WI-096 · DISC-105):** كلُّ حدثٍ سطرُ JSONL واحدٌ
+    يُلحَقُ في O(1) بقفلِ عمليّةٍ (`flock`) على ملفِ القفلِ المرافقِ — لا
+    إعادةَ كتابةِ الملفِّ كلِّهِ في كلِّ حدثٍ (الجذرُ المقيسُ في W-467: 92% من
+    زمنِ العبورِ). الحالةُ تُبنى في الذاكرةِ بإعادةِ تشغيلِ السجلِّ مرةً واحدةً
+    ثمَّ تُحدَّثُ تزايديًّا، والضغطُ الدوريُّ يُهَلِّلُ كلفةَ نموِّ السجلِّ.
+
+    كلُّ حدثٍ يُكتَبُ ذرّيًّا (سطرٌ واحدٌ متصلٌ + `fsync`) قبلَ أن تُكمَلَ
+    العمليّة. فلو انقطعتِ العمليّةُ، يبقى السجلُّ شاهدًا على ما جرى، والسطرُ
+    الذيليُّ الممزّقُ (كتابةٌ انقطعت في منتصفِها) يُهمَلُ عندَ القراءةِ —
+    والسطرُ **الكاملُ** التالفُ يُرفَعُ صريحًا لا يُبتلَعُ.
     """
 
     path: Path
     _lock: RLock = field(default_factory=RLock, repr=False, compare=False)
 
-    def _load(self) -> dict[str, dict[str, Any]]:
-        if not self.path.exists():
-            return {}
+    #: حالةُ الذاكرةِ — تُبنى بإعادةِ تشغيلِ السجلِّ وتُحدَّثُ تزايديًّا
+    _state: dict[str, dict[str, Any]] = field(
+        default_factory=dict, init=False, repr=False, compare=False
+    )
+    #: موضعُ آخرِ سطرٍ سليمٍ بالبايتاتِ — ما بعدهُ يُعادُ قراءتُه تزايديًّا
+    _offset: int = field(default=0, init=False, repr=False, compare=False)
+    #: عددُ أسطرِ الأحداثِ منذَ آخرِ ضغطٍ — وقودُ قرارِ الضغطِ الدوريِّ (§ 2.3)
+    _lines: int = field(default=0, init=False, repr=False, compare=False)
+    #: مقبضُ الإلحاقِ — يُفتحُ مرةً ويُستبدَلُ عندَ الضغطِ أو الترحيلِ
+    _append_handle: TextIO | None = field(
+        default=None, init=False, repr=False, compare=False
+    )
+
+    # ── البنيةُ التحتيّةُ للسجلِّ الإلحاقيِّ ────────────────────────────────
+
+    def _lock_path(self) -> Path:
+        """ملفُّ القفلِ المرافقُ — لا يُستبدَلُ أبدًا فلا تُيتمُّ الأقفالُ (DISC-095)."""
+        return self.path.with_name(self.path.name + ".lock")
+
+    @contextmanager
+    def _file_lock(self):
+        """قفلُ عمليّةٍ (`flock`) يُسلسِلُ العمليّاتِ على السجلِّ نفسِهِ (DISC-095)."""
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        ensure_directory_card(self.path.parent, card=IDEMPOTENCY_STATE_CARD)
+        with open(self._lock_path(), "a+b") as lock_handle:
+            fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
+
+    def _event_line(self, *, op: str, rkey: str, data: dict[str, Any]) -> str:
+        """سطرُ حدثٍ واحدٍ: كلُّ ما يلزمُ لإعادةِ بناءِ السجلِّ (§ 2.1)."""
+        return json.dumps(
+            {"v": APPEND_LOG_VERSION, "op": op, "key": rkey, "record": data},
+            ensure_ascii=False, sort_keys=True, separators=(",", ":"),
+        ) + "\n"
+
+    def _header_line(self) -> str:
+        """ترويسةُ الهدفِ في السطرِ الأولِ — ترويسةٌ لا حدثٌ (Q-40 ج)."""
+        return json.dumps(
+            {IDENTITY_KEY: IDEMPOTENCY_STATE_CARD.comment()}, ensure_ascii=False
+        ) + "\n"
+
+    def _write_snapshot_file(self, records: dict[str, dict[str, Any]]) -> Path:
+        """لقطةٌ مضغوطةٌ في ملفٍّ مؤقّتٍ: الترويسةُ ثمَّ سطرُ حالةٍ لكلِّ مفتاحٍ حيٍّ."""
+        handle = tempfile.NamedTemporaryFile(  # noqa: SIM115 — إدارةٌ يدويّةٌ للإغلاقِ الذرّيِّ
+            "w", encoding="utf-8", dir=self.path.parent, delete=False, suffix=".tmp"
+        )
         try:
-            # ترويسةُ الهدفِ ليست سجلًّا: تُجرَّدُ قبلَ القراءةِ (Q-40 ج · W-034)
-            return strip_identity(json.loads(self.path.read_text(encoding="utf-8")))
-        except (json.JSONDecodeError, ValueError) as exc:
+            with handle as stream:
+                stream.write(self._header_line())
+                for rkey, data in records.items():
+                    stream.write(self._event_line(op="state", rkey=rkey, data=data))
+                stream.flush()
+                os.fsync(stream.fileno())
+        except BaseException:
+            Path(handle.name).unlink(missing_ok=True)
+            raise
+        return Path(handle.name)
+
+    def _migrate_legacy_if_any(self) -> None:
+        """ترحيلٌ تلقائيٌّ مرةً واحدةً: ملفُّ JSON كائنٍ ← سجلٌّ إلحاقيٌّ (§ 2.4)."""
+        if not self.path.exists():
+            return
+        text = self.path.read_text(encoding="utf-8")
+        # الصيغةُ القديمةُ كائنٌ واحدٌ متعدّدُ الأسطرِ: `json.dumps(..., indent=2)`
+        # يفتتحُ الملفَ بـ«{\n» حرفًا — أما السجلُّ الإلحاقيُّ فأوّلُ سطرِهِ كائنٌ
+        # تامٌّ على سطرٍ واحدٍ. ما ليسَ كائنًا متعدّدَ الأسطرِ ليسَ قديمًا فلا
+        # يُهاجَرْ — والتلفُ يُكشَفُ ويُرفَعُ في `_sync` عندَ قراءةِ السطرِ الكاملِ.
+        if not text.startswith("{\n"):
+            return
+        try:
+            raw = json.loads(text)
+        except ValueError as exc:
             raise IdempotencyError(
                 f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."
             ) from exc
+        if not isinstance(raw, dict) or not strip_identity(raw):
+            return  # كائنُ ترويسةٍ فقطَ (سجلٌّ إلحاقيٌّ فتيٌّ) — لا ترحيلَ
+        legacy = strip_identity(raw)
+        tmp = self._write_snapshot_file(legacy)
+        os.replace(tmp, self.path)
 
-    def _save(self, records: dict[str, dict[str, Any]]) -> None:
-        _atomic_write(self.path, records)
+    def _ensure_open(self) -> None:
+        """افتحِ السجلَّ: ترحيلُ القديمِ إن لزمَ ثمَّ مقبضُ الإلحاقِ — مرةً واحدةً."""
+        if self._append_handle is not None:
+            return
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        ensure_directory_card(self.path.parent, card=IDEMPOTENCY_STATE_CARD)
+        self._migrate_legacy_if_any()
+        if not self.path.exists() or self.path.stat().st_size == 0:
+            # ملفٌّ فتيٌّ: الترويسةُ أوّلًا فلا يُولَدُ أثرٌ بلا هويّةٍ (Q-40)
+            with open(self.path, "a", encoding="utf-8", newline="\n") as stream:
+                stream.write(self._header_line())
+                stream.flush()
+                os.fsync(stream.fileno())
+            self._offset = self.path.stat().st_size
+        self._append_handle = open(self.path, "a", encoding="utf-8", newline="\n")
+
+    def _refresh_handle_if_replaced(self) -> None:
+        """السجلُّ استُبدِلَ (ضغطٌ أو ترحيلٌ بيدِ عمليّةٍ أخرى): أَعِدْ فتحَ المقبضِ.
+
+        المقبضُ يشيرُ إلى العقدةِ القديمةِ (inode) بعدَ `os.replace` — فلو لم
+        يُفتَحْ من جديدٍ لذهبتِ الأحداثُ إلى ملفٍّ يتيمٍ. يُفحصُ هذا عندَ كلِّ
+        إلحاقٍ تحتَ القفلِ.
+        """
+        if self._append_handle is None:
+            self._ensure_open()
+            return
+        current = self.path.stat().st_ino if self.path.exists() else -1
+        held = os.fstat(self._append_handle.fileno()).st_ino
+        if current != held:
+            self._append_handle.close()
+            self._append_handle = open(self.path, "a", encoding="utf-8", newline="\n")
+
+    def _sync(self) -> None:
+        """طبِّقْ ما جَدَّ في السجلِّ منذَ آخرِ موضعٍ سليمٍ — تزايديًّا (§ 2.1).
+
+        السطرُ الذيليُّ الممزّقُ (لا `\\n` في آخرِهِ) يُهمَلُ الآنَ ويُعادُ قِراءتُه
+        لاحقًا؛ والسطرُ **الكاملُ** الذي لا يُوزَنُ JSON يُرفَعُ صريحًا لا يُبتلَعُ.
+        """
+        stat = self.path.stat() if self.path.exists() else None
+        if stat is None:
+            return  # لا ملفَّ بعدُ: لا جديدَ يُطبَّقُ — غيابٌ طبيعيٌّ لا فشلٌ
+        size = stat.st_size
+        if size < self._offset:
+            # السجلُ ضُغِطَ بيدِ عمليّةٍ أخرى (استُبدِلَ بأصغرَ): أَعِدْ البناءَ من الصفرِ
+            self._state.clear()
+            self._lines = 0
+            self._offset = 0
+        elif size == self._offset:
+            return
+        with self.path.open("rb") as stream:
+            stream.seek(self._offset)
+            chunk = stream.read()
+        if not chunk:
+            return
+        position = 0
+        for raw_line in chunk.split(b"\n"):
+            if position + len(raw_line) + 1 > len(chunk):
+                break  # ذيلٌ ممزّقٌ: لا `\\n` — يُهمَلُ ويُعادُ قِراءتُه لاحقًا
+            position += len(raw_line) + 1
+            text = raw_line.decode("utf-8", errors="replace").strip()
+            if not text:
+                continue
+            try:
+                event = json.loads(text)
+            except (json.JSONDecodeError, ValueError) as exc:
+                raise IdempotencyError(
+                    f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."
+                ) from exc
+            if isinstance(event, dict) and "key" in event and "record" in event:
+                self._state[str(event["key"])] = event["record"]
+                self._lines += 1
+            # ترويسةُ الهدفِ (`$comment`) ليست حدثًا فلا تُعدُّ ولا تُطبَّقُ
+        self._offset += position
+
+    def _append_event(self, *, op: str, rkey: str, data: dict[str, Any]) -> None:
+        """أَلحِقْ سطرَ حدثٍ واحدًا ذرّيًّا (O_APPEND + `fsync`) ثمَّ حدِّثِ الحالةَ.
+
+        ذيلٌ ممزّقٌ من كتابةٍ منقطعةٍ (حجمُ الملفِّ أكبرُ من آخرِ موضعٍ سليمٍ)
+        يُقصُّ قبلَ الإلحاقِ: هو كتابةٌ لم تكتملْ فلا حدثَ فيها، ولو تُرِكَ لالتحمَ
+        بالحدثِ الجديدِ على السطرِ نفسِهِ ففسدَ الاثنانِ.
+        """
+        line = self._event_line(op=op, rkey=rkey, data=data)
+        assert self._append_handle is not None  # يُفتَحُ في `_ensure_open` قبلَ الإلحاقِ
+        if os.fstat(self._append_handle.fileno()).st_size > self._offset:
+            os.truncate(self._append_handle.fileno(), self._offset)
+        self._append_handle.write(line)
+        self._append_handle.flush()
+        os.fsync(self._append_handle.fileno())
+        self._offset += len(line.encode("utf-8"))
+        self._lines += 1
+
+    def _maybe_compact(self) -> None:
+        """اضغِطِ السجلَّ متى تضاعفَت سطورُه على مفاتيحِه الحيّةِ (§ 2.3) — كلفةٌ مُهَلَّلةٌ."""
+        live = max(1, len(self._state))
+        if self._lines < COMPACTION_MIN_LINES or self._lines < COMPACTION_FACTOR * live:
+            return
+        tmp = self._write_snapshot_file(self._state)
+        os.replace(tmp, self.path)
+        assert self._append_handle is not None
+        self._append_handle.close()
+        self._append_handle = open(self.path, "a", encoding="utf-8", newline="\n")
+        self._offset = self.path.stat().st_size
+        self._lines = live
+
+    # ── الواجهةُ العامةُ — تواقيعُها لا تتغيّرُ (§ 2.4) ─────────────────────
 
     def _record_key(self, key: IdempotencyKey) -> str:
         return key.composite
 
     def get(self, key: IdempotencyKey) -> IdempotencyRecord | None:
-        """اقرأْ سجلًّا. لا قفلَ هنا — القراءةُ فقط."""
-        records = self._load()
-        data = records.get(self._record_key(key))
-        return IdempotencyRecord.from_dict(data) if data else None
+        """اقرأْ سجلًا — بعدَ مزامنةٍ تزايديّةٍ لما جَدَّ في السجلِّ."""
+        with self._lock:
+            self._ensure_open()
+            self._sync()
+            data = self._state.get(self._record_key(key))
+            return IdempotencyRecord.from_dict(data) if data else None
 
     def reserve(
         self,
@@ -338,10 +514,12 @@ class IdempotencyLedger:
         - لو كان موجودًا بنفسِ البصمة: أرجِع السجلَّ القائم (نعيدُ النتيجةَ لاحقًا).
         - لو كان موجودًا ببصمةٍ مختلفة: ارفض — إعادةُ استعمالٍ خاطئة.
         """
-        with self._lock:
-            records = self._load()
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
             rkey = self._record_key(key)
-            existing = records.get(rkey)
+            existing = self._state.get(rkey)
 
             if existing is not None:
                 record = IdempotencyRecord.from_dict(existing)
@@ -359,8 +537,10 @@ class IdempotencyLedger:
                 status=OperationStatus.RESERVED,
                 reserved_at=moment,
             )
-            records[rkey] = record.as_dict()
-            self._save(records)
+            data = record.as_dict()
+            self._append_event(op="reserve", rkey=rkey, data=data)
+            self._state[rkey] = data
+            self._maybe_compact()
             return record
 
     def transition(
@@ -379,10 +559,12 @@ class IdempotencyLedger:
 
         لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
         """
-        with self._lock:
-            records = self._load()
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
             rkey = self._record_key(key)
-            existing = records.get(rkey)
+            existing = self._state.get(rkey)
             if existing is None:
                 raise IdempotencyError(
                     f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
@@ -419,8 +601,10 @@ class IdempotencyLedger:
             if new_status in (OperationStatus.INTERRUPTED, OperationStatus.RECOVERY_REQUIRED):
                 record.recovered_at = moment
 
-            records[rkey] = record.as_dict()
-            self._save(records)
+            data = record.as_dict()
+            self._append_event(op="transition", rkey=rkey, data=data)
+            self._state[rkey] = data
+            self._maybe_compact()
             return record
 
     def mark_running(
@@ -483,10 +667,12 @@ class IdempotencyLedger:
         self, *, key: IdempotencyKey, now: str | None = None,
     ) -> IdempotencyRecord:
         """استعِدْ عمليّةً منقطعة — انقلها إلى `RECOVERY_REQUIRED`."""
-        with self._lock:
-            records = self._load()
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
             rkey = self._record_key(key)
-            existing = records.get(rkey)
+            existing = self._state.get(rkey)
             if existing is None:
                 raise IdempotencyError(
                     f"المفتاحُ «{key.composite}» غيرُ موجود. لا استعادةَ بلا سجل."
@@ -500,16 +686,23 @@ class IdempotencyLedger:
             moment = now or _now_iso()
             record.status = OperationStatus.RECOVERY_REQUIRED
             record.recovered_at = moment
-            records[rkey] = record.as_dict()
-            self._save(records)
+            data = record.as_dict()
+            self._append_event(op="recover", rkey=rkey, data=data)
+            self._state[rkey] = data
+            self._maybe_compact()
             return record
 
     def count(self) -> int:
-        return len(self._load())
+        with self._lock:
+            self._ensure_open()
+            self._sync()
+            return len(self._state)
 
     def all_records(self) -> list[IdempotencyRecord]:
-        records = self._load()
-        return [IdempotencyRecord.from_dict(v) for v in records.values()]
+        with self._lock:
+            self._ensure_open()
+            self._sync()
+            return [IdempotencyRecord.from_dict(v) for v in self._state.values()]
 
 
 @dataclass(slots=True)

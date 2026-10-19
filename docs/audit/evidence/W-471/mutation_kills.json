@@ -1,0 +1,34 @@
+{
+  "M1_حذف_flock": {
+    "killed": true,
+    "tail": "1 failed, 6 passed in 0.20s"
+  },
+  "M2_فتح_بوضع_w_يمحو": {
+    "killed": true,
+    "tail": "1 failed in 0.07s"
+  },
+  "M3_قراءة_الذيل_الممزق_كاملًا": {
+    "killed": true,
+    "tail": "1 failed, 3 passed in 0.09s"
+  },
+  "M4_حذف_فحص_البصمة": {
+    "killed": true,
+    "tail": "1 failed, 10 passed in 0.64s"
+  },
+  "M5_تعطيل_الضغط": {
+    "killed": true,
+    "tail": "1 failed, 7 passed in 0.22s"
+  },
+  "M6_الضغط_يسقط_المفاتيح": {
+    "killed": true,
+    "tail": "1 failed, 7 passed in 0.22s"
+  },
+  "M7_الترحيل_يمحو": {
+    "killed": true,
+    "tail": "1 failed, 9 passed in 0.64s"
+  },
+  "M8_إلحاق_بلا_تحديث_الذاكرة": {
+    "killed": true,
+    "tail": "1 failed in 0.07s"
+  }
+}
