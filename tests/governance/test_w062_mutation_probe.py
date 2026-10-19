@@ -372,7 +372,7 @@ def test_w061_claim_is_registered_with_its_measured_numbers():
         "RISE_NEVER_FIRES": 2,
         "BLIND_COUNT": 5,
         "INVERTED_PUBLISHED": 2,
-        "LAST_COMMIT_NOT_FIRST": 1,
+        "LAST_COMMIT_NOT_FIRST": 9,  # أُعيدَ قياسُه في W-497 (كانَ 1 — إصلاحُ W-496 جعلَ الدمجَ مرئيًّا)
         "NO_MINIMUM_POINTS": 1,
         "SWALLOW_GIT_FAILURE": 1,
         "WRITES_INTO_TREE": 1,
