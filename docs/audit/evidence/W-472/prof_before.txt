@@ -1,0 +1,51 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.1.1, pluggy-1.7.0
+rootdir: /home/user/workspace/AMOS-Fedration/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.4, cov-7.1.0, anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1 item
+
+federal/executive/services/tests/test_zz_bench_profile.py PROFILE_OUTPUT:
+         10474573 function calls (8453120 primitive calls) in 2.804 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1113 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    2.804    2.804 /home/user/workspace/AMOS-Fedration/federal/executive/services/src/amos_federation/services/agent_runtime/population.py:214(seed_initial_population)
+       20    0.001    0.000    2.804    0.140 /home/user/workspace/AMOS-Fedration/federal/executive/services/src/amos_federation/services/agent_runtime/population.py:170(register_agent)
+       20    0.001    0.000    2.738    0.137 /home/user/workspace/AMOS-Fedration/federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py:269(register_identity)
+       20    0.001    0.000    2.653    0.133 /home/user/workspace/AMOS-Fedration/federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py:355(guard_declared)
+       20    0.001    0.000    2.639    0.132 /home/user/workspace/AMOS-Fedration/core/sovereignty/enforcement_boundary.py:291(execute)
+       20    0.000    0.000    2.612    0.131 /home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py:599(run_once)
+       20    0.000    0.000    2.612    0.131 /home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py:627(_run_once_inner)
+       60    0.001    0.000    2.401    0.040 /home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py:316(_save)
+       60    0.002    0.000    2.401    0.040 /home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py:161(_atomic_write)
+       80    0.485    0.006    2.358    0.029 /opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/__init__.py:120(dump)
+       40    0.001    0.000    1.661    0.042 /home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py:366(transition)
+  1455820    0.246    0.000    1.452    0.000 /opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/encoder.py:414(_iterencode)
+3473780/1455820    0.771    0.000    1.206    0.000 /opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/encoder.py:334(_iterencode_dict)
+       20    0.004    0.000    0.862    0.043 /home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py:569(_reserve_or_replay)
+       20    0.003    0.000    0.835    0.042 /home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py:426(mark_running)
+       20    0.003    0.000    0.832    0.042 /home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py:437(mark_succeeded)
+       20    0.000    0.000    0.827    0.041 /home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py:328(reserve)
+   731060    0.190    0.000    0.461    0.000 /opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/encoder.py:278(_iterencode_list)
+  1455980    0.251    0.000    0.419    0.000 /opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/tempfile.py:497(func_wrapper)
+  1455820    0.167    0.000    0.167    0.000 {method 'write' of '_io.TextIOWrapper' objects}
+       80    0.001    0.000    0.113    0.001 /home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py:305(_load)
+  1000287    0.107    0.000    0.108    0.000 {built-in method builtins.isinstance}
+      200    0.001    0.000    0.099    0.000 /opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/__init__.py:299(loads)
+      200    0.001    0.000    0.098    0.000 /opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/decoder.py:333(decode)
+      200    0.097    0.000    0.097    0.000 /opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/decoder.py:344(raw_decode)
+   513200    0.097    0.000    0.097    0.000 {built-in method _json.encode_basestring}
+       20    0.000    0.000    0.081    0.004 /home/user/workspace/AMOS-Fedration/core/sovereignty/enforcement_boundary.py:350(_under_permit)
+       20    0.000    0.000    0.081    0.004 /home/user/workspace/AMOS-Fedration/core/sovereignty/enforcement.py:345(enforce)
+  680/200    0.002    0.000    0.068    0.000 /home/user/workspace/AMOS-Fedration/.venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:93(_go)
+       40    0.000    0.000    0.059    0.001 /home/user/workspace/AMOS-Fedration/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2059(commit)
+
+
+
+.
+
+============================== 1 passed in 7.95s ===============================
