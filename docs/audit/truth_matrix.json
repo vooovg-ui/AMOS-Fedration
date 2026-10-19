@@ -7,19 +7,19 @@
       "md_files": 67,
       "py_files": 42,
       "yaml_files": 0,
-      "code_lines": 14995,
+      "code_lines": 15157,
       "nucleus_count": 14,
       "nucleus_status": {
         "unspecified": 14
       },
       "has_readme": true,
-      "real_source_hits": 9,
+      "real_source_hits": 15,
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,
       "observed_hits": 3,
       "api_routes": 0,
-      "test_refs": 492,
+      "test_refs": 497,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -40,7 +40,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 492
+        "TEST_NAME_MENTIONS": 497
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -277,7 +277,7 @@
       "secret_hits": 0,
       "observed_hits": 9,
       "api_routes": 1,
-      "test_refs": 567,
+      "test_refs": 568,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -298,7 +298,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 567
+        "TEST_NAME_MENTIONS": 568
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -391,7 +391,7 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 150,
+      "md_files": 152,
       "py_files": 6,
       "yaml_files": 0,
       "code_lines": 540,
@@ -406,7 +406,7 @@
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 190,
+      "test_refs": 191,
       "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
@@ -427,7 +427,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 190
+        "TEST_NAME_MENTIONS": 191
       },
       "maturity": "IMPLEMENTED",
       "findings_count": 0
@@ -478,15 +478,15 @@
     "tests": {
       "domain": "tests",
       "md_files": 14,
-      "py_files": 107,
+      "py_files": 108,
       "yaml_files": 0,
-      "code_lines": 28791,
+      "code_lines": 28998,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
       },
       "has_readme": true,
-      "real_source_hits": 43,
+      "real_source_hits": 44,
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,

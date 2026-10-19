@@ -18,6 +18,8 @@ from pathlib import Path
 
 import pytest
 
+from tools.governance.repo_root import discover_repo_root
+
 from core.sovereignty.idempotency import (
     IdempotencyError,
     IdempotencyKey,
@@ -26,7 +28,8 @@ from core.sovereignty.idempotency import (
     OperationStatus,
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+# الجذرُ بعلامةٍ لا بعُمقٍ مكتوبٍ (درسُ DISC-041): صعودٌ حتّى علاماتِ المستودعِ
+REPO_ROOT = discover_repo_root(__file__)
 
 
 def _make_ledger(tmp_path: Path, name: str = "idempotency.json") -> IdempotencyLedger:
