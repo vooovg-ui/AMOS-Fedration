@@ -235,6 +235,7 @@ def entry_commit(root: Path, work: str) -> str:
         root,
         "log",
         "--reverse",
+        "--diff-merges=first-parent",
         "--format=%H",
         f"-S| {work} |",
         "--",

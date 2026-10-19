@@ -115,6 +115,7 @@
 | WI-096 | sovereignty | T0/C3 (علاجُ جذرِ حمرةِ التغطيةِ — سندُ التوجيهِ 15 + المسارِ المأذونِ مسبقًا في التوجيهِ 12 § 2: سجلٌّ إلحاقيٌّ JSONL بقفلِ flock وضغطٍ دوريٍّ لسجلِ الذرّيّةِ `core/sovereignty/idempotency.py` — يحفظُ خصائصَ الذرّةِ ويعالجُ `DISC-095` (قفلُ العمليّةِ) معًا · **القياسُ الحاسمُ (`W-467`): إعادةُ كتابةِ الملفِّ كاملًا = 92% من زمنِ العبورِ › نصفِ الزمنِ ⇒ المعيارُ مستوفًى** · لا تُنفَّذْ شِفرةٌ قبلَ الوثيقةِ) | Perplexity Computer (بإذنٍ مسبقٍ · التوجيهُ 12 § 2) | مراجعةٌ تُعيدُ التشغيلَ فعلًا (المستشارُ عبرَ المالكِ · سابقةُ PR #75) — ولا VERIFIED بيدِ المنفِّذِ (§ 4.3) | IN_REVIEW | core/sovereignty/idempotency.py · tests/sovereignty/test_idempotency.py · tests/sovereignty/test_idempotency_append_log.py · tests/governance/test_w034_runtime_state_identity.py · docs/audit/DISC105_IDEMPOTENCY_APPEND_DESIGN.md · docs/audit/evidence/W-467/ · docs/audit/evidence/W-471/ · docs/audit/evidence/W-471/mutation_runs/ · docs/audit/evidence/W-472/ · docs/audit/evidence/W-476/ · docs/audit/evidence/W-488/ · docs/audit/evidence/W-492/ | 2026-10-18 | 2026-11-08 | لا عائقَ — الإذنُ مسبقٌ بنصِّهِ (التوجيهُ 12 § 2) والمعيارُ مقيسٌ | الوثيقةُ أولًا (لا شِفرةَ قبلَها) ثمَّ الطفراتُ والمنحنى | — (يُكتَبُ عندَ الإغلاقِ) |
 | WI-097 | federal-executive | T0 (عزلُ العَرَضِ عنِ الجذرِ · التوجيهُ 15 § 3: رمزُ وصولٍ لكلِّ فحصٍ بدلَ `AUTH_HEADERS` المشتركةِ التي تنفدُ بـ60 دقيقةً (`jwt_expire_minutes=60`) — فيزولُ الأحمرُ 401 أيًّا كانَ طولُ التشغيلِ · **لا يغيّرُ الإنتاجَ ولا عمرَ الرمزِ** (رفعُ العمرِ مرفوضٌ بنصِّهِ في التوجيهِ 15 § 1) · مستقلٌّ عن WI-096) | Perplexity Computer | مراجعةٌ تُعيدُ التشغيلَ (المستشارُ عبرَ المالكِ) | IN_REVIEW | federal/executive/services/tests/per_test_auth.py · federal/executive/services/tests/test_agent_runtime.py · federal/executive/services/tests/test_api_gateway.py · federal/executive/services/tests/test_benchmark.py · federal/executive/services/tests/test_control_console.py · federal/executive/services/tests/test_critic.py · federal/executive/services/tests/test_e2e.py · federal/executive/services/tests/test_expansion.py · federal/executive/services/tests/test_experience.py · federal/executive/services/tests/test_federation.py · federal/executive/services/tests/test_governance.py · federal/executive/services/tests/test_governance_phase3.py · federal/executive/services/tests/test_health_system.py · federal/executive/services/tests/test_memory_service.py · federal/executive/services/tests/test_model_gateway.py · federal/executive/services/tests/test_orchestrator.py · federal/executive/services/tests/test_persistence.py · federal/executive/services/tests/test_r1_canonical_execution_path.py · federal/executive/services/tests/test_shadow.py · federal/executive/services/tests/test_tool_registry.py · federal/executive/services/tests/test_training.py · federal/executive/services/tests/test_treasury.py · federal/executive/services/tests/test_w032_registry_ownership.py | 2026-10-19 | 2026-11-08 | لا عائقَ | قراءةُ كلِّ ملفِّ فحصٍ قبلَ تغييرِهِ (التوجيهُ 15 § 4) — قُرِئَت تعريفاتُ `AUTH_HEADERS` وأنماطُ استعمالِها في الملفاتِ الاثنينِ والعشرينِ كلِّها قبلَ التحويلِ | — (يُكتَبُ عندَ الإغلاقِ) |
 | WI-098 | tooling-gates | P2 (فكُّ اقتباسِ المساراتِ غيرِ ASCII في حارسِ الحجزِ — `DISC-106`: `git` يقتبسُها في مخرجاتِ الفروقِ فلا يطابقُها الحارسُ حجزًا معلنًا ويَحمرُّ بلا مخالفةٍ حقيقيةٍ · **بأمرِ مراجعةِ `W-492`: «الحارسُ عيبٌ حقيقيٌّ يُصلَحُ ببندٍ لا بتجاوزٍ»** · فكُّ الاقتباسِ في قراءةِ الفروقِ (`quotepath=false` أو `‑z`) لا تكييفُ الأسماءِ) | Perplexity Computer | مراجعةٌ تُعيدُ التشغيلَ (المستشارُ عبرَ المالكِ) | PROPOSED | tools/governance/check_work_governance.py | 2026-10-19 | 2026-11-08 | لا عائقَ | فحصٌ يقتبسُ مسارًا عربيًّا محجوزًا ويُثبتُ قبولَهُ | — (يُكتَبُ عندَ الإغلاقِ) |
+| WI-099 | tooling-gates | P2 (إصلاحُ عمى أداةِ اتجاهِ الدَّينِ السطحيِّ عن التزاماتِ الدمجِ — `DISC-109`: `entry_commit` يبحثُ بـ`-S` والتاريخُ المبسَّطُ لا يفحصُ فروقَ الدمجِ فيُرفَضُ قياسٌ لقيدٍ مدموجٍ — أُضيفَ `--diff-merges=first-parent`) | Perplexity Computer | مراجعةٌ تُعيدُ التشغيلَ (المستشارُ عبرَ المالكِ) | IN_REVIEW | tools/governance/surface_debt_trend.py | 2026-10-19 | 2026-11-08 | لا عائقَ | القياسُ ينجحُ على شجرةٍ فيها قيدٌ أدخلهُ دمجٌ (قيسَ فعلًا في `W-496`) | — (يُكتَبُ عندَ الإغلاقِ) |
 | WI-091 | tooling-gates | T0 (‏`DISC-070`: صفُّ قيدٍ `W-…` خارجَ § 8 وبخلايا ناقصةٍ يُقرأُ قيدًا سليمًا) | Perplexity Computer (بقرارِ المالكِ Q-54) | مجلسُ المراجعةِ (Q-48) — ولا VERIFIED بيدِ المنفِّذِ (§ 4.3) | PROPOSED | tools/governance/check_completion_ledger.py · tests/governance/test_w091_ledger_row_outside_section8.py | 2026-10-18 | 2026-11-30 | — | تسجيلُ البندِ (W-434) | — (يُكتَبُ عندَ الإغلاقِ) |
 | WI-090 | sovereignty | T0 (‏`DISC-068` · C3: عزلُ بصمةِ أسرارِ صندوقِ الصادرِ — لا تعرفُ صيغةَ `postgresql+<driver>://`) | Perplexity Computer (بقرارِ المالكِ Q-55) | المالك (C3 · نطاقُ sovereignty) بعدَ مراجعةٍ مستقلّةٍ (Q-H) — ولا VERIFIED بيدِ المنفِّذِ (§ 4.3) | PROPOSED | core/sovereignty/outbox.py · tests/governance/test_w090_outbox_secret_fingerprint.py | 2026-10-18 | 2026-11-30 | — | تسجيلُ البندِ (W-433) | — (يُكتَبُ عندَ الإغلاقِ) |
 | WI-089 | tooling-gates | T0 (‏`DISC-062`: حكمُ CI دالّةٌ في الزمن — حرسٌ يقيسُ عددَ تجديداتِ الاستحقاقِ لكلِّ قيدٍ ويرفضُ نموَّه) | Perplexity Computer (بقرارِ المالكِ Q-54) | مجلسُ المراجعةِ (Q-48) — ولا VERIFIED بيدِ المنفِّذِ (§ 4.3) | PROPOSED | tools/governance/due_renewal_ratchet.py · tests/governance/test_w089_due_renewal_ratchet.py | 2026-10-18 | 2026-11-30 | — | تسجيلُ البندِ (W-432) | — (يُكتَبُ عندَ الإغلاقِ) |
@@ -5582,6 +5583,28 @@ PROGRESS (W-411 · 2026-10-18):
 معيار القبول: تشغيلُ الحزمةِ كاملةً (أو عيّنةٌ ممثِّلةٌ طويلةٌ) بلا 401 واحدٍ · ولا تغييرَ في نتائجِ الفحوصِ
 
 الدليل المطلوب: تشغيلٌ طويلٌ بلا 401 (السجلُّ في أدلّةِ البندِ) · وقراءةُ كلِّ ملفِّ فحصٍ موثَّقةً قبلَ التغييرِ
+```
+
+### WI-099 — P2 · إصلاحُ عمى أداةِ اتجاهِ الدَّينِ السطحيِّ عن التزاماتِ الدمجِ — `IN_REVIEW`
+
+```
+المعرِّف: WI-099
+النطاق: tooling-gates (tools/governance/surface_debt_trend.py — فئةُ التغييرِ C1)
+المالك: Perplexity Computer (اكتشافُ DISC-109 · تصحيحُ جولةِ CI على b5c086c)
+المراجع: مراجعةٌ تُعيدُ التشغيلَ (المستشارُ عبرَ المالكِ)
+الحالة: IN_REVIEW   (الانتقالاتُ الموصَّلةُ في قيدِ W-496: PROPOSED→READY→RESERVED→IN_PROGRESS→IN_REVIEW)
+المسارات: tools/governance/surface_debt_trend.py
+بدأ: 2026-10-19 · ينتهي الحجز: 2026-11-08
+
+السبب: DISC-109 — entry_commit يبحثُ بـgit log --reverse -S والتاريخُ المبسَّطُ
+  لا يفحصُ فروقَ التزاماتِ الدمجِ — فالقيدُ المُضافُ بدمجٍ (W-494 في 63b1a3f)
+  «غيرُ موجودٍ» فترفضُ الأداةُ القياسَ ويُسقطُ فحصُ test_w061 بوابةَ E3.
+
+خارج النطاق (منعٌ صريح): لا تغييرَ في منطقِ القياسِ نفسِهِ — رؤيةُ الدمجِ وحدَها
+
+معيار القبول: القياسُ ينجحُ على شجرةٍ فيها قيدٌ أدخلهُ دمجٌ (قيسَ فعلًا في W-496)
+
+الدليل المطلوب: تشغيلُ measure() على الشجرةِ الحاليةِ (نجحَ محليًّا) + خضرةُ E3 في CI
 ```
 
 ### WI-098 — P2 · فكُّ اقتباسِ المساراتِ غيرِ ASCII في حارسِ الحجزِ — `PROPOSED`
