@@ -13,7 +13,7 @@ from amos_federation.services.api_gateway.main import app
 from .per_test_auth import PerTestAuthHeaders
 
 client = TestClient(app)
-AUTH_HEADERS = PerTestAuthHeaders('tester', ['tasks:write'], 'finance')
+AUTH_HEADERS = PerTestAuthHeaders("tester", ["tasks:write"], "finance")
 
 
 def test_task_creation_then_reading() -> None:

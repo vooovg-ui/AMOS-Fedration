@@ -20,7 +20,13 @@ from amos_federation.services.governance.treasury import (
 
 from .per_test_auth import PerTestAuthHeaders
 
-AUTH_HEADERS = PerTestAuthHeaders("tester", [ "governance:read", "governance:write", ],)
+AUTH_HEADERS = PerTestAuthHeaders(
+    "tester",
+    [
+        "governance:read",
+        "governance:write",
+    ],
+)
 client = TestClient(app)
 
 

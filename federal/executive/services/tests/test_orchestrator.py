@@ -20,7 +20,7 @@ from amos_federation.services.orchestrator.main import PlanRequest, app, build_p
 
 from .per_test_auth import PerTestAuthHeaders
 
-AUTH_HEADERS = PerTestAuthHeaders('tester', ['tasks:write'])
+AUTH_HEADERS = PerTestAuthHeaders("tester", ["tasks:write"])
 
 
 @pytest.mark.parametrize("task_type", ["analysis", "report", "data", "generic"])

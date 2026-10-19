@@ -36,7 +36,7 @@ orchestrator_client = TestClient(orchestrator_app)
 agent_client = TestClient(agent_app)
 gateway_client = TestClient(gateway_app)
 
-AUTH_HEADERS = PerTestAuthHeaders('e2e-tester', ['tasks:write', 'tasks:read', 'tasks:execute'])
+AUTH_HEADERS = PerTestAuthHeaders("e2e-tester", ["tasks:write", "tasks:read", "tasks:execute"])
 
 
 @pytest.fixture(autouse=True)

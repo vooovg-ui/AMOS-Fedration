@@ -34,7 +34,7 @@ from tests.conftest import purge_agents, purge_tasks
 from .per_test_auth import PerTestAuthHeaders
 
 client = TestClient(app)
-AUTH_HEADERS = PerTestAuthHeaders('tester', ['tasks:execute'])
+AUTH_HEADERS = PerTestAuthHeaders("tester", ["tasks:execute"])
 
 
 @pytest.fixture(autouse=True)

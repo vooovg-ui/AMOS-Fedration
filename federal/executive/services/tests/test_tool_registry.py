@@ -13,7 +13,7 @@ from amos_federation.services.tool_registry.main import app
 from .per_test_auth import PerTestAuthHeaders
 
 client = TestClient(app)
-AUTH_HEADERS = PerTestAuthHeaders('tester', ['tools:read', 'tools:write'])
+AUTH_HEADERS = PerTestAuthHeaders("tester", ["tools:read", "tools:write"])
 
 
 def test_list_tools_returns_seed_data() -> None:

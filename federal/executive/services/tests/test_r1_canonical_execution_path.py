@@ -43,7 +43,9 @@ from tests.conftest import purge_agents, purge_tasks
 
 from .per_test_auth import PerTestAuthHeaders
 
-AUTH_HEADERS = PerTestAuthHeaders("r1-tester", ["tasks:write", "tasks:read", "tasks:execute"], "default")
+AUTH_HEADERS = PerTestAuthHeaders(
+    "r1-tester", ["tasks:write", "tasks:read", "tasks:execute"], "default"
+)
 
 gateway = TestClient(gateway_app)
 orchestrator = TestClient(orchestrator_app)
