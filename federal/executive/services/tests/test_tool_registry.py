@@ -10,11 +10,10 @@ from fastapi.testclient import TestClient
 
 from amos_federation.common.auth import create_access_token
 from amos_federation.services.tool_registry.main import app
+from .per_test_auth import PerTestAuthHeaders
 
 client = TestClient(app)
-AUTH_HEADERS = {
-    "Authorization": f"Bearer {create_access_token('tester', ['tools:read', 'tools:write'])}"
-}
+AUTH_HEADERS = PerTestAuthHeaders('tester', ['tools:read', 'tools:write'])
 
 
 def test_list_tools_returns_seed_data() -> None:

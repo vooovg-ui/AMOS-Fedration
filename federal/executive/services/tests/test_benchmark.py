@@ -14,11 +14,10 @@ from amos_federation.services.evaluation.benchmark import (
     analyze_gaps,
     run_benchmark,
 )
+from .per_test_auth import PerTestAuthHeaders
 
 client = TestClient(__import__("amos_federation.services.evaluation.main", fromlist=["app"]).app)
-AUTH_HEADERS = {
-    "Authorization": "Bearer " + create_access_token("tester", ["eval:read", "eval:write"])
-}
+AUTH_HEADERS = PerTestAuthHeaders("tester", ["eval:read", "eval:write"])
 
 
 def test_benchmark_suite_has_20_tasks() -> None:

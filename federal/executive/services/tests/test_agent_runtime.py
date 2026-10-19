@@ -31,9 +31,10 @@ from amos_federation.services.executive_core.dispatcher import WILDCARD, registe
 from amos_federation.services.executive_core.engine import get_executive_core, reset_executive_core
 from amos_federation.services.executive_core.http_errors import EXECUTION_BYPASS_FORBIDDEN
 from tests.conftest import purge_agents, purge_tasks
+from .per_test_auth import PerTestAuthHeaders
 
 client = TestClient(app)
-AUTH_HEADERS = {"Authorization": f"Bearer {create_access_token('tester', ['tasks:execute'])}"}
+AUTH_HEADERS = PerTestAuthHeaders('tester', ['tasks:execute'])
 
 
 @pytest.fixture(autouse=True)

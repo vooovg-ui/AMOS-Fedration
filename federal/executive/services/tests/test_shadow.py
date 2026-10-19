@@ -10,11 +10,10 @@ from fastapi.testclient import TestClient
 
 from amos_federation.common.auth import create_access_token
 from amos_federation.services.model_gateway.main import app
+from .per_test_auth import PerTestAuthHeaders
 
 client = TestClient(app)
-AUTH_HEADERS = {
-    "Authorization": "Bearer " + create_access_token("tester", ["model:read", "model:write"])
-}
+AUTH_HEADERS = PerTestAuthHeaders("tester", ["model:read", "model:write"])
 
 
 def test_shadow_test_creates_comparison() -> None:

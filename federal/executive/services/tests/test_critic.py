@@ -10,11 +10,10 @@ from fastapi.testclient import TestClient
 
 from amos_federation.common.auth import create_access_token
 from amos_federation.services.critic.main import app
+from .per_test_auth import PerTestAuthHeaders
 
 client = TestClient(app)
-AUTH_HEADERS = {
-    "Authorization": "Bearer " + create_access_token("tester", ["critic:read", "critic:write"])
-}
+AUTH_HEADERS = PerTestAuthHeaders("tester", ["critic:read", "critic:write"])
 
 
 def _good_review_request() -> dict:

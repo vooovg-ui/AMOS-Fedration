@@ -41,11 +41,9 @@ from amos_federation.services.executive_core.repository import ExecutiveTaskRepo
 from amos_federation.services.executive_core.states import TaskState
 from amos_federation.services.orchestrator.main import app as orchestrator_app
 from tests.conftest import purge_agents, purge_tasks
+from .per_test_auth import PerTestAuthHeaders
 
-AUTH_HEADERS = {
-    "Authorization": "Bearer "
-    + create_access_token("r1-tester", ["tasks:write", "tasks:read", "tasks:execute"], "default")
-}
+AUTH_HEADERS = PerTestAuthHeaders("r1-tester", ["tasks:write", "tasks:read", "tasks:execute"], "default")
 
 gateway = TestClient(gateway_app)
 orchestrator = TestClient(orchestrator_app)

@@ -11,11 +11,10 @@ from fastapi.testclient import TestClient
 from amos_federation.common.auth import create_access_token
 from amos_federation.services.training.data_pipeline import InMemoryDataPipeline
 from amos_federation.services.training.main import app
+from .per_test_auth import PerTestAuthHeaders
 
 client = TestClient(app)
-AUTH_HEADERS = {
-    "Authorization": "Bearer " + create_access_token("tester", ["training:read", "training:write"])
-}
+AUTH_HEADERS = PerTestAuthHeaders("tester", ["training:read", "training:write"])
 
 
 def _sample_experiences() -> list[dict]:

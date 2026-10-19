@@ -23,17 +23,9 @@ from amos_federation.services.governance.policy_engine import (
     RegoRule,
     get_policy_engine,
 )
+from .per_test_auth import PerTestAuthHeaders
 
-AUTH_HEADERS = {
-    "Authorization": "Bearer "
-    + create_access_token(
-        "tester",
-        [
-            "governance:read",
-            "governance:write",
-        ],
-    )
-}
+AUTH_HEADERS = PerTestAuthHeaders("tester", [ "governance:read", "governance:write", ],)
 client = TestClient(app)
 
 

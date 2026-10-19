@@ -18,8 +18,9 @@ from fastapi.testclient import TestClient
 
 from amos_federation.common.auth import create_access_token
 from amos_federation.services.orchestrator.main import PlanRequest, app, build_plan
+from .per_test_auth import PerTestAuthHeaders
 
-AUTH_HEADERS = {"Authorization": f"Bearer {create_access_token('tester', ['tasks:write'])}"}
+AUTH_HEADERS = PerTestAuthHeaders('tester', ['tasks:write'])
 
 
 @pytest.mark.parametrize("task_type", ["analysis", "report", "data", "generic"])

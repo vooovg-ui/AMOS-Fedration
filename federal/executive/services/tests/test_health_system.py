@@ -22,17 +22,9 @@ from amos_federation.services.agent_runtime.health import (
 )
 from amos_federation.services.agent_runtime.population import get_population_registry
 from amos_federation.services.control_console.main import app
+from .per_test_auth import PerTestAuthHeaders
 
-AUTH_HEADERS = {
-    "Authorization": "Bearer "
-    + create_access_token(
-        "tester",
-        [
-            "governance:read",
-            "governance:write",
-        ],
-    )
-}
+AUTH_HEADERS = PerTestAuthHeaders("tester", [ "governance:read", "governance:write", ],)
 client = TestClient(app)
 
 

@@ -20,23 +20,9 @@ from amos_federation.common.persistent import (
 from amos_federation.services.critic.main import app as critic_app
 from amos_federation.services.evaluation.main import app as eval_app
 from amos_federation.services.memory_service.main import app as memory_app
+from .per_test_auth import PerTestAuthHeaders
 
-AUTH_HEADERS = {
-    "Authorization": "Bearer "
-    + create_access_token(
-        "tester",
-        [
-            "memory:read",
-            "memory:write",
-            "eval:read",
-            "eval:write",
-            "critic:read",
-            "critic:write",
-            "tool:read",
-            "tool:write",
-        ],
-    )
-}
+AUTH_HEADERS = PerTestAuthHeaders("tester", [ "memory:read", "memory:write", "eval:read", "eval:write", "critic:read", "critic:write", "tool:read", "tool:write", ],)
 
 
 def test_persistent_memory_survives_new_instance() -> None:

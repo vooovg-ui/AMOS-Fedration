@@ -18,17 +18,9 @@ from amos_federation.services.governance.treasury import (
     Treasury,
     run_economic_cycle,
 )
+from .per_test_auth import PerTestAuthHeaders
 
-AUTH_HEADERS = {
-    "Authorization": "Bearer "
-    + create_access_token(
-        "tester",
-        [
-            "governance:read",
-            "governance:write",
-        ],
-    )
-}
+AUTH_HEADERS = PerTestAuthHeaders("tester", [ "governance:read", "governance:write", ],)
 client = TestClient(app)
 
 

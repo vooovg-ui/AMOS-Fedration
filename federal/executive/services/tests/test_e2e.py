@@ -30,14 +30,13 @@ from amos_federation.services.executive_core.engine import reset_executive_core
 from amos_federation.services.executive_core.repository import ExecutiveTaskRepository
 from amos_federation.services.orchestrator.main import app as orchestrator_app
 from tests.conftest import purge_agents, purge_tasks
+from .per_test_auth import PerTestAuthHeaders
 
 orchestrator_client = TestClient(orchestrator_app)
 agent_client = TestClient(agent_app)
 gateway_client = TestClient(gateway_app)
 
-AUTH_HEADERS = {
-    "Authorization": f"Bearer {create_access_token('e2e-tester', ['tasks:write', 'tasks:read', 'tasks:execute'])}"
-}
+AUTH_HEADERS = PerTestAuthHeaders('e2e-tester', ['tasks:write', 'tasks:read', 'tasks:execute'])
 
 
 @pytest.fixture(autouse=True)

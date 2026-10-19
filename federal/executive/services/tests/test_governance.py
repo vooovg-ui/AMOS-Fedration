@@ -10,12 +10,10 @@ from fastapi.testclient import TestClient
 
 from amos_federation.common.auth import create_access_token
 from amos_federation.services.governance.main import app
+from .per_test_auth import PerTestAuthHeaders
 
 client = TestClient(app)
-AUTH_HEADERS = {
-    "Authorization": "Bearer "
-    + create_access_token("tester", ["governance:read", "governance:write"])
-}
+AUTH_HEADERS = PerTestAuthHeaders("tester", ["governance:read", "governance:write"])
 
 
 # === Policy Engine Tests ===

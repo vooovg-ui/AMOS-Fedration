@@ -38,9 +38,10 @@ from amos_federation.services.executive_core.agent_identity import (
 )
 from amos_federation.services.executive_core.dispatcher import EMPLOYABLE_STATUSES
 from amos_federation.services.tool_registry import main as owner
+from .per_test_auth import PerTestAuthHeaders
 
 _SCOPES = ["agents:read", "agents:write", "tools:read", "tools:write"]
-AUTH_HEADERS = {"Authorization": f"Bearer {create_access_token('tester', _SCOPES)}"}
+AUTH_HEADERS = PerTestAuthHeaders('tester', _SCOPES)
 
 gateway_client = TestClient(gateway.app)
 owner_client = TestClient(owner.app)
