@@ -16,8 +16,8 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from amos_federation.common.auth import create_access_token
 from amos_federation.services.orchestrator.main import PlanRequest, app, build_plan
+
 from .per_test_auth import PerTestAuthHeaders
 
 AUTH_HEADERS = PerTestAuthHeaders('tester', ['tasks:write'])

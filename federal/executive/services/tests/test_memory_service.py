@@ -8,8 +8,8 @@
 
 from fastapi.testclient import TestClient
 
-from amos_federation.common.auth import create_access_token
 from amos_federation.services.memory_service.main import app
+
 from .per_test_auth import PerTestAuthHeaders
 
 client = TestClient(app)

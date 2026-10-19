@@ -9,9 +9,9 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from amos_federation.common.auth import create_access_token
 from amos_federation.services.agent_runtime.population import get_population_registry
 from amos_federation.services.control_console.main import app
+
 from .per_test_auth import PerTestAuthHeaders
 
 AUTH_HEADERS = PerTestAuthHeaders("tester", [ "governance:read", "governance:write", ],)

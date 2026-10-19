@@ -17,7 +17,6 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 from sqlalchemy import inspect
 
-from amos_federation.common.auth import create_access_token
 from amos_federation.common.database import (
     _W032_ADDED_COLUMNS,
     AgentModel,
@@ -38,6 +37,7 @@ from amos_federation.services.executive_core.agent_identity import (
 )
 from amos_federation.services.executive_core.dispatcher import EMPLOYABLE_STATUSES
 from amos_federation.services.tool_registry import main as owner
+
 from .per_test_auth import PerTestAuthHeaders
 
 _SCOPES = ["agents:read", "agents:write", "tools:read", "tools:write"]

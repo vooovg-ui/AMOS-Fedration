@@ -93,7 +93,7 @@
       "md_files": 60,
       "py_files": 242,
       "yaml_files": 3,
-      "code_lines": 66890,
+      "code_lines": 66868,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -908,7 +908,7 @@
     {
       "kind": "IN_MEMORY_STORE",
       "path": "federal/executive/services/tests/test_training.py",
-      "line": 12,
+      "line": 11,
       "detail": "مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة",
       "severity": "HIGH"
     },
