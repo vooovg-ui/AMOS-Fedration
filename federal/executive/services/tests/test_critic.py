@@ -86,8 +86,14 @@ def test_wi097_clock_controlled_expiry(monkeypatch) -> None:
         def now(cls, tz=None):
             base = clock["now"]
             return cls(
-                base.year, base.month, base.day, base.hour, base.minute,
-                base.second, base.microsecond, tzinfo=base.tzinfo,
+                base.year,
+                base.month,
+                base.day,
+                base.hour,
+                base.minute,
+                base.second,
+                base.microsecond,
+                tzinfo=base.tzinfo,
             )
 
     monkeypatch.setattr(auth_module, "datetime", _ControlledDatetime)
