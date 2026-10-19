@@ -21,7 +21,6 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from amos_federation.common.auth import create_access_token
 from amos_federation.common.database import get_session_factory, init_db
 from amos_federation.services.agent_runtime.main import app as agent_app
 from amos_federation.services.api_gateway.main import app as gateway_app
@@ -31,13 +30,13 @@ from amos_federation.services.executive_core.repository import ExecutiveTaskRepo
 from amos_federation.services.orchestrator.main import app as orchestrator_app
 from tests.conftest import purge_agents, purge_tasks
 
+from .per_test_auth import PerTestAuthHeaders
+
 orchestrator_client = TestClient(orchestrator_app)
 agent_client = TestClient(agent_app)
 gateway_client = TestClient(gateway_app)
 
-AUTH_HEADERS = {
-    "Authorization": f"Bearer {create_access_token('e2e-tester', ['tasks:write', 'tasks:read', 'tasks:execute'])}"
-}
+AUTH_HEADERS = PerTestAuthHeaders("e2e-tester", ["tasks:write", "tasks:read", "tasks:execute"])
 
 
 @pytest.fixture(autouse=True)

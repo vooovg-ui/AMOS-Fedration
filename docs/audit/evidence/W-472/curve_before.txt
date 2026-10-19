@@ -1,0 +1,15 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.1.1, pluggy-1.7.0
+rootdir: /home/user/workspace/AMOS-Fedration/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.4, cov-7.1.0, anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1 item
+
+federal/executive/services/tests/test_zz_bench_curve.py CURVE_TIMES: [0.253, 0.236, 0.292, 0.342, 0.51, 0.456, 0.506, 0.563, 0.619, 0.703, 0.826, 0.805]
+FILE_SIZES: [21065, 41225, 61385, 81545, 101705, 121865, 142025, 162185, 182345, 202505, 222665, 242825]
+RATIO: 3.41
+JSON: {"times": [0.253, 0.236, 0.292, 0.342, 0.51, 0.456, 0.506, 0.563, 0.619, 0.703, 0.826, 0.805], "sizes": [21065, 41225, 61385, 81545, 101705, 121865, 142025, 162185, 182345, 202505, 222665, 242825]}
+.
+
+============================== 1 passed in 6.48s ===============================

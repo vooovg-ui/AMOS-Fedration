@@ -6,15 +6,19 @@
 تاريخ الإنشاء: 2026-08-15
 """
 
+from datetime import UTC, datetime, timedelta
+
+import pytest
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
-from amos_federation.common.auth import create_access_token
+from amos_federation.common.auth import decode_token
 from amos_federation.services.critic.main import app
 
+from .per_test_auth import PerTestAuthHeaders
+
 client = TestClient(app)
-AUTH_HEADERS = {
-    "Authorization": "Bearer " + create_access_token("tester", ["critic:read", "critic:write"])
-}
+AUTH_HEADERS = PerTestAuthHeaders("tester", ["critic:read", "critic:write"])
 
 
 def _good_review_request() -> dict:
@@ -52,6 +56,73 @@ def _poor_review_request() -> dict:
         ],
         "result_summary": "",
     }
+
+
+def test_wi097_clock_controlled_expiry(monkeypatch) -> None:
+    """WI-097 (T0 · فحصُ الساعةِ المضبوطةِ حقًّا): تُضبَطُ ساعةُ المصدرِ وساعةُ المصادقِ معًا.
+
+    يُسكُّ الرمزُ عندَ t0 ويُحفَظُ، ثمَّ **تتقدَّمُ الساعتانِ** (سكُّ الرموزِ في
+    `common.auth` ومصادقُ PyJWT) إلى ما بعدَ صلاحيّتِهِ الأصليةِ — **دونَ تعديلِ
+    الرمزِ ولا عمرِهِ** (60 دقيقةً) — فيُرفَضُ الرمزُ المحفوظُ 401، وينجحُ الطلبُ
+    **بنفسِ كائنِ الترويساتِ** (يُسكُّ رمزًا فتيًّا عندَ قراءتِهِ) معَ حفظِ الموضوعِ
+    والنطاقاتِ والمستأجرِ. والقاموسُ الثابتُ القديمُ كانَ سيفشلُ هذا الفحصَ: رمزُ
+    الترويساتِ بعدَ التقدُّمِ مخالفٌ للرمزِ المحفوظِ.
+    """
+    import jwt.api_jwt as jwt_api_module
+
+    import amos_federation.common.auth as auth_module
+
+    clock = {"now": datetime.now(UTC)}
+
+    class _ControlledDatetime(datetime):
+        """ساعةٌ مضبوطةٌ — لا تُغيِّرُ عمرَ الرمزِ بل تُقدِّمُ الزمنَ كلَّهُ.
+
+        تعيدُ `now` نسخةً من نفسِ الصنفِ (لا تاريخًا خامًا) حتى تبقى حواسيبُ
+        PyJWT التحويليةُ (isinstance على صنفِ الوحدةِ) صحيحةً فلا يسقطَ تحويلُ
+        مطالباتِ التاريخِ إلى intDate.
+        """
+
+        @classmethod
+        def now(cls, tz=None):
+            base = clock["now"]
+            return cls(
+                base.year,
+                base.month,
+                base.day,
+                base.hour,
+                base.minute,
+                base.second,
+                base.microsecond,
+                tzinfo=base.tzinfo,
+            )
+
+    monkeypatch.setattr(auth_module, "datetime", _ControlledDatetime)
+    monkeypatch.setattr(jwt_api_module, "datetime", _ControlledDatetime)
+
+    headers = PerTestAuthHeaders("clock-tester", ["critic:read", "critic:write"], "finance")
+    saved_token = headers["Authorization"].removeprefix("Bearer ")
+
+    # التقدُّمُ إلى ما بعدَ صلاحيّةِ الرمزِ الأصليةِ (60 دقيقةً + دقيقةٌ) دونَ تعديلِهِ
+    clock["now"] = clock["now"] + timedelta(minutes=61)
+
+    with pytest.raises(HTTPException) as exc_info:
+        decode_token(saved_token)
+    assert exc_info.value.status_code == 401
+    resp_old = client.post(
+        "/v1/reviews",
+        headers={"Authorization": "Bearer " + saved_token},
+        json=_good_review_request(),
+    )
+    assert resp_old.status_code == 401
+
+    fresh_authorization = headers["Authorization"]
+    assert fresh_authorization != "Bearer " + saved_token
+    payload = decode_token(fresh_authorization.removeprefix("Bearer "))
+    assert payload["sub"] == "clock-tester"
+    assert sorted(payload["scopes"]) == ["critic:read", "critic:write"]
+    assert payload["tenant_id"] == "finance"
+    resp_fresh = client.post("/v1/reviews", headers=headers, json=_good_review_request())
+    assert resp_fresh.status_code == 201
 
 
 def test_review_good_result_gets_high_score() -> None:

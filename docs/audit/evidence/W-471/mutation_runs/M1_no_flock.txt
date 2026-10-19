@@ -1,0 +1,64 @@
+..............F......................................................... [ 83%]
+..............                                                           [100%]
+=================================== FAILURES ===================================
+___________ TestProcessLock.test_concurrent_processes_lose_no_event ____________
+
+self = <test_idempotency_append_log.TestProcessLock object at 0x7f4dc69c7260>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-207/test_concurrent_processes_lose0')
+
+    def test_concurrent_processes_lose_no_event(self, tmp_path):
+        """عمليّتانِ تُلحِقانِ معًا: لا حدثَ يضيعُ — هذا ما يُقتِلُ حذفَ flock (الطفرةُ 1)."""
+        ledger = _make_ledger(tmp_path)
+        ledger.reserve(key=_make_key(0), fingerprint="بصمة-0")  # تهيئةُ الملفِّ
+        ledger_path = str(ledger.path)
+        script = (
+            "import sys; "
+            "from pathlib import Path; "
+            "from core.sovereignty.idempotency import IdempotencyKey, IdempotencyLedger; "
+            f"ledger = IdempotencyLedger(path=Path({ledger_path!r})); "
+            "[ledger.reserve(key=IdempotencyKey('قياس', f'عمليّة-{sys.argv[1]}-{i}'), "
+            "fingerprint=f'بصمة-{sys.argv[1]}-{i}') for i in range(40)]"
+        )
+        workers = [
+            subprocess.Popen(
+                [sys.executable, "-c", script, str(tag)],
+                cwd=str(REPO_ROOT),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            for tag in range(4)
+        ]
+        for worker in workers:
+            _, stderr = worker.communicate(timeout=120)
+>           assert worker.returncode == 0, stderr.decode("utf-8", errors="replace")
+E           AssertionError: Traceback (most recent call last):
+E               File "/home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py", line 498, in _sync
+E                 event = json.loads(text)
+E                         ^^^^^^^^^^^^^^^^
+E               File "/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/__init__.py", line 346, in loads
+E                 return _default_decoder.decode(s)
+E                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               File "/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/decoder.py", line 338, in decode
+E                 obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+E                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               File "/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/decoder.py", line 356, in raw_decode
+E                 raise JSONDecodeError("Expecting value", s, err.value) from None
+E             json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+E             
+E             The above exception was the direct cause of the following exception:
+E             
+E             Traceback (most recent call last):
+E               File "<string>", line 1, in <module>
+E               File "/home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py", line 594, in reserve
+E                 self._sync()
+E               File "/home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py", line 500, in _sync
+E                 raise IdempotencyError(
+E             core.sovereignty.idempotency.IdempotencyError: سجلُّ الذرّيّةِ في «/tmp/pytest-of-user/pytest-207/test_concurrent_processes_lose0/idempotency.json» تالفٌ ولا يُمكنُ قراءتُه.
+E             
+E           assert 1 == 0
+E            +  where 1 = <Popen: returncode: 1 args: ['/home/user/workspace/AMOS-Fedration/.venv/bin/...>.returncode
+
+tests/sovereignty/test_idempotency_append_log.py:287: AssertionError
+=========================== short test summary info ============================
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestProcessLock::test_concurrent_processes_lose_no_event
+1 failed, 85 passed in 1.30s

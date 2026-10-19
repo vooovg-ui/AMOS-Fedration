@@ -25,7 +25,6 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 
-from amos_federation.common.auth import create_access_token
 from amos_federation.common.database import get_session_factory, init_db
 from amos_federation.common.durable_event_bus import get_durable_event_bus
 from amos_federation.common.persistent import PersistentAuditStore
@@ -42,10 +41,11 @@ from amos_federation.services.executive_core.states import TaskState
 from amos_federation.services.orchestrator.main import app as orchestrator_app
 from tests.conftest import purge_agents, purge_tasks
 
-AUTH_HEADERS = {
-    "Authorization": "Bearer "
-    + create_access_token("r1-tester", ["tasks:write", "tasks:read", "tasks:execute"], "default")
-}
+from .per_test_auth import PerTestAuthHeaders
+
+AUTH_HEADERS = PerTestAuthHeaders(
+    "r1-tester", ["tasks:write", "tasks:read", "tasks:execute"], "default"
+)
 
 gateway = TestClient(gateway_app)
 orchestrator = TestClient(orchestrator_app)

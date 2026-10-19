@@ -1,0 +1,2986 @@
+FF.FF........F.FFFF..................FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF....F [ 83%]
+FFFFFFF.FFFFFF                                                           [100%]
+=================================== FAILURES ===================================
+________________ TestAppendLogShape.test_each_event_is_one_line ________________
+
+self = <test_idempotency_append_log.TestAppendLogShape object at 0x7f6847c788f0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_each_event_is_one_line0')
+
+    def test_each_event_is_one_line(self, tmp_path):
+        """كلُّ حدثٍ سطرُ JSONL واحدٌ متصلٌ — لا سطرٍ مكسورٍ ولا حدثٍ بلا سطرٍ."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+>       ledger.mark_running(key=key, attempt={"n": 1})
+
+tests/sovereignty/test_idempotency_append_log.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_each_event_is_one_line0/idempotency.json'))
+key = IdempotencyKey(scope='قياس', value='عمليّة-1')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = {'n': 1}
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «قياس:عمليّة-1» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+____________ TestAppendLogShape.test_read_after_write_same_instance ____________
+
+self = <test_idempotency_append_log.TestAppendLogShape object at 0x7f6847c68b90>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_read_after_write_same_ins0')
+
+    def test_read_after_write_same_instance(self, tmp_path):
+        """الإلحاقُ يُحدِّثِ الحالةَ في الذاكرةِ فورًا — لا قراءةَ تنسخُ ما بعدها."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+        # لو لم يُحدَّثِ الإلحاقُ الحالةَ لما رأى `get` الحجزَ دونَ إعادةِ قراءةٍ
+>       assert ledger.get(key) is not None
+E       AssertionError: assert None is not None
+E        +  where None = get(IdempotencyKey(scope='قياس', value='عمليّة-1'))
+E        +    where get = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_read_after_write_same_ins0/idempotency.json')).get
+
+tests/sovereignty/test_idempotency_append_log.py:75: AssertionError
+____ TestAppendLogShape.test_replacement_rebuilds_state_regardless_of_size _____
+
+self = <test_idempotency_append_log.TestAppendLogShape object at 0x7f6847c79fa0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_replacement_rebuilds_stat0')
+
+    def test_replacement_rebuilds_state_regardless_of_size(self, tmp_path):
+        """استبدالُ السجلِّ (ضغطٌ بيدِ عمليّةٍ أخرى) يُبطلُ الحالةَ كلَّها مهما كانَ حجمُ الجديدِ.
+    
+        بلا ربطِ الحالةِ بهويّةِ الملفِّ تقعُ القراءةُ من موضعٍ قديمٍ في ملفٍّ
+        جديدٍ أكبرَ — من منتصفِ سطرٍ — فتفسدُ أو تُهمَلُ (W-477 · مراجعةُ المستشارِ § 1).
+        """
+        first = _make_ledger(tmp_path)
+        second = _make_ledger(tmp_path)
+        first.reserve(key=_make_key(0), fingerprint="بصمة-0")
+        assert second.get(_make_key(0)) is not None
+        # الثانيةُ تضغطُ بعدَ 100 مفتاحٍ بمحاولاتِ إعادةٍ — اللقطةُ الناتجةُ أكبرُ
+        # بكثيرٍ من موضعِ الأولى القديمِ (فحجمُ الجديدِ ليسَ حكمًا على الاستبدالِ)
+        for i in range(1, 101):
+>           self._compaction_flow(second, i)
+
+tests/sovereignty/test_idempotency_append_log.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/sovereignty/test_idempotency_append_log.py:111: in _compaction_flow
+    ledger.mark_running(key=key)
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_replacement_rebuilds_stat0/idempotency.json'))
+key = IdempotencyKey(scope='قياس', value='عمليّة-1')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «قياس:عمليّة-1» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+____________ TestCrashSafety.test_torn_tail_is_ignored_and_retried _____________
+
+self = <test_idempotency_append_log.TestCrashSafety object at 0x7f6847c7a2d0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_torn_tail_is_ignored_and_0')
+
+    def test_torn_tail_is_ignored_and_retried(self, tmp_path):
+        """سطرٌ ذيليٌّ ممزّقٌ (كتابةٌ انقطعت) يُهمَلُ ولا يُسقِطُ القراءةَ (§ 2.2)."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+        # محاكاةُ انقطاعِ كتابةٍ: سطرٌ نصفُهُ فقطَ (لا `\\n` في آخرِهِ)
+        with open(ledger.path, "a", encoding="utf-8") as stream:
+            stream.write('{"v": 1, "op": "transition", "key": "ناق')
+        # القراءةُ تتجاوزُ الذيلَ الممزّقَ ولا ترفعُ خطأً
+>       assert ledger.get(key) is not None
+E       AssertionError: assert None is not None
+E        +  where None = get(IdempotencyKey(scope='قياس', value='عمليّة-1'))
+E        +    where get = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_torn_tail_is_ignored_and_0/idempotency.json')).get
+
+tests/sovereignty/test_idempotency_append_log.py:131: AssertionError
+_______________ TestCrashSafety.test_atomic_single_line_appends ________________
+
+self = <test_idempotency_append_log.TestCrashSafety object at 0x7f6847c4ad80>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_atomic_single_line_append0')
+
+    def test_atomic_single_line_appends(self, tmp_path):
+        """كلُّ حدثٍ يُكتَبُ بفتحةِ إلحاقٍ واحدةٍ — فتحتانِ متتاليتانِ لا تمحوانِ ما قبلَهما."""
+        ledger = _make_ledger(tmp_path)
+        ledger.reserve(key=_make_key(1), fingerprint="بصمة-1")
+        # نسخةٌ ثانيةٌ تفتحُ الملفَّ من جديدٍ — لا يجوزُ أن تمحوَ أحداثَ الأولى
+        second = _make_ledger(tmp_path)
+        second.reserve(key=_make_key(2), fingerprint="بصمة-2")
+>       assert ledger.count() == 2, "فتحُ نسخةٍ ثانيةٍ محا أحداثَ الأولى (وضعُ w بدلَ a)"
+E       AssertionError: فتحُ نسخةٍ ثانيةٍ محا أحداثَ الأولى (وضعُ w بدلَ a)
+E       assert 1 == 2
+E        +  where 1 = count()
+E        +    where count = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_atomic_single_line_append0/idempotency.json')).count
+
+tests/sovereignty/test_idempotency_append_log.py:256: AssertionError
+______________ TestCompaction.test_compaction_keeps_all_live_keys ______________
+
+self = <test_idempotency_append_log.TestCompaction object at 0x7f6847c4b440>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_compaction_keeps_all_live0')
+
+    def test_compaction_keeps_all_live_keys(self, tmp_path):
+        """الضغطُ لا يُسقِطُ مفتاحًا حيًّا (الطفرةُ 6) — ويُشغَّلُ فعلًا (الطفرةُ 5)."""
+        ledger = _make_ledger(tmp_path)
+        for i in range(20):
+>           self._retry_flow(ledger, i, events=5)  # 13 حدثًا لكلِّ مفتاحٍ = 260 سطرًا
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency_append_log.py:315: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/sovereignty/test_idempotency_append_log.py:305: in _retry_flow
+    ledger.mark_running(key=key)
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_compaction_keeps_all_live0/idempotency.json'))
+key = IdempotencyKey(scope='قياس', value='عمليّة-0')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «قياس:عمليّة-0» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+__________ TestCompaction.test_log_grows_asymptotically_not_linearly ___________
+
+self = <test_idempotency_append_log.TestCompaction object at 0x7f6847c4b7d0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_log_grows_asymptotically_0')
+
+    def test_log_grows_asymptotically_not_linearly(self, tmp_path):
+        """الضغطُ يُهَلِّلُ: الأسطرُ لا تنمو معَ الأحداثِ بل تُعادُ إلى مضاعفِ المفاتيحِ الحيّةِ."""
+        ledger = _make_ledger(tmp_path)
+        total_events = 0
+        for i in range(100):
+>           self._retry_flow(ledger, i, events=10)  # 23 حدثًا لكلِّ مفتاحٍ
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency_append_log.py:333: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/sovereignty/test_idempotency_append_log.py:305: in _retry_flow
+    ledger.mark_running(key=key)
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_log_grows_asymptotically_0/idempotency.json'))
+key = IdempotencyKey(scope='قياس', value='عمليّة-0')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «قياس:عمليّة-0» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+____________ TestMigration.test_legacy_json_object_is_migrated_once ____________
+
+self = <test_idempotency_append_log.TestMigration object at 0x7f6847c7a630>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_legacy_json_object_is_mig0')
+
+    def test_legacy_json_object_is_migrated_once(self, tmp_path):
+        """ملفُّ الصيغةِ القديمةِ (JSON كائنٍ) يُرحَّلُ تلقائيًّا وسجلّاتُهُ لا تضيعُ (الطفرةُ 7)."""
+        from core.sovereignty.runtime_identity import stamped
+        from core.sovereignty.idempotency import IDEMPOTENCY_STATE_CARD
+    
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        # اكتبِ الصيغةَ القديمةَ بيدٍ: كائنُ JSON بسجلٍّ واحدٍ (بصيغةِ as_dict نفسِها)
+        legacy_payload = stamped(
+            {
+                key.composite: {
+                    "key": key.composite,
+                    "scope": key.scope,
+                    "value": key.value,
+                    "fingerprint": "بصمة-قديمة",
+                    "status": "RESERVED",
+                    "reserved_at": "2026-10-19T00:00:00+00:00",
+                    "attempts": [],
+                    "transitions": [],
+                    "applied_effect_signatures": [],
+                    "has_external_effect": False,
+                }
+            },
+            card=IDEMPOTENCY_STATE_CARD,
+        )
+        ledger.path.parent.mkdir(parents=True, exist_ok=True)
+        ledger.path.write_text(
+            json.dumps(legacy_payload, ensure_ascii=False, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+        # الفتحُ يُرحِّلُ: السجلُّ يُقرأُ منَ الصيغةِ الجديدةِ
+        record = ledger.get(key)
+        assert record is not None, "الترحيلُ محا السجلَّ القديمَ (الطفرةُ 7)"
+        assert record.fingerprint == "بصمة-قديمة"
+        # والملفُّ صارَ إلحاقيًّا: أسطرٌ JSONL
+        first_event = _read_events(ledger.path)
+        assert any(e.get("key") == key.composite for e in first_event)
+        # والأحداثُ الجديدةُ تُلحَقُ فوقَهُ بلا مسحٍ
+        ledger.mark_running(key=key)
+>       assert ledger.get(key).status == OperationStatus.RUNNING
+E       AssertionError: assert <OperationSta...D: 'RESERVED'> == <OperationSta...NG: 'RUNNING'>
+E         
+E         - RUNNING
+E         + RESERVED
+
+tests/sovereignty/test_idempotency_append_log.py:384: AssertionError
+______ TestMigration.test_reuse_with_different_fingerprint_still_refused _______
+
+self = <test_idempotency_append_log.TestMigration object at 0x7f6847c7a0c0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_reuse_with_different_fing0')
+
+    def test_reuse_with_different_fingerprint_still_refused(self, tmp_path):
+        """حارسُ الأصلِ لا يتراجعُ: البصمةُ تُفحَصُ في الصيغةِ الجديدةِ كما القديمةِ (الطفرةُ 4)."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+>       with pytest.raises(IdempotencyKeyReuseError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE IdempotencyKeyReuseError
+
+tests/sovereignty/test_idempotency_append_log.py:391: Failed
+____ TestLedgerReserve.test_reserve_same_key_different_fingerprint_rejected ____
+
+self = <test_idempotency.TestLedgerReserve object at 0x7f6847beb1d0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_reserve_same_key_differen0')
+
+    def test_reserve_same_key_different_fingerprint_rejected(self, tmp_path):
+        """إعادةُ الحجزِ ببصمةٍ مختلفة = إعادةُ استعمالٍ خاطئة."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        fp1 = _make_fingerprint(action="transfer")
+        fp2 = _make_fingerprint(action="deposit")
+        ledger.reserve(key=key, fingerprint=fp1)
+>       with pytest.raises(IdempotencyKeyReuseError, match="بصمةٍ مختلفة"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE IdempotencyKeyReuseError
+
+tests/sovereignty/test_idempotency.py:185: Failed
+____________________ TestLedgerTransition.test_mark_running ____________________
+
+self = <test_idempotency.TestLedgerTransition object at 0x7f6847beac90>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_mark_running0')
+
+    def test_mark_running(self, tmp_path):
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        ledger.reserve(key=key, fingerprint=fp)
+>       record = ledger.mark_running(key=key, attempt={"n": 1})
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency.py:197: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_mark_running0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = {'n': 1}
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+___________________ TestLedgerTransition.test_mark_succeeded ___________________
+
+self = <test_idempotency.TestLedgerTransition object at 0x7f6847bea390>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_mark_succeeded0')
+
+    def test_mark_succeeded(self, tmp_path):
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        ledger.reserve(key=key, fingerprint=fp)
+>       record = ledger.mark_succeeded(
+            key=key,
+            result_digest="RD-abc123",
+            applied_effect_signatures=("TRANSFER:A",),
+        )
+
+tests/sovereignty/test_idempotency.py:206: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:704: in mark_succeeded
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_mark_succeeded0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.SUCCEEDED: 'SUCCEEDED'>, attempt = None
+result_digest = 'RD-abc123', applied_effect_signatures = ('TRANSFER:A',)
+failure_reason = None, has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+____________ TestLedgerTransition.test_no_transition_from_terminal _____________
+
+self = <test_idempotency.TestLedgerTransition object at 0x7f6847bea240>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_no_transition_from_termin0')
+
+    def test_no_transition_from_terminal(self, tmp_path):
+        """لا انتقالَ من النهائي."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        ledger.reserve(key=key, fingerprint=fp)
+>       ledger.mark_running(key=key)
+
+tests/sovereignty/test_idempotency.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_no_transition_from_termin0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+_______________ TestLedgerTransition.test_mark_failed_retryable ________________
+
+self = <test_idempotency.TestLedgerTransition object at 0x7f6847c96780>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_mark_failed_retryable0')
+
+    def test_mark_failed_retryable(self, tmp_path):
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        ledger.reserve(key=key, fingerprint=fp)
+>       record = ledger.mark_failed(key=key, reason="timeout", retryable=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency.py:231: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:723: in mark_failed
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_mark_failed_retryable0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.FAILED_RETRYABLE: 'FAILED_RETRYABLE'>
+attempt = None, result_digest = None, applied_effect_signatures = None
+failure_reason = 'timeout', has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+_________________ TestLedgerTransition.test_mark_failed_final __________________
+
+self = <test_idempotency.TestLedgerTransition object at 0x7f6847c960c0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_mark_failed_final0')
+
+    def test_mark_failed_final(self, tmp_path):
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        ledger.reserve(key=key, fingerprint=fp)
+>       record = ledger.mark_failed(key=key, reason="permanent", retryable=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency.py:240: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:723: in mark_failed
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_mark_failed_final0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.FAILED_FINAL: 'FAILED_FINAL'>, attempt = None
+result_digest = None, applied_effect_signatures = None
+failure_reason = 'permanent', has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+__________________ TestLedgerTransition.test_mark_interrupted __________________
+
+self = <test_idempotency.TestLedgerTransition object at 0x7f6847c95940>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_mark_interrupted0')
+
+    def test_mark_interrupted(self, tmp_path):
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        ledger.reserve(key=key, fingerprint=fp)
+>       record = ledger.mark_interrupted(key=key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency.py:248: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:734: in mark_interrupted
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_mark_interrupted0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.INTERRUPTED: 'INTERRUPTED'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+________________ TestLedgerTransition.test_recover_interrupted _________________
+
+self = <test_idempotency.TestLedgerTransition object at 0x7f6847c953d0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_recover_interrupted0')
+
+    def test_recover_interrupted(self, tmp_path):
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        ledger.reserve(key=key, fingerprint=fp)
+>       ledger.mark_interrupted(key=key)
+
+tests/sovereignty/test_idempotency.py:256: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:734: in mark_interrupted
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_recover_interrupted0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.INTERRUPTED: 'INTERRUPTED'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+__________ TestLedgerTransition.test_recover_non_recoverable_rejected __________
+
+self = <test_idempotency.TestLedgerTransition object at 0x7f6847c94e00>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_recover_non_recoverable_r0')
+
+    def test_recover_non_recoverable_rejected(self, tmp_path):
+        """استعادةُ عمليّةٍ ناجحةٍ مرفوضة."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        ledger.reserve(key=key, fingerprint=fp)
+>       ledger.mark_running(key=key)
+
+tests/sovereignty/test_idempotency.py:266: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_recover_non_recoverable_r0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+________________ TestGuardRunOnce.test_first_execution_succeeds ________________
+
+self = <test_idempotency.TestGuardRunOnce object at 0x7f6847c96a20>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_first_execution_succeeds0')
+
+    def test_first_execution_succeeds(self, tmp_path):
+        """الطلبُ الأوّل: تنفيذٌ حقيقيّ، نتيجةٌ، لا إعادة."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        counter = {"n": 0}
+    
+        def execute() -> str:
+            counter["n"] += 1
+            return "result-001"
+    
+>       result = guard.run_once(key=key, fingerprint=fp, execute=execute)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency.py:290: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_first_execution_succeeds0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:11+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+__________ TestGuardRunOnce.test_sequential_duplicate_returns_replay ___________
+
+self = <test_idempotency.TestGuardRunOnce object at 0x7f6847c96db0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_sequential_duplicate_retu0')
+
+    def test_sequential_duplicate_returns_replay(self, tmp_path):
+        """الطلبُ نفسُه مرّتين: أثرٌ واحد، والثانيةُ إعادة."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        counter = {"n": 0}
+    
+        def execute() -> str:
+            counter["n"] += 1
+            return "result-001"
+    
+>       r1 = guard.run_once(key=key, fingerprint=fp, execute=execute)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency.py:307: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_sequential_duplicate_retu0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:11+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+___________ TestGuardRunOnce.test_success_then_retry_no_extra_effect ___________
+
+self = <test_idempotency.TestGuardRunOnce object at 0x7f6847c97110>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_success_then_retry_no_ext0')
+
+    def test_success_then_retry_no_extra_effect(self, tmp_path):
+        """نجاحٌ ثمّ retry: لا أثرٍ إضافيّ."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        counter = {"n": 0}
+    
+        def execute() -> int:
+            counter["n"] += 1
+            return 42
+    
+        for _ in range(5):
+>           guard.run_once(key=key, fingerprint=fp, execute=execute)
+
+tests/sovereignty/test_idempotency.py:328: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_success_then_retry_no_ext0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:11+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+___________ TestGuardRunOnce.test_failed_then_retry_no_double_effect ___________
+
+self = <test_idempotency.TestGuardRunOnce object at 0x7f6847c97470>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_failed_then_retry_no_doub0')
+
+    def test_failed_then_retry_no_double_effect(self, tmp_path):
+        """فشلٌ ثمّ retry: لا أثرٍ مزدوج."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        call_count = {"n": 0}
+    
+        def execute() -> str:
+            call_count["n"] += 1
+            if call_count["n"] == 1:
+                raise RuntimeError("first attempt fails")
+            return "success-on-retry"
+    
+        # المحاولة الأولى تفشل
+>       with pytest.raises(IdempotencyError, match="فشلت"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'فشلت'
+E         Actual message: 'المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.'
+
+tests/sovereignty/test_idempotency.py:346: AssertionError
+___________ TestGuardRunOnce.test_different_key_different_execution ____________
+
+self = <test_idempotency.TestGuardRunOnce object at 0x7f6847c97800>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_different_key_different_e0')
+
+    def test_different_key_different_execution(self, tmp_path):
+        """مفاتيحُ مختلفة = تنفيذٌ مختلف."""
+        guard = _make_guard(tmp_path)
+        counter = {"n": 0}
+    
+        def execute() -> str:
+            counter["n"] += 1
+            return f"result-{counter['n']}"
+    
+        k1 = IdempotencyKey(scope="treasury", value="tx-A")
+        k2 = IdempotencyKey(scope="treasury", value="tx-B")
+        fp1 = _make_fingerprint()
+        fp2 = _make_fingerprint(action="deposit")
+    
+>       r1 = guard.run_once(key=k1, fingerprint=fp1, execute=execute)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency.py:373: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_different_key_different_e0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-A')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:11+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-A» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+______________ TestGuardRunOnce.test_changed_fingerprint_rejected ______________
+
+self = <test_idempotency.TestGuardRunOnce object at 0x7f6847c97b60>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_changed_fingerprint_rejec0')
+
+    def test_changed_fingerprint_rejected(self, tmp_path):
+        """بصمةٌ مختلفة على المفتاحِ نفسِه = إعادةُ استعمالٍ خاطئة."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp1 = _make_fingerprint(action="transfer")
+        fp2 = _make_fingerprint(action="deposit")
+    
+>       guard.run_once(
+            key=key, fingerprint=fp1, execute=lambda: "r1",
+        )
+
+tests/sovereignty/test_idempotency.py:386: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_changed_fingerprint_rejec0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:11+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+______________ TestGuardRunOnce.test_cross_scope_key_no_collision ______________
+
+self = <test_idempotency.TestGuardRunOnce object at 0x7f6847c97ec0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_cross_scope_key_no_collis0')
+
+    def test_cross_scope_key_no_collision(self, tmp_path):
+        """المفتاحُ نفسُه في نطاقينِ مختلفينِ لا يتصادم."""
+        guard = _make_guard(tmp_path)
+        counter = {"n": 0}
+    
+        def execute() -> str:
+            counter["n"] += 1
+            return f"r{counter['n']}"
+    
+        k1 = IdempotencyKey(scope="treasury", value="tx-001")
+        k2 = IdempotencyKey(scope="judiciary", value="tx-001")
+        fp1 = compute_fingerprint(
+            scope="treasury", action="transfer", target="A",
+            effect_signatures=("TRANSFER:A",),
+        )
+        fp2 = compute_fingerprint(
+            scope="judiciary", action="adjudicate", target="case-1",
+            effect_signatures=("CREATE:case-1",),
+        )
+    
+>       r1 = guard.run_once(key=k1, fingerprint=fp1, execute=execute)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency.py:414: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_cross_scope_key_no_collis0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:11+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+___________ TestConcurrency.test_concurrent_duplicate_single_effect ____________
+
+self = <test_idempotency.TestConcurrency object at 0x7f68479f8290>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_concurrent_duplicate_sing0')
+
+    def test_concurrent_duplicate_single_effect(self, tmp_path):
+        """أربعةُ طلباتٍ متزامنة على المفتاحِ نفسِه: تنفيذٌ واحد."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        counter = {"n": 0}
+        lock = threading.Lock()
+    
+        def execute() -> str:
+            with lock:
+                counter["n"] += 1
+            time.sleep(0.05)  # محاكاةُ عملٍ حقيقيّ
+            return "shared-result"
+    
+        barrier = threading.Barrier(4)
+        results: list[OperationResult] = []
+    
+        def worker():
+            barrier.wait()
+            r = guard.run_once(key=key, fingerprint=fp, execute=execute)
+            results.append(r)
+    
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            futures = [pool.submit(worker) for _ in range(4)]
+            for f in as_completed(futures):
+>               f.result()
+
+tests/sovereignty/test_idempotency.py:453: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py:449: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py:401: in __get_result
+    raise self._exception
+/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/thread.py:59: in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/sovereignty/test_idempotency.py:447: in worker
+    r = guard.run_once(key=key, fingerprint=fp, execute=execute)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_concurrent_duplicate_sing0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:11+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+__________ TestConcurrency.test_concurrent_different_keys_all_execute __________
+
+self = <test_idempotency.TestConcurrency object at 0x7f6847c97cb0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_concurrent_different_keys0')
+
+    def test_concurrent_different_keys_all_execute(self, tmp_path):
+        """مفاتيحُ مختلفة في تزامن: كلُّها تُنفَّذ."""
+        guard = _make_guard(tmp_path)
+        counter = {"n": 0}
+        lock = threading.Lock()
+    
+        def make_execute(idx: int):
+            def execute() -> str:
+                with lock:
+                    counter["n"] += 1
+                return f"r{idx}"
+            return execute
+    
+        keys = [IdempotencyKey(scope="treasury", value=f"tx-{i}") for i in range(4)]
+        fps = [
+            compute_fingerprint(
+                scope="treasury", action="transfer", target=f"A-{i}",
+                effect_signatures=(f"TRANSFER:A-{i}",),
+                payload_digest=f"payload-{i}",
+            )
+            for i in range(4)
+        ]
+    
+        def worker(idx: int):
+            guard.run_once(key=keys[idx], fingerprint=fps[idx], execute=make_execute(idx))
+    
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            futures = [pool.submit(worker, i) for i in range(4)]
+            for f in as_completed(futures):
+>               f.result()
+
+tests/sovereignty/test_idempotency.py:489: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py:449: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py:401: in __get_result
+    raise self._exception
+/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/thread.py:59: in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/sovereignty/test_idempotency.py:484: in worker
+    guard.run_once(key=keys[idx], fingerprint=fps[idx], execute=make_execute(idx))
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_concurrent_different_keys0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-0')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:11+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-0» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+__________ TestPersistenceRestart.test_new_ledger_reads_prior_records __________
+
+self = <test_idempotency.TestPersistenceRestart object at 0x7f6847c972f0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_new_ledger_reads_prior_re0')
+
+    def test_new_ledger_reads_prior_records(self, tmp_path):
+        """سجلٌّ جديدٌ على الملفِّ نفسِه يرى السجلَّ السابق."""
+        ledger1 = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        ledger1.reserve(key=key, fingerprint=fp)
+>       ledger1.mark_running(key=key)
+
+tests/sovereignty/test_idempotency.py:507: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_new_ledger_reads_prior_re0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+______ TestPersistenceRestart.test_new_guard_returns_replay_after_restart ______
+
+self = <test_idempotency.TestPersistenceRestart object at 0x7f6847c96ea0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_new_guard_returns_replay_0')
+
+    def test_new_guard_returns_replay_after_restart(self, tmp_path):
+        """حارسٌ جديدٌ يُعيدُ النتيجةَ السابقة دون تنفيذ."""
+        guard1 = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        counter = {"n": 0}
+    
+        def execute() -> str:
+            counter["n"] += 1
+            return "persisted-result"
+    
+>       guard1.run_once(key=key, fingerprint=fp, execute=execute)
+
+tests/sovereignty/test_idempotency.py:528: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_new_guard_returns_replay_0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:11+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+_______ TestPersistenceRestart.test_interrupted_record_survives_restart ________
+
+self = <test_idempotency.TestPersistenceRestart object at 0x7f6847c96900>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_interrupted_record_surviv0')
+
+    def test_interrupted_record_survives_restart(self, tmp_path):
+        """سجلٌّ منقطعٌ يبقى بعدَ إعادةِ التشغيل."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        ledger.reserve(key=key, fingerprint=fp)
+>       ledger.mark_running(key=key)
+
+tests/sovereignty/test_idempotency.py:543: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_interrupted_record_surviv0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+__________ TestExternalEffects.test_external_effect_marked_in_record ___________
+
+self = <test_idempotency.TestExternalEffects object at 0x7f6847c95850>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_external_effect_marked_in0')
+
+    def test_external_effect_marked_in_record(self, tmp_path):
+        """الأثرُ الخارجيُّ يُسجَّلُ في السجلّ."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+    
+>       result = guard.run_once(
+            key=key, fingerprint=fp,
+            execute=lambda: "external-sent",
+            detect_external=lambda v: True,
+        )
+
+tests/sovereignty/test_idempotency.py:570: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_external_effect_marked_in0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:11+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+_________ TestExternalEffects.test_external_effect_retry_no_duplicate __________
+
+self = <test_idempotency.TestExternalEffects object at 0x7f6847c96300>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_external_effect_retry_no_0')
+
+    def test_external_effect_retry_no_duplicate(self, tmp_path):
+        """إعادةُ طلبٍ بأثرٍ خارجيّ: لا إرسالٌ ثانٍ."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        send_counter = {"n": 0}
+    
+        def execute() -> str:
+            send_counter["n"] += 1
+            return "sent"
+    
+>       guard.run_once(
+            key=key, fingerprint=fp, execute=execute,
+            detect_external=lambda v: True,
+        )
+
+tests/sovereignty/test_idempotency.py:589: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_external_effect_retry_no_0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:12+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+_______________ TestExternalEffects.test_non_external_not_marked _______________
+
+self = <test_idempotency.TestExternalEffects object at 0x7f6847beb140>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_non_external_not_marked0')
+
+    def test_non_external_not_marked(self, tmp_path):
+        """أثرٌ داخليّ لا يُعلَّمُ كخارجيّ."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+    
+>       result = guard.run_once(
+            key=key, fingerprint=fp,
+            execute=lambda: "internal",
+            detect_external=lambda v: False,
+        )
+
+tests/sovereignty/test_idempotency.py:605: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_non_external_not_marked0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:12+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+______________ TestAuditTrail.test_record_has_key_and_fingerprint ______________
+
+self = <test_idempotency.TestAuditTrail object at 0x7f6847bea6f0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_record_has_key_and_finger0')
+
+    def test_record_has_key_and_fingerprint(self, tmp_path):
+        """السجلُّ يحملُ المفتاحَ والبصمة."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+>       guard.run_once(key=key, fingerprint=fp, execute=lambda: "r")
+
+tests/sovereignty/test_idempotency.py:625: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_record_has_key_and_finger0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:12+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+_______________ TestAuditTrail.test_record_has_status_and_result _______________
+
+self = <test_idempotency.TestAuditTrail object at 0x7f68479f8110>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_record_has_status_and_res0')
+
+    def test_record_has_status_and_result(self, tmp_path):
+        """السجلُّ يحملُ الحالةَ والنتيجة."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+>       guard.run_once(key=key, fingerprint=fp, execute=lambda: "result-42")
+
+tests/sovereignty/test_idempotency.py:635: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_record_has_status_and_res0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:12+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+__________________ TestAuditTrail.test_record_has_timestamps ___________________
+
+self = <test_idempotency.TestAuditTrail object at 0x7f68479f86b0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_record_has_timestamps0')
+
+    def test_record_has_timestamps(self, tmp_path):
+        """السجلُّ يحملُ وقتَ الحجزِ ووقتَ النجاح."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+>       guard.run_once(key=key, fingerprint=fp, execute=lambda: "r")
+
+tests/sovereignty/test_idempotency.py:646: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_record_has_timestamps0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:12+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+________________ TestAuditTrail.test_record_has_attempt_history ________________
+
+self = <test_idempotency.TestAuditTrail object at 0x7f68479f8a10>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_record_has_attempt_histor0')
+
+    def test_record_has_attempt_history(self, tmp_path):
+        """السجلُّ يحملُ تاريخَ المحاولات."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+    
+        call_count = {"n": 0}
+    
+        def execute() -> str:
+            call_count["n"] += 1
+            if call_count["n"] == 1:
+                raise RuntimeError("fail")
+            return "ok"
+    
+        with pytest.raises(IdempotencyError):
+            guard.run_once(key=key, fingerprint=fp, execute=execute)
+    
+>       guard.recover(key=key)
+
+tests/sovereignty/test_idempotency.py:668: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:960: in recover
+    return self.ledger.recover(key=key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_record_has_attempt_histor0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001'), now = None
+
+    def recover(
+        self, *, key: IdempotencyKey, now: str | None = None,
+    ) -> IdempotencyRecord:
+        """استعِدْ عمليّةً منقطعة — انقلها إلى `RECOVERY_REQUIRED`."""
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ موجود. لا استعادةَ بلا سجل."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ موجود. لا استعادةَ بلا سجل.
+
+core/sovereignty/idempotency.py:751: IdempotencyError
+______________ TestAuditTrail.test_record_applied_effects_tracked ______________
+
+self = <test_idempotency.TestAuditTrail object at 0x7f68479f9400>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_record_applied_effects_tr0')
+
+    def test_record_applied_effects_tracked(self, tmp_path):
+        """السجلُّ يحملُ بصماتِ الآثارِ المُطبَّقة."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        effects = ("TRANSFER:treasury/account-A",)
+    
+>       result = guard.run_once(
+            key=key, fingerprint=fp,
+            execute=lambda: {"effects": effects},
+            extract_effect_signatures=lambda v: v["effects"],
+        )
+
+tests/sovereignty/test_idempotency.py:682: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_record_applied_effects_tr0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:12+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+______________ TestAuditTrail.test_replay_does_not_modify_record _______________
+
+self = <test_idempotency.TestAuditTrail object at 0x7f68479f9760>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_replay_does_not_modify_re0')
+
+    def test_replay_does_not_modify_record(self, tmp_path):
+        """الإعادةُ لا تُعدِّلُ السجلَّ التاريخيّ."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+>       guard.run_once(key=key, fingerprint=fp, execute=lambda: "r1")
+
+tests/sovereignty/test_idempotency.py:694: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_replay_does_not_modify_re0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:12+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+_____________________ TestGuardIntegrity.test_ledger_count _____________________
+
+self = <test_idempotency.TestGuardIntegrity object at 0x7f6847beb020>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_ledger_count0')
+
+    def test_ledger_count(self, tmp_path):
+        """عددُ السجلاتِ في السجلّ."""
+        ledger = _make_ledger(tmp_path)
+        assert ledger.count() == 0
+        ledger.reserve(key=_make_key(), fingerprint=_make_fingerprint())
+>       assert ledger.count() == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = count()
+E        +    where count = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_ledger_count0/idempotency.json')).count
+
+tests/sovereignty/test_idempotency.py:760: AssertionError
+__________________ TestGuardIntegrity.test_ledger_all_records __________________
+
+self = <test_idempotency.TestGuardIntegrity object at 0x7f6847c96990>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_ledger_all_records0')
+
+    def test_ledger_all_records(self, tmp_path):
+        """قراءةُ جميع السجلات."""
+        ledger = _make_ledger(tmp_path)
+        ledger.reserve(key=_make_key(), fingerprint=_make_fingerprint())
+        records = ledger.all_records()
+>       assert len(records) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests/sovereignty/test_idempotency.py:772: AssertionError
+______________ TestGuardIntegrity.test_guard_conflict_on_running _______________
+
+self = <test_idempotency.TestGuardIntegrity object at 0x7f6847c95310>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_guard_conflict_on_running0')
+
+    def test_guard_conflict_on_running(self, tmp_path):
+        """عمليّةٌ جاريةٌ ترفضُ عمليّةً ثانية على المفتاحِ نفسِه."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        guard.ledger.reserve(key=key, fingerprint=fp)
+>       guard.ledger.mark_running(key=key)
+
+tests/sovereignty/test_idempotency.py:781: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_guard_conflict_on_running0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+_____________ TestGuardIntegrity.test_guard_recoverable_then_retry _____________
+
+self = <test_idempotency.TestGuardIntegrity object at 0x7f6847c96fc0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_guard_recoverable_then_re0')
+
+    def test_guard_recoverable_then_retry(self, tmp_path):
+        """عمليّةٌ فاشلةٌ قابلةٌ للإعادة: استعادةٌ ثمّ نجاح."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        guard.ledger.reserve(key=key, fingerprint=fp)
+>       guard.ledger.mark_failed(key=key, reason="timeout", retryable=True)
+
+tests/sovereignty/test_idempotency.py:793: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:723: in mark_failed
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_guard_recoverable_then_re0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.FAILED_RETRYABLE: 'FAILED_RETRYABLE'>
+attempt = None, result_digest = None, applied_effect_signatures = None
+failure_reason = 'timeout', has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+_____________ TestRunEffectsOnce.test_all_effects_applied_in_order _____________
+
+self = <test_idempotency.TestRunEffectsOnce object at 0x7f68479f9880>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_all_effects_applied_in_or0')
+
+    def test_all_effects_applied_in_order(self, tmp_path):
+        """جميعُ الآثارِ تُطبَّق بالترتيب."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        applied = []
+    
+        def apply(sig: str) -> None:
+            applied.append(sig)
+    
+>       r = guard.run_effects_once(
+            key=key, fingerprint=fp,
+            declared_effects=("write:a", "write:b", "write:c"),
+            apply_effect=apply,
+        )
+
+tests/sovereignty/test_idempotency.py:823: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:1017: in run_effects_once
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_all_effects_applied_in_or0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:12+00:00', 'mode': 'effects'}
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+_______ TestRunEffectsOnce.test_partial_failure_marks_recovery_required ________
+
+self = <test_idempotency.TestRunEffectsOnce object at 0x7f68479f9e50>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_partial_failure_marks_rec0')
+
+    def test_partial_failure_marks_recovery_required(self, tmp_path):
+        """فشلٌ بعدَ أثرٍ واحد = RECOVERY_REQUIRED + الأثرُ مُسجَّل."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        call_count = {"n": 0}
+    
+        def apply(sig: str) -> None:
+            call_count["n"] += 1
+            if sig == "write:b":
+                raise RuntimeError("boom")
+    
+>       with pytest.raises(IdempotencyError, match="RECOVERY_REQUIRED"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'RECOVERY_REQUIRED'
+E         Actual message: 'المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.'
+
+tests/sovereignty/test_idempotency.py:843: AssertionError
+__ TestRunEffectsOnce.test_retry_after_partial_failure_skips_applied_effects ___
+
+self = <test_idempotency.TestRunEffectsOnce object at 0x7f68479f99a0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_retry_after_partial_failu0')
+
+    def test_retry_after_partial_failure_skips_applied_effects(self, tmp_path):
+        """إعادةُ المحاولةِ تُخطّي الآثارَ التي طُبِّقَت."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+    
+        # المحاولةُ الأولى: فشل بعدَ أثرٍ واحد
+        def fail_on_b(sig: str) -> None:
+            if sig == "write:b":
+                raise RuntimeError("boom")
+    
+        with pytest.raises(IdempotencyError):
+            guard.run_effects_once(
+                key=key, fingerprint=fp,
+                declared_effects=("write:a", "write:b", "write:c"),
+                apply_effect=fail_on_b,
+            )
+    
+        # المحاولةُ الثانية: تُخطّي A وتُطبِّقُ B و C
+        applied_on_retry = []
+    
+        def apply_all(sig: str) -> None:
+            applied_on_retry.append(sig)
+    
+>       r = guard.run_effects_once(
+            key=key, fingerprint=fp,
+            declared_effects=("write:a", "write:b", "write:c"),
+            apply_effect=apply_all,
+        )
+
+tests/sovereignty/test_idempotency.py:880: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:1017: in run_effects_once
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_retry_after_partial_failu0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:12+00:00', 'mode': 'effects'}
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+______ TestRunEffectsOnce.test_effect_applied_then_raises_marks_recovery _______
+
+self = <test_idempotency.TestRunEffectsOnce object at 0x7f68479f9250>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_effect_applied_then_raise0')
+
+    def test_effect_applied_then_raises_marks_recovery(self, tmp_path):
+        """أثرٌ نُفِّذَ ثمّ رفعَ استثناءً = RECOVERY_REQUIRED + pending."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        mutated = []
+    
+        def apply_and_fail(sig: str) -> None:
+            mutated.append(sig)  # الأثرُ طُبِّقَ فعلًا
+            raise RuntimeError("crash after apply")
+    
+>       with pytest.raises(IdempotencyError, match="قيدَ التطبيق"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'قيدَ التطبيق'
+E         Actual message: 'المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.'
+
+tests/sovereignty/test_idempotency.py:899: AssertionError
+_________ TestRunEffectsOnce.test_effects_replay_returns_prior_result __________
+
+self = <test_idempotency.TestRunEffectsOnce object at 0x7f68479fa8a0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_effects_replay_returns_pr0')
+
+    def test_effects_replay_returns_prior_result(self, tmp_path):
+        """تكرارُ آثارٍ ناجحة = إعادة، لا تطبيق."""
+        guard = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        call_count = {"n": 0}
+    
+        def apply(sig: str) -> None:
+            call_count["n"] += 1
+    
+>       guard.run_effects_once(
+            key=key, fingerprint=fp,
+            declared_effects=("write:a", "write:b"),
+            apply_effect=apply,
+        )
+
+tests/sovereignty/test_idempotency.py:936: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:1017: in run_effects_once
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_effects_replay_returns_pr0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:12+00:00', 'mode': 'effects'}
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+______________ TestTransitionLog.test_transitions_are_append_only ______________
+
+self = <test_idempotency.TestTransitionLog object at 0x7f68479fac90>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_transitions_are_append_on0')
+
+    def test_transitions_are_append_only(self, tmp_path):
+        """سجلُّ الانتقالاتِ إضافيّ — لا يُحذف."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+    
+        ledger.reserve(key=key, fingerprint=fp)
+>       ledger.mark_running(key=key)
+
+tests/sovereignty/test_idempotency.py:961: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_transitions_are_append_on0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+__________ TestTransitionLog.test_transitions_include_retry_indicator __________
+
+self = <test_idempotency.TestTransitionLog object at 0x7f68479fb050>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_transitions_include_retry0')
+
+    def test_transitions_include_retry_indicator(self, tmp_path):
+        """الانتقالاتُ تميّزُ المحاولاتِ الأولى من إعادة."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+    
+        ledger.reserve(key=key, fingerprint=fp)
+>       ledger.mark_running(key=key, attempt={"n": 1})
+
+tests/sovereignty/test_idempotency.py:977: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_transitions_include_retry0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = {'n': 1}
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+______________ TestTransitionLog.test_transitions_survive_restart ______________
+
+self = <test_idempotency.TestTransitionLog object at 0x7f68479fb3b0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_transitions_survive_resta0')
+
+    def test_transitions_survive_restart(self, tmp_path):
+        """الانتقالاتُ تبقى على القرصِ بعدَ إعادةِ التشغيل."""
+        ledger1 = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        ledger1.reserve(key=key, fingerprint=fp)
+>       ledger1.mark_running(key=key)
+
+tests/sovereignty/test_idempotency.py:998: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_transitions_survive_resta0/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='tx-001')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:tx-001» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+______ TestOneFIntegration.test_duplicate_retry_does_not_reapply_effects _______
+
+self = <test_idempotency.TestOneFIntegration object at 0x7f68479fb770>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_duplicate_retry_does_not_0')
+
+    def test_duplicate_retry_does_not_reapply_effects(self, tmp_path):
+        """إعادةُ الطلبِ لا تُعيدُ تطبيقَ الأثر — الذرّيّةُ تحمي التنفيذَ المنفذ."""
+        from cryptography.hazmat.primitives.asymmetric import ed25519
+    
+        from core.constitutional_engine.engine import ConstitutionalEngine
+        from core.constitutional_engine.ledger import ConstitutionalLedger
+        from core.sovereignty.contract import (
+            EffectKind,
+            SovereignEffect,
+            bind_contract,
+        )
+        from core.sovereignty.enforcement import (
+            ConsumedPermitLedger,
+            PolicyEnforcementPoint,
+            issue_permit,
+        )
+        from core.sovereignty.gateway import SovereignGateway
+    
+        # بناءُ البوابةِ والمنفّذ
+        gw_ledger = ConstitutionalLedger(tmp_path / "gw.jsonl")
+        gateway = SovereignGateway(ConstitutionalEngine(ledger=gw_ledger))
+        permit_ledger = ConsumedPermitLedger(tmp_path / "permits.json")
+        pep = PolicyEnforcementPoint(
+            verifying_key=ed25519.Ed25519PublicKey.from_public_bytes(
+                bytes.fromhex(gateway.verifying_key_hex)
+            ),
+            consumed=permit_ledger,
+        )
+        guard = _make_guard(tmp_path / "idem")
+    
+        target = "treasury/account-1"
+        effect = SovereignEffect(
+            kind=EffectKind.WRITE,
+            resource=target,
+            detail="خصم",
+            payload_digest="d1",
+        )
+    
+        contract = bind_contract(
+            actor="agent-1",
+            action="transfer",
+            target=target,
+            declared_effects=(effect,)
+        )
+        permit = issue_permit(
+            contract=contract,
+            request_fingerprint="fp-1",
+            decision="ALLOW",
+            ledger_entry_hash=None,
+            private_key=gateway._permit_key,
+        )
+    
+        key = IdempotencyKey(scope="treasury", value=permit.permit_id)
+        fp = compute_fingerprint(
+            scope="treasury",
+            action="transfer",
+            target=target,
+            actor="agent-1",
+            effect_signatures=("WRITE:treasury/account-1",),
+            payload_digest="d1",
+        )
+    
+        effect_apply_count = {"n": 0}
+    
+        def execute() -> str:
+            pep.enforce(
+                permit,
+                planner=lambda p: (effect,),
+                applier=lambda e: effect_apply_count.__setitem__("n", effect_apply_count["n"] + 1),
+            )
+            return "ok"
+    
+>       guard.run_once(key=key, fingerprint=fp, execute=execute)
+
+tests/sovereignty/test_idempotency.py:1080: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_duplicate_retry_does_not_0/idem/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='EP-7d9f13356fd87ec4-1792381932')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:12+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:EP-7d9f13356fd87ec4-1792381932» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+______ TestOneFIntegration.test_duplicate_retry_does_not_reconsume_permit ______
+
+self = <test_idempotency.TestOneFIntegration object at 0x7f68479fbad0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-214/test_duplicate_retry_does_not_1')
+
+    def test_duplicate_retry_does_not_reconsume_permit(self, tmp_path):
+        """إعادةُ الطلبِ لا تُعيدُ استهلاكَ الإذن."""
+        from cryptography.hazmat.primitives.asymmetric import ed25519
+    
+        from core.constitutional_engine.engine import ConstitutionalEngine
+        from core.constitutional_engine.ledger import ConstitutionalLedger
+        from core.sovereignty.contract import (
+            EffectKind,
+            SovereignEffect,
+            bind_contract,
+        )
+        from core.sovereignty.enforcement import (
+            ConsumedPermitLedger,
+            PolicyEnforcementPoint,
+            issue_permit,
+        )
+        from core.sovereignty.gateway import SovereignGateway
+    
+        gw_ledger = ConstitutionalLedger(tmp_path / "gw.jsonl")
+        gateway = SovereignGateway(ConstitutionalEngine(ledger=gw_ledger))
+        permit_ledger = ConsumedPermitLedger(tmp_path / "permits.json")
+        pep = PolicyEnforcementPoint(
+            verifying_key=ed25519.Ed25519PublicKey.from_public_bytes(
+                bytes.fromhex(gateway.verifying_key_hex)
+            ),
+            consumed=permit_ledger,
+        )
+        guard = _make_guard(tmp_path / "idem")
+    
+        target = "treasury/account-1"
+        effect = SovereignEffect(
+            kind=EffectKind.WRITE,
+            resource=target,
+            detail="خصم",
+            payload_digest="d1",
+        )
+    
+        contract = bind_contract(
+            actor="agent-1",
+            action="transfer",
+            target=target,
+            declared_effects=(effect,)
+        )
+        permit = issue_permit(
+            contract=contract,
+            request_fingerprint="fp-1",
+            decision="ALLOW",
+            ledger_entry_hash=None,
+            private_key=gateway._permit_key,
+        )
+    
+        key = IdempotencyKey(scope="treasury", value=permit.permit_id)
+        fp = compute_fingerprint(
+            scope="treasury",
+            action="transfer",
+            target=target,
+            actor="agent-1",
+            effect_signatures=("WRITE:treasury/account-1",),
+            payload_digest="d1",
+        )
+    
+        execute_count = {"n": 0}
+    
+        def execute() -> str:
+            execute_count["n"] += 1
+            pep.enforce(
+                permit,
+                planner=lambda p: (effect,),
+                applier=lambda e: None,
+            )
+            return "ok"
+    
+>       r1 = guard.run_once(key=key, fingerprint=fp, execute=execute)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency.py:1158: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:917: in _run_once_inner
+    self.ledger.mark_running(
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-214/test_duplicate_retry_does_not_1/idem/idempotency.json'))
+key = IdempotencyKey(scope='treasury', value='EP-7d9f13356fd87ec4-1792381932')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>
+attempt = {'started_at': '2026-10-19T03:52:12+00:00'}, result_digest = None
+applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «treasury:EP-7d9f13356fd87ec4-1792381932» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+=========================== short test summary info ============================
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestAppendLogShape::test_each_event_is_one_line
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestAppendLogShape::test_read_after_write_same_instance
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestAppendLogShape::test_replacement_rebuilds_state_regardless_of_size
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCrashSafety::test_torn_tail_is_ignored_and_retried
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCrashSafety::test_atomic_single_line_appends
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCompaction::test_compaction_keeps_all_live_keys
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCompaction::test_log_grows_asymptotically_not_linearly
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestMigration::test_legacy_json_object_is_migrated_once
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestMigration::test_reuse_with_different_fingerprint_still_refused
+FAILED tests/sovereignty/test_idempotency.py::TestLedgerReserve::test_reserve_same_key_different_fingerprint_rejected
+FAILED tests/sovereignty/test_idempotency.py::TestLedgerTransition::test_mark_running
+FAILED tests/sovereignty/test_idempotency.py::TestLedgerTransition::test_mark_succeeded
+FAILED tests/sovereignty/test_idempotency.py::TestLedgerTransition::test_no_transition_from_terminal
+FAILED tests/sovereignty/test_idempotency.py::TestLedgerTransition::test_mark_failed_retryable
+FAILED tests/sovereignty/test_idempotency.py::TestLedgerTransition::test_mark_failed_final
+FAILED tests/sovereignty/test_idempotency.py::TestLedgerTransition::test_mark_interrupted
+FAILED tests/sovereignty/test_idempotency.py::TestLedgerTransition::test_recover_interrupted
+FAILED tests/sovereignty/test_idempotency.py::TestLedgerTransition::test_recover_non_recoverable_rejected
+FAILED tests/sovereignty/test_idempotency.py::TestGuardRunOnce::test_first_execution_succeeds
+FAILED tests/sovereignty/test_idempotency.py::TestGuardRunOnce::test_sequential_duplicate_returns_replay
+FAILED tests/sovereignty/test_idempotency.py::TestGuardRunOnce::test_success_then_retry_no_extra_effect
+FAILED tests/sovereignty/test_idempotency.py::TestGuardRunOnce::test_failed_then_retry_no_double_effect
+FAILED tests/sovereignty/test_idempotency.py::TestGuardRunOnce::test_different_key_different_execution
+FAILED tests/sovereignty/test_idempotency.py::TestGuardRunOnce::test_changed_fingerprint_rejected
+FAILED tests/sovereignty/test_idempotency.py::TestGuardRunOnce::test_cross_scope_key_no_collision
+FAILED tests/sovereignty/test_idempotency.py::TestConcurrency::test_concurrent_duplicate_single_effect
+FAILED tests/sovereignty/test_idempotency.py::TestConcurrency::test_concurrent_different_keys_all_execute
+FAILED tests/sovereignty/test_idempotency.py::TestPersistenceRestart::test_new_ledger_reads_prior_records
+FAILED tests/sovereignty/test_idempotency.py::TestPersistenceRestart::test_new_guard_returns_replay_after_restart
+FAILED tests/sovereignty/test_idempotency.py::TestPersistenceRestart::test_interrupted_record_survives_restart
+FAILED tests/sovereignty/test_idempotency.py::TestExternalEffects::test_external_effect_marked_in_record
+FAILED tests/sovereignty/test_idempotency.py::TestExternalEffects::test_external_effect_retry_no_duplicate
+FAILED tests/sovereignty/test_idempotency.py::TestExternalEffects::test_non_external_not_marked
+FAILED tests/sovereignty/test_idempotency.py::TestAuditTrail::test_record_has_key_and_fingerprint
+FAILED tests/sovereignty/test_idempotency.py::TestAuditTrail::test_record_has_status_and_result
+FAILED tests/sovereignty/test_idempotency.py::TestAuditTrail::test_record_has_timestamps
+FAILED tests/sovereignty/test_idempotency.py::TestAuditTrail::test_record_has_attempt_history
+FAILED tests/sovereignty/test_idempotency.py::TestAuditTrail::test_record_applied_effects_tracked
+FAILED tests/sovereignty/test_idempotency.py::TestAuditTrail::test_replay_does_not_modify_record
+FAILED tests/sovereignty/test_idempotency.py::TestGuardIntegrity::test_ledger_count
+FAILED tests/sovereignty/test_idempotency.py::TestGuardIntegrity::test_ledger_all_records
+FAILED tests/sovereignty/test_idempotency.py::TestGuardIntegrity::test_guard_conflict_on_running
+FAILED tests/sovereignty/test_idempotency.py::TestGuardIntegrity::test_guard_recoverable_then_retry
+FAILED tests/sovereignty/test_idempotency.py::TestRunEffectsOnce::test_all_effects_applied_in_order
+FAILED tests/sovereignty/test_idempotency.py::TestRunEffectsOnce::test_partial_failure_marks_recovery_required
+FAILED tests/sovereignty/test_idempotency.py::TestRunEffectsOnce::test_retry_after_partial_failure_skips_applied_effects
+FAILED tests/sovereignty/test_idempotency.py::TestRunEffectsOnce::test_effect_applied_then_raises_marks_recovery
+FAILED tests/sovereignty/test_idempotency.py::TestRunEffectsOnce::test_effects_replay_returns_prior_result
+FAILED tests/sovereignty/test_idempotency.py::TestTransitionLog::test_transitions_are_append_only
+FAILED tests/sovereignty/test_idempotency.py::TestTransitionLog::test_transitions_include_retry_indicator
+FAILED tests/sovereignty/test_idempotency.py::TestTransitionLog::test_transitions_survive_restart
+FAILED tests/sovereignty/test_idempotency.py::TestOneFIntegration::test_duplicate_retry_does_not_reapply_effects
+FAILED tests/sovereignty/test_idempotency.py::TestOneFIntegration::test_duplicate_retry_does_not_reconsume_permit
+53 failed, 33 passed in 1.70s

@@ -1,0 +1,182 @@
+...F...........FF....................................................... [ 83%]
+..............                                                           [100%]
+=================================== FAILURES ===================================
+____ TestAppendLogShape.test_replacement_rebuilds_state_regardless_of_size _____
+
+self = <test_idempotency_append_log.TestAppendLogShape object at 0x7f3bae35a150>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-212/test_replacement_rebuilds_stat0')
+
+    def test_replacement_rebuilds_state_regardless_of_size(self, tmp_path):
+        """استبدالُ السجلِّ (ضغطٌ بيدِ عمليّةٍ أخرى) يُبطلُ الحالةَ كلَّها مهما كانَ حجمُ الجديدِ.
+    
+        بلا ربطِ الحالةِ بهويّةِ الملفِّ تقعُ القراءةُ من موضعٍ قديمٍ في ملفٍّ
+        جديدٍ أكبرَ — من منتصفِ سطرٍ — فتفسدُ أو تُهمَلُ (W-477 · مراجعةُ المستشارِ § 1).
+        """
+        first = _make_ledger(tmp_path)
+        second = _make_ledger(tmp_path)
+        first.reserve(key=_make_key(0), fingerprint="بصمة-0")
+        assert second.get(_make_key(0)) is not None
+        # الثانيةُ تضغطُ بعدَ 100 مفتاحٍ بمحاولاتِ إعادةٍ — اللقطةُ الناتجةُ أكبرُ
+        # بكثيرٍ من موضعِ الأولى القديمِ (فحجمُ الجديدِ ليسَ حكمًا على الاستبدالِ)
+        for i in range(1, 101):
+>           self._compaction_flow(second, i)
+
+tests/sovereignty/test_idempotency_append_log.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/sovereignty/test_idempotency_append_log.py:113: in _compaction_flow
+    ledger.mark_failed(key=key, reason="عَرَضيّة", retryable=True)
+core/sovereignty/idempotency.py:723: in mark_failed
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-212/test_replacement_rebuilds_stat0/idempotency.json'))
+key = IdempotencyKey(scope='قياس', value='عمليّة-4')
+new_status = <OperationStatus.FAILED_RETRYABLE: 'FAILED_RETRYABLE'>
+attempt = None, result_digest = None, applied_effect_signatures = None
+failure_reason = 'عَرَضيّة', has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «قياس:عمليّة-4» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+______________ TestCompaction.test_compaction_keeps_all_live_keys ______________
+
+self = <test_idempotency_append_log.TestCompaction object at 0x7f3bae32b650>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-212/test_compaction_keeps_all_live0')
+
+    def test_compaction_keeps_all_live_keys(self, tmp_path):
+        """الضغطُ لا يُسقِطُ مفتاحًا حيًّا (الطفرةُ 6) — ويُشغَّلُ فعلًا (الطفرةُ 5)."""
+        ledger = _make_ledger(tmp_path)
+        for i in range(20):
+>           self._retry_flow(ledger, i, events=5)  # 13 حدثًا لكلِّ مفتاحٍ = 260 سطرًا
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency_append_log.py:315: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/sovereignty/test_idempotency_append_log.py:305: in _retry_flow
+    ledger.mark_running(key=key)
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-212/test_compaction_keeps_all_live0/idempotency.json'))
+key = IdempotencyKey(scope='قياس', value='عمليّة-9')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «قياس:عمليّة-9» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+__________ TestCompaction.test_log_grows_asymptotically_not_linearly ___________
+
+self = <test_idempotency_append_log.TestCompaction object at 0x7f3bae32b9e0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-212/test_log_grows_asymptotically_0')
+
+    def test_log_grows_asymptotically_not_linearly(self, tmp_path):
+        """الضغطُ يُهَلِّلُ: الأسطرُ لا تنمو معَ الأحداثِ بل تُعادُ إلى مضاعفِ المفاتيحِ الحيّةِ."""
+        ledger = _make_ledger(tmp_path)
+        total_events = 0
+        for i in range(100):
+>           self._retry_flow(ledger, i, events=10)  # 23 حدثًا لكلِّ مفتاحٍ
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency_append_log.py:333: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/sovereignty/test_idempotency_append_log.py:308: in _retry_flow
+    ledger.mark_running(key=key)
+core/sovereignty/idempotency.py:688: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-212/test_log_grows_asymptotically_0/idempotency.json'))
+key = IdempotencyKey(scope='قياس', value='عمليّة-3')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «قياس:عمليّة-3» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:643: IdempotencyError
+=========================== short test summary info ============================
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestAppendLogShape::test_replacement_rebuilds_state_regardless_of_size
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCompaction::test_compaction_keeps_all_live_keys
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCompaction::test_log_grows_asymptotically_not_linearly
+3 failed, 83 passed in 0.56s

@@ -1,0 +1,39 @@
+..................F..................F.................................. [ 83%]
+..............                                                           [100%]
+=================================== FAILURES ===================================
+______ TestMigration.test_reuse_with_different_fingerprint_still_refused _______
+
+self = <test_idempotency_append_log.TestMigration object at 0x7f01a1099e20>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-210/test_reuse_with_different_fing0')
+
+    def test_reuse_with_different_fingerprint_still_refused(self, tmp_path):
+        """حارسُ الأصلِ لا يتراجعُ: البصمةُ تُفحَصُ في الصيغةِ الجديدةِ كما القديمةِ (الطفرةُ 4)."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+>       with pytest.raises(IdempotencyKeyReuseError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE IdempotencyKeyReuseError
+
+tests/sovereignty/test_idempotency_append_log.py:391: Failed
+____ TestLedgerReserve.test_reserve_same_key_different_fingerprint_rejected ____
+
+self = <test_idempotency.TestLedgerReserve object at 0x7f01a100b1d0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-210/test_reserve_same_key_differen0')
+
+    def test_reserve_same_key_different_fingerprint_rejected(self, tmp_path):
+        """إعادةُ الحجزِ ببصمةٍ مختلفة = إعادةُ استعمالٍ خاطئة."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        fp1 = _make_fingerprint(action="transfer")
+        fp2 = _make_fingerprint(action="deposit")
+        ledger.reserve(key=key, fingerprint=fp1)
+>       with pytest.raises(IdempotencyKeyReuseError, match="بصمةٍ مختلفة"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE IdempotencyKeyReuseError
+
+tests/sovereignty/test_idempotency.py:185: Failed
+=========================== short test summary info ============================
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestMigration::test_reuse_with_different_fingerprint_still_refused
+FAILED tests/sovereignty/test_idempotency.py::TestLedgerReserve::test_reserve_same_key_different_fingerprint_rejected
+2 failed, 84 passed in 1.29s

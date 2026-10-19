@@ -8,13 +8,12 @@
 
 from fastapi.testclient import TestClient
 
-from amos_federation.common.auth import create_access_token
 from amos_federation.services.memory_service.main import app
 
+from .per_test_auth import PerTestAuthHeaders
+
 client = TestClient(app)
-AUTH_HEADERS = {
-    "Authorization": "Bearer " + create_access_token("tester", ["memory:read", "memory:write"])
-}
+AUTH_HEADERS = PerTestAuthHeaders("tester", ["memory:read", "memory:write"])
 
 
 def test_store_and_get_memory() -> None:

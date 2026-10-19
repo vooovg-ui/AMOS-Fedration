@@ -60,18 +60,18 @@
 
 | الإقليم | md | py | yaml | أسطر كود | نوى | بلا ترويسة هوية | حالات النوى |
 |---|---:|---:|---:|---:|---:|---:|---|
-| `core/` | 67 | 42 | 0 | 14995 | 14 | 0 | unspecified=14 |
+| `core/` | 67 | 42 | 0 | 15216 | 14 | 0 | unspecified=14 |
 | `royal/` | 51 | 2 | 1 | 38 | 14 | 0 | unspecified=14 |
-| `federal/` | 60 | 242 | 3 | 67151 | 7 | 0 | unspecified=7 |
+| `federal/` | 60 | 243 | 3 | 67217 | 7 | 0 | unspecified=7 |
 | `states/` | 47 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
 | `institutions/` | 19 | 2 | 0 | 38 | 6 | 0 | unspecified=6 |
 | `agents/` | 601 | 4 | 283 | 532 | 11 | 0 | unspecified=11 |
 | `tools/` | 43 | 54 | 2 | 17995 | 12 | 0 | unspecified=12 |
 | `interfaces/` | 14 | 2 | 0 | 38 | 4 | 0 | unspecified=4 |
 | `runtime/` | 20 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
-| `docs/` | 152 | 6 | 0 | 540 | 7 | 0 | unspecified=7 |
+| `docs/` | 160 | 9 | 0 | 743 | 7 | 0 | unspecified=7 |
 | `ops/` | 38 | 2 | 0 | 38 | 12 | 0 | unspecified=12 |
-| `tests/` | 14 | 107 | 0 | 28791 | 5 | 0 | unspecified=5 |
+| `tests/` | 14 | 108 | 0 | 29114 | 5 | 0 | unspecified=5 |
 
 ---
 
@@ -141,12 +141,12 @@
 | `federal/executive/services/tests/test_inmemory_stores.py:244` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryToolStore` يُستخدم كمصدر حقيقة |
 | `federal/executive/services/tests/test_inmemory_stores.py:250` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryToolStore` يُستخدم كمصدر حقيقة |
 | `federal/executive/services/tests/test_inmemory_stores.py:264` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryToolStore` يُستخدم كمصدر حقيقة |
-| `federal/executive/services/tests/test_training.py:12` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
-| `federal/executive/services/tests/test_training.py:68` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
-| `federal/executive/services/tests/test_training.py:77` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
-| `federal/executive/services/tests/test_training.py:86` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
-| `federal/executive/services/tests/test_training.py:98` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
-| `federal/executive/services/tests/test_training.py:110` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
+| `federal/executive/services/tests/test_training.py:11` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
+| `federal/executive/services/tests/test_training.py:67` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
+| `federal/executive/services/tests/test_training.py:76` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
+| `federal/executive/services/tests/test_training.py:85` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
+| `federal/executive/services/tests/test_training.py:97` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
+| `federal/executive/services/tests/test_training.py:109` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
 
 ### إعلاناتُ «ليست سرًّا» الصريحة (7)
 

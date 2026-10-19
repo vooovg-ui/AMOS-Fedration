@@ -8,7 +8,6 @@
 
 from fastapi.testclient import TestClient
 
-from amos_federation.common.auth import create_access_token
 from amos_federation.common.persistent import PersistentAuditStore
 from amos_federation.services.governance.canary import (
     activate_kill_switch,
@@ -24,16 +23,15 @@ from amos_federation.services.governance.policy_engine import (
     get_policy_engine,
 )
 
-AUTH_HEADERS = {
-    "Authorization": "Bearer "
-    + create_access_token(
-        "tester",
-        [
-            "governance:read",
-            "governance:write",
-        ],
-    )
-}
+from .per_test_auth import PerTestAuthHeaders
+
+AUTH_HEADERS = PerTestAuthHeaders(
+    "tester",
+    [
+        "governance:read",
+        "governance:write",
+    ],
+)
 client = TestClient(app)
 
 

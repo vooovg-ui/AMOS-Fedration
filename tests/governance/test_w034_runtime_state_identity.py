@@ -94,11 +94,17 @@ def test_consumed_permit_ledger_stamps_purpose_and_writes_card(tmp_path: Path) -
 
 
 def test_idempotency_ledger_stamps_purpose_and_writes_card(tmp_path: Path) -> None:
-    """سجلُّ الذرّيّةِ: الوسمُ نفسُه بالكاتبِ نفسِه لا بنسخةٍ ثانيةٍ من المنطق."""
+    """سجلُّ الذرّيّةِ: الوسمُ نفسُه بالكاتبِ نفسِه لا بنسخةٍ ثانيةٍ من المنطق.
+
+    الصيغةُ الإلحاقيّةُ (WI-096): الترويسةُ سطرُها الأولُ — حدثٌ لا يُعدُّ.
+    """
     ledger = IdempotencyLedger(path=tmp_path / "state" / "idempotency.json")
     ledger.reserve(key=IdempotencyKey("قياس", "عمليّة-1"), fingerprint="بصمة-1")
 
-    raw = json.loads((tmp_path / "state" / "idempotency.json").read_text(encoding="utf-8"))
+    first_line = (tmp_path / "state" / "idempotency.json").read_text(
+        encoding="utf-8"
+    ).splitlines()[0]
+    raw = json.loads(first_line)
     assert "الهدف:" in raw[IDENTITY_KEY]
     assert (tmp_path / "state" / "README.md").exists()
 

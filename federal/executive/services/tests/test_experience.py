@@ -8,14 +8,12 @@
 
 from fastapi.testclient import TestClient
 
-from amos_federation.common.auth import create_access_token
 from amos_federation.services.evaluation.main import app
 
+from .per_test_auth import PerTestAuthHeaders
+
 client = TestClient(app)
-AUTH_HEADERS = {
-    "Authorization": "Bearer "
-    + create_access_token("tester", ["experience:read", "experience:write"])
-}
+AUTH_HEADERS = PerTestAuthHeaders("tester", ["experience:read", "experience:write"])
 
 
 def test_record_and_get_experience() -> None:
