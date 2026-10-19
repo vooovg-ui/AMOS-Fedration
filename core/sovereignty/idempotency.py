@@ -279,6 +279,8 @@ APPEND_LOG_VERSION: Final[int] = 1
 COMPACTION_FACTOR: Final[int] = 4
 #: حدٌّ أدنى لعددِ السطورِ قبلَ الضغطِ — لا ضغطَ لسجلٍّ صغيرٍ فلا معنى لتحسينِ ما لا يثقلُ
 COMPACTION_MIN_LINES: Final[int] = 64
+#: عملياتُ السجلِّ المعلومةُ — ما سواها في سطرٍ كاملٍ تلفٌ يُرفَعُ لا يُتجاوَزُ
+KNOWN_EVENT_OPS: Final[frozenset[str]] = frozenset({"reserve", "transition", "recover", "state"})
 
 
 @dataclass(slots=True)
@@ -306,6 +308,8 @@ class IdempotencyLedger:
     )
     #: موضعُ آخرِ سطرٍ سليمٍ بالبايتاتِ — ما بعدهُ يُعادُ قراءتُه تزايديًّا
     _offset: int = field(default=0, init=False, repr=False, compare=False)
+    #: هويّةُ الملفِّ الذي بُنيت منه الحالةُ — استبدالُه يُبطلُ الحالةَ كلَّها
+    _identity: tuple[int, int] | None = field(default=None, init=False, repr=False, compare=False)
     #: عددُ أسطرِ الأحداثِ منذَ آخرِ ضغطٍ — وقودُ قرارِ الضغطِ الدوريِّ (§ 2.3)
     _lines: int = field(default=0, init=False, repr=False, compare=False)
     #: مقبضُ الإلحاقِ — يُفتحُ مرةً ويُستبدَلُ عندَ الضغطِ أو الترحيلِ
@@ -420,14 +424,30 @@ class IdempotencyLedger:
         """طبِّقْ ما جَدَّ في السجلِّ منذَ آخرِ موضعٍ سليمٍ — تزايديًّا (§ 2.1).
 
         السطرُ الذيليُّ الممزّقُ (لا `\\n` في آخرِهِ) يُهمَلُ الآنَ ويُعادُ قِراءتُه
-        لاحقًا؛ والسطرُ **الكاملُ** الذي لا يُوزَنُ JSON يُرفَعُ صريحًا لا يُبتلَعُ.
+        لاحقًا — **إلّا إن كان أوّلَ سطرٍ في السجلِّ** فالترويسةُ سطرٌ تامٌّ لا
+        يُولَدُ سجلٌّ شرعيٌّ بلاها، فبدايةٌ ممزّقةٌ تلفٌ يُرفَعُ. والسطرُ الكاملُ
+        الذي لا يُوزَنُ JSON — أو يزنُ حدثًا مجهولَ الإصدارِ أو العمليةِ أو
+        الترميزِ — يُرفَعُ صريحًا لا يُبتلَعُ ولا يُتجاوَزُ.
+
+        والحالةُ والموضعُ مرتبطانِ **بهويّةِ الملفِّ** لا بحجمِهِ وحدَهُ: فلو
+        ضغطَتْ أو رحّلتْ عمليّةٌ أخرى السجلَّ (استبدالٌ بـ`os.replace`) كانَ
+        الجديدُ أصغرَ أو أكبرَ — فأيُّ موضعٍ قديمٍ في ملفٍّ جديدٍ قراءةٌ من
+        منتصفِ سطرٍ، فالاستبدالُ يُبطلُ الحالةَ كلَّها ويُعيدُ البناءَ.
         """
         stat = self.path.stat() if self.path.exists() else None
         if stat is None:
             return  # لا ملفَّ بعدُ: لا جديدَ يُطبَّقُ — غيابٌ طبيعيٌّ لا فشلٌ
+        identity = (stat.st_dev, stat.st_ino)
+        if self._identity is not None and identity != self._identity:
+            # استُبدِلَ الملفُّ (ضغطٌ أو ترحيلٌ بيدِ عمليّةٍ أخرى): الحالةُ
+            # والموضعُ مرتبطانِ بهويّةِ الملفِّ — فالبناءُ من الصفرِ مهما كانَ الحجمُ
+            self._state.clear()
+            self._lines = 0
+            self._offset = 0
+        self._identity = identity
         size = stat.st_size
         if size < self._offset:
-            # السجلُ ضُغِطَ بيدِ عمليّةٍ أخرى (استُبدِلَ بأصغرَ): أَعِدْ البناءَ من الصفرِ
+            # قُصَّ الملفُّ (ذيلٌ ممزّقٌ بيدِ عمليّةٍ أخرى): أَعِدْ البناءَ من الصفرِ
             self._state.clear()
             self._lines = 0
             self._offset = 0
@@ -439,11 +459,23 @@ class IdempotencyLedger:
         if not chunk:
             return
         position = 0
+        building_from_scratch = self._offset == 0
         for raw_line in chunk.split(b"\n"):
             if position + len(raw_line) + 1 > len(chunk):
+                if building_from_scratch:
+                    # بدايةُ السجلِّ نفسِها ممزّقةٌ: لا ترويسةَ سليمةً ⇒ ملفٌّ
+                    # تالفٌ لا سجلٌّ شرعيٌّ — حارسُ الأصلِ لا يُخفَّفُ
+                    raise IdempotencyError(
+                        f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."
+                    )
                 break  # ذيلٌ ممزّقٌ: لا `\\n` — يُهمَلُ ويُعادُ قِراءتُه لاحقًا
             position += len(raw_line) + 1
-            text = raw_line.decode("utf-8", errors="replace").strip()
+            try:
+                text = raw_line.decode("utf-8").strip()
+            except UnicodeDecodeError as exc:
+                raise IdempotencyError(
+                    f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."
+                ) from exc
             if not text:
                 continue
             try:
@@ -452,10 +484,28 @@ class IdempotencyLedger:
                 raise IdempotencyError(
                     f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."
                 ) from exc
-            if isinstance(event, dict) and "key" in event and "record" in event:
-                self._state[str(event["key"])] = event["record"]
-                self._lines += 1
-            # ترويسةُ الهدفِ (`$comment`) ليست حدثًا فلا تُعدُّ ولا تُطبَّقُ
+            if isinstance(event, dict) and IDENTITY_KEY in event:
+                # ترويسةُ الهدفِ — يجبُ أن تكونَ أوّلَ سطرٍ في كلِّ سجلٍّ شرعيٍّ
+                if not building_from_scratch or "record" in event or "key" in event:
+                    raise IdempotencyError(
+                        f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."
+                    )
+                building_from_scratch = False
+                continue
+            if (
+                not isinstance(event, dict)
+                or "record" not in event
+                or "key" not in event
+                or event.get("v") != APPEND_LOG_VERSION
+                or event.get("op") not in KNOWN_EVENT_OPS
+                or building_from_scratch  # أوّلُ سطرٍ ليسَ الترويسةَ — ليسَ سجلًّا شرعيًّا
+            ):
+                raise IdempotencyError(
+                    f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءةُه."
+                )
+            building_from_scratch = False
+            self._state[str(event["key"])] = event["record"]
+            self._lines += 1
         self._offset += position
 
     def _append_event(self, *, op: str, rkey: str, data: dict[str, Any]) -> None:
@@ -494,8 +544,14 @@ class IdempotencyLedger:
         return key.composite
 
     def get(self, key: IdempotencyKey) -> IdempotencyRecord | None:
-        """اقرأْ سجلًا — بعدَ مزامنةٍ تزايديّةٍ لما جَدَّ في السجلِّ."""
-        with self._lock:
+        """اقرأْ سجلًا — بعدَ مزامنةٍ تزايديّةٍ لما جَدَّ في السجلِّ.
+
+        القراءةُ تحتَ قفلِ العمليّةِ أيضاً: فالفتحُ قد يُرحِّلُ (استبدالٌ
+        بـ`os.replace`) وقارئٌ يُرحِّلُ خارجَ القفلِ قد يمحو حدثاً أقرَّهُ
+        كاتبٌ متزامنٌ — فالترحيلُ والإنشاءُ والمزامنةُ كلُّها بروتوكولُ
+        القفلِ نفسِهِ (W-477 · مراجعةُ المستشارِ § 2).
+        """
+        with self._lock, self._file_lock():
             self._ensure_open()
             self._sync()
             data = self._state.get(self._record_key(key))
@@ -693,13 +749,13 @@ class IdempotencyLedger:
             return record
 
     def count(self) -> int:
-        with self._lock:
+        with self._lock, self._file_lock():
             self._ensure_open()
             self._sync()
             return len(self._state)
 
     def all_records(self) -> list[IdempotencyRecord]:
-        with self._lock:
+        with self._lock, self._file_lock():
             self._ensure_open()
             self._sync()
             return [IdempotencyRecord.from_dict(v) for v in self._state.values()]

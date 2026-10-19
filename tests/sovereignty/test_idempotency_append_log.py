@@ -83,6 +83,37 @@ class TestAppendLogShape:
         first.reserve(key=key, fingerprint="بصمة-1")
         assert second.get(key) is not None, "المزامنةُ التزايديّةُ لم ترَ حدثَ الأخرى"
 
+    def test_replacement_rebuilds_state_regardless_of_size(self, tmp_path):
+        """استبدالُ السجلِّ (ضغطٌ بيدِ عمليّةٍ أخرى) يُبطلُ الحالةَ كلَّها مهما كانَ حجمُ الجديدِ.
+
+        بلا ربطِ الحالةِ بهويّةِ الملفِّ تقعُ القراءةُ من موضعٍ قديمٍ في ملفٍّ
+        جديدٍ أكبرَ — من منتصفِ سطرٍ — فتفسدُ أو تُهمَلُ (W-477 · مراجعةُ المستشارِ § 1).
+        """
+        first = _make_ledger(tmp_path)
+        second = _make_ledger(tmp_path)
+        first.reserve(key=_make_key(0), fingerprint="بصمة-0")
+        assert second.get(_make_key(0)) is not None
+        # الثانيةُ تضغطُ بعدَ 100 مفتاحٍ بمحاولاتِ إعادةٍ — اللقطةُ الناتجةُ أكبرُ
+        # بكثيرٍ من موضعِ الأولى القديمِ (فحجمُ الجديدِ ليسَ حكمًا على الاستبدالِ)
+        for i in range(1, 101):
+            self._compaction_flow(second, i)
+        assert second.count() == 101
+        # الأولى يجبُ أن ترى كلَّ المفاتيحِ بعدَ الاستبدالِ (بناءٌ من الصفرِ بالهويّةِ)
+        assert first.count() == 101, "استبدالُ السجلِّ لم يُبطلْ حالةَ النسخةِ المتأخّرةِ"
+        for i in range(1, 101):
+            assert first.get(IdempotencyKey("قياس", f"عمليّة-{i}")) is not None
+
+    @staticmethod
+    def _compaction_flow(ledger: IdempotencyLedger, i: int) -> None:
+        """تدفّقٌ يُنتجُ 17 حدثًا فوقَ مفتاحٍ واحدٍ — يُشعلُ الضغطَ بثباتٍ."""
+        key = IdempotencyKey("قياس", f"عمليّة-{i}")
+        ledger.reserve(key=key, fingerprint=f"بصمة-{i}")
+        ledger.mark_running(key=key)
+        for _ in range(7):
+            ledger.mark_failed(key=key, reason="عَرَضيّة", retryable=True)
+            ledger.mark_running(key=key)
+        ledger.mark_succeeded(key=key, result_digest="هاش")
+
 
 # ── § 2.2: الذرّةُ والتحطّمُ الآمنُ ──────────────────────────────────────────
 
@@ -177,10 +208,10 @@ class TestCompaction:
         """الضغطُ لا يُسقِطُ مفتاحًا حيًّا (الطفرةُ 6) — ويُشغَّلُ فعلًا (الطفرةُ 5)."""
         ledger = _make_ledger(tmp_path)
         for i in range(20):
-            self._retry_flow(ledger, i, events=5)  # 5 أحداثٍ لكلِّ مفتاحٍ = 100 سطرٍ
-        # 100 سطرٍ ≥ عتبةِ 4×20 ⇒ ضغطٌ وقعَ: عددُ الأسطرِ دونَ عددِ الأحداثِ
+            self._retry_flow(ledger, i, events=5)  # 13 حدثًا لكلِّ مفتاحٍ = 260 سطرًا
+        # 260 سطرًا ≥ عتبةِ 4×20 ⇒ ضغطٌ وقعَ: عددُ الأسطرِ دونَ عددِ الأحداثِ
         lines = len(ledger.path.read_text(encoding="utf-8").splitlines())
-        assert lines < 20 * 5, "الضغطُ لم يُشغَّلْ بعدَ تجاوزِ العتبةِ (الطفرةُ 5)"
+        assert lines < 20 * 13, "الضغطُ لم يُشغَّلْ بعدَ تجاوزِ العتبةِ (الطفرةُ 5)"
         assert ledger.count() == 20, "الضغطُ أسقطَ مفاتيحَ حيّةً (الطفرةُ 6)"
         # المفاتيحُ على **القرصِ** لا في الذاكرةِ وحدَها: نسخةٌ جديدةٌ تُعيدُ
         # البناءَ منَ السجلِّ فتُثبِتُ أنَّ الضغطَ لم يُسقِطْ شيئًا (الطفرةُ 6)
@@ -195,8 +226,8 @@ class TestCompaction:
         ledger = _make_ledger(tmp_path)
         total_events = 0
         for i in range(100):
-            self._retry_flow(ledger, i, events=10)  # 10 أحداثٍ لكلِّ مفتاحٍ
-            total_events += 10
+            self._retry_flow(ledger, i, events=10)  # 23 حدثًا لكلِّ مفتاحٍ
+            total_events += 23
         final_lines = len(ledger.path.read_text(encoding="utf-8").splitlines())
         # ثابتُ الثباتِ: بعدَ كلِّ إلحاقٍ يُفحَصُ الضغطُ فلا يزيدُ الأسطرُ على 4× الحيِّ
         assert final_lines <= 4 * ledger.count() + 1, "الضغطُ لا يضبطُ النموَّ (الطفرةُ 5)"
