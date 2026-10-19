@@ -1,0 +1,2 @@
+6aba6e58ea5030e6ffcf2979b11d1b021a256b23870f4ad11af6d0c98c1e309e  docs/governance/COUNCIL_BRIEF_TEMPLATE.md
+10f1a6d2bc04e0060fd7aa6fb9b4e4d0b4e0ad5c6032ef745b0c764088ae2d92  docs/governance/COUNCIL_PROTOCOL.md
