@@ -68,36 +68,52 @@ MUTATIONS = {
 }
 
 
-def run_suite() -> subprocess.CompletedProcess:
-    return subprocess.run(
-        [sys.executable, '-m', 'pytest', *TESTS, '-q', '--no-header'],
+def run_suite() -> tuple[subprocess.CompletedProcess, Path]:
+    """جولةٌ بتقريرِ JUnit XML منظَّمٍ — الحكمُ من التقريرِ لا من نثرِ المخرجِ."""
+    report = OUT_DIR / f'_junit_{len(list(OUT_DIR.glob("junit_*.xml")))}.xml'
+    run = subprocess.run(
+        [
+            sys.executable, '-m', 'pytest', *TESTS, '-q', '--no-header',
+            f'--junitxml={report}',
+        ],
         cwd=REPO, capture_output=True, text=True, timeout=600,
     )
+    return run, report
 
 
-def parse_outcome(out: str) -> dict:
-    """ملخصُ الجولةِ: فشلٌ فعليٌّ أم خطأُ جمعٍ أم نجاحٌ — لا نكتفِ بخروجٍ غيرِ صفريٍّ."""
-    failed = len(re.findall(r'^FAILED ', out, re.M))
-    errors = len(re.findall(r'^ERROR ', out, re.M))
-    collection_errors = len(re.findall(r'error[sd]? during collection', out, re.I))
+def parse_outcome(report: Path) -> dict:
+    """الحكمُ من تقريرِ JUnit XML المنظَّمِ (مراجعةُ المستشارِ الثالثةِ § 4).
+
+    القتلُ = خروجُ pytest **1** تحديدًا (فشلُ فحوصٍ) + فحصٌ فاشلٌ واحدٌ على
+    الأقلَّ + صفرُ أخطاءِ جمعٍ/تهيئةٍ — كلُّها من أعدادِ `<testsuite>` لا من نثرِ
+    المخرجِ النصيِّ.
+    """
+    import xml.etree.ElementTree as ET
+
+    suite = ET.parse(report).getroot()  # <testsuites> أو <testsuite>
+    testsuites = [suite] if suite.tag == 'testsuite' else list(suite.findall('testsuite'))
+    failures = sum(int(ts.get('failures', 0)) for ts in testsuites)
+    errors = sum(int(ts.get('errors', 0)) for ts in testsuites)
     return {
-        'failed_tests': failed,
+        'failures': failures,
         'errors': errors,
-        'collection_errors': collection_errors,
-        'killed': failed > 0 and errors == 0 and collection_errors == 0,
+        'killed': failures > 0 and errors == 0,
     }
 
 
 def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    for stale in OUT_DIR.glob('junit_*.xml'):
+        stale.unlink()  # تقاريرُ الجولةِ السابقةِ لا تُختلطُ بهذهِ
     original = MODULE.read_text(encoding='utf-8')
     results = {}
     try:
         # خطُ الأساسِ: جولةٌ خضراءٌ موثَّقةٌ قبلَ أيِّ طفرةٍ (مراجعةُ المستشارِ § 3)
-        baseline = run_suite()
+        baseline, baseline_report = run_suite()
         (OUT_DIR / 'baseline.txt').write_text(baseline.stdout, encoding='utf-8')
-        base = parse_outcome(baseline.stdout)
-        assert baseline.returncode == 0 and not base['failed_tests'] and not base['errors'], (
+        (OUT_DIR / 'baseline.stderr.txt').write_text(baseline.stderr, encoding='utf-8')
+        base = parse_outcome(baseline_report)
+        assert baseline.returncode == 0 and base['failures'] == 0 and base['errors'] == 0, (
             'خطُ الأساسِ ليسَ أخضرَ — لا معنى لحصادِ طفراتٍ فوقَ أرضٍ حمراءَ: '
             + baseline.stdout[-300:]
         )
@@ -105,20 +121,33 @@ def main() -> None:
         for name, (old, new) in MUTATIONS.items():
             assert old in original, f'{name}: المرساةُ غيرُ موجودةٍ'
             MODULE.write_text(original.replace(old, new), encoding='utf-8')
-            run = run_suite()
+            run, report = run_suite()
             (OUT_DIR / f"{OUT_NAMES[name]}.txt").write_text(run.stdout, encoding='utf-8')
-            outcome = parse_outcome(run.stdout)
+            (OUT_DIR / f"{OUT_NAMES[name]}.stderr.txt").write_text(run.stderr, encoding='utf-8')
+            outcome = parse_outcome(report)
             outcome['exit_code'] = run.returncode
+            outcome['exit_code_is_test_failure'] = run.returncode == 1
             killing = re.findall(r'^FAILED (\S+)', run.stdout, re.M)
             outcome['killed_by'] = killing[:5]
+            outcome['killed'] = outcome['killed'] and run.returncode == 1
             results[name] = outcome
             print(
                 ('قتلتها ' if outcome['killed'] else 'نجت !!!')
-                + f" — {name}: failed={outcome['failed_tests']}"
+                + f" — {name}: failures={outcome['failures']}"
                 + f" errors={outcome['errors']} القاتلُ={killing[0] if killing else '—'}"
             )
     finally:
         MODULE.write_text(original, encoding='utf-8')  # يُستعادُ دائمًا
+        # جولةٌ خضراءُ بعدَ الاستعادةِ — الشِفرةُ عادَت سليمةً والقياسُ موثَّقٌ
+        restored, restored_report = run_suite()
+        (OUT_DIR / 'restored.txt').write_text(restored.stdout, encoding='utf-8')
+        (OUT_DIR / 'restored.stderr.txt').write_text(restored.stderr, encoding='utf-8')
+        restored_outcome = parse_outcome(restored_report)
+        print(
+            'بعدَ الاستعادةِ: '
+            + ('أخضرُ' if restored.returncode == 0 and restored_outcome['failures'] == 0 else 'أحمرُ !!!')
+            + f" ({restored_outcome})"
+        )
 
     out = MODULE.parent.parent.parent / 'docs/audit/evidence/W-471/mutation_kills.json'
     data = json.loads(out.read_text(encoding='utf-8'))

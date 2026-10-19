@@ -281,6 +281,11 @@ COMPACTION_FACTOR: Final[int] = 4
 COMPACTION_MIN_LINES: Final[int] = 64
 #: عملياتُ السجلِّ المعلومةُ — ما سواها في سطرٍ كاملٍ تلفٌ يُرفَعُ لا يُتجاوَزُ
 KNOWN_EVENT_OPS: Final[frozenset[str]] = frozenset({"reserve", "transition", "recover", "state"})
+#: حقولُ عقدِ `IdempotencyRecord` الواجبةُ في سجلِ كلِّ حدثٍ (from_dict يطلبها) —
+#: قاموسٌ بلاها كالمعدومِ (W-490 · مراجعةُ المستشارِ الثالثةِ § 2)
+_RECORD_REQUIRED_FIELDS: Final[frozenset[str]] = frozenset(
+    {"scope", "value", "fingerprint", "status", "reserved_at"}
+)
 
 
 @dataclass(slots=True)
@@ -369,19 +374,24 @@ class IdempotencyLedger:
         """ترحيلٌ تلقائيٌّ مرةً واحدةً: ملفُّ JSON كائنٍ ← سجلٌّ إلحاقيٌّ (§ 2.4)."""
         if not self.path.exists():
             return
+        # كشفُ الصيغةِ من البايتاتِ قبلَ فكِّ ترميزِ الملفِّ كلِّهِ (W-490 · مراجعةُ
+        # المستشارِ الثالثةِ § 1): فكُّ الملفِّ كنصٍّ قبلَ تحديدِ الصيغةِ يُسقطُ
+        # ذيلًا مشروعًا انقطعَ وسطَ محرفٍ متعددِ البايتاتِ (عربيٍّ مثلًا) — فالذيلُ
+        # الممزّقُ داخلَ سجلٍّ شرعيٍّ يُتسامَحُ معَهُ في `_sync` لا يُرفَعُ قبلَ بلوغِهِ.
+        # الصيغةُ القديمةُ كائنٌ واحدٌ متعدّدُ الأسطرِ: `json.dumps(..., indent=2)`
+        # يفتتحُ الملفَ بـ«{\n» بايتاتٍ — أما السجلُّ الإلحاقيُّ فأوّلُ سطرِهِ كائنٌ
+        # تامٌّ على سطرٍ واحدٍ. ما ليسَ كائنًا متعدّدَ الأسطرِ ليسَ قديمًا فلا
+        # يُهاجَرْ — والتلفُ يُكشَفُ ويُرفَعُ في `_sync` عندَ قراءةِ السطرِ الكاملِ.
+        raw_bytes = self.path.read_bytes()
+        if not raw_bytes.startswith(b"{\n"):
+            return  # ليسَ قديمًا: `_sync` يقرأهُ سطرًا سطرًا (والذيلُ الممزّقُ يُتسامَحُ)
         try:
-            text = self.path.read_text(encoding="utf-8")
+            text = raw_bytes.decode("utf-8")
         except UnicodeDecodeError as exc:
-            # ترميزٌ فاسدٌ = تلفٌ يُرفَعُ صريحًا — لا استبدالَ حرفٍ صامتًا (W-489 § 2)
+            # ترميزٌ فاسدٌ في ملفٍّ قديمِ الصيغةِ = تلفٌ يُرفَعُ صريحًا (W-489 § 2)
             raise IdempotencyError(
                 f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."
             ) from exc
-        # الصيغةُ القديمةُ كائنٌ واحدٌ متعدّدُ الأسطرِ: `json.dumps(..., indent=2)`
-        # يفتتحُ الملفَ بـ«{\n» حرفًا — أما السجلُّ الإلحاقيُّ فأوّلُ سطرِهِ كائنٌ
-        # تامٌّ على سطرٍ واحدٍ. ما ليسَ كائنًا متعدّدَ الأسطرِ ليسَ قديمًا فلا
-        # يُهاجَرْ — والتلفُ يُكشَفُ ويُرفَعُ في `_sync` عندَ قراءةِ السطرِ الكاملِ.
-        if not text.startswith("{\n"):
-            return
         try:
             raw = json.loads(text)
         except ValueError as exc:
@@ -502,6 +512,7 @@ class IdempotencyLedger:
                 not isinstance(event, dict)
                 or "record" not in event
                 or not isinstance(event["record"], dict)  # سجلٌّ معدومٌ = تلفٌ لا فقدٌ صامتٌ
+                or not _RECORD_REQUIRED_FIELDS <= set(event["record"])  # قاموسٌ بلا عقدِ السجلِ = كالمعدومِ
                 or "key" not in event
                 or event.get("v") != APPEND_LOG_VERSION
                 or event.get("op") not in KNOWN_EVENT_OPS

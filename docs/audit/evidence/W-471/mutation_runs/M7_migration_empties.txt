@@ -1,10 +1,10 @@
-...............F........................................................ [ 85%]
-............                                                             [100%]
+.................F...................................................... [ 83%]
+..............                                                           [100%]
 =================================== FAILURES ===================================
 ____________ TestMigration.test_legacy_json_object_is_migrated_once ____________
 
-self = <test_idempotency_append_log.TestMigration object at 0x7f52cde4ab40>
-tmp_path = PosixPath('/tmp/pytest-of-user/pytest-193/test_legacy_json_object_is_mig0')
+self = <test_idempotency_append_log.TestMigration object at 0x7fdf7dd32780>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-213/test_legacy_json_object_is_mig0')
 
     def test_legacy_json_object_is_migrated_once(self, tmp_path):
         """ملفُّ الصيغةِ القديمةِ (JSON كائنٍ) يُرحَّلُ تلقائيًّا وسجلّاتُهُ لا تضيعُ (الطفرةُ 7)."""
@@ -42,7 +42,7 @@ tmp_path = PosixPath('/tmp/pytest-of-user/pytest-193/test_legacy_json_object_is_
 E       AssertionError: الترحيلُ محا السجلَّ القديمَ (الطفرةُ 7)
 E       assert None is not None
 
-tests/sovereignty/test_idempotency_append_log.py:337: AssertionError
+tests/sovereignty/test_idempotency_append_log.py:377: AssertionError
 =========================== short test summary info ============================
 FAILED tests/sovereignty/test_idempotency_append_log.py::TestMigration::test_legacy_json_object_is_migrated_once
-1 failed, 83 passed in 1.35s
+1 failed, 85 passed in 1.29s

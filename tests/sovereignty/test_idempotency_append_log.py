@@ -178,6 +178,46 @@ class TestCrashSafety:
         with pytest.raises(IdempotencyError, match="تالف"):
             _make_ledger(tmp_path).get(key)
 
+    def test_empty_record_rejected(self, tmp_path):
+        """حدثٌ تامُّ البنيةِ بسجلٍّ قاموسٍ فارغٍ = تلفٌ يُرفَعُ لا فقدٌ صامتٌ (W-490 § 2).
+
+        `get` يعيدُ None للقيمِ الكاذبةِ فكانَ القاموسُ الفارغُ يمرُّ كالسجلِ
+        المعدومِ تمامًا — عقدُ `IdempotencyRecord` (حقولُه الواجبةُ) هوَ الفيصلُ.
+        """
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+        lines = ledger.path.read_text(encoding="utf-8").splitlines(keepends=True)
+        event = json.loads(lines[1])
+        event["record"] = {}
+        lines[1] = json.dumps(event, ensure_ascii=False) + "\n"
+        ledger.path.write_text("".join(lines), encoding="utf-8")
+        with pytest.raises(IdempotencyError, match="تالف"):
+            _make_ledger(tmp_path).get(key)
+
+    def test_torn_tail_mid_utf8_char_recovered(self, tmp_path):
+        """ذيلٌ ممزّقٌ داخلَ محرفٍ عربيٍّ ناقصِ البايتاتِ = تُستعادُ الحالةُ ويُلحَقُ فوقَهُ (W-490 § 1).
+
+        كشفُ صيغةِ الترحيلِ من البايتاتِ (لا فكِّ الملفِّ كلِّهِ) شرطُ هذا: فكُّ
+        النصِّ قبلَ تحديدِ الصيغةِ كانَ يُسقطُ السجلَّ الشرعيَّ كلهُ لذيلٍ مشروعٍ
+        انقطعَ وسطَ محرفٍ متعددِ البايتاتِ.
+        """
+        ledger = _make_ledger(tmp_path)
+        key = _make_key(0)
+        ledger.reserve(key=key, fingerprint="بصمة-0")
+        # ذيلٌ ممزّقٌ ينتهي وسطَ محرفٍ عربيٍّ (البايتانِ الأولانِ من «ص» ثلاثيِّ البايتاتِ)
+        with open(ledger.path, "ab") as stream:
+            stream.write(b'{"v": 1, "op": "transition", "key": "\xd8\xb5')
+        # نسخةٌ فتيّةٌ: تستعيدُ الحالةَ السليمةَ وتتجاهلُ الذيلَ الممزّقَ
+        fresh = _make_ledger(tmp_path)
+        record = fresh.get(key)
+        assert record is not None, "الذيلُ الممزّقُ أسقطَ الحالةَ السليمةَ"
+        # ثمَّ الإلحاقُ فوقَهُ وإعادةُ القراءةِ من القرصِ
+        key2 = _make_key(1)
+        fresh.reserve(key=key2, fingerprint="بصمة-2")
+        reread = _make_ledger(tmp_path)
+        assert reread.get(key) is not None and reread.get(key2) is not None
+
     def test_null_record_rejected(self, tmp_path):
         """حدثٌ تامُّ البنيةِ بترويسةٍ وإصدارٍ وعمليةٍ لكنَّ سجلَّه معدومٌ = تلفٌ يُرفَعُ لا فقدٌ صامتٌ (W-489 § 2)."""
         ledger = _make_ledger(tmp_path)

@@ -8,12 +8,11 @@
 
 from datetime import UTC, datetime, timedelta
 
-import jwt
 import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
-from amos_federation.common.auth import _signing_secret, decode_token, settings
+from amos_federation.common.auth import decode_token
 from amos_federation.services.critic.main import app
 
 from .per_test_auth import PerTestAuthHeaders
@@ -59,34 +58,64 @@ def _poor_review_request() -> dict:
     }
 
 
-def test_wi097_expired_token_rejected_fresh_headers_accepted() -> None:
-    """WI-097 (T0 · فحصُ الساعةِ المضبوطةِ): الرمزُ المنتهي يُرفضُ (401) والترويساتُ الفتيّةُ تُقبلُ — بلا تغييرِ عمرِ الرمزِ.
+def test_wi097_clock_controlled_expiry(monkeypatch) -> None:
+    """WI-097 (T0 · فحصُ الساعةِ المضبوطةِ حقًّا): تُضبَطُ ساعةُ المصدرِ وساعةُ المصادقِ معًا.
 
-    لا يُنتظرُ مرورُ 60 دقيقةً حقيقةً: رمزٌ بحملٍ سليمٍ (الموضوعُ والنطاقاتُ
-    والمستأجرُ محفوظونَ) لكنَّ صلاحيّتَه مضَت يُرفضُ 401، والطلبُ بترويساتِ
-    `PerTestAuthHeaders` — التي تُسكُّ الرمزَ عندَ قراءتِهِ وقتَ الطلبِ — يُقبلُ.
-    وعمرُ الرمزِ (60 دقيقةً) يُتحققُ منهُ لا يُغيَّرُ (التوجيهُ 15 § 1).
+    يُسكُّ الرمزُ عندَ t0 ويُحفَظُ، ثمَّ **تتقدَّمُ الساعتانِ** (سكُّ الرموزِ في
+    `common.auth` ومصادقُ PyJWT) إلى ما بعدَ صلاحيّتِهِ الأصليةِ — **دونَ تعديلِ
+    الرمزِ ولا عمرِهِ** (60 دقيقةً) — فيُرفَضُ الرمزُ المحفوظُ 401، وينجحُ الطلبُ
+    **بنفسِ كائنِ الترويساتِ** (يُسكُّ رمزًا فتيًّا عندَ قراءتِهِ) معَ حفظِ الموضوعِ
+    والنطاقاتِ والمستأجرِ. والقاموسُ الثابتُ القديمُ كانَ سيفشلُ هذا الفحصَ: رمزُ
+    الترويساتِ بعدَ التقدُّمِ مخالفٌ للرمزِ المحفوظِ.
     """
-    expired_payload = dict(decode_token(AUTH_HEADERS["Authorization"].removeprefix("Bearer ")))
-    exp_at = datetime.fromtimestamp(expired_payload["exp"], tz=UTC)
-    remaining = (exp_at - datetime.now(UTC)).total_seconds()
-    assert 59 * 60 <= remaining <= 60 * 60, "عمرُ الرمزِ تغيَّر — ممنوعٌ (التوجيهُ 15 § 1)"
-    assert expired_payload["sub"] == "tester"
-    assert sorted(expired_payload["scopes"]) == ["critic:read", "critic:write"]
+    import jwt.api_jwt as jwt_api_module
 
-    expired_payload["exp"] = datetime.now(UTC) - timedelta(seconds=1)
-    expired_token = jwt.encode(expired_payload, _signing_secret(), algorithm=settings.jwt_algorithm)
+    import amos_federation.common.auth as auth_module
+
+    clock = {"now": datetime.now(UTC)}
+
+    class _ControlledDatetime(datetime):
+        """ساعةٌ مضبوطةٌ — لا تُغيِّرُ عمرَ الرمزِ بل تُقدِّمُ الزمنَ كلَّهُ.
+
+        تعيدُ `now` نسخةً من نفسِ الصنفِ (لا تاريخًا خامًا) حتى تبقى حواسيبُ
+        PyJWT التحويليةُ (isinstance على صنفِ الوحدةِ) صحيحةً فلا يسقطَ تحويلُ
+        مطالباتِ التاريخِ إلى intDate.
+        """
+
+        @classmethod
+        def now(cls, tz=None):
+            base = clock["now"]
+            return cls(
+                base.year, base.month, base.day, base.hour, base.minute,
+                base.second, base.microsecond, tzinfo=base.tzinfo,
+            )
+
+    monkeypatch.setattr(auth_module, "datetime", _ControlledDatetime)
+    monkeypatch.setattr(jwt_api_module, "datetime", _ControlledDatetime)
+
+    headers = PerTestAuthHeaders("clock-tester", ["critic:read", "critic:write"], "finance")
+    saved_token = headers["Authorization"].removeprefix("Bearer ")
+
+    # التقدُّمُ إلى ما بعدَ صلاحيّةِ الرمزِ الأصليةِ (60 دقيقةً + دقيقةٌ) دونَ تعديلِهِ
+    clock["now"] = clock["now"] + timedelta(minutes=61)
+
     with pytest.raises(HTTPException) as exc_info:
-        decode_token(expired_token)
+        decode_token(saved_token)
     assert exc_info.value.status_code == 401
-
-    resp_expired = client.post(
+    resp_old = client.post(
         "/v1/reviews",
-        headers={"Authorization": "Bearer " + expired_token},
+        headers={"Authorization": "Bearer " + saved_token},
         json=_good_review_request(),
     )
-    assert resp_expired.status_code == 401
-    resp_fresh = client.post("/v1/reviews", headers=AUTH_HEADERS, json=_good_review_request())
+    assert resp_old.status_code == 401
+
+    fresh_authorization = headers["Authorization"]
+    assert fresh_authorization != "Bearer " + saved_token
+    payload = decode_token(fresh_authorization.removeprefix("Bearer "))
+    assert payload["sub"] == "clock-tester"
+    assert sorted(payload["scopes"]) == ["critic:read", "critic:write"]
+    assert payload["tenant_id"] == "finance"
+    resp_fresh = client.post("/v1/reviews", headers=headers, json=_good_review_request())
     assert resp_fresh.status_code == 201
 
 

@@ -1,10 +1,10 @@
-............F........................................................... [ 85%]
-............                                                             [100%]
+..............F......................................................... [ 83%]
+..............                                                           [100%]
 =================================== FAILURES ===================================
 ___________ TestProcessLock.test_concurrent_processes_lose_no_event ____________
 
-self = <test_idempotency_append_log.TestProcessLock object at 0x7f0b933e2120>
-tmp_path = PosixPath('/tmp/pytest-of-user/pytest-187/test_concurrent_processes_lose0')
+self = <test_idempotency_append_log.TestProcessLock object at 0x7f4dc69c7260>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-207/test_concurrent_processes_lose0')
 
     def test_concurrent_processes_lose_no_event(self, tmp_path):
         """عمليّتانِ تُلحِقانِ معًا: لا حدثَ يضيعُ — هذا ما يُقتِلُ حذفَ flock (الطفرةُ 1)."""
@@ -32,7 +32,7 @@ tmp_path = PosixPath('/tmp/pytest-of-user/pytest-187/test_concurrent_processes_l
             _, stderr = worker.communicate(timeout=120)
 >           assert worker.returncode == 0, stderr.decode("utf-8", errors="replace")
 E           AssertionError: Traceback (most recent call last):
-E               File "/home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py", line 488, in _sync
+E               File "/home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py", line 498, in _sync
 E                 event = json.loads(text)
 E                         ^^^^^^^^^^^^^^^^
 E               File "/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/__init__.py", line 346, in loads
@@ -49,16 +49,16 @@ E             The above exception was the direct cause of the following exceptio
 E             
 E             Traceback (most recent call last):
 E               File "<string>", line 1, in <module>
-E               File "/home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py", line 583, in reserve
+E               File "/home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py", line 594, in reserve
 E                 self._sync()
-E               File "/home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py", line 490, in _sync
+E               File "/home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py", line 500, in _sync
 E                 raise IdempotencyError(
-E             core.sovereignty.idempotency.IdempotencyError: سجلُّ الذرّيّةِ في «/tmp/pytest-of-user/pytest-187/test_concurrent_processes_lose0/idempotency.json» تالفٌ ولا يُمكنُ قراءتُه.
+E             core.sovereignty.idempotency.IdempotencyError: سجلُّ الذرّيّةِ في «/tmp/pytest-of-user/pytest-207/test_concurrent_processes_lose0/idempotency.json» تالفٌ ولا يُمكنُ قراءتُه.
 E             
 E           assert 1 == 0
 E            +  where 1 = <Popen: returncode: 1 args: ['/home/user/workspace/AMOS-Fedration/.venv/bin/...>.returncode
 
-tests/sovereignty/test_idempotency_append_log.py:247: AssertionError
+tests/sovereignty/test_idempotency_append_log.py:287: AssertionError
 =========================== short test summary info ============================
 FAILED tests/sovereignty/test_idempotency_append_log.py::TestProcessLock::test_concurrent_processes_lose_no_event
-1 failed, 83 passed in 1.26s
+1 failed, 85 passed in 1.30s
