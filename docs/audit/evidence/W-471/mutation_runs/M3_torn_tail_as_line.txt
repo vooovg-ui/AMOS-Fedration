@@ -1,0 +1,252 @@
+....F.......F........................................................... [ 85%]
+............                                                             [100%]
+=================================== FAILURES ===================================
+____________ TestCrashSafety.test_torn_tail_is_ignored_and_retried _____________
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-189/test_torn_tail_is_ignored_and_0/idempotency.json'))
+
+    def _sync(self) -> None:
+        """طبِّقْ ما جَدَّ في السجلِّ منذَ آخرِ موضعٍ سليمٍ — تزايديًّا (§ 2.1).
+    
+        السطرُ الذيليُّ الممزّقُ (لا `\\n` في آخرِهِ) يُهمَلُ الآنَ ويُعادُ قِراءتُه
+        لاحقًا — **إلّا إن كان أوّلَ سطرٍ في السجلِّ** فالترويسةُ سطرٌ تامٌّ لا
+        يُولَدُ سجلٌّ شرعيٌّ بلاها، فبدايةٌ ممزّقةٌ تلفٌ يُرفَعُ. والسطرُ الكاملُ
+        الذي لا يُوزَنُ JSON — أو يزنُ حدثًا مجهولَ الإصدارِ أو العمليةِ أو
+        الترميزِ — يُرفَعُ صريحًا لا يُبتلَعُ ولا يُتجاوَزُ.
+    
+        والحالةُ والموضعُ مرتبطانِ **بهويّةِ الملفِّ** لا بحجمِهِ وحدَهُ: فلو
+        ضغطَتْ أو رحّلتْ عمليّةٌ أخرى السجلَّ (استبدالٌ بـ`os.replace`) كانَ
+        الجديدُ أصغرَ أو أكبرَ — فأيُّ موضعٍ قديمٍ في ملفٍّ جديدٍ قراءةٌ من
+        منتصفِ سطرٍ، فالاستبدالُ يُبطلُ الحالةَ كلَّها ويُعيدُ البناءَ.
+        """
+        stat = self.path.stat() if self.path.exists() else None
+        if stat is None:
+            return  # لا ملفَّ بعدُ: لا جديدَ يُطبَّقُ — غيابٌ طبيعيٌّ لا فشلٌ
+        identity = (stat.st_dev, stat.st_ino)
+        if self._identity is not None and identity != self._identity:
+            # استُبدِلَ الملفُّ (ضغطٌ أو ترحيلٌ بيدِ عمليّةٍ أخرى): الحالةُ
+            # والموضعُ مرتبطانِ بهويّةِ الملفِّ — فالبناءُ من الصفرِ مهما كانَ الحجمُ
+            self._state.clear()
+            self._lines = 0
+            self._offset = 0
+        self._identity = identity
+        size = stat.st_size
+        if size < self._offset:
+            # قُصَّ الملفُّ (ذيلٌ ممزّقٌ بيدِ عمليّةٍ أخرى): أَعِدْ البناءَ من الصفرِ
+            self._state.clear()
+            self._lines = 0
+            self._offset = 0
+        elif size == self._offset:
+            return
+        with self.path.open("rb") as stream:
+            stream.seek(self._offset)
+            chunk = stream.read()
+        if not chunk:
+            return
+        position = 0
+        building_from_scratch = self._offset == 0
+        for raw_line in chunk.split(b"\n"):
+            if position + len(raw_line) + 1 > len(chunk):
+                if building_from_scratch:
+                    # بدايةُ السجلِّ نفسِها ممزّقةٌ: لا ترويسةَ سليمةً ⇒ ملفٌّ
+                    # تالفٌ لا سجلٌّ شرعيٌّ — حارسُ الأصلِ لا يُخفَّفُ
+                    raise IdempotencyError(
+                        f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."
+                    )
+                position += len(raw_line) + 1  # M3 ذيلٌ ممزّق: لا `\\n` — يُهمَلُ ويُعادُ قِراءتُه لاحقًا
+            position += len(raw_line) + 1
+            try:
+                text = raw_line.decode("utf-8").strip()
+            except UnicodeDecodeError as exc:
+                raise IdempotencyError(
+                    f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."
+                ) from exc
+            if not text:
+                continue
+            try:
+>               event = json.loads(text)
+                        ^^^^^^^^^^^^^^^^
+
+core/sovereignty/idempotency.py:488: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/decoder.py:338: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.decoder.JSONDecoder object at 0x7f42639c1880>
+s = '{"v": 1, "op": "transition", "key": "ناق', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+>           obj, end = self.scan_once(s, idx)
+                       ^^^^^^^^^^^^^^^^^^^^^^
+E           json.decoder.JSONDecodeError: Unterminated string starting at: line 1 column 37 (char 36)
+
+/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/decoder.py:354: JSONDecodeError
+
+The above exception was the direct cause of the following exception:
+
+self = <test_idempotency_append_log.TestCrashSafety object at 0x7f4263559f70>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-189/test_torn_tail_is_ignored_and_0')
+
+    def test_torn_tail_is_ignored_and_retried(self, tmp_path):
+        """سطرٌ ذيليٌّ ممزّقٌ (كتابةٌ انقطعت) يُهمَلُ ولا يُسقِطُ القراءةَ (§ 2.2)."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+        # محاكاةُ انقطاعِ كتابةٍ: سطرٌ نصفُهُ فقطَ (لا `\\n` في آخرِهِ)
+        with open(ledger.path, "a", encoding="utf-8") as stream:
+            stream.write('{"v": 1, "op": "transition", "key": "ناق')
+        # القراءةُ تتجاوزُ الذيلَ الممزّقَ ولا ترفعُ خطأً
+>       assert ledger.get(key) is not None
+               ^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency_append_log.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/idempotency.py:563: in get
+    self._sync()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-189/test_torn_tail_is_ignored_and_0/idempotency.json'))
+
+    def _sync(self) -> None:
+        """طبِّقْ ما جَدَّ في السجلِّ منذَ آخرِ موضعٍ سليمٍ — تزايديًّا (§ 2.1).
+    
+        السطرُ الذيليُّ الممزّقُ (لا `\\n` في آخرِهِ) يُهمَلُ الآنَ ويُعادُ قِراءتُه
+        لاحقًا — **إلّا إن كان أوّلَ سطرٍ في السجلِّ** فالترويسةُ سطرٌ تامٌّ لا
+        يُولَدُ سجلٌّ شرعيٌّ بلاها، فبدايةٌ ممزّقةٌ تلفٌ يُرفَعُ. والسطرُ الكاملُ
+        الذي لا يُوزَنُ JSON — أو يزنُ حدثًا مجهولَ الإصدارِ أو العمليةِ أو
+        الترميزِ — يُرفَعُ صريحًا لا يُبتلَعُ ولا يُتجاوَزُ.
+    
+        والحالةُ والموضعُ مرتبطانِ **بهويّةِ الملفِّ** لا بحجمِهِ وحدَهُ: فلو
+        ضغطَتْ أو رحّلتْ عمليّةٌ أخرى السجلَّ (استبدالٌ بـ`os.replace`) كانَ
+        الجديدُ أصغرَ أو أكبرَ — فأيُّ موضعٍ قديمٍ في ملفٍّ جديدٍ قراءةٌ من
+        منتصفِ سطرٍ، فالاستبدالُ يُبطلُ الحالةَ كلَّها ويُعيدُ البناءَ.
+        """
+        stat = self.path.stat() if self.path.exists() else None
+        if stat is None:
+            return  # لا ملفَّ بعدُ: لا جديدَ يُطبَّقُ — غيابٌ طبيعيٌّ لا فشلٌ
+        identity = (stat.st_dev, stat.st_ino)
+        if self._identity is not None and identity != self._identity:
+            # استُبدِلَ الملفُّ (ضغطٌ أو ترحيلٌ بيدِ عمليّةٍ أخرى): الحالةُ
+            # والموضعُ مرتبطانِ بهويّةِ الملفِّ — فالبناءُ من الصفرِ مهما كانَ الحجمُ
+            self._state.clear()
+            self._lines = 0
+            self._offset = 0
+        self._identity = identity
+        size = stat.st_size
+        if size < self._offset:
+            # قُصَّ الملفُّ (ذيلٌ ممزّقٌ بيدِ عمليّةٍ أخرى): أَعِدْ البناءَ من الصفرِ
+            self._state.clear()
+            self._lines = 0
+            self._offset = 0
+        elif size == self._offset:
+            return
+        with self.path.open("rb") as stream:
+            stream.seek(self._offset)
+            chunk = stream.read()
+        if not chunk:
+            return
+        position = 0
+        building_from_scratch = self._offset == 0
+        for raw_line in chunk.split(b"\n"):
+            if position + len(raw_line) + 1 > len(chunk):
+                if building_from_scratch:
+                    # بدايةُ السجلِّ نفسِها ممزّقةٌ: لا ترويسةَ سليمةً ⇒ ملفٌّ
+                    # تالفٌ لا سجلٌّ شرعيٌّ — حارسُ الأصلِ لا يُخفَّفُ
+                    raise IdempotencyError(
+                        f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."
+                    )
+                position += len(raw_line) + 1  # M3 ذيلٌ ممزّق: لا `\\n` — يُهمَلُ ويُعادُ قِراءتُه لاحقًا
+            position += len(raw_line) + 1
+            try:
+                text = raw_line.decode("utf-8").strip()
+            except UnicodeDecodeError as exc:
+                raise IdempotencyError(
+                    f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."
+                ) from exc
+            if not text:
+                continue
+            try:
+                event = json.loads(text)
+            except (json.JSONDecodeError, ValueError) as exc:
+>               raise IdempotencyError(
+                    f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."
+                ) from exc
+E               core.sovereignty.idempotency.IdempotencyError: سجلُّ الذرّيّةِ في «/tmp/pytest-of-user/pytest-189/test_torn_tail_is_ignored_and_0/idempotency.json» تالفٌ ولا يُمكنُ قراءتُه.
+
+core/sovereignty/idempotency.py:490: IdempotencyError
+___________ TestProcessLock.test_concurrent_processes_lose_no_event ____________
+
+self = <test_idempotency_append_log.TestProcessLock object at 0x7f4263529970>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-189/test_concurrent_processes_lose0')
+
+    def test_concurrent_processes_lose_no_event(self, tmp_path):
+        """عمليّتانِ تُلحِقانِ معًا: لا حدثَ يضيعُ — هذا ما يُقتِلُ حذفَ flock (الطفرةُ 1)."""
+        ledger = _make_ledger(tmp_path)
+        ledger.reserve(key=_make_key(0), fingerprint="بصمة-0")  # تهيئةُ الملفِّ
+        ledger_path = str(ledger.path)
+        script = (
+            "import sys; "
+            "from pathlib import Path; "
+            "from core.sovereignty.idempotency import IdempotencyKey, IdempotencyLedger; "
+            f"ledger = IdempotencyLedger(path=Path({ledger_path!r})); "
+            "[ledger.reserve(key=IdempotencyKey('قياس', f'عمليّة-{sys.argv[1]}-{i}'), "
+            "fingerprint=f'بصمة-{sys.argv[1]}-{i}') for i in range(40)]"
+        )
+        workers = [
+            subprocess.Popen(
+                [sys.executable, "-c", script, str(tag)],
+                cwd=str(REPO_ROOT),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            for tag in range(4)
+        ]
+        for worker in workers:
+            _, stderr = worker.communicate(timeout=120)
+>           assert worker.returncode == 0, stderr.decode("utf-8", errors="replace")
+E           AssertionError: Traceback (most recent call last):
+E               File "/home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py", line 488, in _sync
+E                 event = json.loads(text)
+E                         ^^^^^^^^^^^^^^^^
+E               File "/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/__init__.py", line 346, in loads
+E                 return _default_decoder.decode(s)
+E                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               File "/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/decoder.py", line 338, in decode
+E                 obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+E                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               File "/opt/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/decoder.py", line 356, in raw_decode
+E                 raise JSONDecodeError("Expecting value", s, err.value) from None
+E             json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+E             
+E             The above exception was the direct cause of the following exception:
+E             
+E             Traceback (most recent call last):
+E               File "<string>", line 1, in <module>
+E               File "/home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py", line 583, in reserve
+E                 self._sync()
+E               File "/home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py", line 490, in _sync
+E                 raise IdempotencyError(
+E             core.sovereignty.idempotency.IdempotencyError: سجلُّ الذرّيّةِ في «/tmp/pytest-of-user/pytest-189/test_concurrent_processes_lose0/idempotency.json» تالفٌ ولا يُمكنُ قراءتُه.
+E             
+E           assert 1 == 0
+E            +  where 1 = <Popen: returncode: 1 args: ['/home/user/workspace/AMOS-Fedration/.venv/bin/...>.returncode
+
+tests/sovereignty/test_idempotency_append_log.py:247: AssertionError
+=========================== short test summary info ============================
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCrashSafety::test_torn_tail_is_ignored_and_retried
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestProcessLock::test_concurrent_processes_lose_no_event
+2 failed, 82 passed in 8.36s

@@ -1,0 +1,27 @@
+..............F......................................................... [ 85%]
+............                                                             [100%]
+=================================== FAILURES ===================================
+__________ TestCompaction.test_log_grows_asymptotically_not_linearly ___________
+
+self = <test_idempotency_append_log.TestCompaction object at 0x7f967c92a780>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-191/test_log_grows_asymptotically_0')
+
+    def test_log_grows_asymptotically_not_linearly(self, tmp_path):
+        """الضغطُ يُهَلِّلُ: الأسطرُ لا تنمو معَ الأحداثِ بل تُعادُ إلى مضاعفِ المفاتيحِ الحيّةِ."""
+        ledger = _make_ledger(tmp_path)
+        total_events = 0
+        for i in range(100):
+            self._retry_flow(ledger, i, events=10)  # 23 حدثًا لكلِّ مفتاحٍ
+            total_events += 23
+        final_lines = len(ledger.path.read_text(encoding="utf-8").splitlines())
+        # ثابتُ الثباتِ: بعدَ كلِّ إلحاقٍ يُفحَصُ الضغطُ فلا يزيدُ الأسطرُ على 4× الحيِّ
+>       assert final_lines <= 4 * ledger.count() + 1, "الضغطُ لا يضبطُ النموَّ (الطفرةُ 5)"
+E       AssertionError: الضغطُ لا يضبطُ النموَّ (الطفرةُ 5)
+E       assert 1701 <= ((4 * 100) + 1)
+E        +  where 100 = count()
+E        +    where count = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-191/test_log_grows_asymptotically_0/idempotency.json')).count
+
+tests/sovereignty/test_idempotency_append_log.py:297: AssertionError
+=========================== short test summary info ============================
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCompaction::test_log_grows_asymptotically_not_linearly
+1 failed, 83 passed in 1.25s

@@ -1,0 +1,485 @@
+F.FF.FFFFF.FFFFF.....................................FFF............F... [ 85%]
+.........F..                                                             [100%]
+=================================== FAILURES ===================================
+________________ TestAppendLogShape.test_each_event_is_one_line ________________
+
+self = <test_idempotency_append_log.TestAppendLogShape object at 0x7f7432363530>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_each_event_is_one_line0')
+
+    def test_each_event_is_one_line(self, tmp_path):
+        """كلُّ حدثٍ سطرُ JSONL واحدٌ متصلٌ — لا سطرٍ مكسورٍ ولا حدثٍ بلا سطرٍ."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+        ledger.mark_running(key=key, attempt={"n": 1})
+        ledger.mark_succeeded(key=key, result_digest="هاش")
+    
+        lines = ledger.path.read_text(encoding="utf-8").splitlines()
+        # الترويسةُ + 3 أحداثٍ = 4 أسطرٍ، وكلُّ سطرٍ يُوزَنُ JSON وحيدَهُ
+>       assert len(lines) == 4, "حدثٌ كُتِبَ في أكثرَ من سطرٍ أو سطرٌ بلا حدثٍ"
+E       AssertionError: حدثٌ كُتِبَ في أكثرَ من سطرٍ أو سطرٌ بلا حدثٍ
+E       assert 3 == 4
+E        +  where 3 = len(['{"key":"قياس:عمليّة-1","op":"reserve","record":{"applied_effect_signatures":[],"attempts":[],"failure_reason":null,"...G"},{"at":"2026-10-19T03:36:37+00:00","from":"RUNNING","is_retry":false,"to":"SUCCEEDED"}],"value":"عمليّة-1"},"v":1}'])
+
+tests/sovereignty/test_idempotency_append_log.py:65: AssertionError
+_____________ TestAppendLogShape.test_two_instances_share_the_log ______________
+
+self = <test_idempotency_append_log.TestAppendLogShape object at 0x7f74320f1c40>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_two_instances_share_the_l0')
+
+    def test_two_instances_share_the_log(self, tmp_path):
+        """نسختانِ على السجلِّ نفسِهِ: الثانيةُ ترى أحداثَ الأولى (المزامنةُ التزايديّةُ)."""
+        first = _make_ledger(tmp_path)
+        second = _make_ledger(tmp_path)
+        key = _make_key()
+        first.reserve(key=key, fingerprint="بصمة-1")
+>       assert second.get(key) is not None, "المزامنةُ التزايديّةُ لم ترَ حدثَ الأخرى"
+E       AssertionError: المزامنةُ التزايديّةُ لم ترَ حدثَ الأخرى
+E       assert None is not None
+E        +  where None = get(IdempotencyKey(scope='قياس', value='عمليّة-1'))
+E        +    where get = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-188/test_two_instances_share_the_l0/idempotency.json')).get
+
+tests/sovereignty/test_idempotency_append_log.py:84: AssertionError
+____ TestAppendLogShape.test_replacement_rebuilds_state_regardless_of_size _____
+
+self = <test_idempotency_append_log.TestAppendLogShape object at 0x7f74320f1fa0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_replacement_rebuilds_stat0')
+
+    def test_replacement_rebuilds_state_regardless_of_size(self, tmp_path):
+        """استبدالُ السجلِّ (ضغطٌ بيدِ عمليّةٍ أخرى) يُبطلُ الحالةَ كلَّها مهما كانَ حجمُ الجديدِ.
+    
+        بلا ربطِ الحالةِ بهويّةِ الملفِّ تقعُ القراءةُ من موضعٍ قديمٍ في ملفٍّ
+        جديدٍ أكبرَ — من منتصفِ سطرٍ — فتفسدُ أو تُهمَلُ (W-477 · مراجعةُ المستشارِ § 1).
+        """
+        first = _make_ledger(tmp_path)
+        second = _make_ledger(tmp_path)
+        first.reserve(key=_make_key(0), fingerprint="بصمة-0")
+>       assert second.get(_make_key(0)) is not None
+E       AssertionError: assert None is not None
+E        +  where None = get(IdempotencyKey(scope='قياس', value='عمليّة-0'))
+E        +    where get = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-188/test_replacement_rebuilds_stat0/idempotency.json')).get
+E        +    and   IdempotencyKey(scope='قياس', value='عمليّة-0') = _make_key(0)
+
+tests/sovereignty/test_idempotency_append_log.py:95: AssertionError
+______________ TestCrashSafety.test_complete_corrupt_line_raises _______________
+
+self = <test_idempotency_append_log.TestCrashSafety object at 0x7f74320f25d0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_complete_corrupt_line_rai0')
+
+    def test_complete_corrupt_line_raises(self, tmp_path):
+        """سطرٌ كاملٌ تالفٌ = استثناءٌ صريحٌ لا ابتلاعٌ صامتٌ (حارسُ الأصلِ)."""
+        ledger = _make_ledger(tmp_path)
+        ledger.path.parent.mkdir(parents=True, exist_ok=True)
+        ledger.path.write_text("NOT JSON\n", encoding="utf-8")
+>       with pytest.raises(IdempotencyError, match="تالف"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE IdempotencyError
+
+tests/sovereignty/test_idempotency_append_log.py:142: Failed
+__________ TestCrashSafety.test_log_not_starting_with_header_rejected __________
+
+self = <test_idempotency_append_log.TestCrashSafety object at 0x7f74320f1d90>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_log_not_starting_with_hea0')
+
+    def test_log_not_starting_with_header_rejected(self, tmp_path):
+        """ملفٌّ يبدأُ بحدثٍ لا ترويسةَ ليسَ سجلًّا شرعيًّا — يُرفَعُ لا يُتَسامَحُ (W-489 § 2)."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+        lines = ledger.path.read_text(encoding="utf-8").splitlines(keepends=True)
+        ledger.path.write_text("".join(lines[1:]), encoding="utf-8")
+>       with pytest.raises(IdempotencyError, match="تالف"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE IdempotencyError
+
+tests/sovereignty/test_idempotency_append_log.py:152: Failed
+_____________ TestCrashSafety.test_unknown_event_version_rejected ______________
+
+self = <test_idempotency_append_log.TestCrashSafety object at 0x7f74320f0980>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_unknown_event_version_rej0')
+
+    def test_unknown_event_version_rejected(self, tmp_path):
+        """حدثٌ بإصدارٍ مجهولٍ = تلفٌ صريحٌ — لا تجاوُزَ ولا صمتًا (W-489 § 2)."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+        lines = ledger.path.read_text(encoding="utf-8").splitlines(keepends=True)
+>       event = json.loads(lines[1])
+                           ^^^^^^^^
+E       IndexError: list index out of range
+
+tests/sovereignty/test_idempotency_append_log.py:161: IndexError
+________________ TestCrashSafety.test_unknown_event_op_rejected ________________
+
+self = <test_idempotency_append_log.TestCrashSafety object at 0x7f74320f1850>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_unknown_event_op_rejected0')
+
+    def test_unknown_event_op_rejected(self, tmp_path):
+        """حدثٌ بعمليةٍ مجهولةٍ = تلفٌ صريحٌ (W-489 § 2)."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+        lines = ledger.path.read_text(encoding="utf-8").splitlines(keepends=True)
+>       event = json.loads(lines[1])
+                           ^^^^^^^^
+E       IndexError: list index out of range
+
+tests/sovereignty/test_idempotency_append_log.py:174: IndexError
+__________________ TestCrashSafety.test_null_record_rejected ___________________
+
+self = <test_idempotency_append_log.TestCrashSafety object at 0x7f74320f28a0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_null_record_rejected0')
+
+    def test_null_record_rejected(self, tmp_path):
+        """حدثٌ تامُّ البنيةِ بترويسةٍ وإصدارٍ وعمليةٍ لكنَّ سجلَّه معدومٌ = تلفٌ يُرفَعُ لا فقدٌ صامتٌ (W-489 § 2)."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+        lines = ledger.path.read_text(encoding="utf-8").splitlines(keepends=True)
+>       event = json.loads(lines[1])
+                           ^^^^^^^^
+E       IndexError: list index out of range
+
+tests/sovereignty/test_idempotency_append_log.py:187: IndexError
+_______________ TestCrashSafety.test_atomic_single_line_appends ________________
+
+self = <test_idempotency_append_log.TestCrashSafety object at 0x7f74320c18b0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_atomic_single_line_append0')
+
+    def test_atomic_single_line_appends(self, tmp_path):
+        """كلُّ حدثٍ يُكتَبُ بفتحةِ إلحاقٍ واحدةٍ — فتحتانِ متتاليتانِ لا تمحوانِ ما قبلَهما."""
+        ledger = _make_ledger(tmp_path)
+        ledger.reserve(key=_make_key(1), fingerprint="بصمة-1")
+        # نسخةٌ ثانيةٌ تفتحُ الملفَّ من جديدٍ — لا يجوزُ أن تمحوَ أحداثَ الأولى
+        second = _make_ledger(tmp_path)
+        second.reserve(key=_make_key(2), fingerprint="بصمة-2")
+>       assert ledger.count() == 2, "فتحُ نسخةٍ ثانيةٍ محا أحداثَ الأولى (وضعُ w بدلَ a)"
+E       AssertionError: فتحُ نسخةٍ ثانيةٍ محا أحداثَ الأولى (وضعُ w بدلَ a)
+E       assert 1 == 2
+E        +  where 1 = count()
+E        +    where count = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-188/test_atomic_single_line_append0/idempotency.json')).count
+
+tests/sovereignty/test_idempotency_append_log.py:216: AssertionError
+___________ TestProcessLock.test_concurrent_processes_lose_no_event ____________
+
+self = <test_idempotency_append_log.TestProcessLock object at 0x7f74320c1ca0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_concurrent_processes_lose0')
+
+    def test_concurrent_processes_lose_no_event(self, tmp_path):
+        """عمليّتانِ تُلحِقانِ معًا: لا حدثَ يضيعُ — هذا ما يُقتِلُ حذفَ flock (الطفرةُ 1)."""
+        ledger = _make_ledger(tmp_path)
+        ledger.reserve(key=_make_key(0), fingerprint="بصمة-0")  # تهيئةُ الملفِّ
+        ledger_path = str(ledger.path)
+        script = (
+            "import sys; "
+            "from pathlib import Path; "
+            "from core.sovereignty.idempotency import IdempotencyKey, IdempotencyLedger; "
+            f"ledger = IdempotencyLedger(path=Path({ledger_path!r})); "
+            "[ledger.reserve(key=IdempotencyKey('قياس', f'عمليّة-{sys.argv[1]}-{i}'), "
+            "fingerprint=f'بصمة-{sys.argv[1]}-{i}') for i in range(40)]"
+        )
+        workers = [
+            subprocess.Popen(
+                [sys.executable, "-c", script, str(tag)],
+                cwd=str(REPO_ROOT),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            for tag in range(4)
+        ]
+        for worker in workers:
+            _, stderr = worker.communicate(timeout=120)
+>           assert worker.returncode == 0, stderr.decode("utf-8", errors="replace")
+E           AssertionError: Traceback (most recent call last):
+E               File "<string>", line 1, in <module>
+E               File "/home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py", line 583, in reserve
+E                 self._sync()
+E               File "/home/user/workspace/AMOS-Fedration/core/sovereignty/idempotency.py", line 510, in _sync
+E                 raise IdempotencyError(
+E             core.sovereignty.idempotency.IdempotencyError: سجلُّ الذرّيّةِ في «/tmp/pytest-of-user/pytest-188/test_concurrent_processes_lose0/idempotency.json» تالفٌ ولا يُمكنُ قراءةُه.
+E             
+E           assert 1 == 0
+E            +  where 1 = <Popen: returncode: 1 args: ['/home/user/workspace/AMOS-Fedration/.venv/bin/...>.returncode
+
+tests/sovereignty/test_idempotency_append_log.py:247: AssertionError
+______________ TestCompaction.test_compaction_keeps_all_live_keys ______________
+
+self = <test_idempotency_append_log.TestCompaction object at 0x7f74320c2570>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_compaction_keeps_all_live0')
+
+    def test_compaction_keeps_all_live_keys(self, tmp_path):
+        """الضغطُ لا يُسقِطُ مفتاحًا حيًّا (الطفرةُ 6) — ويُشغَّلُ فعلًا (الطفرةُ 5)."""
+        ledger = _make_ledger(tmp_path)
+        for i in range(20):
+>           self._retry_flow(ledger, i, events=5)  # 13 حدثًا لكلِّ مفتاحٍ = 260 سطرًا
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency_append_log.py:275: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/sovereignty/test_idempotency_append_log.py:265: in _retry_flow
+    ledger.mark_running(key=key)
+core/sovereignty/idempotency.py:677: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-188/test_compaction_keeps_all_live0/idempotency.json'))
+key = IdempotencyKey(scope='قياس', value='عمليّة-9')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «قياس:عمليّة-9» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:632: IdempotencyError
+__________ TestCompaction.test_log_grows_asymptotically_not_linearly ___________
+
+self = <test_idempotency_append_log.TestCompaction object at 0x7f74320c28d0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_log_grows_asymptotically_0')
+
+    def test_log_grows_asymptotically_not_linearly(self, tmp_path):
+        """الضغطُ يُهَلِّلُ: الأسطرُ لا تنمو معَ الأحداثِ بل تُعادُ إلى مضاعفِ المفاتيحِ الحيّةِ."""
+        ledger = _make_ledger(tmp_path)
+        total_events = 0
+        for i in range(100):
+>           self._retry_flow(ledger, i, events=10)  # 23 حدثًا لكلِّ مفتاحٍ
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_idempotency_append_log.py:293: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/sovereignty/test_idempotency_append_log.py:268: in _retry_flow
+    ledger.mark_running(key=key)
+core/sovereignty/idempotency.py:677: in mark_running
+    return self.transition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-188/test_log_grows_asymptotically_0/idempotency.json'))
+key = IdempotencyKey(scope='قياس', value='عمليّة-3')
+new_status = <OperationStatus.RUNNING: 'RUNNING'>, attempt = None
+result_digest = None, applied_effect_signatures = None, failure_reason = None
+has_external_effect = False, now = None
+
+    def transition(
+        self,
+        *,
+        key: IdempotencyKey,
+        new_status: OperationStatus,
+        attempt: dict[str, Any] | None = None,
+        result_digest: str | None = None,
+        applied_effect_signatures: tuple[str, ...] | None = None,
+        failure_reason: str | None = None,
+        has_external_effect: bool = False,
+        now: str | None = None,
+    ) -> IdempotencyRecord:
+        """انقلِ السجلَّ إلى حالةٍ جديدة — انتقالٌ أحاديٌّ مسجَّل.
+    
+        لا يُسمحُ بالانتقالِ من حالةٍ نهائيّةٍ إلى حالةٍ سابقة: النجاحُ لا يتراجع.
+        """
+        with self._lock, self._file_lock():
+            self._ensure_open()
+            self._refresh_handle_if_replaced()
+            self._sync()
+            rkey = self._record_key(key)
+            existing = self._state.get(rkey)
+            if existing is None:
+>               raise IdempotencyError(
+                    f"المفتاحُ «{key.composite}» غيرُ محجوز. لا انتقالَ بلا حجز."
+                )
+E               core.sovereignty.idempotency.IdempotencyError: المفتاحُ «قياس:عمليّة-3» غيرُ محجوز. لا انتقالَ بلا حجز.
+
+core/sovereignty/idempotency.py:632: IdempotencyError
+____________ TestMigration.test_legacy_json_object_is_migrated_once ____________
+
+self = <test_idempotency_append_log.TestMigration object at 0x7f74320c2c60>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_legacy_json_object_is_mig0')
+
+    def test_legacy_json_object_is_migrated_once(self, tmp_path):
+        """ملفُّ الصيغةِ القديمةِ (JSON كائنٍ) يُرحَّلُ تلقائيًّا وسجلّاتُهُ لا تضيعُ (الطفرةُ 7)."""
+        from core.sovereignty.runtime_identity import stamped
+        from core.sovereignty.idempotency import IDEMPOTENCY_STATE_CARD
+    
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        # اكتبِ الصيغةَ القديمةَ بيدٍ: كائنُ JSON بسجلٍّ واحدٍ (بصيغةِ as_dict نفسِها)
+        legacy_payload = stamped(
+            {
+                key.composite: {
+                    "key": key.composite,
+                    "scope": key.scope,
+                    "value": key.value,
+                    "fingerprint": "بصمة-قديمة",
+                    "status": "RESERVED",
+                    "reserved_at": "2026-10-19T00:00:00+00:00",
+                    "attempts": [],
+                    "transitions": [],
+                    "applied_effect_signatures": [],
+                    "has_external_effect": False,
+                }
+            },
+            card=IDEMPOTENCY_STATE_CARD,
+        )
+        ledger.path.parent.mkdir(parents=True, exist_ok=True)
+        ledger.path.write_text(
+            json.dumps(legacy_payload, ensure_ascii=False, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+        # الفتحُ يُرحِّلُ: السجلُّ يُقرأُ منَ الصيغةِ الجديدةِ
+        record = ledger.get(key)
+>       assert record is not None, "الترحيلُ محا السجلَّ القديمَ (الطفرةُ 7)"
+E       AssertionError: الترحيلُ محا السجلَّ القديمَ (الطفرةُ 7)
+E       assert None is not None
+
+tests/sovereignty/test_idempotency_append_log.py:337: AssertionError
+__________ TestPersistenceRestart.test_new_ledger_reads_prior_records __________
+
+self = <test_idempotency.TestPersistenceRestart object at 0x7f74321136e0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_new_ledger_reads_prior_re0')
+
+    def test_new_ledger_reads_prior_records(self, tmp_path):
+        """سجلٌّ جديدٌ على الملفِّ نفسِه يرى السجلَّ السابق."""
+        ledger1 = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        ledger1.reserve(key=key, fingerprint=fp)
+        ledger1.mark_running(key=key)
+        ledger1.mark_succeeded(key=key, result_digest="RD-001")
+    
+        # سجلٌّ جديد على الملفّ نفسه
+        ledger2 = IdempotencyLedger(path=ledger1.path)
+        record = ledger2.get(key)
+>       assert record is not None
+E       assert None is not None
+
+tests/sovereignty/test_idempotency.py:513: AssertionError
+______ TestPersistenceRestart.test_new_guard_returns_replay_after_restart ______
+
+self = <test_idempotency.TestPersistenceRestart object at 0x7f7432113a40>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_new_guard_returns_replay_0')
+
+    def test_new_guard_returns_replay_after_restart(self, tmp_path):
+        """حارسٌ جديدٌ يُعيدُ النتيجةَ السابقة دون تنفيذ."""
+        guard1 = _make_guard(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        counter = {"n": 0}
+    
+        def execute() -> str:
+            counter["n"] += 1
+            return "persisted-result"
+    
+        guard1.run_once(key=key, fingerprint=fp, execute=execute)
+        assert counter["n"] == 1
+    
+        # حارسٌ جديد على الملفّ نفسه
+        guard2 = IdempotencyGuard(ledger=IdempotencyLedger(path=guard1.ledger.path))
+        r2 = guard2.run_once(key=key, fingerprint=fp, execute=execute)
+>       assert r2.is_replay
+E       AssertionError: assert False
+E        +  where False = OperationResult(value='persisted-result', status=<OperationStatus.SUCCEEDED: 'SUCCEEDED'>, is_replay=False, record=Ide...son=None, recovered_at=None, succeeded_at='2026-10-19T03:36:38+00:00', has_external_effect=False), failure_reason=None).is_replay
+
+tests/sovereignty/test_idempotency.py:534: AssertionError
+_______ TestPersistenceRestart.test_interrupted_record_survives_restart ________
+
+self = <test_idempotency.TestPersistenceRestart object at 0x7f7432113da0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_interrupted_record_surviv0')
+
+    def test_interrupted_record_survives_restart(self, tmp_path):
+        """سجلٌّ منقطعٌ يبقى بعدَ إعادةِ التشغيل."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        ledger.reserve(key=key, fingerprint=fp)
+        ledger.mark_running(key=key)
+        ledger.mark_interrupted(key=key)
+    
+        # محاكاةُ إعادةِ تشغيل
+        ledger2 = IdempotencyLedger(path=ledger.path)
+        record = ledger2.get(key)
+>       assert record is not None
+E       assert None is not None
+
+tests/sovereignty/test_idempotency.py:549: AssertionError
+_____________ TestGuardIntegrity.test_ledger_corrupted_file_raises _____________
+
+self = <test_idempotency.TestGuardIntegrity object at 0x7f7431e70bf0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_ledger_corrupted_file_rai0')
+
+    def test_ledger_corrupted_file_raises(self, tmp_path):
+        """ملفٌّ تالفٌ = استثناءٌ صريح، لا ابتلاعٌ صامت.
+    
+        السطرُ الذيليُّ الممزّقُ (لا `\n`) يُهمَلُ — خاصيّةُ التحطّمِ الآمنِ
+        (WI-096 § 2.2) — أما السطرُ **الكاملُ** التالفُ فيُرفَعُ صريحًا.
+        """
+        ledger = _make_ledger(tmp_path)
+        ledger.path.parent.mkdir(parents=True, exist_ok=True)
+        ledger.path.write_text("NOT JSON", encoding="utf-8")
+>       with pytest.raises(IdempotencyError, match="تالف"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE IdempotencyError
+
+tests/sovereignty/test_idempotency.py:752: Failed
+______________ TestTransitionLog.test_transitions_survive_restart ______________
+
+self = <test_idempotency.TestTransitionLog object at 0x7f7431e729f0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-188/test_transitions_survive_resta0')
+
+    def test_transitions_survive_restart(self, tmp_path):
+        """الانتقالاتُ تبقى على القرصِ بعدَ إعادةِ التشغيل."""
+        ledger1 = _make_ledger(tmp_path)
+        key = _make_key()
+        fp = _make_fingerprint()
+        ledger1.reserve(key=key, fingerprint=fp)
+        ledger1.mark_running(key=key)
+    
+        ledger2 = IdempotencyLedger(ledger1.path)
+        record = ledger2.get(key)
+>       assert len(record.transitions) >= 1  # RESERVED -> RUNNING على الأقل
+                   ^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'transitions'
+
+tests/sovereignty/test_idempotency.py:1002: AttributeError
+=========================== short test summary info ============================
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestAppendLogShape::test_each_event_is_one_line
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestAppendLogShape::test_two_instances_share_the_log
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestAppendLogShape::test_replacement_rebuilds_state_regardless_of_size
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCrashSafety::test_complete_corrupt_line_raises
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCrashSafety::test_log_not_starting_with_header_rejected
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCrashSafety::test_unknown_event_version_rejected
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCrashSafety::test_unknown_event_op_rejected
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCrashSafety::test_null_record_rejected
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCrashSafety::test_atomic_single_line_appends
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestProcessLock::test_concurrent_processes_lose_no_event
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCompaction::test_compaction_keeps_all_live_keys
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestCompaction::test_log_grows_asymptotically_not_linearly
+FAILED tests/sovereignty/test_idempotency_append_log.py::TestMigration::test_legacy_json_object_is_migrated_once
+FAILED tests/sovereignty/test_idempotency.py::TestPersistenceRestart::test_new_ledger_reads_prior_records
+FAILED tests/sovereignty/test_idempotency.py::TestPersistenceRestart::test_new_guard_returns_replay_after_restart
+FAILED tests/sovereignty/test_idempotency.py::TestPersistenceRestart::test_interrupted_record_survives_restart
+FAILED tests/sovereignty/test_idempotency.py::TestGuardIntegrity::test_ledger_corrupted_file_raises
+FAILED tests/sovereignty/test_idempotency.py::TestTransitionLog::test_transitions_survive_restart
+18 failed, 66 passed in 0.60s

@@ -7,7 +7,7 @@
       "md_files": 67,
       "py_files": 42,
       "yaml_files": 0,
-      "code_lines": 15205,
+      "code_lines": 15211,
       "nucleus_count": 14,
       "nucleus_status": {
         "unspecified": 14
@@ -93,7 +93,7 @@
       "md_files": 60,
       "py_files": 242,
       "yaml_files": 3,
-      "code_lines": 66918,
+      "code_lines": 66949,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -391,10 +391,10 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 156,
+      "md_files": 157,
       "py_files": 8,
       "yaml_files": 0,
-      "code_lines": 650,
+      "code_lines": 690,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -480,13 +480,13 @@
       "md_files": 14,
       "py_files": 108,
       "yaml_files": 0,
-      "code_lines": 29023,
+      "code_lines": 29081,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
       },
       "has_readme": true,
-      "real_source_hits": 44,
+      "real_source_hits": 45,
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,

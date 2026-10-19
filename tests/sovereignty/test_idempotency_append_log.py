@@ -142,6 +142,70 @@ class TestCrashSafety:
         with pytest.raises(IdempotencyError, match="تالف"):
             ledger.get(_make_key())
 
+    def test_log_not_starting_with_header_rejected(self, tmp_path):
+        """ملفٌّ يبدأُ بحدثٍ لا ترويسةَ ليسَ سجلًّا شرعيًّا — يُرفَعُ لا يُتَسامَحُ (W-489 § 2)."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+        lines = ledger.path.read_text(encoding="utf-8").splitlines(keepends=True)
+        ledger.path.write_text("".join(lines[1:]), encoding="utf-8")
+        with pytest.raises(IdempotencyError, match="تالف"):
+            _make_ledger(tmp_path).get(key)
+
+    def test_unknown_event_version_rejected(self, tmp_path):
+        """حدثٌ بإصدارٍ مجهولٍ = تلفٌ صريحٌ — لا تجاوُزَ ولا صمتًا (W-489 § 2)."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+        lines = ledger.path.read_text(encoding="utf-8").splitlines(keepends=True)
+        event = json.loads(lines[1])
+        event["v"] = 99
+        lines[1] = json.dumps(event, ensure_ascii=False) + "\n"
+        ledger.path.write_text("".join(lines), encoding="utf-8")
+        with pytest.raises(IdempotencyError, match="تالف"):
+            _make_ledger(tmp_path).get(key)
+
+    def test_unknown_event_op_rejected(self, tmp_path):
+        """حدثٌ بعمليةٍ مجهولةٍ = تلفٌ صريحٌ (W-489 § 2)."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+        lines = ledger.path.read_text(encoding="utf-8").splitlines(keepends=True)
+        event = json.loads(lines[1])
+        event["op"] = "عمليةٌ مجهولةٌ"
+        lines[1] = json.dumps(event, ensure_ascii=False) + "\n"
+        ledger.path.write_text("".join(lines), encoding="utf-8")
+        with pytest.raises(IdempotencyError, match="تالف"):
+            _make_ledger(tmp_path).get(key)
+
+    def test_null_record_rejected(self, tmp_path):
+        """حدثٌ تامُّ البنيةِ بترويسةٍ وإصدارٍ وعمليةٍ لكنَّ سجلَّه معدومٌ = تلفٌ يُرفَعُ لا فقدٌ صامتٌ (W-489 § 2)."""
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+        lines = ledger.path.read_text(encoding="utf-8").splitlines(keepends=True)
+        event = json.loads(lines[1])
+        event["record"] = None
+        lines[1] = json.dumps(event, ensure_ascii=False) + "\n"
+        ledger.path.write_text("".join(lines), encoding="utf-8")
+        with pytest.raises(IdempotencyError, match="تالف"):
+            _make_ledger(tmp_path).get(key)
+
+    def test_invalid_utf8_in_complete_line_rejected(self, tmp_path):
+        """سطرٌ كاملٌ جيدُ البنيةِ عدا بايتٌ فاسدُ الترميزِ = تلفٌ صريحٌ لا استبدالُ حرفٍ صامتٌ (W-489 § 2).
+
+        الحدثُ تامُّ JSON عدا البايتُ الفاسدُ داخلَ قيمةِ المفتاحِ — فالرفضُ من
+        فكِّ الترميزِ الصارمِ لا من موضعِ فحصٍ آخرَ.
+        """
+        ledger = _make_ledger(tmp_path)
+        key = _make_key()
+        ledger.reserve(key=key, fingerprint="بصمة-1")
+        bad = b'{"v": 1, "op": "transition", "key": "\xff\xfe", "record": {"state": "reserved"}}\n'
+        with open(ledger.path, "ab") as stream:
+            stream.write(bad)
+        with pytest.raises(IdempotencyError, match="تالف"):
+            _make_ledger(tmp_path).get(key)
+
     def test_atomic_single_line_appends(self, tmp_path):
         """كلُّ حدثٍ يُكتَبُ بفتحةِ إلحاقٍ واحدةٍ — فتحتانِ متتاليتانِ لا تمحوانِ ما قبلَهما."""
         ledger = _make_ledger(tmp_path)

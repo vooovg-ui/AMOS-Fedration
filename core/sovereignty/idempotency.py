@@ -369,7 +369,13 @@ class IdempotencyLedger:
         """ترحيلٌ تلقائيٌّ مرةً واحدةً: ملفُّ JSON كائنٍ ← سجلٌّ إلحاقيٌّ (§ 2.4)."""
         if not self.path.exists():
             return
-        text = self.path.read_text(encoding="utf-8")
+        try:
+            text = self.path.read_text(encoding="utf-8")
+        except UnicodeDecodeError as exc:
+            # ترميزٌ فاسدٌ = تلفٌ يُرفَعُ صريحًا — لا استبدالَ حرفٍ صامتًا (W-489 § 2)
+            raise IdempotencyError(
+                f"سجلُّ الذرّيّةِ في «{self.path}» تالفٌ ولا يُمكنُ قراءتُه."
+            ) from exc
         # الصيغةُ القديمةُ كائنٌ واحدٌ متعدّدُ الأسطرِ: `json.dumps(..., indent=2)`
         # يفتتحُ الملفَ بـ«{\n» حرفًا — أما السجلُّ الإلحاقيُّ فأوّلُ سطرِهِ كائنٌ
         # تامٌّ على سطرٍ واحدٍ. ما ليسَ كائنًا متعدّدَ الأسطرِ ليسَ قديمًا فلا
@@ -495,6 +501,7 @@ class IdempotencyLedger:
             if (
                 not isinstance(event, dict)
                 or "record" not in event
+                or not isinstance(event["record"], dict)  # سجلٌّ معدومٌ = تلفٌ لا فقدٌ صامتٌ
                 or "key" not in event
                 or event.get("v") != APPEND_LOG_VERSION
                 or event.get("op") not in KNOWN_EVENT_OPS

@@ -6,8 +6,14 @@
 تاريخ الإنشاء: 2026-08-15
 """
 
+from datetime import UTC, datetime, timedelta
+
+import jwt
+import pytest
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
+from amos_federation.common.auth import _signing_secret, decode_token, settings
 from amos_federation.services.critic.main import app
 
 from .per_test_auth import PerTestAuthHeaders
@@ -51,6 +57,37 @@ def _poor_review_request() -> dict:
         ],
         "result_summary": "",
     }
+
+
+def test_wi097_expired_token_rejected_fresh_headers_accepted() -> None:
+    """WI-097 (T0 · فحصُ الساعةِ المضبوطةِ): الرمزُ المنتهي يُرفضُ (401) والترويساتُ الفتيّةُ تُقبلُ — بلا تغييرِ عمرِ الرمزِ.
+
+    لا يُنتظرُ مرورُ 60 دقيقةً حقيقةً: رمزٌ بحملٍ سليمٍ (الموضوعُ والنطاقاتُ
+    والمستأجرُ محفوظونَ) لكنَّ صلاحيّتَه مضَت يُرفضُ 401، والطلبُ بترويساتِ
+    `PerTestAuthHeaders` — التي تُسكُّ الرمزَ عندَ قراءتِهِ وقتَ الطلبِ — يُقبلُ.
+    وعمرُ الرمزِ (60 دقيقةً) يُتحققُ منهُ لا يُغيَّرُ (التوجيهُ 15 § 1).
+    """
+    expired_payload = dict(decode_token(AUTH_HEADERS["Authorization"].removeprefix("Bearer ")))
+    exp_at = datetime.fromtimestamp(expired_payload["exp"], tz=UTC)
+    remaining = (exp_at - datetime.now(UTC)).total_seconds()
+    assert 59 * 60 <= remaining <= 60 * 60, "عمرُ الرمزِ تغيَّر — ممنوعٌ (التوجيهُ 15 § 1)"
+    assert expired_payload["sub"] == "tester"
+    assert sorted(expired_payload["scopes"]) == ["critic:read", "critic:write"]
+
+    expired_payload["exp"] = datetime.now(UTC) - timedelta(seconds=1)
+    expired_token = jwt.encode(expired_payload, _signing_secret(), algorithm=settings.jwt_algorithm)
+    with pytest.raises(HTTPException) as exc_info:
+        decode_token(expired_token)
+    assert exc_info.value.status_code == 401
+
+    resp_expired = client.post(
+        "/v1/reviews",
+        headers={"Authorization": "Bearer " + expired_token},
+        json=_good_review_request(),
+    )
+    assert resp_expired.status_code == 401
+    resp_fresh = client.post("/v1/reviews", headers=AUTH_HEADERS, json=_good_review_request())
+    assert resp_fresh.status_code == 201
 
 
 def test_review_good_result_gets_high_score() -> None:

@@ -748,7 +748,7 @@ class TestGuardIntegrity:
         """
         ledger = _make_ledger(tmp_path)
         ledger.path.parent.mkdir(parents=True, exist_ok=True)
-        ledger.path.write_text("NOT JSON\n", encoding="utf-8")
+        ledger.path.write_text("NOT JSON", encoding="utf-8")
         with pytest.raises(IdempotencyError, match="تالف"):
             ledger.get(_make_key())
 

@@ -4,44 +4,97 @@
   "المالك": "Perplexity Computer (WI-096 · التوجيهُ 12 § 2)",
   "النتائج": {
     "M1_حذف_flock": {
+      "failed_tests": 1,
+      "errors": 0,
+      "collection_errors": 0,
       "killed": true,
       "exit_code": 1,
-      "tail": "1 failed, 7 passed in 0.62s"
+      "killed_by": [
+        "tests/sovereignty/test_idempotency_append_log.py::TestProcessLock::test_concurrent_processes_lose_no_event"
+      ]
     },
     "M2_فتح_بوضع_w_يمحو": {
+      "failed_tests": 18,
+      "errors": 0,
+      "collection_errors": 0,
       "killed": true,
       "exit_code": 1,
-      "tail": "1 failed in 0.06s"
+      "killed_by": [
+        "tests/sovereignty/test_idempotency_append_log.py::TestAppendLogShape::test_each_event_is_one_line",
+        "tests/sovereignty/test_idempotency_append_log.py::TestAppendLogShape::test_two_instances_share_the_log",
+        "tests/sovereignty/test_idempotency_append_log.py::TestAppendLogShape::test_replacement_rebuilds_state_regardless_of_size",
+        "tests/sovereignty/test_idempotency_append_log.py::TestCrashSafety::test_complete_corrupt_line_raises",
+        "tests/sovereignty/test_idempotency_append_log.py::TestCrashSafety::test_log_not_starting_with_header_rejected"
+      ]
     },
     "M3_قراءة_الذيل_الممزق_كاملًا": {
+      "failed_tests": 2,
+      "errors": 0,
+      "collection_errors": 0,
       "killed": true,
       "exit_code": 1,
-      "tail": "1 failed, 4 passed in 4.10s"
+      "killed_by": [
+        "tests/sovereignty/test_idempotency_append_log.py::TestCrashSafety::test_torn_tail_is_ignored_and_retried",
+        "tests/sovereignty/test_idempotency_append_log.py::TestProcessLock::test_concurrent_processes_lose_no_event"
+      ]
     },
     "M4_حذف_فحص_البصمة": {
+      "failed_tests": 2,
+      "errors": 0,
+      "collection_errors": 0,
       "killed": true,
       "exit_code": 1,
-      "tail": "1 failed, 11 passed in 0.99s"
+      "killed_by": [
+        "tests/sovereignty/test_idempotency_append_log.py::TestMigration::test_reuse_with_different_fingerprint_still_refused",
+        "tests/sovereignty/test_idempotency.py::TestLedgerReserve::test_reserve_same_key_different_fingerprint_rejected"
+      ]
     },
     "M5_تعطيل_الضغط": {
+      "failed_tests": 1,
+      "errors": 0,
+      "collection_errors": 0,
       "killed": true,
       "exit_code": 1,
-      "tail": "1 failed, 9 passed in 0.98s"
+      "killed_by": [
+        "tests/sovereignty/test_idempotency_append_log.py::TestCompaction::test_log_grows_asymptotically_not_linearly"
+      ]
     },
     "M6_الضغط_يُسقِط_المفاتيح": {
+      "failed_tests": 3,
+      "errors": 0,
+      "collection_errors": 0,
       "killed": true,
       "exit_code": 1,
-      "tail": "1 failed, 3 passed in 0.09s"
+      "killed_by": [
+        "tests/sovereignty/test_idempotency_append_log.py::TestAppendLogShape::test_replacement_rebuilds_state_regardless_of_size",
+        "tests/sovereignty/test_idempotency_append_log.py::TestCompaction::test_compaction_keeps_all_live_keys",
+        "tests/sovereignty/test_idempotency_append_log.py::TestCompaction::test_log_grows_asymptotically_not_linearly"
+      ]
     },
     "M7_الترحيل_يُفرِغُ_المحتوى_القديم": {
+      "failed_tests": 1,
+      "errors": 0,
+      "collection_errors": 0,
       "killed": true,
       "exit_code": 1,
-      "tail": "1 failed, 10 passed in 1.14s"
+      "killed_by": [
+        "tests/sovereignty/test_idempotency_append_log.py::TestMigration::test_legacy_json_object_is_migrated_once"
+      ]
     },
     "M8_إلحاق_بلا_تحديثِ_الذاكرةِ": {
+      "failed_tests": 53,
+      "errors": 0,
+      "collection_errors": 0,
       "killed": true,
       "exit_code": 1,
-      "tail": "1 failed in 0.07s"
+      "killed_by": [
+        "tests/sovereignty/test_idempotency_append_log.py::TestAppendLogShape::test_each_event_is_one_line",
+        "tests/sovereignty/test_idempotency_append_log.py::TestAppendLogShape::test_read_after_write_same_instance",
+        "tests/sovereignty/test_idempotency_append_log.py::TestAppendLogShape::test_replacement_rebuilds_state_regardless_of_size",
+        "tests/sovereignty/test_idempotency_append_log.py::TestCrashSafety::test_torn_tail_is_ignored_and_retried",
+        "tests/sovereignty/test_idempotency_append_log.py::TestCrashSafety::test_atomic_single_line_appends"
+      ]
     }
-  }
+  },
+  "قاعدة_القتل": "فشلُ فحصٍ فعليٌّ (failed>0 · بلا أخطاءِ جمعٍ) — وقبلَها خطُ أساسٍ أخضرُ موثَّقٌ"
 }
