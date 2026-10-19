@@ -4,7 +4,7 @@
 ## النطاق: خريطةُ `نطاق → مساراتٌ → مالكٌ → مراجعٌ → بديل`. **لا تُسجَّلُ هنا حالةُ القدرةِ** (تلك في [`TRUTH_MATRIX.md`](../../audit/TRUTH_MATRIX.md))، ولا الأعمالُ المفتوحة (تلك في [`ACTIVE_WORK.md`](ACTIVE_WORK.md))
 ## المالك: المجلس التأسيسي — ولا يُعيَّنُ مالكُ نطاقٍ إلّا بقرارِه
 ## تاريخ الإنشاء: 2026-08-25
-## تاريخ آخر تعديل: 2026-10-15 (‏`W-339` — أُضيفَ نطاقُ `ops-capability` (`tools/ops` · WI-076) · ووقبله 2026-09-08 (‏`W-150` — Q-43 نُزِّلَ في صفوفِ النطاقاتِ لا في النشرةِ وحدَها، بعدَ رفضِ المجلسِ المستقلِّ ‏GPT 5.6 وGrok 4.6 معًا)
+## تاريخ آخر تعديل: 2026-10-19 (‏`W-503` — قرارُ المالكِ `Q-59`: عمودُ «المراجع» للنطاقاتِ `C0`/`C1`/`C2` صارَ «مجلسُ المراجعةِ (وفقَ بروتوكولِ المجلسِ · Q-59)» — مراجعونَ من عوائلِ نماذجٍ متعددةٍ في بيئاتٍ منفصلةٍ (عزلٌ إجرائيٌّ معلنٌ) · لا تغييرَ في ملكيّةِ النطاقاتِ ولا في مراجعِ `C3`/`C4` (المالكُ) · ووقبله 2026-10-15 (‏`W-339` — أُضيفَ نطاقُ `ops-capability` (`tools/ops` · WI-076) · ووقبله 2026-09-08 (‏`W-150` — Q-43 نُزِّلَ في صفوفِ النطاقاتِ لا في النشرةِ وحدَها، بعدَ رفضِ المجلسِ المستقلِّ ‏GPT 5.6 وGrok 4.6 معًا)
 
 > **حالةُ هذا السجلِّ صادقةٌ لا مُجمَّلة، وتُفرَّقُ فيها ثلاثُ حقائقَ لا تُخلَط:**
 >
@@ -39,34 +39,36 @@
 
 ---
 
+> **[تحديثٌ مؤرَّخٌ (2026-10-19 · `W-503` · قرارُ المالكِ `Q-59`):]** صارَ مراجعُ النطاقاتِ من فئاتِ `C0`/`C1`/`C2` **مجلسَ المراجعةِ وفقَ بروتوكولِ المجلسِ** (مراجعونَ من عوائلِ نماذجٍ متعددةٍ يصلُ إليهم المنسِّقُ، كلٌّ في بيئةٍ منفصلةٍ لا يرى عملَ الآخرَينِ ولا تقريرَ المنفِّذِ — عزلٌ إجرائيٌّ معلنٌ · البروتوكولُ في `docs/governance/COUNCIL_PROTOCOL.md` · بندُ `WI-100`). وكانَ النصُّ السابقُ «مجلسُ المراجعةِ (GPT 5.6 + Grok 4.6)» — تاريخٌ محفوظٌ هنا لا يُمحى، والاستقلالُ كما حدَّه `Q-46`: المجلسَ يُدِرُهُ المنسِّقُ فلا يُدَّعى له استقلالٌ تامٌّ.
+
 ## 1 · النطاقاتُ المُسجَّلة
 
 | النطاق | المسارات | المالك | المراجع | البديل | فئةُ التغييرِ الافتراضيّة |
 |---|---|---|---|---|---|
 | constitution | core/constitution · core/constitutional_engine | — (غيرُ معيَّن) | المالك | — | C3 |
 | sovereignty | core/sovereignty · core/crown · royal | — (غيرُ معيَّن) | المالك | — | C3 |
-| core-kernel | core/memory · core/meta · core/specs · core/stubs · core/NUCLEUS.md | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C1 |
-| federal-executive | federal/executive | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C1 |
-| federal-legislative | federal/legislative | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C1 |
-| federal-judicial | federal/judicial | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C1 |
+| core-kernel | core/memory · core/meta · core/specs · core/stubs · core/NUCLEUS.md | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C1 |
+| federal-executive | federal/executive | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C1 |
+| federal-legislative | federal/legislative | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C1 |
+| federal-judicial | federal/judicial | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C1 |
 | treasury | federal/treasury | — (غيرُ معيَّن) | المالك | — | C3 |
-| data-migrations | federal/executive/services/migrations | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C2 |
-| states | states | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C1 |
-| institutions | institutions | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C1 |
-| agents | agents | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C1 |
-| runtime | runtime · ops | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C2 |
-| interfaces | interfaces | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C1 |
-| api-surface | interfaces/api | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C2 |
-| governance-docs | docs/governance | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C1 |
-| audit-truth | docs/audit | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C1 |
+| data-migrations | federal/executive/services/migrations | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C2 |
+| states | states | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C1 |
+| institutions | institutions | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C1 |
+| agents | agents | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C1 |
+| runtime | runtime · ops | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C2 |
+| interfaces | interfaces | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C1 |
+| api-surface | interfaces/api | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C2 |
+| governance-docs | docs/governance | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C1 |
+| audit-truth | docs/audit | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C1 |
 | decisions | docs/adr · docs/audit/SOVEREIGN_DECISION_REGISTER.md | — (غيرُ معيَّن) | المالك | — | C3 |
-| docs-general | docs | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C0 |
-| tooling-gates | tools/governance · tools/dev · tools/audit | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C1 |
-| ci-pipeline | .github | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C1 |
-| tests-root | tests | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C0 |
-| dependencies | requirements-dev.txt · requirements-tools.txt · requirements.lock | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C2 |
+| docs-general | docs | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C0 |
+| tooling-gates | tools/governance · tools/dev · tools/audit | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C1 |
+| ci-pipeline | .github | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C1 |
+| tests-root | tests | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C0 |
+| dependencies | requirements-dev.txt · requirements-tools.txt · requirements.lock | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C2 |
 | integrations | — (لا مسارَ بعد) | — (غيرُ معيَّن) | المالك | — | C4 |
-| ops-capability | tools/ops | — (غيرُ معيَّن) | مجلس المراجعة (GPT 5.6 + Grok 4.6) | — | C1 |
+| ops-capability | tools/ops | — (غيرُ معيَّن) | مجلس المراجعة (وفق بروتوكول المجلس · Q-59) | — | C1 |
 
 > **[تحديثٌ مؤرَّخٌ (W-339 · 2026-10-15):]** أُضيفَ النطاقُ `ops-capability` (مسارُ `tools/ops` · أداةُ
 > النسخِ والاستعادةِ WI-076) فصارَ تحتَ `tools/` **ثلاثةَ عشرَ** مجلَّدًا والمُسجَّلُ منها **أربعةٌ**
