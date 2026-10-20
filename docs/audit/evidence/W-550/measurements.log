@@ -1,0 +1,11 @@
+=== قياسات W-550 (2026-10-20 · UTC) ===
+--- جمع فاحص W-542 في worktrees (pytest --collect-only) ---
+81f8546 (W-542) : 26 tests collected in 0.02s
+7a2968a (W-544) : 26 tests collected in 0.02s
+122b00f (W-546) : 28 tests collected in 0.02s
+--- جمع الحزمة الحي الآن ---
+2684 tests collected in 0.69s
+--- حكم CI (N+1) على عقدة 7a44582 (W-548/W-549) ---
+run 39391529960: READABLE · 13/13 · success (green) — قُرِئ بـci_verdict_readability.py --from-json (توقيعُ التشغيلِ في سيرِ GitHub Actions)
+--- حكم CI الأحمر (39388200245 · عقدة 2c02a67) ---
+Identity Law + Cross-System (root-core): 3 اختباراتٍ W-548/briefing_*.md (منتزعٌ كأحكامٍ) · الجمعُ الحيُّ في الجولةِ 2687

@@ -1,10 +1,10 @@
 # إحاطةُ جولةِ مراجعةِ البندِ: WI-082 — الجولةُ المستعادةُ (رابعةُ جولاتِ C3 · ترتيبِ § 7.3 منَ البروتوكولِ) — نسخةُ المقعدِ `gemini_3_8_flash`
 
 ## الهدف: إحاطةُ مراجعِ الجولةِ بكلِّ ما يصلُهُ — البندُ ومعاييرُهُ وأوامرُ المعاييرِ وحدودُ القراءةِ وأسئلةُ الحكمِ — معبَّأةٌ منَ القالبِ الثابتِ `COUNCIL_BRIEF_TEMPLATE.md` بنسختِهِ المعدَّلةِ في W-542 (sha256 `90465d7ab19345f4b2d74c317277bd7c327521b569a132290d778b2d602773a9`)
-## النطاق: جولةُ مراجعةٍ واحدةٌ للبندِ WI-082 (الجولةُ المستعادةُ بعدَ جولةِ W-526 بلا إجماعٍ وقرارِ المالكِ Q-62 ② واستعادةِ 1c52572 في W-531/W-535) وفقَ بروتوكولِ المجلسِ (قرارُ المالكِ Q-59 · لا يوقفُها Q-61) · نسخةٌ لكلِّ مقعدٍ لا تختلفُ إلّا في جذرِ الدليلِ واسمِ المقعدِ (§ 2.6) · تُبصَمُ sha256 في قيدِ W-548 قبلَ الإطلاقِ
+## النطاق: جولةُ مراجعةٍ واحدةٌ للبندِ WI-082 (الجولةُ المستعادةُ بعدَ جولةِ W-526 بلا إجماعٍ وقرارِ المالكِ Q-62 ② واستعادةِ 1c52572 في W-531/W-535) وفقَ بروتوكولِ المجلسِ (قرارُ المالكِ Q-59 · لا يوقفُها Q-61) · نسخةٌ لكلِّ مقعدٍ لا تختلفُ إلّا في جذرِ الدليلِ واسمِ المقعدِ (§ 2.6) · تُبصَمُ sha256 في قيدِ W-550 (النسخةُ الثانيةُ — أُعيدتِ التعبئةُ قبلَ الإطلاقِ بسابقةِ W-520)
 ## المالك: بندُ WI-100 (بروتوكولُ المجلسِ · § 3.2)
 ## تاريخ الإنشاء: 2026-10-20
-## تاريخ آخر تعديل: 2026-10-20 (W-548 — التعبئةُ منَ القالبِ المعدَّلِ)
+## تاريخ آخر تعديل: 2026-10-20 (W-550 — إعادةُ التعبئةِ قبلَ الإطلاقِ: تصحيحُ المقاعدِ بمعيارِ § 1.3 المكتوبِ (المنسِّقُ الحاضرُ GLM-5.3 ⇒ لا استبعادَ لـClaude · § 1.5) وقاعدةُ البياناتِ داخلَ دليلِكَ الخاصِّ لا `/tmp` · والأوامرُ بلا سوابقِ ترقيمٍ داخلَ كتلةِ التنفيذِ)
 
 > معبَّأةٌ منَ البندِ نفسِهِ لا منَ تقريرِ منفِّذٍ · مُبصَمةٌ قبلَ إطلاقِ المقاعدِ · لا تُعدَّلُ بعدَ الإطلاقِ.
 > **المخرجاتُ خامٌ كاملةٌ — ممنوعٌ الاقتطاعُ والاختصارُ و«المقاطعُ المفتاحيّةُ» والوصفُ النثريُّ للمخرجِ وإعادةُ كتابتِهِ، مهما طالَ المخرجُ** (البروتوكولُ § 4.5). وحكمُكَ يُفحَصُ آليًّا ولا يُحتسَبُ إن رُفِضَ (§ 4.7).
@@ -13,7 +13,7 @@
 
 - المستودعُ: `vooovg-ui/AMOS-Fedration`
 - العقدةُ المرادُّ مراجعتُها (كاملةً): `762a452191af520350fd5801030cf3efbab01ad5`
-- **دليلُكَ الخاصُّ (§ 2.6 · لا مسارَ مشتركٌ):** `/home/user/workspace/council_w548/gemini_3_8_flash` — كلُّ ما تكتبُهُ (الاستنساخُ · شجرةُ «قبلُ» · الملفّاتُ المؤقّتةُ · كتلُ RAW · ملفُّ حكمِكَ) داخلَهُ وحدَهُ، **لا تحتَ `/tmp`** ولا في دليلِ مقعدٍ آخرَ.
+- **دليلُكَ الخاصُّ (§ 2.6 · لا مسارَ مشتركٌ):** `/home/user/workspace/council_w548/gemini_3_8_flash` — كلُّ ما تكتبُهُ (الاستنساخُ · الملفّاتُ المؤقّتةُ · قاعدةُ البياناتِ · كتلُ RAW · ملفُّ حكمِكَ) داخلَهُ وحدَهُ، **لا تحتَ `/tmp`** ولا في دليلِ مقعدٍ آخرَ.
 - التهيئةُ (قبلَ أوامرِ المعاييرِ · لا تُلتقَطُ لأنَّ أداةَ الالتقاطِ داخلَ الاستنساخِ):
 
 ```text
@@ -113,6 +113,11 @@ cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && git checkout 762a4
   W-534/W-535: CI أحمرُ (39354375439) — استعادةُ W-531 نقصَها الملفُّ الثالثُ tests/governance/test_q3_branch_declaration_surface.py
   (5 مُعلِنةٌ في 1c52572) ⇒ البندُ IN_PROGRESS (W-534) · استُعيدَ بايتًا ببايتٍ (blob 7e54694) + رقمُ الحزمةِ في HANDBOOK 1475+53
   + إضافةٌ مؤرَّخةٌ في موجزِ Q-3 (W-535) · حزمةُ الجذرِ كاملةً بعدَه في evidence/W-531/root_suite_w535.txt
+
+[W-548 · 2026-10-20] أُعِدَّت إحاطاتُ الجولةِ المستعادةِ (رابعةُ جولاتِ C3 · ترتيبُ § 7.3 — الخطوةُ التاليةُ الملزِمةُ في § 7 من سجلِّ الإكمالِ · لا يوقفُها Q-61):
+  3 نسخٍ لكلِّ مقعدٍ (§ 2.6 · تشكيلُ Q-60/Q-63: gemini_3_8_flash · grok_4_7 · kimi_k3 · المنسِّقُ الحاضرُ GLM-5.3) معبَّأةٌ منَ القالبِ المعدَّلِ (W-542)
+  منَ صفِّ البندِ وكتلتِهِ حرفيًّا · العقدةُ 762a452 (شِفرةُ البندِ المُستعادةُ 1c52572 بملفاتِها الثلاثةِ — W-531/W-535) · 15 أمرًا مكتفيًا بنفسِهِ
+  · الأحكامُ خامًّا كاملةً بالفاحصِ (§ 4.7) · بصماتُ sha256 في evidence/W-548 · تُطلَقُ المقاعدُ بعدَ دمجِ قيدِ W-548
 ```
 
 معاييرُ القبولِ كما قُيِّدَت قبلَ العملِ (في تسجيلِ البندِ وقياسِ ما قبلُ W-380/W-390): الفقرةُ «معيار القبول» أعلاهُ بنصِّها · وقراءةُ المعيارِ 3 كما قُيِّدَت في الإضافةِ المؤرَّخةِ (W-390 · ج): دَينُ الملفِّ 3 ← 2 (register_identity وحدَه) إلى حسمِ التسميةِ عندَ المالكِ. (والحالةُ والتصحيحاتُ المؤرَّخةُ في الكتلةِ تاريخُ البندِ — لا تُغيِّرانِ المعاييرَ.)
@@ -129,7 +134,7 @@ cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && git checkout 762a4
 
 ## ج · أوامرُ المعاييرِ (منَ البندِ نفسِهِ — كلُّ سطرٍ أمرٌ مكتفٍ بنفسِهِ يُلتقَطُ وحدَهُ)
 
-**طريقةُ التشغيلِ (إلزاميّةٌ · § 4.6):** شغِّلْ كلَّ سطرٍ أدناهُ برقمِهِ n (بترتيبِهِ منَ 1 إلى 15) عبرَ أداةِ الالتقاطِ هكذا — والأمرُ بينَ علامتَي الاقتباسِ **حرفيًّا كما هو**:
+**طريقةُ التشغيلِ (إلزاميّةٌ · § 4.6):** شغِّلْ كلَّ سطرٍ أدناهُ برقمِهِ n (بترتيبِهِ منَ 1 إلى 15) عبرَ أداةِ الالتقاطِ هكذا — والأمرُ بينَ علامتَي الاقتباسِ **حرفيًّا كما هو في السطرِ نفسِهِ** (بلا رقمِهِ):
 
 ```text
 python3 /home/user/workspace/council_w548/gemini_3_8_flash/repo/tools/governance/council_raw_capture.py --n <n> --out /home/user/workspace/council_w548/gemini_3_8_flash/raw/<n بخانتين: 01 02 …>.txt '<الأمرُ>'
@@ -137,27 +142,27 @@ python3 /home/user/workspace/council_w548/gemini_3_8_flash/repo/tools/governance
 
 (إن احتوى الأمرُ علامةَ اقتباسٍ مفردةً فمرِّرْهُ بحيثُ يصلُ الأداةَ حرفيًّا — مثلًا بـ`"$(cat <<'EOF' … EOF)"`؛ والمعيارُ أن يطابقَ سطرُ `CMD:` في الكتلةِ السطرَ أدناهُ حرفًا بحرفٍ.)
 
-الأوامرُ (15 أمرًا — منَ البندِ وقياساتِهِ المُعلنةِ: البيئةُ أولًا · ثمَّ جردُ الدَّينِ السياديِّ · ثمَّ مواضعُ النداءِ والفعلُ المعلنُ · ثمَّ فحوصُ البندِ وطفرتُهُ (تبديلُ الفعلِ ثمَّ ردُّه) · ثمَّ الحزمتانِ والملفُّ الثالثُ · ثمَّ مُخرَجا البندِ (الشِفرةُ وفحوصُها) كاملَينِ · ثمَّ فحصُ العزلِ § 2.6):
+الأوامرُ (15 أمرًا — منَ البندِ وقياساتِهِ المُعلنةِ: البيئةُ أولًا · ثمَّ جردُ الدَّينِ السياديِّ · ثمَّ مواضعُ النداءِ والفعلُ المعلنُ · ثمَّ فحوصُ البندِ وطفرتُهُ (تبديلُ الفعلِ ثمَّ تشغيلُ الفحصِ — تُقرأُ `EXIT: 1` منَ الكتلةِ نفسِها — ثمَّ ردُّ الملفِّ) · ثمَّ حزمةُ الخدماتِ كاملةً والملفُّ الثالثُ من حزمةِ الجذرِ · ثمَّ مُخرَجا البندِ (الشِفرةُ وفحوصُها) كاملَينِ · ثمَّ فحصُ العزلِ § 2.6):
 
 ```bash
-1. cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && git rev-parse HEAD
-2. cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && bash tools/dev/bootstrap.sh
-3. cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && .venv/bin/python tools/audit/sovereign_write_inventory.py
-4. cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && rg -n "register_identity\(|update_identity\(|set_lifecycle_state\(" --type py federal core tools | rg -v /tests/ | rg -v "def "
-5. cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && rg -c "register_identity\(|spawn_agent\(|update_identity\(|set_lifecycle_state\(" federal/executive/services/tests
-6. cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && rg -n "spawn_agent" core/constitutional_engine/rules.py
-7. cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite:////tmp/amos_seat_gemini_3_8_flash.db .venv/bin/python -m pytest federal/executive/services/tests/test_wi082_agent_identity_sovereign.py -q
-8. cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && sed -i 's/ACTION_SPAWN_AGENT = "spawn_agent"/ACTION_SPAWN_AGENT = "register_agent"/' federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py
-9. cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite:////tmp/amos_seat_gemini_3_8_flash.db .venv/bin/python -m pytest federal/executive/services/tests/test_wi082_agent_identity_sovereign.py -q; echo "EXIT=$?"
-10. cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && git checkout -- federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py
-11. cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite:////tmp/amos_seat_gemini_3_8_flash.db .venv/bin/python -m pytest federal/executive/services/tests/ -q
-12. cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && .venv/bin/python -m pytest tests/governance/test_q3_branch_declaration_surface.py -q
-13. cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && cat federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py
-14. cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && cat federal/executive/services/tests/test_wi082_agent_identity_sovereign.py
-15. find /home/user/workspace/council_w548/gemini_3_8_flash -maxdepth 1
+cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && git rev-parse HEAD
+cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && bash tools/dev/bootstrap.sh
+cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && .venv/bin/python tools/audit/sovereign_write_inventory.py
+cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && rg -n "register_identity\(|update_identity\(|set_lifecycle_state\(" --type py federal core tools | rg -v /tests/ | rg -v "def "
+cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && rg -c "register_identity\(|spawn_agent\(|update_identity\(|set_lifecycle_state\(" federal/executive/services/tests
+cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && rg -n "spawn_agent" core/constitutional_engine/rules.py
+cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite:////home/user/workspace/council_w548/gemini_3_8_flash/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests/test_wi082_agent_identity_sovereign.py -q
+cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && sed -i 's/ACTION_SPAWN_AGENT = "spawn_agent"/ACTION_SPAWN_AGENT = "register_agent"/' federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py
+cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite:////home/user/workspace/council_w548/gemini_3_8_flash/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests/test_wi082_agent_identity_sovereign.py -q
+cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && git checkout -- federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py
+cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite:////home/user/workspace/council_w548/gemini_3_8_flash/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests/ -q
+cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && .venv/bin/python -m pytest tests/governance/test_q3_branch_declaration_surface.py -q
+cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && cat federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py
+cd /home/user/workspace/council_w548/gemini_3_8_flash/repo && cat federal/executive/services/tests/test_wi082_agent_identity_sovereign.py
+find /home/user/workspace/council_w548/gemini_3_8_flash -maxdepth 1
 ```
 
-(المتوقَّعُ المُقيَّدُ في البندِ وأدلّتِهِ: الأمرُ 9 ⇒ EXIT=1 · 3 فحوصٍ سقطت (1 و3 و7) — الفحصُ يقتلُ الطفرةَ لا يصمتُ عنها · والأمرُ 10 يردُّ الملفَّ كما كان.)
+(المتوقَّعُ المُقيَّدُ في البندِ وأدلّتِهِ: الأمرُ 9 ⇒ `EXIT: 1` في كتلتِهِ (تسجِّلُهُ أداةُ الالتقاطِ منَ الأمرِ نفسِهِ) · 3 فحوصٍ سقطت (1 و3 و7) — الفحصُ يقتلُ الطفرةَ لا يصمتُ عنها · والأمرُ 10 يردُّ الملفَّ كما كان.)
 
 ## د · حدودُ قراءتِكَ (مصادرُ المعاييرِ وحدَها)
 
