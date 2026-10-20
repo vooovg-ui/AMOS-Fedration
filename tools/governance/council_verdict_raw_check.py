@@ -301,7 +301,7 @@ def main(argv: list[str] | None = None) -> int:
     if bad:
         print(f"[RAW CHECK] ✗ {bad} حكمًا مرفوضًا — لا يُحتسَبُ في النصاب (البروتوكولُ § 4.7)")
         return 1
-    print("[RAW CHECK] ✓ كلُّ الأحكامِ تحملُ مخرجاتِ أوامرِها خامًا كاملةً")
+    print(f"[RAW CHECK] ✓ {len(args.verdicts)}/{len(args.verdicts)} حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً")
     return 0
 
 
