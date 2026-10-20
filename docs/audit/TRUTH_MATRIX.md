@@ -69,7 +69,7 @@
 | `tools/` | 43 | 56 | 2 | 18337 | 12 | 0 | unspecified=12 |
 | `interfaces/` | 14 | 2 | 0 | 38 | 4 | 0 | unspecified=4 |
 | `runtime/` | 20 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
-| `docs/` | 228 | 10 | 0 | 774 | 7 | 0 | unspecified=7 |
+| `docs/` | 229 | 10 | 0 | 774 | 7 | 0 | unspecified=7 |
 | `ops/` | 38 | 2 | 0 | 38 | 12 | 0 | unspecified=12 |
 | `tests/` | 14 | 109 | 0 | 29259 | 5 | 0 | unspecified=5 |
 
