@@ -1,0 +1,42 @@
+=== W-553 · قياساتٌ (2026-10-20 · الساعةُ عندَ الجمعِ: 2026-10-20T10:41:20Z) ===
+
+--- (1) حكمُ CI على رأسِ الدفعةِ السابقةِ 661e72d (واجبُ N+1) ---
+gh run view 39404994247: 661e72ddb270d1a17c032aef9c429b6ed88c5f92 pull_request success 2026-10-20T10:01:55Z
+[CI VERDICT] ✓ كلُّ التشغيلاتِ (1) نُفِّذَت خطواتُها — فـ`conclusion` يُقرأُ حكمًا.
+
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+[CI VERDICT] ✓ كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — فالدمجُ جائزٌ إجرائيًّا.
+
+--- (2) طوابعُ الالتزامِ مقابلَ أوّلِ سيرِ عملٍ لكلِّ عقدةٍ (gh api actions/runs?head_sha=…) ---
+(الصيغةُ: القيدُ · العقدةُ · ختمُ الالتزامِ · ختمُ الأبِ · أوّلُ سيرٍ — «—» = لا سيرَ لهذه العقدةِ بعينِها)
+W-440 5f64612 stamp=2026-10-18T08:55:19Z parent=2026-10-18T08:54:35Z firstRun=—
+W-441 fc59da6 stamp=2026-10-18T08:55:23Z parent=2026-10-18T08:55:19Z firstRun=2026-10-18T09:03:39Z
+W-442 00d06f9 stamp=2026-10-18T15:35:00Z parent=2026-10-18T08:55:23Z firstRun=—
+W-443 e60dd17 stamp=2026-10-18T15:40:00Z parent=2026-10-18T15:35:00Z firstRun=—
+W-444 d602382 stamp=2026-10-18T15:45:00Z parent=2026-10-18T15:40:00Z firstRun=—
+W-445 d169a04 stamp=2026-10-18T15:50:00Z parent=2026-10-18T15:45:00Z firstRun=—
+W-446 f930a51 stamp=2026-10-18T15:55:00Z parent=2026-10-18T15:50:00Z firstRun=—
+W-447 ddcd217 stamp=2026-10-18T16:00:00Z parent=2026-10-18T15:55:00Z firstRun=—
+W-448 892be20 stamp=2026-10-18T16:05:00Z parent=2026-10-18T16:00:00Z firstRun=—
+W-449 122b695 stamp=2026-10-18T16:10:00Z parent=2026-10-18T16:05:00Z firstRun=—
+W-450 b729272 stamp=2026-10-18T16:15:00Z parent=2026-10-18T16:10:00Z firstRun=—
+W-451 a2bbb18 stamp=2026-10-18T16:20:00Z parent=2026-10-18T16:15:00Z firstRun=—
+W-452 228d7a9 stamp=2026-10-18T16:25:00Z parent=2026-10-18T16:20:00Z firstRun=—
+W-453 02ddf15 stamp=2026-10-18T16:30:00Z parent=2026-10-18T16:25:00Z firstRun=2026-10-18T16:23:17Z
+W-454 968d0bf stamp=2026-10-18T16:40:00Z parent=2026-10-18T16:30:00Z firstRun=2026-10-18T16:31:32Z
+W-455 ac508bc stamp=2026-10-18T17:09:15Z parent=2026-10-18T16:40:00Z firstRun=—
+W-456 45fb8fd stamp=2026-10-18T17:10:00Z parent=2026-10-18T17:09:15Z firstRun=—
+W-545 2ba2620 stamp=2026-10-20T06:47:04Z parent=2026-10-20T05:00:10Z firstRun=—
+W-546 122b00f stamp=2026-10-20T06:47:13Z parent=2026-10-20T06:47:04Z firstRun=2026-10-20T06:47:56Z
+W-547 762a452 stamp=2026-10-20T07:26:00Z parent=2026-10-20T06:47:13Z firstRun=2026-10-20T07:19:30Z
+W-548 2c02a67 stamp=2026-10-20T08:05:00Z parent=2026-10-20T07:26:00Z firstRun=2026-10-20T07:41:28Z
+W-549 7a44582 stamp=2026-10-20T08:55:00Z parent=2026-10-20T08:05:00Z firstRun=2026-10-20T08:10:41Z
+W-550 5118149 stamp=2026-10-20T08:56:15Z parent=2026-10-20T08:55:00Z firstRun=2026-10-20T08:57:01Z
+W-551 b164b7a stamp=2026-10-20T09:22:50Z parent=2026-10-20T08:56:15Z firstRun=2026-10-20T09:23:03Z
+W-552 661e72d stamp=2026-10-20T09:44:41Z parent=2026-10-20T09:22:50Z firstRun=2026-10-20T09:45:25Z
+
+--- (3) الدَّينُ المجمَّعُ الحاضرُ (commit_timestamp_integrity.py --check) ---
+COMMIT_STAMP: مقيسٌ non_utc=138 · duplicate_groups=3 · duplicate_commits=10 · non_monotonic=5 (‏من 829 التزامًا · سجلٌّ كاملٌ) · المُعلَنُ non_utc=138 · duplicate_groups=3 · duplicate_commits=10 · non_monotonic=5
+[COMMIT STAMP] ✓ كلُّ جديدٍ بعدَ 52711d12f7 إزاحتُه عالميّةٌ.
+[COMMIT STAMP] ✓ رأسُ الفرعِ المدفوعِ بإزاحةٍ عالميّةٍ.
+[COMMIT STAMP] ✓ لا نموَّ في دَينِ الطوابعِ.
