@@ -1,0 +1,57 @@
+[RAW CHECK] ✗ مرفوضٌ: docs/audit/evidence/W-538/gemini_3_8_flash.md · أوامرُ 14 · كتلُ RAW 0
+  - R6 نصٌّ في RAW_OUTPUTS خارجَ كتلِ RAW (نثرٌ/مقاطعُ/وصفٌ): "--- [1] clone & checkout ---\nCloning into '/home/user/workspace/council_w538/gemini_3_8_flash/repo'...\nHEAD is now at 31"
+  - R4 الأمرُ [1] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'mkdir -p /home/user/workspace/council_w538/gemini_3_8_flash/tmp && git clone htt'
+  - R4 الأمرُ [2] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'cd /home/user/workspace/council_w538/gemini_3_8_flash/repo && bash tools/dev/boo'
+  - R4 الأمرُ [3] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'export TMPDIR=/home/user/workspace/council_w538/gemini_3_8_flash/tmp && cd /home'
+  - R4 الأمرُ [4] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'export TMPDIR=/home/user/workspace/council_w538/gemini_3_8_flash/tmp && cd /home'
+  - R4 الأمرُ [5] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'export TMPDIR=/home/user/workspace/council_w538/gemini_3_8_flash/tmp && cd /home'
+  - R4 الأمرُ [6] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'cd /home/user/workspace/council_w538/gemini_3_8_flash/repo && git worktree add /'
+  - R4 الأمرُ [7] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'export TMPDIR=/home/user/workspace/council_w538/gemini_3_8_flash/tmp && cd /home'
+  - R4 الأمرُ [8] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'export TMPDIR=/home/user/workspace/council_w538/gemini_3_8_flash/tmp && cd /home'
+  - R4 الأمرُ [9] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'cd /home/user/workspace/council_w538/gemini_3_8_flash/repo && git diff --stat a2'
+  - R4 الأمرُ [10] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'cd /home/user/workspace/council_w538/gemini_3_8_flash/repo && ls docs/audit/evid'
+  - R4 الأمرُ [11] بلا كتلةِ RAW (مخرجٌ غيرُ خام): "cd /home/user/workspace/council_w538/gemini_3_8_flash/repo && rg -n '^## |^### |"
+  - R4 الأمرُ [12] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'cd /home/user/workspace/council_w538/gemini_3_8_flash/repo && cat docs/audit/evi'
+  - R4 الأمرُ [13] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'cd /home/user/workspace/council_w538/gemini_3_8_flash/repo && git show --stat --'
+  - R4 الأمرُ [14] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'find /home/user/workspace/council_w538/gemini_3_8_flash -maxdepth 1; echo "EXIT='
+[RAW CHECK] ✗ مرفوضٌ: docs/audit/evidence/W-538/grok_4_7.md · أوامرُ 0 · كتلُ RAW 0
+  - R3 COMMANDS_RUN بلا أمرٍ مرقّمٍ («n. الأمر»)
+  - R6 نصٌّ في RAW_OUTPUTS خارجَ كتلِ RAW (نثرٌ/مقاطعُ/وصفٌ): '--- clone+checkout ---\n311d9be905b6d1d8a61e1a1155bd8bfa86a031e5\n311d9be W-536: WI-082 IN_PROGRESS → IN_REVIEW (H3) بعدَ '
+[RAW CHECK] ✗ مرفوضٌ: docs/audit/evidence/W-538/kimi_k3.md · أوامرُ 16 · كتلُ RAW 0
+  - R6 نصٌّ في RAW_OUTPUTS خارجَ كتلِ RAW (نثرٌ/مقاطعُ/وصفٌ): '[1] «Cloning into ...» EXIT=0\n [2] «HEAD is now at 311d9be W-536: WI-082 IN_PROGRESS → IN_REVIEW (H3) …» EXIT=0 · وgit r'
+  - R4 الأمرُ [1] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'mkdir -p /home/user/workspace/council_w538/kimi_k3/tmp && git clone https://gith'
+  - R4 الأمرُ [2] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'git checkout 311d9be905b6d1d8a61e1a1155bd8bfa86a031e5 (في الاستنساخِ)'
+  - R4 الأمرُ [3] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'bash tools/dev/bootstrap.sh (في الاستنساخِ)'
+  - R4 الأمرُ [4] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'export TMPDIR=/home/user/workspace/council_w538/kimi_k3/tmp'
+  - R4 الأمرُ [5] بلا كتلةِ RAW (مخرجٌ غيرُ خام): '.venv/bin/python docs/audit/evidence/W-447/measure_ledger_append.py; echo "EXIT='
+  - R4 الأمرُ [6] بلا كتلةِ RAW (مخرجٌ غيرُ خام): '.venv/bin/python docs/audit/evidence/W-447/measure_ledger_append.py --sizes 200,'
+  - R4 الأمرُ [7] بلا كتلةِ RAW (مخرجٌ غيرُ خام): '.venv/bin/python docs/audit/evidence/W-447/measure_prefix_digest.py; echo "EXIT='
+  - R4 الأمرُ [8] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'git worktree add /home/user/workspace/council_w538/kimi_k3/before a2bbb186f5cf88'
+  - R4 الأمرُ [9] بلا كتلةِ RAW (مخرجٌ غيرُ خام): '/home/user/workspace/council_w538/kimi_k3/repo/.venv/bin/python docs/audit/evide'
+  - R4 الأمرُ [10] بلا كتلةِ RAW (مخرجٌ غيرُ خام): '…measure_ledger_append.py --sizes 200,400,800,1600,3200,6400 (في before)'
+  - R4 الأمرُ [11] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'git diff --stat a2bbb186f5cf88f2cadf9c07e50bdc2d3233d0d8 311d9be905b6d1d8a61e1a1'
+  - R4 الأمرُ [12] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'ls docs/audit/evidence/W-452/'
+  - R4 الأمرُ [13] بلا كتلةِ RAW (مخرجٌ غيرُ خام): "rg -n '^## |^### |^#### ' docs/audit/DISC100_LEDGER_APPEND_DESIGN.md"
+  - R4 الأمرُ [14] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'cat docs/audit/evidence/W-447/MAPPING.md'
+  - R4 الأمرُ [15] بلا كتلةِ RAW (مخرجٌ غيرُ خام): "git show --stat --format='%H %s' ddcd21746e8f1c4726f7cb7052f45d95edf9631e"
+  - R4 الأمرُ [16] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'find /home/user/workspace/council_w538/kimi_k3 -maxdepth 1'
+[RAW CHECK] ✗ مرفوضٌ: docs/audit/evidence/W-538/kimi_k3_VERDICT_file.md · أوامرُ 16 · كتلُ RAW 0
+  - R6 نصٌّ في RAW_OUTPUTS خارجَ كتلِ RAW (نثرٌ/مقاطعُ/وصفٌ): '[1] «Cloning into ...» EXIT=0\n [2] «HEAD is now at 311d9be W-536: WI-082 IN_PROGRESS → IN_REVIEW (H3) …» EXIT=0 · وgit r'
+  - R4 الأمرُ [1] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'mkdir -p /home/user/workspace/council_w538/kimi_k3/tmp && git clone https://gith'
+  - R4 الأمرُ [2] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'git checkout 311d9be905b6d1d8a61e1a1155bd8bfa86a031e5 (في الاستنساخِ)'
+  - R4 الأمرُ [3] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'bash tools/dev/bootstrap.sh (في الاستنساخِ)'
+  - R4 الأمرُ [4] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'export TMPDIR=/home/user/workspace/council_w538/kimi_k3/tmp'
+  - R4 الأمرُ [5] بلا كتلةِ RAW (مخرجٌ غيرُ خام): '.venv/bin/python docs/audit/evidence/W-447/measure_ledger_append.py; echo "EXIT='
+  - R4 الأمرُ [6] بلا كتلةِ RAW (مخرجٌ غيرُ خام): '.venv/bin/python docs/audit/evidence/W-447/measure_ledger_append.py --sizes 200,'
+  - R4 الأمرُ [7] بلا كتلةِ RAW (مخرجٌ غيرُ خام): '.venv/bin/python docs/audit/evidence/W-447/measure_prefix_digest.py; echo "EXIT='
+  - R4 الأمرُ [8] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'git worktree add /home/user/workspace/council_w538/kimi_k3/before a2bbb186f5cf88'
+  - R4 الأمرُ [9] بلا كتلةِ RAW (مخرجٌ غيرُ خام): '/home/user/workspace/council_w538/kimi_k3/repo/.venv/bin/python docs/audit/evide'
+  - R4 الأمرُ [10] بلا كتلةِ RAW (مخرجٌ غيرُ خام): '…measure_ledger_append.py --sizes 200,400,800,1600,3200,6400 (في before)'
+  - R4 الأمرُ [11] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'git diff --stat a2bbb186f5cf88f2cadf9c07e50bdc2d3233d0d8 311d9be905b6d1d8a61e1a1'
+  - R4 الأمرُ [12] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'ls docs/audit/evidence/W-452/'
+  - R4 الأمرُ [13] بلا كتلةِ RAW (مخرجٌ غيرُ خام): "rg -n '^## |^### |^#### ' docs/audit/DISC100_LEDGER_APPEND_DESIGN.md"
+  - R4 الأمرُ [14] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'cat docs/audit/evidence/W-447/MAPPING.md'
+  - R4 الأمرُ [15] بلا كتلةِ RAW (مخرجٌ غيرُ خام): "git show --stat --format='%H %s' ddcd21746e8f1c4726f7cb7052f45d95edf9631e"
+  - R4 الأمرُ [16] بلا كتلةِ RAW (مخرجٌ غيرُ خام): 'find /home/user/workspace/council_w538/kimi_k3 -maxdepth 1'
+[RAW CHECK] ✗ 4 حكمًا مرفوضًا — لا يُحتسَبُ في النصاب (البروتوكولُ § 4.7)
+EXIT=1

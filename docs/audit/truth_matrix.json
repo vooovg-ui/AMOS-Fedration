@@ -263,21 +263,21 @@
     "tools": {
       "domain": "tools",
       "md_files": 43,
-      "py_files": 54,
+      "py_files": 56,
       "yaml_files": 2,
-      "code_lines": 18002,
+      "code_lines": 18337,
       "nucleus_count": 12,
       "nucleus_status": {
         "unspecified": 12
       },
       "has_readme": true,
-      "real_source_hits": 51,
+      "real_source_hits": 52,
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,
       "observed_hits": 9,
       "api_routes": 1,
-      "test_refs": 568,
+      "test_refs": 572,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -298,7 +298,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 568
+        "TEST_NAME_MENTIONS": 572
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -391,7 +391,7 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 212,
+      "md_files": 213,
       "py_files": 10,
       "yaml_files": 0,
       "code_lines": 774,
@@ -406,7 +406,7 @@
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 191,
+      "test_refs": 193,
       "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
@@ -427,7 +427,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 191
+        "TEST_NAME_MENTIONS": 193
       },
       "maturity": "IMPLEMENTED",
       "findings_count": 0
@@ -478,9 +478,9 @@
     "tests": {
       "domain": "tests",
       "md_files": 14,
-      "py_files": 108,
+      "py_files": 109,
       "yaml_files": 0,
-      "code_lines": 29118,
+      "code_lines": 29258,
       "nucleus_count": 5,
       "nucleus_status": {
         "unspecified": 5
@@ -492,7 +492,7 @@
       "secret_hits": 0,
       "observed_hits": 4,
       "api_routes": 0,
-      "test_refs": 326,
+      "test_refs": 327,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -513,7 +513,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 326
+        "TEST_NAME_MENTIONS": 327
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
