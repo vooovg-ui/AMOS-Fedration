@@ -1,0 +1,21 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.1.1, pluggy-1.7.0
+rootdir: /home/user/workspace/amos/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.5, cov-7.1.0, anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 8 items
+
+federal/executive/services/tests/test_wi082_agent_identity_sovereign.py . [ 12%]
+......F                                                                  [100%]
+
+=================================== FAILURES ===================================
+______________ test_wi082_8_default_authorizer_is_one_per_module _______________
+federal/executive/services/tests/test_wi082_agent_identity_sovereign.py:284: in test_wi082_8_default_authorizer_is_one_per_module
+    assert seen[0] == seen[1], "المُصرِّحُ الافتراضيُّ بُنيَ لكلِّ نداءٍ"
+E   AssertionError: المُصرِّحُ الافتراضيُّ بُنيَ لكلِّ نداءٍ
+E   assert 139877347699232 == 139877347698992
+=========================== short test summary info ============================
+FAILED federal/executive/services/tests/test_wi082_agent_identity_sovereign.py::test_wi082_8_default_authorizer_is_one_per_module
+========================= 1 failed, 7 passed in 0.72s ==========================
+EXIT=1

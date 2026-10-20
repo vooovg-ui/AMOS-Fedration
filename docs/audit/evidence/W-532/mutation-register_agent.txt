@@ -1,0 +1,37 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.1.1, pluggy-1.7.0
+rootdir: /home/user/workspace/amos/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.5, cov-7.1.0, anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 8 items
+
+federal/executive/services/tests/test_wi082_agent_identity_sovereign.py F [ 12%]
+.F...F.                                                                  [100%]
+
+=================================== FAILURES ===================================
+_______ test_wi082_1_register_crosses_boundary_and_returns_same_contract _______
+federal/executive/services/tests/test_wi082_agent_identity_sovereign.py:128: in test_wi082_1_register_crosses_boundary_and_returns_same_contract
+    assert evidence["action"] == "spawn_agent"
+E   AssertionError: assert 'register_agent' == 'spawn_agent'
+E     
+E     - spawn_agent
+E     + register_agent
+_____________ test_wi082_3_kill_switch_level_3_blocks_spawn_agent ______________
+federal/executive/services/tests/test_wi082_agent_identity_sovereign.py:161: in test_wi082_3_kill_switch_level_3_blocks_spawn_agent
+    with pytest.raises(SovereigntyViolation) as excinfo:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE SovereigntyViolation
+________________ test_wi082_7_default_authorizer_path_unchanged ________________
+federal/executive/services/tests/test_wi082_agent_identity_sovereign.py:259: in test_wi082_7_default_authorizer_path_unchanged
+    assert ACTION_SPAWN_AGENT == "spawn_agent"
+E   AssertionError: assert 'register_agent' == 'spawn_agent'
+E     
+E     - spawn_agent
+E     + register_agent
+=========================== short test summary info ============================
+FAILED federal/executive/services/tests/test_wi082_agent_identity_sovereign.py::test_wi082_1_register_crosses_boundary_and_returns_same_contract
+FAILED federal/executive/services/tests/test_wi082_agent_identity_sovereign.py::test_wi082_3_kill_switch_level_3_blocks_spawn_agent
+FAILED federal/executive/services/tests/test_wi082_agent_identity_sovereign.py::test_wi082_7_default_authorizer_path_unchanged
+========================= 3 failed, 5 passed in 0.74s ==========================
+EXIT=1

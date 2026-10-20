@@ -3,7 +3,8 @@
 النطاق: federal/executive/services — النواة التنفيذية
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-16
-تاريخ آخر تعديل: 2026-10-17 (W-402 — WI-082: هجرةُ register_identity عبرَ الحدِّ
+تاريخ آخر تعديل: 2026-10-20 (W-532 — المُصرِّحُ الافتراضيُّ كائنٌ واحدٌ للوحدةِ بالقياسِ ·
+قرارُ المالكِ Q-62 ② · فوقَ استعادةِ 1c52572 في W-531) · ووقبله 2026-10-17 (W-402 — WI-082: هجرةُ register_identity عبرَ الحدِّ
 السياديِّ بالفعلِ «spawn_agent» بقرارِ المالكِ Q-15 ① · بلا مساسٍ بالاثنَينِ
 الباقيَينِ المعلَّقَينِ على حسمِ التسميةِ عندَ المالكِ)
 
@@ -250,6 +251,22 @@ def _delete_identity_row(agent_id: str) -> bool:
         session.close()
 
 
+#: المُصرِّحُ الافتراضيُّ لإنشاءِ الهويّةِ — كائنٌ واحدٌ للوحدةِ يُبنى عندَ أوّلِ حاجةٍ
+#: (W-532 · قرارُ المالكِ Q-62 ②: «يقارن الوكيل الكلفة … ويتبنى ما هو أسلم» — قِيسَ
+#: أنَّ بناءَ المُصرِّحِ لكلِّ نداءٍ يبني حدًّا وسجلَّي ذرّيّةٍ وأذونٍ جديدةً فتنمو كلفةُ
+#: النداءِ مع تراكمِ السجلِّ: 12.9 ← 19.6 ← 28.2 ms/op، والكائنُ الواحدُ ثابتٌ 9.5–11.4
+#: · evidence/W-532). الفاعلُ مُسمّى صراحةً كما كان، والتمريرُ الصريحُ لـ`authorizer` باقٍ.
+_DEFAULT_AUTHORIZER: ConstitutionalAuthorizer | None = None
+
+
+def _default_authorizer() -> ConstitutionalAuthorizer:
+    """المُصرِّحُ الافتراضيُّ بفاعلِ إنشاءِ الهويّةِ المُسمّى — واحدٌ للوحدةِ."""
+    global _DEFAULT_AUTHORIZER
+    if _DEFAULT_AUTHORIZER is None:
+        _DEFAULT_AUTHORIZER = ConstitutionalAuthorizer(actor=AGENT_IDENTITY_ACTOR)
+    return _DEFAULT_AUTHORIZER
+
+
 def register_identity(
     agent_id: str,
     name: str,
@@ -278,11 +295,7 @@ def register_identity(
         IdentityLedgerDivergenceError: سجلُّ الذرّيّةِ يُثبِتُ نجاحَ العمليّةِ
             وصفُّ الهويّةِ غائبٌ — استعادةٌ مطلوبةٌ لا إنشاءٌ يُزعَم.
     """
-    actor_authorizer = (
-        authorizer
-        if authorizer is not None
-        else ConstitutionalAuthorizer(actor=AGENT_IDENTITY_ACTOR)
-    )
+    actor_authorizer = authorizer if authorizer is not None else _default_authorizer()
     # قاعدةُ نطاقٍ **قبلَ** الحدِّ (قراءةٌ لا كتابةٌ): رفضٌ مبكّرٌ صريحٌ للتكرارِ.
     # وهو ليس حمايةَ التزامنِ — ذاك قيدُ المفتاحِ الأوليُّ في الجدولِ — بل إبقاءُ
     # العقدِ القائمِ: المكرّرُ يُرفضُ قبلَ عبورِ الحدِّ لا بعده.

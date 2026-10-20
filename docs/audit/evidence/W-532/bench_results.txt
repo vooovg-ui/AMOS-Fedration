@@ -1,0 +1,13 @@
+## قبلُ (نسخةُ 1c52572 المستعادةُ · المسارُ الافتراضيُّ = مُصرِّحٌ لكلِّ نداءٍ) — 2026-10-20
+BENCH N=150 ctor_only_total=0.1295s per_ctor=0.863ms
+BENCH round=0 per_call=1.9294s (12.863ms/op) module=1.4187s (9.458ms/op) ratio=1.360
+BENCH round=1 per_call=2.9441s (19.627ms/op) module=1.6579s (11.053ms/op) ratio=1.776
+BENCH round=2 per_call=4.2278s (28.185ms/op) module=1.7128s (11.419ms/op) ratio=2.468
+============================== 1 passed in 14.43s ==============================
+
+## بعدُ (المُصرِّحُ الافتراضيُّ كائنٌ واحدٌ للوحدةِ · per_call هنا = المسارُ الافتراضيُّ الجديدُ) — 2026-10-20
+BENCH N=150 ctor_only_total=0.1624s per_ctor=1.082ms
+BENCH round=0 per_call=1.4903s (9.936ms/op) module=1.4436s (9.624ms/op) ratio=1.032
+BENCH round=1 per_call=1.5113s (10.075ms/op) module=1.5928s (10.618ms/op) ratio=0.949
+BENCH round=2 per_call=1.5959s (10.639ms/op) module=1.7529s (11.686ms/op) ratio=0.910
+============================== 1 passed in 9.96s ===============================

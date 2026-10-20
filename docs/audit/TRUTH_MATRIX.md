@@ -62,14 +62,14 @@
 |---|---:|---:|---:|---:|---:|---:|---|
 | `core/` | 67 | 42 | 0 | 15216 | 14 | 0 | unspecified=14 |
 | `royal/` | 51 | 2 | 1 | 38 | 14 | 0 | unspecified=14 |
-| `federal/` | 60 | 243 | 3 | 67222 | 7 | 0 | unspecified=7 |
+| `federal/` | 60 | 243 | 3 | 67246 | 7 | 0 | unspecified=7 |
 | `states/` | 47 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
 | `institutions/` | 19 | 2 | 0 | 38 | 6 | 0 | unspecified=6 |
 | `agents/` | 601 | 4 | 283 | 532 | 11 | 0 | unspecified=11 |
 | `tools/` | 43 | 54 | 2 | 18002 | 12 | 0 | unspecified=12 |
 | `interfaces/` | 14 | 2 | 0 | 38 | 4 | 0 | unspecified=4 |
 | `runtime/` | 20 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
-| `docs/` | 201 | 9 | 0 | 743 | 7 | 0 | unspecified=7 |
+| `docs/` | 202 | 10 | 0 | 774 | 7 | 0 | unspecified=7 |
 | `ops/` | 38 | 2 | 0 | 38 | 12 | 0 | unspecified=12 |
 | `tests/` | 14 | 108 | 0 | 29114 | 5 | 0 | unspecified=5 |
 

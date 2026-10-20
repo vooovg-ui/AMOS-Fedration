@@ -257,3 +257,29 @@ def test_wi082_7_default_authorizer_path_unchanged() -> None:
     assert identity.agent_id == "wi082-default-path"
     assert AGENT_IDENTITY_ACTOR == EXPECTED_DEFAULT_ACTOR
     assert ACTION_SPAWN_AGENT == "spawn_agent"
+
+
+def test_wi082_8_default_authorizer_is_one_per_module() -> None:
+    """بلا `authorizer` يُستعمَلُ كائنٌ واحدٌ للوحدةِ لا كائنٌ لكلِّ نداءٍ (W-532 · Q-62 ②).
+
+    القياسُ (evidence/W-532): البناءُ لكلِّ نداءٍ تنمو كلفتُهُ مع تراكمِ السجلِّ — فالاختيارُ
+    يُحرَسُ هنا: نداءانِ بلا مُصرِّحٍ يمرّانِ بالكائنِ نفسِهِ، وفاعلُهُ هو المُسمّى.
+    """
+    from amos_federation.services.executive_core import agent_identity as module
+
+    seen: list[int] = []
+    original = ConstitutionalAuthorizer.guard_declared
+
+    def spy(self: ConstitutionalAuthorizer, *args: Any, **kwargs: Any) -> Any:
+        seen.append(id(self))
+        return original(self, *args, **kwargs)
+
+    ConstitutionalAuthorizer.guard_declared = spy  # type: ignore[method-assign]
+    try:
+        register_identity("wi082-one-auth-a", "وكيل أ", "worker")
+        register_identity("wi082-one-auth-b", "وكيل ب", "worker")
+    finally:
+        ConstitutionalAuthorizer.guard_declared = original  # type: ignore[method-assign]
+    assert len(seen) == 2
+    assert seen[0] == seen[1], "المُصرِّحُ الافتراضيُّ بُنيَ لكلِّ نداءٍ"
+    assert module._default_authorizer()._actor == EXPECTED_DEFAULT_ACTOR
