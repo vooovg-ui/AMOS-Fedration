@@ -1,230 +1,259 @@
-"""الهدف: إثباتُ هجرةِ `register_identity` إلى حدِّ التنفيذِ السياديّ (WI-082 · Q-15 ①)
+"""WI-082 — هجرة `register_identity` عبرَ الحدِّ السياديِّ بفعلِ «spawn_agent».
 
-النطاق: `executive_core/agent_identity.py::register_identity` — إنشاءُ الهويّةِ
-       يُعلَنُ بالفعلِ الدستوريِّ `spawn_agent` فيقفُ عندَ المستوىِ الثالثِ من زرِّ
-       الإيقافِ (المادةُ الثامنة). ولا يُهاجَرُ في هذه الدفعةِ `update_identity` ولا
-       `set_lifecycle_state` (تسميتُهما للمالكِ · PENDING_OWNER).
+الهدف: إثباتُ أنَّ إنشاءَ الهويّةِ يعبرُ الحدَّ السياديَّ بالفعلِ «spawn_agent» (قرارُ
+       المالكِ Q-15 ① · القيدُ W-385) فيقفُ عندَ المستوى الثالثِ من زرِّ الإيقافِ
+       (المادةُ الثامنة · R-008-2)، وأنّ عقدَ المُنادي القائمَ لم يتغيّرْ: نفسُ
+       الإرجاعِ للناجحِ ونفسُ الرفضِ للمكررِ، وأنّ الطفرةَ (تبديلُ الفعلِ إلى
+       register_agent) تُسقِطُ الفحصَ لا تصمتُ عنه.
+النطاق: قياسُ سلوكِ `register_identity` عبرَ الحدِّ وحدَه — لا تعديلَ للبوابةِ ولا
+        للقواعدِ الدستوريّةِ. وحقنُ مستوى زرِّ الإيقافِ في الطلبِ محاكاةٌ لحالةِ الزرِّ
+        معلَنةٌ هنا لا تجاوزٌ للبوّابةِ.
+المالك: federal/executive/services — WI-082 (بقرارِ المالكِ Q-15 · وتوجيهِ المستشارِ 8)
+تاريخ الإنشاء: 2026-10-17 (W-402 · WI-082)
 
-المالك: federal/executive/services
-تاريخ الإنشاء: 2026-10-16 (WI-082)
-تاريخ آخر تعديل: 2026-10-16
+قرارُ المالكِ Q-15 ① (2026-10-15 · القيدُ W-385): إنشاءُ الهويّةِ يُعلَنُ بالفعلِ
+`spawn_agent` — فيقفُ عندَ المستوى الثالثِ من زرِّ الإيقافِ (المادةُ الثامنة،
+R-008-2: `KILL_SWITCH_BLOCKS[3]`). والسابقةُ المعماريّةُ `governance/factories.py`
+(P13): معاملٌ مسمّىً اختياريٌّ `authorizer` لا يغيّرُ سلوكَ مُنادٍ قائم.
 
-الدعاوى المقيسةُ هنا (على سابقةِ 2A/2B لا بمعاييرَ جديدة):
+الحدُّ المُعلَنُ في هذا الفحصِ:
+- اختبارُ المستوى 3 يحقنُ `kill_switch_level=3` في الطلبِ عبرَ مصدّ مُصرِّحٍ
+  محليٍّ (محاكاةُ حالةِ الزرِّ في الطلبِ لا تعديلٌ للفعلِ) — لأنَّ لا مسارَ
+  إنتاجيًّا اليومَ يضخُّ المستوى في الطلبِ، وتلك مسجّلةٌ اكتشافًا مستقلًّا
+  (DISC-099 · WI-085).
+- لا `VERIFIED` ولا `CLOSED` بيدِ المنفِّذِ (§ 4.3) — هذا ملفُّ قياسٍ لا حُكمِ مراجعة.
 
-- W-1 الحدُّ: الإنشاءُ يعبرُ الحدَّ فعلًا ومراحلُه الإلزاميّةُ كلُّها مرَّت.
-- W-2 الأثرُ: صفٌّ في `agents` تحتَ الهدفِ المُعلَنِ نفسِه، والقيمةُ تُقرأ بعدَه.
-- W-3 الإيقافُ: الفعلُ `spawn_agent` يُرفَضُ عندَ المستوى الثالثِ ولا صفَّ يُكتب.
-- W-4 التعويضُ: المعوّضُ المربوطُ عكسٌ حقيقيٌّ يحذفُ الصفَّ، والفشلُ يُغلقُ ولا
-  يُدَّعى نجاحًا (والتشغيلُ الآليُّ للتعويضِ بعدَ الفشلِ غيرُ مبنيٍّ — مُعلَنٌ في
-  `PROJECT_STATE.md` — فلا يُدَّعى هنا).
-- W-5 الإعادةُ: مفتاحٌ واحدٌ لا يُنتِجُ أثرًا ثانيًا ولا يَختلِقُ وكيلًا من إعادة.
-- W-6 العقدُ: لا كسرَ في توقيعِ النداءِ القائمِ ولا معاملَ تجاوزٍ في الوجهِ الجديد.
+الدليلُ المُعادُ تشغيلُه:
+    .venv/bin/python -m pytest federal/executive/services/tests/test_wi082_agent_identity_sovereign.py -q
 """
 
 from __future__ import annotations
 
-import uuid
-from dataclasses import replace
+import dataclasses
 from typing import Any
 
 import pytest
 
-from amos_federation.common.database import AgentModel, get_session_factory, init_db
-from amos_federation.services.executive_core import agent_identity as identity_module
 from amos_federation.services.executive_core.agent_identity import (
-    UnknownAgentIdentityError,
+    ACTION_SPAWN_AGENT,
+    AGENT_IDENTITY_ACTOR,
+    DuplicateAgentIdentityError,
+    IdentityLedgerDivergenceError,
+    _delete_identity_row,
     register_identity,
 )
 from amos_federation.services.executive_core.sovereignty_bridge import (
     ConstitutionalAuthorizer,
-    GuardedResult,
 )
+from tests.conftest import purge_agents
 
-
-def _row_exists(agent_id: str) -> bool:
-    """قياسٌ على الأثرِ في الجدولِ لا على استثناءٍ مرتفع."""
-    session = get_session_factory()()
-    try:
-        return session.query(AgentModel).filter(AgentModel.id == agent_id).first() is not None
-    finally:
-        session.close()
-
-
-def _delete_row_directly(agent_id: str) -> None:
-    """حذفٌ خارجيٌّ مباشرٌ لمحاكاةِ افتراقِ السجلِّ عن الجدولِ (لا مسارَ إنتاجيًّا)."""
-    session = get_session_factory()()
-    try:
-        row = session.query(AgentModel).filter(AgentModel.id == agent_id).first()
-        if row is not None:
-            session.delete(row)
-            session.commit()
-    finally:
-        session.close()
+#: الوكيلُ الذي يُبنى افتراضيًّا بلا مُصرِّحٍ مُمرَّر — القيمةُ المقيسةُ من الطلبِ
+#: المُصنَّعِ للحدِّ لا تخمينًا.
+EXPECTED_DEFAULT_ACTOR = "EXECUTIVE"
 
 
 class RecordingAuthorizer(ConstitutionalAuthorizer):
-    """المُصرِّحُ نفسُه يُسجِّلُ حصائلَ الحدِّ ليُقاسَ ما مرَّ فعلًا (سابقةُ 2B).
+    """يسجل كل نتيجة محروسة — لأجل قياس الاعتمادية، لا لاتخاذ قرار."""
 
-    لا بدائيّةَ جديدةَ ولا مسارَ ثانيًا: وراثةٌ لا تلمسُ منطقَ التصريح.
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.results: list[Any] = []
+
+    def guard_declared(self, *args: Any, **kwargs: Any) -> Any:
+        guarded = super().guard_declared(*args, **kwargs)
+        self.results.append(guarded)
+        return guarded
+
+
+class KillSwitchLevelAuthorizer(ConstitutionalAuthorizer):
+    """المُصرِّحُ نفسُهُ وطلبُهُ يحملُ مستوى زرِّ الإيقافِ.
+
+    محاكاةُ **حالةِ الزرِّ** في الطلبِ لا تعديلٌ للفعلِ ولا تجاوزٌ للبوّابةِ:
+    الطلبُ يمرُّ في المسارِ السياديِّ كاملًا، والقاعدةُ R-008-2 هي التي تنطقُ.
     """
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self.results: list[GuardedResult] = []
-        self.calls: list[dict[str, Any]] = []
+    def __init__(self, level: int, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self._kill_switch_level = level
 
-    def guard_declared(self, *args: Any, **kwargs: Any) -> GuardedResult:
-        self.calls.append({"action": args[0] if args else None, "kwargs": kwargs})
-        result = super().guard_declared(*args, **kwargs)
-        self.results.append(result)
-        return result
-
-
-class HaltedAtLevel3Authorizer(ConstitutionalAuthorizer):
-    """مُصرِّحٌ يحملُ زرَّ الإيقافِ عندَ المستوى الثالثِ في كلِّ طلبٍ يبنيه.
-
-    `kill_switch_level` حقلُ طلبٍ دستوريّ (المادةُ الثامنة) يُحمَلُ في `ActionRequest`
-    نفسِه — والاختبارُ يثبتُ الرفضَ على مسارِ الإنتاجِ الحقيقيِّ (الحرسُ والبوّابةُ
-    وقواعدُ المادةِ الثامنة) بلا محاكاةِ حكمٍ.
-    """
-
-    def _request(self, action: str, target: str, metadata: dict[str, Any] | None):
+    def _request(
+        self,
+        action: str,
+        target: str,
+        metadata: dict[str, Any] | None = None,
+    ) -> Any:
         request = super()._request(action, target, metadata)
-        return replace(request, kill_switch_level=3)
+        return dataclasses.replace(request, kill_switch_level=self._kill_switch_level)
 
 
 @pytest.fixture(autouse=True)
-def _fresh_db() -> None:
+def _fresh_agents() -> None:
+    """قاعدة نظيفة — القياس على سجل حقيقي لا على بقايا (نمط test_r4)."""
+    from amos_federation.common.database import get_session_factory, init_db
+    from tests.conftest import purge_tasks
+
     init_db()
-
-
-@pytest.fixture
-def agent_id() -> str:
-    return f"wi082-{uuid.uuid4().hex[:10]}"
-
-
-def test_register_identity_crosses_boundary_with_mandatory_stages(agent_id: str) -> None:
-    """W-1: الإنشاءُ يعبرُ الحدَّ فعلًا ومراحلُه الإلزاميّةُ كلُّها مرَّت."""
-    from core.sovereignty.enforcement_boundary import MANDATORY_INTERNAL_STAGES
-
-    authorizer = RecordingAuthorizer()
-    identity = register_identity(agent_id, "وكيل قياس WI-082", "worker", authorizer=authorizer)
-
-    assert identity.agent_id == agent_id
-    assert _row_exists(agent_id)
-    assert len(authorizer.results) == 1
-    outcome = authorizer.results[0].outcome
-    passed_stages = {str(getattr(stage, "name", stage)) for stage in outcome.stages}
-    for mandatory in MANDATORY_INTERNAL_STAGES:
-        mandatory_name = str(getattr(mandatory, "name", mandatory))
-        assert mandatory_name in passed_stages, f"مرحلةٌ إلزاميّةٌ لم تمرّ: {mandatory_name}"
-    # حكمُ البوّابةِ مقروءٌ لا مظنون: الأثرُ الدستوريُّ مُوثَّقٌ في نتيجةِ الحدِّ.
-    assert authorizer.results[0].evidence.decision == "ALLOW"
-
-
-def test_register_identity_declares_effect_under_target(agent_id: str) -> None:
-    """W-2: الأثرُ المُعلَنُ صفٌّ في `agents` تحتَ الهدفِ المُعلَنِ نفسِه."""
-    authorizer = RecordingAuthorizer()
-    register_identity(agent_id, "وكيل قياس WI-082", "worker", authorizer=authorizer)
-
-    call = authorizer.calls[0]
-    assert call["action"] == "spawn_agent"
-    assert call["kwargs"]["operation_key"].value == agent_id
-    (effect,) = call["kwargs"]["declared_effects"]
-    assert effect.kind.value == "CREATE"
-    assert effect.resource == f"agent/{agent_id}"
-
-
-def test_register_identity_refused_at_kill_switch_level_3(agent_id: str) -> None:
-    """W-3: المستوى الثالثُ يُجمّدُ `spawn_agent` فلا تُنشأُ هويّةٌ (قرارُ المالكِ Q-15 ①)."""
-    from core.sovereignty.gateway import SovereigntyViolation
-
-    authorizer = HaltedAtLevel3Authorizer()
-    with pytest.raises(SovereigntyViolation) as excinfo:
-        register_identity(agent_id, "وكيل مرفوض", "worker", authorizer=authorizer)
-
-    assert "زر التوقف" in str(excinfo.value) or "spawn_agent" in str(excinfo.value)
-    assert not _row_exists(agent_id)
-
-
-def test_register_identity_compensator_is_real_reversal(agent_id: str) -> None:
-    """W-4: المعوّضُ المربوطُ عكسٌ حقيقيٌّ يحذفُ الصفَّ فعلًا (1I — سابقةُ 2B S-5).
-
-    التشغيلُ الآليُّ للتعويضِ بعدَ الفشلِ **غيرُ مبنيٍّ** (مُعلَنٌ في `PROJECT_STATE.md`:
-    «لا وصل تلقائيًا بين RECOVERY_REQUIRED وخطّة تعويض 1I») — فيُقاسُ المعوّضُ
-    المربوطُ نفسُه: يُنادى فيحذفُ الصفَّ، لا وعدًا في خطة.
-    """
-    authorizer = RecordingAuthorizer()
-    register_identity(agent_id, "وكيل قياس التعويض", "worker", authorizer=authorizer)
-
-    outcome = authorizer.results[0].outcome
-    plan = outcome.compensation_plan
-    assert plan is not None, "لم تُبنَ خطّةُ تعويض."
-    applied = set(outcome.applied_signatures)
-    assert applied, "لا أثرًا مُطبَّقًا مُسجَّلًا."
-    assert (
-        applied <= plan.covered_signatures
-    ), f"أثرٌ بلا معوّضٍ مربوط: {applied - plan.covered_signatures}"
-    assert _row_exists(agent_id)
-
-    entry = plan.compensator_for(next(iter(applied)))
-    assert entry.apply() is True, "المعوّضُ لم يفعلْ شيئًا."
-    assert not _row_exists(agent_id), "المعوّضُ المربوطُ لم يحذفِ الصفَّ — فهو وعدٌ لا عكس."
-
-
-def test_register_identity_failure_is_fail_closed(agent_id: str) -> None:
-    """W-4: فشلٌ بعدَ الكتابةِ يُغلقُ ولا يُدَّعى نجاحًا (1J — سابقةُ 2B S-6).
-
-    الحدُّ يرفعُ `IdempotencyError` حاملةً سببَ الفشلِ ولا يُقلَبُ نجاحًا، ولا
-    تُرجَعُ حصيلةُ نجاحٍ من نداءٍ فاشل. (والتعويضُ الآليُّ بعدَ الفشلِ غيرُ مبنيٍّ
-    — مُعلَنٌ فوقُ — فلا يُدَّعى هنا.)
-    """
-    from core.sovereignty.idempotency import IdempotencyError
-
-    def _write_then_fail(row: AgentModel) -> None:
-        # كتابةٌ مباشرةٌ ثمّ فشلٌ: لا يُنادى الاسمُ المعوّضُ نفسُه (وإلّا استدعاءٌ ذاتيٌّ).
-        session = get_session_factory()()
-        try:
-            session.add(row)
-            session.commit()
-        finally:
-            session.close()
-        raise RuntimeError("فشلٌ مُفتعَلٌ بعدَ الكتابةِ — يُقاسُ الإغلاقُ")
-
-    monkeypatch = pytest.MonkeyPatch()
-    monkeypatch.setattr(identity_module, "_write_identity_row", _write_then_fail)
-    authorizer = RecordingAuthorizer()
+    session = get_session_factory()()
     try:
-        with pytest.raises((IdempotencyError, RuntimeError)):
-            register_identity(agent_id, "وكيل قياس الإغلاق", "worker", authorizer=authorizer)
+        purge_tasks(session)
+        purge_agents(session)
+        session.commit()
     finally:
-        monkeypatch.undo()
-
-    # لا حصيلةَ نجاحٍ من نداءٍ فاشل — والقيمةُ لا تُقْرَأُ أصلًا.
-    assert authorizer.results == [], "أُرجِعت حصيلةُ نجاحٍ من نداءٍ فاشل."
+        session.close()
 
 
-def test_register_identity_replay_does_not_invent_or_duplicate(agent_id: str) -> None:
-    """W-5: مفتاحٌ واحدٌ لا يُنتِجُ أثرًا ثانيًا — والإعادةُ لا تَختلِقُ وكيلًا."""
-    register_identity(agent_id, "وكيل الإعادة", "worker")
-    assert _row_exists(agent_id)
-
-    # افتراقٌ مُفتعَلٌ بينَ السجلِّ والجدولِ: حُذفَ الصفُّ خارجيًّا ثمّ أُعيدَ النداءُ
-    # بالمفتاحِ نفسِه — فالحدَّ يرى العمليّةَ مُثبَّتةً فلا يُطبِّقُ الأثرَ مرّةً ثانيةً.
-    _delete_row_directly(agent_id)
-    with pytest.raises(UnknownAgentIdentityError):
-        register_identity(agent_id, "وكيل الإعادة", "worker")
-    assert not _row_exists(agent_id)
+# ── 1. النجاح عبرَ الحدِّ — نفسُ الإرجاعِ، والكتابةُ بإذنٍ ─────────────────────
 
 
-def test_register_identity_signature_breaks_nothing_and_has_no_bypass() -> None:
-    """W-6: صفرُ كسرٍ في العقدِ القائمِ — ولا معاملَ تجاوزٍ في الوجهِ الجديدِ."""
-    import inspect
+def test_wi082_1_register_crosses_boundary_and_returns_same_contract() -> None:
+    authorizer = RecordingAuthorizer(actor=AGENT_IDENTITY_ACTOR)
+    identity = register_identity(
+        "wi082-success",
+        "وكيل WI-082",
+        "worker",
+        permissions=["task:execute"],
+        allowed_tools=["python_execute"],
+        authorizer=authorizer,
+    )
 
-    signature = inspect.signature(register_identity)
-    # النداءُ القائمُ (8 مواضعَ إنتاجيّةً و28 نداءَ اختبارٍ) لا يُمرِّرُ `authorizer`:
-    # فكلُّ معاملاتِه الجديدةُ اختياريّةٌ بالاسمِ لا تُلزمُ أحدًا.
-    assert signature.parameters["authorizer"].default is None
-    assert signature.parameters["authorizer"].kind == inspect.Parameter.KEYWORD_ONLY
-    forbidden = {"force", "bypass", "skip_check", "unchecked", "override", "no_verify", "unsafe"}
-    assert not (set(signature.parameters) & forbidden), "معاملُ تجاوزٍ في وجهِ الحدّ"
+    # نفسُ عقدِ الإرجاعِ القائمِ: هويةٌ كانونيّةٌ كاملةٌ لا بنيةٌ جديدة.
+    assert identity.agent_id == "wi082-success"
+    assert identity.name == "وكيل WI-082"
+    assert identity.role == "worker"
+
+    # والصكُّ المُلزِمُ مُسجَّلٌ: عبورٌ واحدٌ بدليلِهِ الحرفيِّ — الفعلُ والهدفُ
+    # والقرارُ وبصمةُ السجلِّ، لا وعدٌ بأنَّ «الحدَّ عُبر».
+    assert len(authorizer.results) == 1
+    evidence = authorizer.results[0].evidence.as_dict()
+    assert evidence["action"] == "spawn_agent"
+    assert evidence["target"] == "agents/wi082-success"
+    assert evidence["decision"] == "ALLOW"
+    assert evidence["ledger_entry_hash"]
+    assert evidence["request_fingerprint"]
+
+    from amos_federation.services.executive_core.agent_identity import require_identity
+
+    stored = require_identity("wi082-success")
+    assert stored.agent_id == identity.agent_id
+
+
+# ── 2. المكررُ يُرفضُ قبلَ الحدِّ — لا عبورَ ولا كتابةً ───────────────────────
+
+
+def test_wi082_2_duplicate_rejected_before_boundary() -> None:
+    authorizer = RecordingAuthorizer(actor=AGENT_IDENTITY_ACTOR)
+    register_identity("wi082-dup", "وكيل أول", "worker", authorizer=authorizer)
+
+    with pytest.raises(DuplicateAgentIdentityError):
+        register_identity("wi082-dup", "وكيل ثانٍ", "worker", authorizer=authorizer)
+
+    # العقدُ القائمُ: المكررُ لا يعبُرُ الحدَّ أصلًا (رفضٌ مبكّرٌ صريحٌ).
+    assert len(authorizer.results) == 1
+
+
+# ── 3. المستوى 3 من زرِّ الإيقافِ يجمّدُ الإنشاءَ — وهذا مضمونُ الفحصِ ──────
+
+
+def test_wi082_3_kill_switch_level_3_blocks_spawn_agent() -> None:
+    authorizer = KillSwitchLevelAuthorizer(level=3, actor=AGENT_IDENTITY_ACTOR)
+    from core.sovereignty.gateway import SovereigntyViolation  # داخل الفحص: الجسرُ يُتاحُ أولًا
+
+    with pytest.raises(SovereigntyViolation) as excinfo:
+        register_identity(
+            "wi082-halted",
+            "وكيل مُجمَّد",
+            "worker",
+            authorizer=authorizer,
+        )
+
+    # القاعدةُ R-008-2 تنطقُ باسمِ الفعلِ نفسِهِ: «spawn_agent» مُجمَّدٌ من
+    # المستوى الثالثِ. وهذا هو القيدُ الذي تُسقِطُهُ طفرةُ تغييرِ الاسمِ.
+    message = str(excinfo.value)
+    assert "spawn_agent" in message
+    assert "المستوى 3" in message
+
+    # والرفضُ منعٌ حقيقيٌّ لا شكليٌّ: لا صفَّ هويةٍ كُتِبَ.
+    from amos_federation.services.executive_core.agent_identity import get_identity
+
+    assert get_identity("wi082-halted") is None
+
+
+def test_wi082_4_level_below_3_does_not_block() -> None:
+    """المستويانِ 1 و2 لا يجمّدانِ spawn_agent — التجميدُ من الثالثِ حصرًا.
+
+    هذا هو الوجهُ الآخرُ للطفرةِ: لو عُدِّلَ القيدُ في `rules.py` (مجموعةُ
+    المستوى الثالثِ) فسيُسقِطُ هذا الفحصُ — فلا يُزعَمُ تجميدٌ لا تُقيسُهُ بوّابةٌ.
+    """
+    authorizer = KillSwitchLevelAuthorizer(level=2, actor=AGENT_IDENTITY_ACTOR)
+    identity = register_identity(
+        "wi082-level2",
+        "وكيل تحت المستوى الثاني",
+        "worker",
+        authorizer=authorizer,
+    )
+    assert identity.agent_id == "wi082-level2"
+
+
+# ── 4. المعوّضُ عكسٌ حقيقيٌّ لا زعمٌ ─────────────────────────────────────────
+
+
+def test_wi082_5_compensator_reverses_real_row() -> None:
+    register_identity(
+        "wi082-compensate",
+        "وكيل المعوّض",
+        "worker",
+        authorizer=ConstitutionalAuthorizer(actor=AGENT_IDENTITY_ACTOR),
+    )
+
+    # عكسٌ لأثرٍ موجودٍ: حذفٌ حقيقيٌّ وإعادةُ True.
+    assert _delete_identity_row("wi082-compensate") is True
+    from amos_federation.services.executive_core.agent_identity import get_identity
+
+    assert get_identity("wi082-compensate") is None
+
+    # ولا يُزعَمُ عكسُ أثرٍ لا وجودَ لهُ: الصفُّ غائبٌ فالعودةُ False.
+    assert _delete_identity_row("wi082-compensate") is False
+
+
+# ── 5. الإعادةُ بعدَ حذفِ الصفِّ: تفرُّقٌ صريحٌ لا إنشاءٌ يُزعَم ──────────────
+
+
+def test_wi082_6_replay_with_missing_row_raises_divergence() -> None:
+    authorizer = ConstitutionalAuthorizer(actor=AGENT_IDENTITY_ACTOR)
+    register_identity(
+        "wi082-replay",
+        "وكيل الإعادة",
+        "worker",
+        authorizer=authorizer,
+    )
+
+    # حذفُ الصفِّ خارجَ العمليّةِ (كما يفعلُ تفريغُ الاختباراتِ): سجلُّ الذرّيّةِ
+    # يُثبِتُ النجاحَ والصفُّ غائبٌ — تفرُّقٌ لا يُسكَتُ عنهُ ولا يُعادُ الإنشاءُ
+    # خارجَ الحدِّ ولا يُزعَمُ نجاحٌ لم يقعْ.
+    _delete_identity_row("wi082-replay")
+
+    with pytest.raises(IdentityLedgerDivergenceError):
+        register_identity(
+            "wi082-replay",
+            "وكيل الإعادة",
+            "worker",
+            authorizer=authorizer,
+        )
+
+
+# ── 6. المسارُ الافتراضيُّ بلا مُصرِّحٍ مُمرَّرٍ: يعملُ كالمُنادي القائمِ ─────
+
+
+def test_wi082_7_default_authorizer_path_unchanged() -> None:
+    """بلا `authorizer` يُبنى المبدئيُّ بفاعلٍ مسمّى — لا جسرٌ ثانٍ ولا سلوكٌ جديد.
+
+    (يستعملُ سجلَّ الذرّيّةِ المُتاحَ في بيئةِ الاختبارِ — انظر `conftest.py`.)
+    """
+    identity = register_identity(
+        "wi082-default-path",
+        "وكيل المسار الافتراضي",
+        "worker",
+    )
+    assert identity.agent_id == "wi082-default-path"
+    assert AGENT_IDENTITY_ACTOR == EXPECTED_DEFAULT_ACTOR
+    assert ACTION_SPAWN_AGENT == "spawn_agent"

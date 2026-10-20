@@ -1,7 +1,7 @@
 {
  "$comment": "الهدف: جردُ مواضعِ الكتابةِ في المستودعِ وتصنيفُ ما عبرَ الحدَّ السّياديَّ وما لم يعبُر— مُخرَجُ tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039).",
  "summary": {
-  "write_sites_total": 219,
+  "write_sites_total": 220,
   "by_area": {
    "core": {
     "public": 1,
@@ -595,15 +595,31 @@
   {
    "path": "federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py",
    "owner": "-",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py",
+   "owner": "-",
    "function": "register_identity",
    "ordinal": 0,
    "public": true,
-   "writes": [],
+   "writes": [
+    "add()",
+    "commit()"
+   ],
    "guarded": true,
    "closed_legacy": false,
    "writes_via": [
-    "_delete_identity_row",
-    "_write_identity_row"
+    "_delete_identity_row"
    ]
   },
   {
