@@ -1,0 +1,5 @@
+=== مسبارُ الطفرةِ على النسخةِ المُلتزَمةِ (2026-10-20T11:07:28Z) ===
+طفرة FUTURE («if stamp > limit:» → «if False:»): 3 failed, 7 passed in 2.99s
+طفرة AUTHOR_AFTER («if c.author > c.committer + tolerance:» → «if False:»): 1 failed, 9 passed in 2.93s
+طفرة BEFORE_PARENT («if c.committer < parent.committer:» → «if False:»): 2 failed, 8 passed in 2.92s
+بعد الاستعادة: 10 passed in 2.92s
