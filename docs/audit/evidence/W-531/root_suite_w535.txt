@@ -1,0 +1,2 @@
+2655 passed, 1 skipped in 406.49s (0:06:46)
+EXIT=0
