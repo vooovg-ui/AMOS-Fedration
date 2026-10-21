@@ -25,7 +25,11 @@ from pathlib import Path
 
 import pytest
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+# الجذرُ بعَلَمٍ صريحٍ لا بعُمقٍ: «git rev-parse» — لا اشتقاقًا من موقعِ الملفِ
+REPO_ROOT = Path(subprocess.run(
+    ["git", "rev-parse", "--show-toplevel"],
+    capture_output=True, text=True, check=True,
+).stdout.strip())
 GUARD_REL = "tools/crown/verify_secret_boundaries.py"
 
 
@@ -89,8 +93,9 @@ def test_المسحُ_ما_زالَ_يلتقطُ_المفتاحَ_في_التا�
     clone = _clone(tmp_path)
     _commit(clone, {"w565_bad_byte.log": b"measurement\n" + _bad_byte_line() + b"\n"},
             "w565: بايتٌ تالفٌ واحدٌ في التاريخ")
-    head = ("-" * 5) + "BEGIN " + ("PRIV" + "ATE KEY") + ("-" * 5)
-    tail = ("-" * 5) + "END " + ("PRIV" + "ATE KEY") + ("-" * 5)
+    # تركيبٌ لا يُطوى مترجمًا: القيمُ منفصلةٌ في الثوابتِ فلا يحملُ «.pyc» الترويسةَ أبدًا
+    head = ("-" * 5) + "".join(("BEGIN ", "PRIV", "ATE KEY")) + ("-" * 5)
+    tail = ("-" * 5) + "".join(("END ", "PRIV", "ATE KEY")) + ("-" * 5)
     _commit(clone, {"w565_planted.txt": (head + "\nbody\n" + tail + "\n").encode("ascii")},
             "w565: زرعُ كتلةٍ ثم حذفُها منَ الشجرةِ")
     (clone / "w565_planted.txt").unlink()
