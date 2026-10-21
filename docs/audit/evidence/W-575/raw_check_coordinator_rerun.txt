@@ -1,0 +1,12 @@
+$ council_verdict_raw_check.py council_w574/gemini_3_8_flash/VERDICT.md --brief council_w574/gemini_3_8_flash/BRIEF.md --repo council_w574/gemini_3_8_flash/repo
+[RAW CHECK] ✓ مقبولٌ: council_w574/gemini_3_8_flash/VERDICT.md · أوامرُ 15 · كتلُ RAW 15
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+exit=0
+$ council_verdict_raw_check.py council_w574/grok_4_7/VERDICT.md --brief council_w574/grok_4_7/BRIEF.md --repo council_w574/grok_4_7/repo
+[RAW CHECK] ✓ مقبولٌ: council_w574/grok_4_7/VERDICT.md · أوامرُ 15 · كتلُ RAW 15
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+exit=0
+$ council_verdict_raw_check.py council_w574/kimi_k3/VERDICT.md --brief council_w574/kimi_k3/BRIEF.md --repo council_w574/kimi_k3/repo
+[RAW CHECK] ✓ مقبولٌ: council_w574/kimi_k3/VERDICT.md · أوامرُ 15 · كتلُ RAW 15
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+exit=0
