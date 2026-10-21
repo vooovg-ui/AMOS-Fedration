@@ -1,0 +1,6 @@
+# فرقُ مواضعِ الكتابةِ بينَ العقدتَينِ (d0932c51 ← رأسُ W-596) — قيدُ W-596
+
+خرجَ: federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::issue_ruling  ((True, False))
+دخلَ: federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py::_apply  ((False, False))
+
+وتبدَّلَ تصنيفُ: federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py::issue_ruling — من دَينٍ عامٍّ (public=True · guarded=False) إلى سياديٍّ محروسٍ (public=True · guarded=True)
