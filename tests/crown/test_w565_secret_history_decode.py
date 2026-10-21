@@ -109,3 +109,37 @@ def test_المسحُ_ما_زالَ_يلتقطُ_المفتاحَ_في_التا�
     assert result.returncode == 1, result.stdout[-1500:]
     assert "لا مادة مفتاح خاص في التاريخ المنشور" in result.stdout
     assert "بلا مراجعة معلنة" in result.stdout, result.stdout[-1500:]
+
+
+def test_سرٌّ_ملاصقٌ_للبايتِ_التالفِ_يُلتقَطُ(tmp_path):
+    """W-572 (توجيهُ المستشارِ 16 § 1): الفكُّ بالاستبدالِ لا يبتلعُ سرًّا **ملاصقًا** للبايتِ التالفِ.
+
+    الحجّةُ: بايتاتُ الاستمرارِ في UTF-8 بينَ 0x80 و0xBF، و«-» (0x2d) ليسَ منها —
+    فالمُفكِّكُ يُبدِلُ البادئةَ المبتورةَ بـU+FFFD ثمَّ يقرأُ الشَّرطةَ كما هي. والفحصُ
+    يُثبِتُ ذلك قياسًا لا حجّةً: بادئاتٌ مبتورةٌ ثنائيّةٌ وثلاثيّةٌ ورباعيّةٌ ملاصقةٌ لترويسةِ
+    الكتلةِ قبلَها وبعدَها وفي آخرِ السطرِ السابقِ — وكلُّ سطرٍ مزروعٍ يُعَدُّ مخالفةً.
+    """
+    clone = _clone(tmp_path)
+    head = ("-" * 5) + "".join(("BEGIN ", "PRIV", "ATE KEY")) + ("-" * 5)
+    tail = ("-" * 5) + "".join(("END ", "PRIV", "ATE KEY")) + ("-" * 5)
+    h, t = head.encode("ascii"), tail.encode("ascii")
+    truncated = (b"\xd8", b"\xe0\xa0", b"\xf0\x9f\x98")  # بادئةُ 2 · 3 · 4 بايتاتٍ مبتورةً
+    lines: list[bytes] = []
+    for bad in truncated:
+        lines.append(bad + h)                                # ملاصقٌ قبلَ الترويسةِ
+        lines.append(h + bad)                                # ملاصقٌ بعدَها
+    lines.append("ت".encode("utf-8") + truncated[0] + h)     # بعدَ حرفٍ عربيٍّ تامٍّ ثمَّ بايتٍ مبتورٍ
+    body = b"".join(line + b"\nbody\n" + t + b"\n" for line in lines)
+    body += b"measurement " + truncated[0] + b"\n" + h + b"\nbody\n" + t + b"\n"  # في آخرِ السطرِ السابقِ
+    planted = len(lines) + 1
+    _commit(clone, {"w572_adjacent.txt": body}, "w572: أسرارٌ ملاصقةٌ لبايتاتٍ تالفةٍ")
+    (clone / "w572_adjacent.txt").unlink()
+    subprocess.run(["git", "-C", str(clone), "add", "-A"], check=True, capture_output=True)
+    subprocess.run(
+        ["git", "-C", str(clone), "-c", "user.name=w572", "-c", "user.email=w572@local",
+         "commit", "--quiet", "-m", "w572: الحذفُ منَ الشجرةِ — التاريخُ يحتفظُ بالأسطرِ"],
+        check=True, capture_output=True,
+    )
+    result = _run_gate(clone)
+    assert result.returncode == 1, result.stdout[-1500:]
+    assert f"{planted} سطرًا مُضافًا يحمل كتلة مفتاح خاص بلا مراجعة معلنة" in result.stdout, result.stdout[-2000:]

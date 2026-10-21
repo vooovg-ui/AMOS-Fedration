@@ -14,3 +14,24 @@ $ .venv/bin/python -m pytest tests/ -q --collect-only
 
 $ .venv/bin/python tools/governance/suite_size_inventory.py --check
 [يجري في CI — الدعوى محدَّثة 2696]
+
+
+== W-572 · 2026-10-21 · فحصُ الملاصقةِ (توجيهُ المستشارِ 16 § 1) — المنسِّقُ الحاضرُ Claude Opus 5.5 ==
+$ .venv/bin/python -m pytest tests/crown/test_w565_secret_history_decode.py -q
+3 passed in 22.95s
+(الفحصُ الجديدُ test_سرٌّ_ملاصقٌ_للبايتِ_التالفِ_يُلتقَطُ: 8 أسطرٍ مزروعةٍ — \xd8 · \xe0\xa0 · \xf0\x9f\x98 قبلَ الترويسةِ وبعدَها
+ ×3 + حرفٌ عربيٌّ تامٌّ ثمَّ \xd8 قبلَها + \xd8 في آخرِ السطرِ السابقِ ⇒ «8 سطرًا مُضافًا يحمل كتلة مفتاح خاص بلا مراجعة معلنة»)
+$ grep -cE 'BEGIN (OPENSSH |EC |RSA |DSA |PGP |ENCRYPTED |)PRIVATE KEY' tests/crown/test_w565_secret_history_decode.py tests/crown/__pycache__/test_w565*.pyc
+0 · 0 · 0   (المصدرُ والمترجَمُ نظيفانِ من نمطِ بوابةِ 5)
+
+-- طفرةٌ يدويّةٌ على استنساخٍ مؤقّتٍ (/tmp/mut) فيه سطرٌ واحدٌ: \xd8 ملاصقٌ قبلَ الترويسةِ، مزروعٌ ثمَّ محذوفٌ --
+الأصلُ (errors="replace")             ⇒ ✗ «1 سطرًا مُضافًا …» · رمزُ 1  (يُلتقَطُ)
+طفرةُ errors="ignore"                  ⇒ ✗ «1 سطرًا مُضافًا …»           (يُلتقَطُ أيضًا — ignore لا يبتلعُ ASCII كذلك)
+طفرةُ errors="strict"                  ⇒ UnicodeDecodeError 0xd8        (انهيارٌ ⇒ الفحصُ يسقطُ لغيابِ رسالةِ العدِّ)
+طفرةُ إسقاطِ الأسطرِ الحاملةِ U+FFFD    ⇒ PASS: 12/12                    (السرُّ يفوتُ ⇒ الفحصُ يسقطُ: يتوقّعُ رمزَ 1)
+
+$ .venv/bin/python -m pytest tests/ -q --collect-only | tail -1
+2697 tests collected in 0.76s
+
+الحكمُ: وصفُ «لا تخفيفَ» صارَ مقيسًا للحالةِ الملاصقةِ (ASCII لا يُبتلَعُ) — ولم يُقَس: بايتٌ تالفٌ **داخلَ** الترويسةِ نفسِها
+(«PRIV\xd8ATE») فتلك ليست كتلةَ PEM صالحةً أصلًا، ولا يلتقطُها grep بوابةِ 5 كذلك.
