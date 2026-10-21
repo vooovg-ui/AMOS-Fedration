@@ -1,0 +1,7 @@
+# تحقُّقُ المنسِّقِ من ملاحظةِ grok_4_7 الحاجبةِ (D4 · الأسطحُ) — سابقةُ WI-082 مقيسةً · 2026-10-21T13:49:10Z · العقدة d3e4ba5
+$ .venv/bin/python tools/audit/sovereign_write_inventory.py --service federal/executive/services/src/amos_federation/services/executive_core --json <tmp> ⇒ مواضعُ agent_identity.py:
+_apply               public=False guarded=False writes=['add()', 'commit()']
+register_identity    public=True  guarded=True  writes=['add()', 'commit()']
+set_lifecycle_state  public=True  guarded=False writes=['commit()']
+update_identity      public=True  guarded=False writes=['commit()']
+⇒ المُطبِّقُ المتداخلُ الخاصُّ `_apply` يُحصى موضعَ كتابةٍ مستقلًّا (public=False) — فنقلُ الكتابةِ من service.issue_ruling إلى مُطبِّقٍ متداخلٍ يُبقي «مواضعُ كتابةٍ (كلُّها)» 220 (−1 +1) لا 219 · والدَّينُ (عمليّاتٌ عامّةٌ) 183 ← 181 كما هو.

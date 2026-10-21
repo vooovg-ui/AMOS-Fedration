@@ -1,0 +1,23 @@
+# فحصُ الفاحصِ (المنسِّقُ أعادَه) · 2026-10-21T13:48:58Z
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-587/gemini_3_8_flash.md · أوامرُ 17 · كتلُ RAW 17
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-587/grok_4_7.md · أوامرُ 17 · كتلُ RAW 17
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-587/kimi_k3.md · أوامرُ 17 · كتلُ RAW 17
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+# فحصُ العزلِ (§ 2.6) — ملفّاتٌ أحدثُ من علامةِ الإطلاقِ 13:38:41Z خارجَ council_w585 (بلا ملفّاتِ المنصّةِ)
+/tmp/amos-services-tests-41b8moy5/amos_federation_test_idempotency.json.lock
+/tmp/amos-services-tests-41b8moy5/README.md
+/tmp/amos-services-tests-u_j2v_lq/amos_federation_test_idempotency.json.lock
+/tmp/amos-services-tests-u_j2v_lq/README.md
+/tmp/amos-services-tests-cbb_q1a2/amos_federation_test_idempotency.json.lock
+/tmp/amos-services-tests-cbb_q1a2/README.md
+/home/user/.gitconfig-proxy
+# مساراتُ المقاعدِ المذكورةُ في كلِّ حكمٍ
+gemini_3_8_flash: council_w585/gemini_3_8_flash 
+grok_4_7: council_w585/grok_4_7 
+kimi_k3: council_w585/kimi_k3 
