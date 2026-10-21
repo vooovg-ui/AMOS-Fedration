@@ -1,0 +1,18 @@
+== قيدُ حكمِ CI (N+1) على رأسِ دفعةِ W-589 (`515c67156a282f9f0bbf9e4be4c11839e25e85bf`) ==
+التاريخ: 2026-10-21 · القياسُ من main عندَ `515c671` (الاستنساخُ في بيئةِ المنسِّقِ)
+الأمرُ: قراءةُ حِملِ التشغيلِ 39620425389 (`GET /repos/vooovg-ui/AMOS-Fedration/actions/runs/39620425389/jobs` عبرَ gh) إلى `ci_verdict_39620425389_jobs.json` ثمَّ:
+python tools/governance/ci_verdict_readability.py --from-json ci_verdict_39620425389_jobs.json --require-readable --expect-sha 515c67156a282f9f0bbf9e4be4c11839e25e85bf
+
+المخرجُ الحرفيُّ:
+[CI VERDICT] مقروئيّةُ الحكمِ تُقاسُ بالخطواتِ لا بالنتيجة
+  تشغيلٌ 39620425389: READABLE · نُفِّذَت 13/13 وظيفةً (لم يُسنَدْ عاملٌ لـ0 · مُتخطًّى 0 · مشكوكٌ 0)
+[CI VERDICT] ✓ كلُّ التشغيلاتِ (1) نُفِّذَت خطواتُها — فـ`conclusion` يُقرأُ حكمًا.
+
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+[CI VERDICT] ✓ كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — فالدمجُ جائزٌ إجرائيًّا.
+
+== حكمُ الدفعةِ على GitHub Actions ==
+https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/39620425389 — success · على main · الرؤوسُ: 515c671
+
+== التقديمُ السريعُ ==
+main مقيسٌ عندَ `515c67156a282f9f0bbf9e4be4c11839e25e85bf` (git ls-remote) — التقديمُ السريعُ تمَّ قبلَ هذه الجلسةِ (الدفعُ على main مسموحٌ حكمًا أخضرَ مقروءًا مقيسًا · لا gh pr merge ولا زرَّ GitHub) — والقياسُ هنا توثيقٌ (N+1) لا دفعٌ.
