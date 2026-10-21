@@ -1,0 +1,7 @@
+== M2: مفتاح بلا جيل الإلغاء (أُعيد تطبيقُها بعد اكتشافِ عدم انطباقِ النسخةِ الأولى) ==
+core/sovereignty/idempotency.py:846: in _reserve_or_replay
+    raise IdempotencyKeyReuseError(
+E   core.sovereignty.idempotency.IdempotencyKeyReuseError: المفتاحُ «judiciary.ruling.issue:lcs-ac21cfcd-2ae4-4f8c-b56c-27d395fa1613:FIRST_INSTANCE» مُستعمَلٌ ببصمةٍ مختلفة.
+=========================== short test summary info ============================
+FAILED federal/executive/services/tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t4_replacement_after_vacation_uses_new_generation
+============================== 1 failed in 1.11s ===============================

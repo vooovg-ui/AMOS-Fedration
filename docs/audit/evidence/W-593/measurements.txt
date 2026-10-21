@@ -1,0 +1,43 @@
+# قياساتُ دفعةِ W-593 (2026-10-21) — كلُّ رقمٍ هنا مقيسٌ بأمرِهِ
+
+== الجردُ السياديُّ (tools/audit/sovereign_write_inventory.py) ==
+قبل (رأسُ main = d0932c51 · وقياسُ W-581 أساسُ التصميمِ):
+  مواضعُ كتابةٍ (كلُّها): 220 · عمليّاتٌ عامّةٌ: 201 · تعبرُ الحدَّ: 17 · لا تعبرُ (الدَّينُ): 183
+  الوحدةُ (federal_judiciary): 27 موضعًا · كلُّها عامّةٌ · 0 تعبرُ
+بعد (شجرةُ العملِ قبلَ الالتزامِ):
+  مواضعُ كتابةٍ (كلُّها): 220 · عمليّاتٌ عامّةٌ: 201 · تعبرُ الحدَّ: 18 · لا تعبرُ (الدَّينُ): 181
+  الوحدةُ: 27 موضعًا (−1 خروجُ service.issue_ruling منَ الكتابةِ · +1 المُطبِّقُ المتداخلُ) · عامّةٌ 26 · تعبرُ 1
+⇒ الدَّينُ 183←181 · السياديُّ 17←18 · الأسطحُ 220←220 (تنبّأَ بهِ تصحيحُ W-588/DISC-126)
+
+== فحوصُ T1–T7 (ملفٌّ جديدٌ: federal/executive/services/tests/test_wi105_issue_ruling_sovereign.py) ==
+الأمرُ: AMOS_DATABASE_URL="sqlite:////tmp/amos_w593.db" .venv/bin/python -m pytest federal/executive/services/tests/test_wi105_issue_ruling_sovereign.py -q
+المخرجُ: 7 passed in 1.63s
+
+== الطفراتُ M1–M4 (على نسخةٍ مؤقّتةٍ ثمّ استعادةُ الأصلِ — diff فارغٌ بعدَها) ==
+M1 حذفُ العبورِ (المُطبِّقُ يُنادى مباشرةً): T1 وT2 سقطَا (2 failed)
+M2 مفتاحٌ بلا جيلٍ: T4 سقطَ (IdempotencyKeyReuseError) — أُعيدَ تطبيقُها يدويًّا بعدَ اكتشافِ عدمِ انطباقِ النسخةِ الأولى (التنسيقُ أحاديُّ السطرِ)
+M3 فحصُ المكرَّرِ بعدَ الحدِّ (حذفُ الفحصِ القائمِ): T5 سقطَ
+M4 judicial_action=None: T1 سقطَ (JurisdictionNotDeclaredError)
+
+== الفحوصُ القائمةُ بلا تعديلٍ ==
+test_r7d_federal_judiciary.py: 27 passed (git diff فارغٌ على الملفِّ)
+test_wi082_agent_identity_sovereign.py: 8 passed (بلا تعديلٍ)
+
+== حزمةُ services كاملةً ==
+الأمرُ: AMOS_DATABASE_URL="sqlite:////tmp/amos_w593.db" .venv/bin/python -m pytest federal/executive/services/tests -q
+المخرجُ: 1482 passed, 53 skipped in 261.63s (كانَتْ 1475+53 · الزيادةُ 7 فحوصِ T1–T7)
+
+== حزمةُ الجذرِ ==
+pytest tests/ -q --collect-only ⇒ 2706 tests collected (بلا تغييرٍ)
+
+== الملفّاتُ الممسوسةُ ==
+federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py (D2)
+federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py (العبورُ)
+federal/executive/services/src/amos_federation/services/federal_judiciary/service.py (فقدَ commit)
+federal/executive/services/src/amos_federation/services/federal_judiciary/authority.py (position_scope)
+federal/executive/services/tests/test_wi105_issue_ruling_sovereign.py (جديد · T1–T7)
+docs/audit/J1_ISSUE_RULING_DESIGN.md (إضافتانِ مؤرَّختانِ) · docs/PROJECT_HANDBOOK.md (دعاوى الحزمةِ) · وثائقُ الحالةِ
+(ولا غيرُها — § 5 من التصميمِ)
+
+== حكمُ CI على رأسِ W-592 (N+1) ==
+التشغيلُ 39661440605 · مقروءٌ أخضرُ 13/13 على العقدةِ d0932c51 — الدليلُ: ci_verdict_39661440605.txt

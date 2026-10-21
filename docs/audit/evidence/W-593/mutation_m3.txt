@@ -1,0 +1,5 @@
+== M3: فحص المكرر بعد الحد (حذف الفحص القائم قبل الحد) ==
+E   AttributeError: 'NoneType' object has no attribute 'id'
+=========================== short test summary info ============================
+FAILED federal/executive/services/tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t5_duplicate_rejected_before_boundary
+============================== 1 failed in 1.10s ===============================

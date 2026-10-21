@@ -1,0 +1,6 @@
+== M4: judicial_action=None في rulings ==
+    raise JurisdictionNotDeclaredError(
+E   core.sovereignty.enforcement_boundary.JurisdictionNotDeclaredError: الفعلُ «issue_ruling» قضائيٌّ ولم يُقدَّم له طلبُ اختصاصٍ مُعلَن. الجدارُ لا يُفحَصُ بالنيّة، ولا يعبرُ فعلٌ قضائيٌّ بلا نطاقِ محكمةٍ ونطاقِ قضيّةٍ ونطاقِ منصبٍ مُصرَّحٍ بها.
+=========================== short test summary info ============================
+FAILED federal/executive/services/tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t1_issue_ruling_crosses_boundary_as_judicial
+============================== 1 failed in 1.02s ===============================

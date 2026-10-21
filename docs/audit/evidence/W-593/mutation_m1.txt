@@ -1,0 +1,5 @@
+== M1: حذف العبور (المطبق ينادى مباشرة بلا guard_declared) ==
+=========================== short test summary info ============================
+FAILED federal/executive/services/tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t1_issue_ruling_crosses_boundary_as_judicial
+FAILED federal/executive/services/tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t2_executive_actor_is_denied
+============================== 2 failed in 1.22s ===============================

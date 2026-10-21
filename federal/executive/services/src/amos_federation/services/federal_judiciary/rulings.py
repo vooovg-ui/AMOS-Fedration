@@ -37,8 +37,15 @@ import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 
+from amos_federation.common.database import get_session_factory
+from amos_federation.services.executive_core.sovereignty_bridge import (
+    ConstitutionalAuthorizer,
+    compensator,
+    declared_effect,
+    operation_key,
+)
 from amos_federation.services.federal_judiciary.docket import (
     advance_case,
     load_case,
@@ -47,6 +54,8 @@ from amos_federation.services.federal_judiciary.docket import (
 from amos_federation.services.federal_judiciary.models import (
     RULING_DECISIONS,
     RULING_STAGES,
+    CaseProceedingModel,
+    LegalCaseModel,
     RulingModel,
 )
 from amos_federation.services.federal_judiciary.registry import JudiciaryError
@@ -59,6 +68,29 @@ if TYPE_CHECKING:
 #: الحالاتُ التي يبقى فيها الحكمُ قائمًا ويحجز مرحلتَه القضائية.
 ACTIVE_RULING_STATUSES: tuple[str, ...] = ("issued", "enforced")
 
+#: فاعلُ إصدارِ الحكمِ (تصميمُ J1 · WI-105 · قرارُ المالكِ Q-6 ①): القضاءُ فرعٌ
+#: مستقلٌّ بفاعلٍ قضائيٍّ مُعلَنٍ — **ثابتٌ في الوحدةِ لا معاملًا للمُنادي**. من يملكُ
+#: تمريرَ مُفوِّضٍ بفاعلٍ آخرَ يُصدِرُ حكمًا (ثغرةُ DISC-121)، فاختيارُ الفاعلِ يبقى
+#: هنا وحدَه (D1) — والاختبارُ يُبدِّلُه بـ`monkeypatch` على هذا الثابتِ لا بمعاملٍ
+#: إنتاجيّ.
+JUDICIARY_ACTOR = "JUDICIAL"
+
+_DEFAULT_JUDICIARY_AUTHORIZER: ConstitutionalAuthorizer | None = None
+
+
+def _judiciary_authorizer() -> ConstitutionalAuthorizer:
+    """المُصرِّحُ الافتراضيُّ بفاعلِ إصدارِ الحكمِ المُسمّى — واحدٌ للوحدةِ (D1)."""
+    global _DEFAULT_JUDICIARY_AUTHORIZER
+    if _DEFAULT_JUDICIARY_AUTHORIZER is None:
+        _DEFAULT_JUDICIARY_AUTHORIZER = ConstitutionalAuthorizer(actor=JUDICIARY_ACTOR)
+    return _DEFAULT_JUDICIARY_AUTHORIZER
+
+
+def reset_judiciary_authorizer() -> None:
+    """أفرِغِ المُفوِّضَ المحفوظَ — للاختباراتِ التي تبدّلُ الفاعلَ (D1)."""
+    global _DEFAULT_JUDICIARY_AUTHORIZER
+    _DEFAULT_JUDICIARY_AUTHORIZER = None
+
 
 class RulingError(JudiciaryError):
     """إصدارُ حكمٍ مرفوض — مدخلٌ غير صالحٍ أو حالةٌ لا تسمح."""
@@ -66,6 +98,10 @@ class RulingError(JudiciaryError):
 
 class DuplicateRulingError(RulingError):
     """للقضية حكمٌ قائمٌ في هذه المرحلة القضائية — لا حكمَ ثانٍ."""
+
+
+class RulingLedgerDivergenceError(RulingError):
+    """سجلُّ الذرّيّةِ يُثبِتُ إصدارَ حكمٍ والصفُّ غائبٌ — استعادةٌ لا إصدارٌ يُزعَم."""
 
 
 def _now() -> datetime:
@@ -162,36 +198,163 @@ def issue_ruling(
             "لا حكمَ ثانٍ لنفس المرحلة القضائية"
         )
 
-    row = RulingModel(
-        id=f"rul-{uuid.uuid4()}",
-        case_id=case.id,
-        court_id=authority.court_id,
-        judge_id=authority.judge_id,
-        judge_identity_id=authority.identity_id,
-        stage=stage,
-        decision=decision,
-        disposition=disposition,
-        status="issued",
-        provenance_class=authority.classification,
-        authority=authority.as_dict(),
-        issued_by_principal=authority.principal_id,
-        tenant_id=tenant_id,
-    )
-    session.add(row)
-    session.flush()
+    # جيلُ المفتاحِ (D6): عددُ الأحكامِ المُلغاةِ للقضيةِ في هذه المرحلةِ — يُقرأُ
+    # قبلَ الحدِّ. فبعدَ الإلغاءِ يُسمَحُ بديلٌ للمرحلةِ نفسِها، ومفتاحٌ بلا جيلٍ
+    # يُعيدُ الحكمَ الأوّلَ «إعادةً» صامتةً ولا يكتبُ البديلَ.
+    vacated = session.execute(
+        select(func.count())
+        .select_from(RulingModel)
+        .where(
+            RulingModel.case_id == case.id,
+            RulingModel.stage == stage,
+            RulingModel.status == "vacated",
+        )
+    ).scalar()
+    generation = int(vacated or 0)
 
-    proceeding = record_proceeding(
-        session,
-        case_id=case.id,
-        proceeding_type="RULING",
-        actor_principal=authority.principal_id,
-        actor_identity_id=authority.identity_id or "",
-        summary=f"حكمٌ في المرحلة '{stage}': {decision}",
-        tenant_id=tenant_id,
-        record={"ruling_id": row.id, "stage": stage, "decision": decision},
+    # حالةُ القضيةِ قبلَ العمليّةِ — يُستعيدُها المُعوِّضُ التقنيُّ (D7-أ).
+    previous_status = case.status
+
+    def _judicial_action() -> Any:
+        """طلبُ الاختصاصِ منَ البياناتِ الحيّةِ لا من ثوابتَ (D3)."""
+        import sys as _sys
+
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            locate_repo_root,
+        )
+
+        root = locate_repo_root()
+        if str(root) not in _sys.path:
+            _sys.path.insert(0, str(root))
+        from core.sovereignty.jurisdiction import JudicialAction
+
+        return JudicialAction(
+            action="issue_ruling",
+            court_scope=authority.jurisdiction or "",
+            case_scope=case.jurisdiction,
+            actor_scope=authority.position_scope or "",
+            target=case.id,
+            institution_id=authority.institution_id,
+            # القضيّةُ بلا عمودِ مؤسّسةٍ: مؤسّستُها مؤسّسةُ محكمتِها — مُعلَنٌ لا مُخمَّنٌ
+            case_institution_id=authority.institution_id,
+            is_royal_decree_target=False,
+        )
+
+    # هدفُ العبورِ يحملُ جيلَ الإلغاءِ (D5 + D6): بصمةُ العقدِ تُشتقُّ من
+    # (الفاعلِ · الفعلِ · الهدفِ · الآثارِ) فقط، فلو حملَها المفتاحُ وحدَه
+    # لتصادمَ الحكمانِ للمرحلةِ نفسِها في الثانيةِ نفسِها في معرِّفِ الإذنِ
+    # (EP-…) فرُفضَ البديلُ بعدَ الإلغاءِ رفضَ إعادةِ إذنٍ — وهو اكتشافُ تنفيذٍ
+    # أُعلِنَ بإضافةٍ مؤرَّخةٍ في وثيقةِ التصميمِ (§ D5). والجيلُ جزءُ هويةِ
+    # العمليّةِ في المفتاحِ والهدفِ معًا، فالدلالةُ كما هي: أثرٌ واحدٌ
+    # لمعاملةٍ واحدةٍ.
+    target = f"judiciary/rulings/{case.id}/{stage}/g{generation}"
+    effect = declared_effect(
+        "CREATE",
+        target,
+        f"حكمٌ في المرحلة '{stage}' وإجراؤه وانتقالُ القضيّةِ إلى decided",
     )
-    if case.status != "decided":
-        advance_case(session, case_id=case.id, target="decided", tenant_id=tenant_id)
+    op_key = operation_key("judiciary.ruling.issue", f"{case.id}:{stage}:g{generation}")
+
+    created: dict[str, str] = {}
+
+    def _apply(_effect: Any) -> tuple[RulingModel, Any]:
+        """المُطبِّقُ المتداخلُ الخاصُّ — الكتابةُ الوحيدةُ للحكمِ داخلَ الحدِّ (D4).
+
+        دالّةٌ واحدةٌ متداخلةٌ على نمطِ `agent_identity._apply` (WI-082): تحملُ
+        `add` + `flush` + `record_proceeding` + `advance_case` + `commit` في
+        معاملةٍ واحدةٍ، فتُحصى موضعَ كتابةٍ مستقلًّا في الجردِ (public=False).
+        """
+        row = RulingModel(
+            id=f"rul-{uuid.uuid4()}",
+            case_id=case.id,
+            court_id=authority.court_id,
+            judge_id=authority.judge_id,
+            judge_identity_id=authority.identity_id,
+            stage=stage,
+            decision=decision,
+            disposition=disposition,
+            status="issued",
+            provenance_class=authority.classification,
+            authority=authority.as_dict(),
+            issued_by_principal=authority.principal_id,
+            tenant_id=tenant_id,
+        )
+        session.add(row)
+        session.flush()
+        proceeding = record_proceeding(
+            session,
+            case_id=case.id,
+            proceeding_type="RULING",
+            actor_principal=authority.principal_id,
+            actor_identity_id=authority.identity_id or "",
+            summary=f"حكمٌ في المرحلة '{stage}': {decision}",
+            tenant_id=tenant_id,
+            record={"ruling_id": row.id, "stage": stage, "decision": decision},
+        )
+        if case.status != "decided":
+            advance_case(session, case_id=case.id, target="decided", tenant_id=tenant_id)
+        session.commit()
+        created["ruling_id"] = row.id
+        created["proceeding_id"] = proceeding.id
+        return row, proceeding
+
+    def _restore() -> None:
+        """المُعوِّضُ (D7-أ): استعادةٌ تقنيّةٌ دقيقةٌ في جلسةٍ جديدةٍ — لا إلغاءٌ قضائيّ.
+
+        الصفوفُ مُلتزَمةٌ والعمليّةُ لم تثبتْ (فشلٌ بعدَ الالتزامِ): فلا حكمَ قانونيًّا
+        وُجِدَ. يُحذفُ صفُّ الإجراءِ (آخرُ تسلسلٍ للقضيّةِ) وصفُّ الحكمِ بمعرِّفَيهما
+        وتُرجَعُ حالةُ القضيّةِ إلى ما كانت قبلَ العمليّةِ. «الحذفُ شأنٌ تنفيذيّ» —
+        والمُعوِّضُ ليس أثرًا مُعلَنًا ولا تراجعُه البوابة، فيُكتَبُ ذلك صريحًا هنا.
+        """
+        restore = get_session_factory()()
+        try:
+            ruling_row = restore.get(RulingModel, created.get("ruling_id", ""))
+            if ruling_row is not None:
+                restore.delete(ruling_row)
+            proceeding_row = restore.get(CaseProceedingModel, created.get("proceeding_id", ""))
+            if proceeding_row is not None:
+                restore.delete(proceeding_row)
+            case_row = restore.get(LegalCaseModel, case.id)
+            if case_row is not None and case_row.status != previous_status:
+                case_row.status = previous_status
+            restore.commit()
+        finally:
+            restore.close()
+
+    guarded = _judiciary_authorizer().guard_declared(
+        "issue_ruling",
+        target,
+        declared_effects=(effect,),
+        applier=_apply,
+        operation_key=op_key,
+        compensators=(
+            compensator(
+                effect.signature,
+                _restore,
+                "استعادةٌ تقنيّةٌ: حذفُ صفَّي الحكمِ والإجراءِ وإرجاعُ حالةِ القضيّةِ — "
+                "العمليّةُ لم تثبتْ فلا حكمَ قانونيًّا وُجِدَ",
+            ),
+        ),
+        metadata={
+            "case_reference": case.reference,
+            "stage": stage,
+            "generation": generation,
+        },
+        judicial_action=_judicial_action(),
+    )
+    if guarded.is_replay:
+        # الإعادةُ ليست نجاحًا ثانيًا: يُقرأُ الحكمُ القائمُ للمرحلةِ، فإن غابَ
+        # رُفِعَ التفرُّقُ صريحًا — ولا كتابةَ ثانيةً خارجَ الحدِّ (D6).
+        standing = active_ruling_for_stage(session, case_id=case.id, stage=stage)
+        if standing is None:
+            raise RulingLedgerDivergenceError(
+                f"سجلُّ الذرّيّةِ يُثبِتُ إصدارَ حكمٍ للقضيّةِ '{case.reference}' "
+                f"في المرحلةِ '{stage}' ولا صفَّ حكمٍ قائمًا — استعادةٌ مطلوبةٌ "
+                "لا إصدارٌ يُزعَم"
+            )
+        return standing, None
+    value = guarded.value
+    row, proceeding = value
     return row, proceeding
 
 

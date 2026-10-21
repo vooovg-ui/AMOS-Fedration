@@ -669,6 +669,9 @@ class FederalJudiciary:
             authority = require_judicial_authority(
                 session, context, court_id=case.court_id, case_id=case.id
             )
+            # الالتزامُ صارَ داخلَ العبورِ (تصميمُ J1 · D4): الكتابةُ الوحيدةُ للحكمِ
+            # خلفَ الحدِّ في معاملةٍ واحدةٍ، والخدمةُ مُنسِّقٌ لا كاتبٌ — فقدَتْ
+            # `session.commit()` وبقيتْ مالكةَ الجلسةِ (الإغلاقُ) والنشرِ والأثرِ.
             row, proceeding = rulings.issue_ruling(
                 session,
                 authority=authority,
@@ -679,7 +682,6 @@ class FederalJudiciary:
             )
             payload = rulings.ruling_dict(row)
             proceeding_payload = docket.proceeding_dict(proceeding)
-            session.commit()
         finally:
             session.close()
         self._publish_proceeding(context, proceeding_payload)

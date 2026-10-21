@@ -100,6 +100,7 @@ class JudicialAuthority:
     case_id: str | None = None
     jurisdiction: str | None = None
     institution_id: str | None = None
+    position_scope: str | None = None
     reason: str = ""
 
     def as_dict(self) -> dict[str, Any]:
@@ -116,6 +117,7 @@ class JudicialAuthority:
             "case_id": self.case_id,
             "jurisdiction": self.jurisdiction,
             "institution_id": self.institution_id,
+            "position_scope": self.position_scope,
             "reason": self.reason,
         }
 
@@ -245,6 +247,7 @@ def resolve_judicial_authority(
         "court_id": court.id,
         "jurisdiction": court.jurisdiction,
         "institution_id": court.institution_id,
+        "position_scope": holding.authority_scope,
     }
 
     # 5. بلا قضية: تخويلٌ على مستوى المحكمة — `PARTIAL` بقصدٍ لا تسامحًا.

@@ -135,6 +135,7 @@ class SovereignAuthorizer(Protocol):
         operation_key: Any,
         compensators: tuple[Any, ...] = (),
         metadata: dict[str, Any] | None = None,
+        judicial_action: Any | None = None,
     ) -> GuardedResult: ...
 
     def review_only(
@@ -362,6 +363,7 @@ class ConstitutionalAuthorizer:
         operation_key: Any,
         compensators: tuple[Any, ...] = (),
         metadata: dict[str, Any] | None = None,
+        judicial_action: Any | None = None,
     ) -> GuardedResult:
         """نفِّذْ عبر حدِّ التنفيذِ السياديّ — أو لا تنفُذ.
 
@@ -388,6 +390,7 @@ class ConstitutionalAuthorizer:
             applier=_apply,
             operation_key=operation_key,
             compensators=tuple(compensators),
+            judicial_action=judicial_action,
         )
         records = self._gateway.records
         if not records:  # pragma: no cover - البوابة تسجّل كل قرار
