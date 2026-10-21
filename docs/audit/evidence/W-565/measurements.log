@@ -1,0 +1,16 @@
+# قياسات W-565 — 2026-10-21 (المنسِّق GLM-5.3)
+
+## 1 · قبل الإصلاحِ (على 16a99c0)
+$ .venv/bin/python -m pytest tests/crown/test_w064_secret_scan_exceptions.py -q
+1 failed, 8 passed in 11.07s
+[الجولةُ الأولى قبلَ إصلاحِ فحصِ w064 نفسِهِ: 3 failed · 2690 passed · 1 skipped — التفصيلُ في § 8 من قيدِ W-561]
+
+## 2 · بعدَ الإصلاحِ (على رأسِ الدفعةِ)
+$ .venv/bin/python -m pytest tests/crown/test_w064_secret_scan_exceptions.py tests/crown/test_w565_secret_history_decode.py -q
+11 passed
+
+$ .venv/bin/python -m pytest tests/ -q --collect-only
+2696 tests collected in 0.77s
+
+$ .venv/bin/python tools/governance/suite_size_inventory.py --check
+[يجري في CI — الدعوى محدَّثة 2696]

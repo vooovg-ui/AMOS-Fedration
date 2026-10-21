@@ -93,12 +93,15 @@ def test_الاستثناء_الميت_يظهر():
 
 def test_كل_استثناء_له_سطر_قائم_في_التاريخ():
     """والقياسُ على التاريخِ الحقيقيِّ لا على قائمةٍ مُختَرَعةٍ في الفحصِ."""
+    # W-565 (2026-10-21): نفسُ إصلاحِ الحارسِ — بايتٌ تالفٌ واحدٌ في التاريخِ لا يُسقِطُ الفحصَ.
     result = subprocess.run(
         ["git", "log", "--all", "-p", "--no-color"],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
         check=False,
+        encoding="utf-8",
+        errors="replace",
     )
     if result.returncode != 0:
         pytest.skip("تعذّرت قراءة التاريخ في هذه البيئة")

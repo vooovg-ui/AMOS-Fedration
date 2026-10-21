@@ -170,9 +170,14 @@ def gate_no_private_seed_literal() -> None:
 @functools.lru_cache(maxsize=1)
 def _added_key_lines() -> tuple[str, ...] | None:
     """كلُّ سطرٍ مُضافٍ في التاريخِ يحملُ كتلةَ مفتاحٍ — و`None` إن تعذَّرَت القراءةُ."""
+    # W-565 (2026-10-21): بايتٌ واحدٌ غيرُ صالحٍ في UTF-8 داخلَ التاريخِ (قيدٌ مدفوعٌ لا يُمحى)
+    # كانَ يُسقِطُ هذا الفحصَ بانهيارِ فكِّ الترميزِ لا بحكمٍ — فصارَ الفكُّ بالاستبدالِ:
+    # كلُّ الأسطرِ تُقرأُ وتُمسَحُ كاملًً، والاستبدالُ لا يمسُّ مطابقةَ ASCII لكتلِ PEM
+    # فلا خسارةَ في التغطيةِ — والبقايا محكومةٌ بـDISC-119 وWI-103.
     result = subprocess.run(
         ["git", "log", "--all", "-p", "--no-color"],
         cwd=REPO_ROOT, capture_output=True, text=True, check=False,
+        encoding="utf-8", errors="replace",
     )
     if result.returncode != 0:
         return None
