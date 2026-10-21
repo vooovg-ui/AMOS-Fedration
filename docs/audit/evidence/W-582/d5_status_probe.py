@@ -19,6 +19,10 @@ HEAD = re.compile(r"^## Q-(\d+) · ", re.M)
 SETTLED = ("DECIDED", "RESOLVED_")
 
 
+def settled(c: Counter[str]) -> int:
+    return sum(v for k, v in c.items() if k.startswith(SETTLED))
+
+
 def main() -> int:
     text = REG.read_text(encoding="utf-8")
     heads = [(int(m.group(1)), m.start()) for m in HEAD.finditer(text)]
@@ -36,7 +40,6 @@ def main() -> int:
         first_c[first] += 1
         last_c[last] += 1
         print(f"Q-{n:<3} أوّلُ={first:<28} آخرُ={last}")
-    settled = lambda c: sum(v for k, v in c.items() if k.startswith(SETTLED))
     print(f"\nبأوّلِ حالةٍ في القسم: محسومٌ {settled(first_c)}/27 · {dict(first_c)}")
     print(f"بآخرِ حالةٍ في القسم:  محسومٌ {settled(last_c)}/27 · {dict(last_c)}")
     print("المرجعُ اليدويُّ W-577: 15/27 (يستعملُ أيضًا مواضعَ خارجَ القسمِ — D16 § 1)")
