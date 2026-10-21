@@ -272,13 +272,14 @@ def test_bridge_actor_is_declared_parameter_defaulting_to_executive() -> None:
     assert isinstance(default, ast.Name) and default.id == "DEFAULT_ACTOR"
 
 
-# ── 4. مواضعُ بناءِ المُصرِّحِ: أربعةٌ تُعلِنُ فاعلَها وأربعةٌ تتَّكِلُ على الافتراض ──
-def test_production_authorizer_sites_split_five_declared_four_defaulted() -> None:
-    """(محدّثة في W-402 · WI-082): المُصرِّحُ الخامسُ المُعلِنُ فاعلَهُ — إنشاءُ
-    الهويّةِ بقرارِ المالكِ Q-15 ① — على سابقةِ factories.py نفسِها، لا هروبًا
-    من الإعلانِ. والافتراضيّةُ الأربعُ كما هي."""
+# ── 4. مواضعُ بناءِ المُصرِّحِ: ستةٌ تُعلِنُ فاعلَها وأربعةٌ تتَّكِلُ على الافتراض ──
+def test_production_authorizer_sites_split_six_declared_four_defaulted() -> None:
+    """(محدّثة في W-593 · WI-105/J1): المُصرِّحُ السادسُ المُعلِنُ فاعلَهُ — المُفوِّضُ القضائيُّ
+    الكسولُ في rulings.py (JUDICIARY_ACTOR · D1 من تصميمِ J1 المعتمدِ بقرارِ المالكِ
+    Q-69/D17-6) — على سابقةِ factories.py نفسِها، لا هروبًا من الإعلانِ. والافتراضيّةُ
+    الأربعُ كما هي. (وكانت خمسةً بعدَ WI-082 · W-402.)"""
     sites = _authorizer_construction_sites()
-    assert len(sites["declared"]) == 5, sites["declared"]
+    assert len(sites["declared"]) == 6, sites["declared"]
     assert len(sites["defaulted"]) == 4, sites["defaulted"]
     assert sorted(Path(p.split(":")[0]).name for p in sites["declared"]) == [
         "agent_identity.py",
@@ -286,6 +287,7 @@ def test_production_authorizer_sites_split_five_declared_four_defaulted() -> Non
         "factories.py",
         "money_authority.py",
         "money_authority.py",
+        "rulings.py",
     ], sites["declared"]
     assert sorted(Path(p.split(":")[0]).name for p in sites["defaulted"]) == [
         "engine.py",
@@ -296,25 +298,28 @@ def test_production_authorizer_sites_split_five_declared_four_defaulted() -> Non
 
 
 # ── 5. دَينُ W1 وتواقيعُه ─────────────────────────────────────────────────────
-def test_w1_debt_is_fifty_two_sites() -> None:
-    assert len(_w1_debt()) == 52
+def test_w1_debt_is_fifty_sites() -> None:
+    """(محدّثة في W-593 · J1): 52 ← 50 — issue_ruling عبرَ الحدَّ السياديَّ فخرجَ منَ
+    دَينِ W1. (سابقةُ WI-082 · W-402.)"""
+    assert len(_w1_debt()) == 50
 
 
-def test_w1_signature_buckets_are_twenty_eight_four_twenty() -> None:
-    """الدعوى المحروسة: 28 سياقًا وحدَه · 4 فاعلًا مُسمّىً · 20 بلا فاعلٍ بأيِّ صورةٍ · 0 كِلاهما."""
+def test_w1_signature_buckets_are_twenty_seven_four_nineteen() -> None:
+    """الدعوى المحروسة (محدّثة في W-593 · J1: 28/20 ← 27/19): 27 سياقًا وحدَه ·
+    4 فاعلًا مُسمّىً · 19 بلا فاعلٍ بأيِّ صورةٍ · 0 كِلاهما."""
     buckets = _signature_buckets()
     counts = {key: len(value) for key, value in buckets.items()}
     assert counts == {
-        "context_only": 28,
+        "context_only": 27,
         "actor_named": 4,
-        "neither": 20,
+        "neither": 19,
         "both": 0,
     }, counts
-    assert sum(counts.values()) == 52
+    assert sum(counts.values()) == 50
 
 
 def test_no_w1_debt_site_declares_a_branch_today() -> None:
-    """لا موضعَ واحدًا من الـ52 يُمرِّرُ فرعًا — فالفرعُ اليومَ لا يُعلَنُ في التوقيعِ أصلًا."""
+    """لا موضعَ واحدًا منَ الـ50 (كانت 52 قبلَ J1 · W-593) يُمرِّرُ فرعًا — فالفرعُ اليومَ لا يُعلَنُ في التوقيعِ أصلًا."""
     for site in _w1_debt():
         source = (REPO_ROOT / site.path).read_text(encoding="utf-8")
         node = _function_node(ast.parse(source), site.function)
@@ -326,10 +331,11 @@ def test_no_w1_debt_site_declares_a_branch_today() -> None:
 
 
 # ── 6. أثرُ الإعلانِ على الحكم — من المُحرِّكِ نفسِه ──────────────────────────
-def test_only_one_debt_action_is_branch_sensitive_today() -> None:
-    """الدعوى المحروسة: من 44 اسمَ فعلٍ في دَينِ W1 — 41 خارجَ المعجمِ · 1 حسّاسٌ للفرعِ · 2 ممنوعانِ لكلِّ فاعل."""
+def test_no_debt_action_is_branch_sensitive_today() -> None:
+    """الدعوى المحروسة (محدّثة في W-593 · J1: 44/41/1 ← 43/41/0 — issue_ruling كانَ الحسّاسَ الوحيدَ فخرجَ منَ الدَّينِ كلِّهِ فلم يبقَ حسّاسٌ فيه): من 43 اسمَ فعلٍ في دَينِ W1 —
+    41 خارجَ المعجمِ · 0 حسّاسٌ للفرعِ · 2 ممنوعانِ لكلِّ فاعل."""
     actions = sorted({site.function.split(".")[-1] for site in _w1_debt()})
-    assert len(actions) == 44, actions
+    assert len(actions) == 43, actions
     actors = ["EXECUTIVE", "JUDICIAL", "LEGISLATIVE", "TREASURY", "ROYAL"]
     verdicts = _engine_verdicts(actions, actors)
 
@@ -344,7 +350,7 @@ def test_only_one_debt_action_is_branch_sensitive_today() -> None:
             sensitive.append(action)
 
     assert len(outside) == 41, sorted(outside)
-    assert sensitive == ["issue_ruling"], sensitive
+    assert sensitive == [], sensitive
     assert sorted(denied) == ["grant_authority", "revoke_authority"], sorted(denied)
 
 

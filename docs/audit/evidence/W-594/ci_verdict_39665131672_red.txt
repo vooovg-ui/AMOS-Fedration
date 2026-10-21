@@ -1,0 +1,18 @@
+# قيدُ حكمِ CI الأحمرِ على دفعةِ W-594 (W-594 · تصحيحٌ مؤرَّخ) — التشغيلُ 39665131672
+التاريخ: 2026-10-21 · العقدةُ c225a9e (الفرعُ w-594-j1-batch-briefs · PR #113)
+
+== الحكمُ ==
+failure — بوّابةُ الاندماجِ حمراءُ (لا دفعَ أحمرَ · لا force-push) ⇒ التصحيحُ إضافةٌ مؤرَّخةٌ في فرعٍ جديدٍ
+
+== الفاشلاتُ الستُّ (كلُّها تعليلُ لقطاتِ قياسٍ وجّهَها حرقُ D-4 نفسُه لا عطلُ شِفرةٍ) ==
+1. test_total_debt_matches_the_declared_snapshot (tests/governance/test_step7_factory_surfaces.py): assert 181 == 183 — لقطةُ الدَّينِ المعلنةُ في decision_gate_ledger.json قديمةٌ
+2. test_w1_debt_is_fifty_two_sites (test_q3_branch_declaration_surface.py): assert 50 == 52 — دينُ W1
+3. test_w1_signature_buckets_are_twenty_eight_four_twenty: {'context_only': 27, 'actor_named': 4, 'neither': 19, 'both': 0} == {28 · 4 · 20 · 0} — دلاءُ التواقيعِ
+4. test_only_one_debt_action_is_branch_sensitive_today: 43 == 44 — issue_ruling خرجَ منَ الدَّينِ فلم يبقَ حسّاسٌ فيه
+5. test_production_authorizer_sites_split_five_declared_four_defaulted: 6 == 5 — المُصرِّحُ السادسُ المُعلِنُ (المُفوِّضُ القضائيُّ في rulings.py · D1)
+6. Truth Audit (W-037 provenance): write_inventory_p13.json متقادمٌ في حقلَينِ · decision_wave_map.json: debt 183→181 · W1 52→50
+
+== آليةُ الإصلاحِ (سابقةُ W-402/W-535: تحديثُ المُثبَّتِ بالمقيسِ لا تخفيفُ الفحصِ) ==
+- أعيدَ توليدُ القياساتِ المنشورةِ بأوامرِها المقيَّدةِ: sovereign_write_inventory.py --json write_inventory_p13.json · decision_gate.py --map (50+34+97=181) · decision_gate.py --record-work W-593 (اللقطةُ: الدَّينُ 181 · العابراتُ 18 · الرأسُ c225a9e) · truth_audit.py · final_audit.py > final_audit_p14.json
+- حُدِّثَ مُثبَّتاتُ الحارسِ في tests/governance/test_q3_branch_declaration_surface.py بالأرقامِ المقيسةِ الجديدةِ (43/41/0 · 50 · 27-4-19 · 6 مُعلِنًا) مع إضافاتٍ مؤرَّخةٍ في متونِها (نمطُ W-402 · إعادةُ تسميةِ الدالّاتِ بأرقامِها)
+- التحققُ المحليُّ: tests/ كاملةً 2705 ناجحًا · ruff نظيفٌ · الحرسُ أخضرُ كلُّه · عقدُ نَسَبِ القياساتِ مستقيمٌ
