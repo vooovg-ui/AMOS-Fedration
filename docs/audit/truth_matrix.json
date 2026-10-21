@@ -391,10 +391,10 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 255,
-      "py_files": 11,
+      "md_files": 257,
+      "py_files": 13,
       "yaml_files": 0,
-      "code_lines": 835,
+      "code_lines": 903,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -404,10 +404,10 @@
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,
-      "observed_hits": 0,
+      "observed_hits": 2,
       "api_routes": 0,
       "test_refs": 193,
-      "identity_violations": 0,
+      "identity_violations": 1,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
       "deployment_evidence": "ABSENT",
@@ -419,7 +419,7 @@
         "INTEGRATED": true,
         "TESTED": false,
         "SECURED": true,
-        "OBSERVED": false,
+        "OBSERVED": true,
         "DEPLOYED": false,
         "PROVEN": false,
         "EVIDENCE": {
@@ -989,7 +989,7 @@
     "domains_total": 12,
     "domains_proven": 0,
     "findings_total": 61,
-    "identity_violations": 0,
+    "identity_violations": 1,
     "unreadable_files": 0,
     "unparsable_files": 0,
     "by_severity": {
