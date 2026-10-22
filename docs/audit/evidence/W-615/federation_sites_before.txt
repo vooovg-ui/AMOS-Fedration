@@ -1,0 +1,18 @@
+{"write_sites_total": 220, "by_area": {"core": {"public": 1, "sovereign": 0, "non_sovereign": 0}, "service_common": {"public": 28, "sovereign": 0, "non_sovereign": 28}, "services": {"public": 171, "sovereign": 18, "non_sovereign": 152}, "tools": {"public": 1, "sovereign": 0, "non_sovereign": 1}}, "p
+federation sites 16 public 15 guarded 0
+  ApprovalSystem decide_approval public debt
+  ApprovalSystem request_approval public debt
+  ExecutiveBranch _init_roles private debt
+  ExecutiveBranch appoint public debt
+  JudicialBranch add_argument public debt
+  JudicialBranch file_case public debt
+  JudicialBranch rule public debt
+  LegislativeBranch enact public debt
+  LegislativeBranch open_debate public debt
+  LegislativeBranch open_voting public debt
+  LegislativeBranch propose public debt
+  LegislativeBranch vote public debt
+  PromotionSystem fail_gate public debt
+  PromotionSystem pass_gate public debt
+  PromotionSystem start_promotion public debt
+  SupremeOversight generate_compliance_report public debt
