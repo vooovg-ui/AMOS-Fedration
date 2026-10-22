@@ -1,0 +1,28 @@
+# قياساتُ جلسةِ W-608 (منفِّذٌ جديدٌ يستلمُ الجلسةَ · 2026-10-22)
+
+== check_work_governance --self-check ==
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-105: قيدُه (W-579، W-580، W-581، W-582، W-583، W-584، W-585، W-586، W-587، W-588، W-589، W-590، W-591، W-592، W-593، W-594، W-595، W-596، W-597، W-598، W-599، W-600، W-601، W-602، W-603، W-604، W-605، W-606، W-607) مدموجٌ في «origin/main» وحالتُه ما زالت VERIFIED — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+== --today 2026-10-26 ==
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-105: قيدُه (W-579، W-580، W-581، W-582، W-583، W-584، W-585، W-586، W-587، W-588، W-589، W-590، W-591، W-592، W-593، W-594، W-595، W-596، W-597، W-598، W-599، W-600، W-601، W-602، W-603، W-604، W-605، W-606، W-607) مدموجٌ في «origin/main» وحالتُه ما زالت VERIFIED — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+== truth_audit --ratchet ==
+[TRUTH AUDIT] كُتبت: /home/user/workspace/amos/docs/audit/TRUTH_MATRIX.md
+[RATCHET] ثابت عند 61 مخالفة.
+== state_document_drift ==
+  ملاحظة · LEDGER_HEAD: أحدثُ قيدٍ مقروءٍ في § 8: W-607 (2026-10-22) · وعددُ الصفوفِ 605 · ووثائقُ الحالةِ المُعلَنةُ 2 منها 0 متأخِّرةٌ · وحقولٌ مُعلَنةٌ متأخِّرةٌ 0.
+  ✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ.
+== git ls-remote main ==
+b89a1bf77ecee71e3e6acf6587e1d70ec9da8fe2	refs/heads/main
+== أعلى رقم قيد في الفروع المفتوحة (gh pr list) ==
+[{"headRefName":"revert-72-wi-082-spawn-agent","number":73},{"headRefName":"wi-086-ledger-a2","number":71},{"headRefName":"wi-085-ledger-append-design","number":70},{"headRefName":"wi-082-stage3","number":69},{"headRefName":"w-337-mutation-probe","number":55}]
+== حكم CI (N+1) على b89a1bf (pull_request · PR #119) ==
+[CI VERDICT] مقروئيّةُ الحكمِ تُقاسُ بالخطواتِ لا بالنتيجة
+  تشغيلٌ 39749523163: READABLE · نُفِّذَت 13/13 وظيفةً (لم يُسنَدْ عاملٌ لـ0 · مُتخطًّى 0 · مشكوكٌ 0)
+[CI VERDICT] ✓ كلُّ التشغيلاتِ (1) نُفِّذَت خطواتُها — فـ`conclusion` يُقرأُ حكمًا.
+
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+[CI VERDICT] ✓ كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — فالدمجُ جائزٌ إجرائيًّا.
+== تشغيلات main على b89a1bf (push) ==
+39752134124 مصفوفةُ الحقيقةِ المولَّدة completed success
+39752133988 AMOS-Federation CI completed success
