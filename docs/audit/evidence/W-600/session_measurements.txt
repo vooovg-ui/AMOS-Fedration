@@ -1,0 +1,27 @@
+قياسات افتتاح جلسة W-600 (منفِّذٌ جديد · 2026-10-22 · كلُّها بأوامرِها ورموزِ خروجِها)
+
+$ python tools/governance/check_work_governance.py --self-check
+  [WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.  (EXIT 0)
+  (إبلاغا ما بعدَ الدمجِ فقط: WI-103 · WI-105 — نافذةُ التزامٍ واحدٍ مشروعةٌ · § 13.3)
+
+$ python tools/governance/truth_audit.py --ratchet
+  [RATCHET] ثابت عند 61 مخالفة.  (EXIT 0)
+
+$ python tools/governance/state_document_drift.py
+  (قبلَ قيدِ W-600 في § 8: STATE_DOC_CITES_UNKNOWN_WORK — W-600 مذكورٌ في الكتيّبِ بلا صفٍّ — متوقعٌ ويُزولُ بقيدِ هذا العملِ نفسِه)
+
+$ pytest tests/ --collect-only -q  ⇒  2709 tests collected  (EXIT 0)
+$ pytest tests/ -q  ⇒  1 failed (STALE_SUITE_CLAIM ×2 في الكتيّبِ) · 2707 passed · 1 skipped — أعادَ إنتاجَ حمرةِ CI محليًّا (bootstrap.sh --verify)
+
+$ python tools/audit/final_audit.py > docs/audit/measurements/final_audit_p14.json  ⇒ questions_count: 70 (كانَ المنشورُ 69 — قِيسَت في CI: منشورٌ 69 · مقيسٌ 70)
+
+$ python tools/governance/measurement_provenance.py . --check --without-deps  ⇒ عقدُ نَسَبِ القياساتِ مستقيمٌ (EXIT 0)
+
+$ pytest tests/governance/test_w120_suite_size_claims.py tests/governance/test_council_verdict_raw.py -q  ⇒ 61 passed (EXIT 0)
+$ ruff check .  ⇒ All checks passed!  (EXIT 0)
+
+تشخيصُ حمرةِ CI على عقدةِ f88d42e (التشغيلُ 39713641618 · PR #117 · pull_request):
+  ثلاثُ وظائفٍ حمراءَ بجذرٍ واحدٍ مقيسٍ (تعليلُ لقطاتٍ وجّهها قيدُ W-599 نفسُه لا عطلُ شِفرةٍ):
+  1) Identity Law + Cross-System Suites: STALE_SUITE_CLAIM ×2 — الكتيّبُ (السطرانِ 159 و591) يكتبُ الحزمةَ الجذريّةَ 2706 والجمعُ الحيُّ 2709 (+3 فحوصٍ مُولَّدةٍ لأحكامِ جولةِ W-599 الثلاثةِ في test_council_verdict_raw.py — نمطُ W-578/W-590 نفسُه)
+  2) Truth Audit (measurement_provenance): final_audit_p14.json متقادمٌ — منشورٌ 69 سؤالًا ومقيسٌ 70 (تسجيلُ Q-70 في سجلِّ القراراتِ بسجلِ W-599 — سابقةُ W-559/W-591 نفسُها)
+  والإصلاحُ بالآليةِ المقيَّدةِ (سابقةُ W-578/W-595): تحديثُ الدعويينِ بالمقيسِ (2706 ← 2709) بإضافةٍ مؤرَّخةٍ لا محوٍ + إعادةُ توليدِ final_audit_p14.json بأمرِه المقيَّدِ.
