@@ -10,8 +10,9 @@
 Perplexity Computer (المنسِّقُ الحاضرُ Claude Opus 5.5 — منسِّقٌ لا مُصوِّتٌ).
 
 ## المحتويات
-- `briefing_gemini_3_8_flash.md` · `briefing_grok_4_7.md` · `briefing_kimi_k3.md` — الإحاطاتُ المعبَّأةُ
-- `SHA256SUMS` — بصماتُها قبلَ الإطلاقِ
+- [إضافةٌ مؤرَّخةٌ · 2026-10-22 · W-607] نُقِلَت الإحاطاتُ و`SHA256SUMS` إلى `briefs/` بلا تغييرِ بايتٍ (سابقةُ W-594) — فحكمُ CI على رأسِ W-606 (التشغيلُ 39739104377) عدَّ قالبَها أحكامًا
+- `briefs/briefing_gemini_3_8_flash.md` · `briefs/briefing_grok_4_7.md` · `briefs/briefing_kimi_k3.md` — الإحاطاتُ المعبَّأةُ
+- `briefs/SHA256SUMS` — بصماتُها قبلَ الإطلاقِ
 - `TASKS_SENT.md` — رسائلُ الإطلاقِ حرفيًّا
 - `ci_jobs_39730239582.api.txt` · `ci_verdict_39730239582.txt` — حكمُ CI المقروءُ على `175054b`
 
