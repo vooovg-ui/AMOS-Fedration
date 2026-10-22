@@ -24,7 +24,15 @@ WI-105 · J1 — عبورُ `issue_ruling` الحدَّ السياديَّ بف�
   ولا قرارَ جديدٌ في سجلِّ البوابةِ.
 - T6 · المُعوِّض: إسقاطُ تثبيتِ النجاحِ بعدَ الالتزامِ ⇒ `CompensationRequired`
   و`state_is_clean` والصفوفُ غائبةٌ وحالةُ القضيّةِ مُستعادةٌ.
+  [W-603 · 2026-10-22 · Q-70] كُتِبَ إنتاجيًّا (T6p): النداءُ الإنتاجيُّ وحدَه بلا تعويضٍ يدويٍّ.
 - T7 · التفرُّق: إعادةٌ وصفُّ الحكمِ غائبٌ ⇒ `RulingLedgerDivergenceError`.
+
+[إضافةٌ مؤرَّخةٌ · 2026-10-22 · W-603 · قرارُ المالكِ Q-70 · ملحقُ التصميمِ § 7.6]:
+- T8 · نظيرُ T6p لـWI-082: `register_identity` وحدَه مع الإسقاطِ ⇒ `CompensationRequired`
+  نظيفًا والصفُّ غائبٌ والذرّيّةُ `FAILED_RETRYABLE` والإعادةُ تنجح.
+- T9 · فشلُ المُعوِّضِ نفسِه ⇒ `state_is_clean is False` · `requires_human` · الباقي مُسمًّى ·
+  الذرّيّةُ `FAILED_FINAL` · والإعادةُ مرفوضةٌ.
+- T10 · الحلقةُ الثانيةُ: فشلانِ متتاليانِ بعدَ الالتزامِ ⇒ كلٌّ يعكسُ صفوفَه فعلًا.
 
 الحدُّ المُعلَنُ في هذا الفحصِ:
 - تبديلُ الفاعلِ في T2 بـ`monkeypatch` على ثابتِ الوحدةِ وإفراغِ المُفوِّضِ
@@ -39,6 +47,8 @@ WI-105 · J1 — عبورُ `issue_ruling` الحدَّ السياديَّ بف�
 
 from __future__ import annotations
 
+import math
+import time
 import uuid
 from typing import Any
 
@@ -614,123 +624,107 @@ def test_wi105_t5_duplicate_rejected_before_boundary(
     assert len(authorizer.gateway.records) == decisions_before
 
 
-# ── T6 · المُعوِّضُ — استعادةٌ تقنيّةٌ دقيقةٌ ────────────────────────────────
+# ── T6p · المُعوِّضُ على المسارِ الإنتاجيِّ — الحدُّ يُعوِّضُ آليًّا (W-603 · Q-70) ──
+#
+# [إضافةٌ مؤرَّخةٌ · 2026-10-22 · W-603] T6 القديمُ (W-593) كانَ يتوقّعُ `RuntimeError`
+# خامًا من النداءِ الإنتاجيِّ ثمَّ يُعوِّضُ يدويًّا بحارسِ 1I. وقرارُ المالكِ Q-70 وصلَ
+# التعويضَ في الحدِّ نفسِه، فصارَ النداءُ الإنتاجيُّ وحدَه يرفعُ `CompensationRequired`
+# بعدَ العكسِ — فيُكتَبُ الفحصُ إنتاجيًّا (تشديدٌ لا تخفيفٌ: لا تعويضَ يدويًّا هنا).
 
 
-def test_wi105_t6_compensator_restores_state_after_failed_settle(
-    registry: StateRegistry,
-    national: NationalRegistry,
-    judiciary: FederalJudiciary,
-    crown: AuthorizationContext,
-    monkeypatch: pytest.MonkeyPatch,
-    tmp_path: Any,
-) -> None:
-    """T6 · المُعوِّضُ — استعادةٌ تقنيّةٌ دقيقةٌ عبرَ حارسِ 1I بالخطةِ المربوطةِ.
-
-    اكتشافُ تنفيذٍ مُعلَنٌ في وثيقةِ التصميمِ (إضافةٌ مؤرَّخةٌ): مسارُ الحدِّ
-    أحاديَّ الأثرِ ينفّذُ عبرَ `run_once` لا عبرَ معاملةِ 1I المُعوَّضةَ، فالتعويضُ
-    الآليُّ غيرُ موصولٍ هناك. فيُقاسُ المُعوِّضُ هنا كما تقيسُهُ حوكمةُ 1I: بإسقاطِ
-    تثبيتِ النجاحِ بعدَ الالتزامِ (الصفوفُ مُلتزَمةٌ والسجلُّ RUNNING) ثمّ
-    التعويضِ بحارسِ 1I بالعقدِ والخطةِ والمفتاحِ الحقيقيّةِ المُلتقَطةِ من
-    العبورِ نفسِهِ.
-    """
-    from core.sovereignty.compensation import (
-        CompensationGuard,
-        CompensationJournal,
-        bind_compensation_plan,
-    )
-    from core.sovereignty.contract import bind_contract
-    from core.sovereignty.idempotency import IdempotencyGuard
-
-    _bench_unused, case_id, judge_ctx = _prepared_case(registry, national, judiciary, crown, "t6")
-    authorizer = rulings_module._judiciary_authorizer()
-
-    # جاسوسٌ على العبورِ: يلتقطُ العقدَ (الآثارَ) والمعوّضاتِ والمفتاحَ كما
-    # تُمرَّرُ إلى الحدِّ — فالخطةُ تُبنى بها كما يربطُها الحدُّ نفسُهُ.
-    crossing: dict[str, Any] = {}
-    original_guard = rulings_module.ConstitutionalAuthorizer.guard_declared
-
-    def spying_guard(self: Any, *args: Any, **kwargs: Any) -> Any:
-        crossing["action"], crossing["target"] = args[0], args[1]
-        crossing.update(kwargs)
-        return original_guard(self, *args, **kwargs)
-
-    monkeypatch.setattr(rulings_module.ConstitutionalAuthorizer, "guard_declared", spying_guard)
-
-    # إسقاطُ تثبيتِ النجاحِ بعدَ الالتزامِ: المُطبِّقُ يلتزمُ الصفوفَ ثمّ يفشلُ
-    # الختامُ — فهذا موضعُ المُعوِّضِ (تصميمُ D7-أ).
-    ledger = authorizer.boundary.idempotency_ledger
+def _drop_settle(monkeypatch: pytest.MonkeyPatch, ledger: Any, label: str) -> Any:
+    """إسقاطُ تثبيتِ النجاحِ بعدَ التزامِ المُطبِّقِ — يُرجِعُ الأصلَ لرفعِ الإسقاط."""
+    original = type(ledger).mark_succeeded
 
     def failing_mark_succeeded(*args: Any, **kwargs: Any) -> Any:
-        raise RuntimeError("تثبيتُ النجاحِ مُسقَطٌ — فحصُ المُعوِّضِ (T6)")
+        raise RuntimeError(f"تثبيتُ النجاحِ مُسقَطٌ — {label}")
 
     monkeypatch.setattr(type(ledger), "mark_succeeded", failing_mark_succeeded)
+    return original
 
-    with pytest.raises(RuntimeError):
-        judiciary.issue_ruling(
-            context=judge_ctx,
-            case_id=case_id,
-            stage="FIRST_INSTANCE",
-            decision="GRANTED",
-            disposition="قضاءُ الفحصِ — إثباتُ المُعوِّضِ",
-        )
-    monkeypatch.setattr(
-        type(ledger),
-        "mark_succeeded",
-        ledger.mark_succeeded.__func__
-        if hasattr(ledger.mark_succeeded, "__func__")
-        else type(ledger).mark_succeeded,
-    )  # type: ignore[arg-type]
 
-    # والصفوفُ مُلتزَمةٌ فعلًا (الفشلُ بعدَ الالتزامِ لا قبلهُ) — وهذا موضعُ
-    # الاستعادةِ لا قبلَهُ.
+def _next_second() -> None:
+    """حدٌّ معلنٌ مقيسٌ (W-603): معرِّفُ الإذنِ `EP-<العقد>-<الثانية>` (enforcement.py خارجَ
+    النطاقِ) فإعادةُ العقدِ نفسِه في الثانيةِ نفسِها تُرفَضُ `PermitReplayError` — إغلاقًا لا
+    فتحًا. فالإعادةُ في الفحصِ تعبرُ إلى الثانيةِ التاليةِ ولا تُزوِّرُ الزمن."""
+    now = time.time()
+    time.sleep(math.ceil(now) - now + 0.05)
+
+
+def _ruling_key(case_id: str) -> Any:
+    from core.sovereignty.idempotency import IdempotencyKey
+
+    return IdempotencyKey(scope="judiciary.ruling.issue", value=f"{case_id}:FIRST_INSTANCE:g0")
+
+
+def _ruling_rows(case_id: str) -> tuple[int, int, str]:
     session = _session()
     try:
-        assert session.query(RulingModel).filter(RulingModel.case_id == case_id).count() == 1
-    finally:
-        session.close()
-
-    # التعويضُ بحارسِ 1I: العقدُ والخطةُ والمفتاحُ من العبورِ الحقيقيِّ نفسِهِ.
-    effects = crossing["declared_effects"]
-    contract = bind_contract(
-        actor="judicial",
-        action="issue_ruling",
-        target=crossing["target"],
-        declared_effects=effects,
-    )
-    plan = bind_compensation_plan(contract=contract, compensators=crossing["compensators"])
-    guard = CompensationGuard(
-        journal=CompensationJournal(path=tmp_path / "wi105_t6_compensation.json"),
-        idempotency=IdempotencyGuard(ledger=ledger),
-    )
-    outcome = guard.compensate(
-        contract=contract,
-        plan=plan,
-        operation_key=crossing["operation_key"],
-        applied_signatures=tuple(e.signature for e in effects),
-        reason="فشلُ تثبيتِ النجاحِ بعدَ الالتزامِ (T6)",
-    )
-
-    # الحصيلةُ صادقةٌ: الدولةُ رجعتْ كما كانت بالضبطِ.
-    assert outcome.state_is_clean is True
-
-    # والصفوفُ غائبةٌ وحالةُ القضيّةِ مُستعادةٌ إلى ما قبلَ العمليّةِ.
-    session = _session()
-    try:
-        assert session.query(RulingModel).filter(RulingModel.case_id == case_id).count() == 0
-        assert (
+        rulings = session.query(RulingModel).filter(RulingModel.case_id == case_id).count()
+        procs = (
             session.query(CaseProceedingModel)
             .filter(
                 CaseProceedingModel.case_id == case_id,
                 CaseProceedingModel.proceeding_type == "RULING",
             )
             .count()
-            == 0
         )
         case = session.get(LegalCaseModel, case_id)
-        assert case is not None and case.status != "decided"
+        assert case is not None
+        return rulings, procs, case.status
     finally:
         session.close()
+
+
+def _issue(judiciary: FederalJudiciary, judge_ctx: AuthorizationContext, case_id: str) -> Any:
+    return judiciary.issue_ruling(
+        context=judge_ctx,
+        case_id=case_id,
+        stage="FIRST_INSTANCE",
+        decision="GRANTED",
+        disposition="قضاءُ الفحصِ — إثباتُ المُعوِّضِ",
+    )
+
+
+def test_wi105_t6p_boundary_compensates_failed_settle_on_production_path(
+    registry: StateRegistry,
+    national: NationalRegistry,
+    judiciary: FederalJudiciary,
+    crown: AuthorizationContext,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """T6p · نداءُ `issue_ruling` وحدَه مع إسقاطِ التثبيتِ ⇒ الحدُّ يعكسُ ويرفعُ — لا يدويَّ."""
+    from core.sovereignty.compensation import CompensationRequired
+    from core.sovereignty.idempotency import OperationStatus
+
+    _bench_unused, case_id, judge_ctx = _prepared_case(registry, national, judiciary, crown, "t6p")
+    status_before = _ruling_rows(case_id)[2]
+    ledger = rulings_module._judiciary_authorizer().boundary.idempotency_ledger
+    original = _drop_settle(monkeypatch, ledger, "T6p")
+
+    with pytest.raises(CompensationRequired) as caught:
+        _issue(judiciary, judge_ctx, case_id)
+    monkeypatch.setattr(type(ledger), "mark_succeeded", original)
+
+    outcome = caught.value.outcome
+    assert outcome.state_is_clean is True
+    assert outcome.requires_human is False
+    assert isinstance(caught.value.__cause__, Exception)  # الأصلُ محفوظٌ لا مُبتلَع
+    # الصفوفُ غائبةٌ والقضيّةُ بحالتِها السابقةِ (مُعوِّضُ D7-أ نفسُه)
+    assert _ruling_rows(case_id) == (0, 0, status_before)
+    # والذرّيّةُ قابلةٌ للإعادةِ بآثارٍ مطبَّقةٍ لا شيءَ
+    record = ledger.get(_ruling_key(case_id))
+    assert record is not None
+    assert record.status is OperationStatus.FAILED_RETRYABLE
+    assert tuple(record.applied_effect_signatures) == ()
+
+    # الإعادةُ بعدَ رفعِ الإسقاطِ تنجحُ بحكمٍ واحدٍ
+    _next_second()
+    issued = _issue(judiciary, judge_ctx, case_id)
+    assert issued["id"]
+    rulings, procs, status_after = _ruling_rows(case_id)
+    assert (rulings, procs) == (1, 1)
+    assert status_after == "decided"
 
 
 # ── T7 · التفرُّقُ — إعادةٌ بلا صفٍّ لا تُسكَتُ ──────────────────────────────
@@ -772,3 +766,131 @@ def test_wi105_t7_replay_with_missing_row_raises_divergence(
             decision="GRANTED",
             disposition="قضاءُ الفحصِ — إثباتُ العبورِ المحروسِ",
         )
+
+
+# ── T8 · نظيرُ T6p لـWI-082 — الوصلُ في الحدِّ مرّةً لكلِّ سطحٍ مُهجَّرٍ ──────────
+
+
+def test_wi105_t8_boundary_compensates_register_identity_on_production_path(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from core.sovereignty.compensation import CompensationRequired
+    from core.sovereignty.idempotency import IdempotencyKey, OperationStatus
+
+    from amos_federation.services.executive_core import agent_identity as agent_identity_module
+    from amos_federation.services.executive_core.agent_identity import get_identity
+    from amos_federation.services.executive_core.sovereignty_bridge import (
+        ConstitutionalAuthorizer,
+    )
+
+    agent_id = _code("wi105-t8")
+    authorizer = ConstitutionalAuthorizer(actor=agent_identity_module.AGENT_IDENTITY_ACTOR)
+    ledger = authorizer.boundary.idempotency_ledger
+    original = _drop_settle(monkeypatch, ledger, "T8")
+    try:
+        with pytest.raises(CompensationRequired) as caught:
+            register_identity(agent_id, "فحص T8", "probe", authorizer=authorizer)
+        monkeypatch.setattr(type(ledger), "mark_succeeded", original)
+
+        assert caught.value.outcome.state_is_clean is True
+        assert get_identity(agent_id) is None
+        record = ledger.get(
+            IdempotencyKey(scope=agent_identity_module.IDENTITY_SPAWN_SCOPE, value=agent_id)
+        )
+        assert record is not None
+        assert record.status is OperationStatus.FAILED_RETRYABLE
+
+        _next_second()
+        register_identity(agent_id, "فحص T8", "probe", authorizer=authorizer)
+        assert get_identity(agent_id) is not None
+    finally:
+        agent_identity_module._delete_identity_row(agent_id)
+
+
+# ── T9 · فشلُ المُعوِّضِ نفسِه — إغلاقٌ عندَ الفشلِ والحسمُ بيدِ إنسانٍ ─────────────
+
+
+def test_wi105_t9_failing_compensator_closes_operation_final(
+    registry: StateRegistry,
+    national: NationalRegistry,
+    judiciary: FederalJudiciary,
+    crown: AuthorizationContext,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from core.sovereignty.compensation import CompensationRequired, Compensator
+    from core.sovereignty.idempotency import IdempotencyError, OperationStatus
+
+    _bench_unused, case_id, judge_ctx = _prepared_case(registry, national, judiciary, crown, "t9")
+    ledger = rulings_module._judiciary_authorizer().boundary.idempotency_ledger
+
+    # المُعوِّضاتُ المُعلَنةُ نفسُها بأسمائِها — لكنَّ عكسَها يرفع (عطبُ القاعدةِ مثلًا).
+    original_guard = rulings_module.ConstitutionalAuthorizer.guard_declared
+
+    def _raiser() -> None:
+        raise RuntimeError("المُعوِّضُ مُعطَّلٌ — فحصُ T9")
+
+    def breaking_guard(self: Any, *args: Any, **kwargs: Any) -> Any:
+        kwargs["compensators"] = tuple(
+            Compensator(effect_signature=c.effect_signature, apply=_raiser, description="T9")
+            for c in kwargs.get("compensators", ())
+        )
+        return original_guard(self, *args, **kwargs)
+
+    monkeypatch.setattr(rulings_module.ConstitutionalAuthorizer, "guard_declared", breaking_guard)
+    original = _drop_settle(monkeypatch, ledger, "T9")
+
+    with pytest.raises(CompensationRequired) as caught:
+        _issue(judiciary, judge_ctx, case_id)
+    monkeypatch.setattr(type(ledger), "mark_succeeded", original)
+    monkeypatch.setattr(rulings_module.ConstitutionalAuthorizer, "guard_declared", original_guard)
+
+    outcome = caught.value.outcome
+    assert outcome.state_is_clean is False
+    assert outcome.requires_human is True
+    assert outcome.residual_signatures  # الباقي مُسمًّى لا مطويٌّ
+    assert "يلزمُ قرارٌ بشريّ" in str(caught.value)
+    # الحالةُ النصفيّةُ مُعلَنةٌ لا مُخفاةٌ: الصفُّ باقٍ والذرّيّةُ مُغلَقةٌ نهائيًّا
+    assert _ruling_rows(case_id)[0] == 1
+    record = ledger.get(_ruling_key(case_id))
+    assert record is not None
+    assert record.status is OperationStatus.FAILED_FINAL
+    assert tuple(record.applied_effect_signatures) == tuple(outcome.residual_signatures)
+
+    # والإعادةُ مرفوضةٌ: لا أثرَ فوقَ أثرٍ باقٍ (لا تُطبَّقُ الصفوفُ مرّتين)
+    _next_second()
+    with pytest.raises((IdempotencyError, DuplicateRulingError)):
+        _issue(judiciary, judge_ctx, case_id)
+    assert _ruling_rows(case_id)[0] == 1
+
+
+# ── T10 · الحلقةُ الثانيةُ — لا يُعادُ سجلُّ تعويضٍ مُغلَقٌ بلا عكسٍ ─────────────
+
+
+def test_wi105_t10_second_failed_episode_compensates_again(
+    registry: StateRegistry,
+    national: NationalRegistry,
+    judiciary: FederalJudiciary,
+    crown: AuthorizationContext,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from core.sovereignty.compensation import CompensationRequired
+
+    _bench_unused, case_id, judge_ctx = _prepared_case(registry, national, judiciary, crown, "t10")
+    status_before = _ruling_rows(case_id)[2]
+    ledger = rulings_module._judiciary_authorizer().boundary.idempotency_ledger
+    original = _drop_settle(monkeypatch, ledger, "T10")
+
+    ids: list[str] = []
+    for _episode in range(2):
+        with pytest.raises(CompensationRequired) as caught:
+            _issue(judiciary, judge_ctx, case_id)
+        assert caught.value.outcome.state_is_clean is True
+        # كلُّ حلقةٍ تعكسُ صفوفَها فعلًا — القياسُ على القاعدةِ لا على الادّعاء
+        assert _ruling_rows(case_id) == (0, 0, status_before)
+        ids.append(caught.value.outcome.record.compensation_id)
+        _next_second()
+    monkeypatch.setattr(type(ledger), "mark_succeeded", original)
+
+    assert ids[0] != ids[1]  # حلقتانِ بسجلَّينِ لا سجلٌّ مُعادٌ
+    _issue(judiciary, judge_ctx, case_id)
+    assert _ruling_rows(case_id)[:2] == (1, 1)

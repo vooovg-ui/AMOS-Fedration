@@ -1,0 +1,34 @@
+$ date -u
+Thu Oct 22 05:12:57 UTC 2026
+$ git rev-parse HEAD  (+ شِفرةُ W-603 غيرُ مُلتزَمةٍ بعدُ في الشجرةِ العاملة)
+e13fe2fed552273e013732bbb4b6344df07f6d31
+$ git diff --stat core/
+ core/sovereignty/enforcement_boundary.py | 161 +++++++++++++++++++++++++++----
+ 1 file changed, 140 insertions(+), 21 deletions(-)
+$ .venv/bin/pytest federal/executive/services/tests/test_w601_gap_probe.py -s -q -p no:cacheprovider   (المسبارُ بلا تعديلٍ)
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+rootdir: /home/user/workspace/AMOS-Fedration/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.5, cov-7.1.0, anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 2 items
+
+tests/test_w601_gap_probe.py 
+## (أ) issue_ruling — J1 · WI-105
+حالةُ القضيّةِ قبلَ النداء: assigned
+الاستثناءُ الناتج: core.sovereignty.compensation.CompensationRequired: العمليّةُ «judiciary.ruling.issue:lcs-d474ad25-0bcc-4d15-aed2-80c5f4d94822:FIRST_INSTANCE:g0@attempt1» على العقد «EC-cb4e8c2c13213988» فشلت (RuntimeError: تثبيتُ النجاحِ مُسقَطٌ — مسبارُ W-601) وعُوِّضَ أثرُها كاملًا فرجعتِ الحالة. الحالة: COMPENSATED.
+صفوفُ الحكمِ: 0 · إجراءاتُ RULING: 0 · حالةُ القضيّة: assigned
+هل شُغِّلَ المُعوِّض؟ نداءاتُ CompensationGuard.compensate: 1
+سجلُّ الذرّيّة: FAILED_RETRYABLE
+إعادةُ المحاولةِ بعدَ رفعِ الإسقاط: core.sovereignty.idempotency.IdempotencyError
+.
+## (ب) register_identity — WI-082
+الاستثناءُ الناتج: core.sovereignty.compensation.CompensationRequired: العمليّةُ «agents.identity.spawn:w601-probe-agent@attempt1» على العقد «EC-430477290d128166» فشلت (RuntimeError: تثبيتُ النجاحِ مُسقَطٌ — مسبارُ W-601) وعُوِّضَ أثرُها كاملًا فرجعتِ الحالة. الحالة: COMPENSATED.
+صفُّ الهويّة: غائب
+هل شُغِّلَ المُعوِّض؟ نداءاتُ CompensationGuard.compensate: 1
+سجلُّ الذرّيّة: FAILED_RETRYABLE
+إعادةُ المحاولةِ بعدَ رفعِ الإسقاط: core.sovereignty.idempotency.IdempotencyError
+.
+
+============================== 2 passed in 0.98s ===============================

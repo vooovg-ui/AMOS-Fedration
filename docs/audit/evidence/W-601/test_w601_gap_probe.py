@@ -73,7 +73,7 @@ def _status_of(ledger: Any, scope: str, value: str) -> str:
     return getattr(getattr(rec, "status", None), "value", str(rec))
 
 
-def test_probe_a_issue_ruling(registry, national, judiciary, crown, monkeypatch) -> None:  # noqa: ANN001
+def test_probe_a_issue_ruling(registry, national, judiciary, crown, monkeypatch) -> None:  # noqa: ANN001, F811 — مُثبَّتاتٌ تُحقَنُ بالاسمِ (W-603)
     print("\n## (أ) issue_ruling — J1 · WI-105")
     _b, case_id, judge_ctx = _prepared_case(registry, national, judiciary, crown, "w601a")
     s = _session()

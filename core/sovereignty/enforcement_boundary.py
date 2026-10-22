@@ -3,7 +3,7 @@
 النطاق: مرحلةُ ربطٍ وإنفاذٍ فقط. لا إعادةَ بناءٍ لأيِّ مرحلةٍ سابقة.
 المالك: core/sovereignty/ — التاج
 تاريخ الإنشاء: 2026-08-18
-تاريخ آخر تعديل: 2026-08-18
+تاريخ آخر تعديل: 2026-10-22 (W-603 · قرارُ المالكِ Q-70: وصلُ التعويضِ الآليِّ في الحدِّ)
 
 # المشكلةُ المقيسة — لا المُفترَضة
 
@@ -43,6 +43,14 @@
 توقيعٍ (يملكُ مفتاحَ تحقّقٍ عامًّا فقط)؛ ولا يُعيدُ اختراعَ PDP؛ ولا يبني جدولةً
 للصادر؛ ولا يبني استعادةً ولا تعويضًا تشغيليًّا — يفرضُ **ربطَ** الخطّةِ فقط.
 
+> **[إضافةٌ مؤرَّخةٌ · 2026-10-22 · W-603 · قرارُ المالكِ Q-70]** الجملةُ أعلاه
+> تاريخٌ لا يُمحى، وقد قِيسَ أثرُها (W-601): إسقاطُ تثبيتِ النجاحِ بعدَ التزامِ
+> المُطبِّقِ تركَ الصفوفَ قائمةً والذرّيّةَ عالقةً `RUNNING` ونداءاتِ المُعوِّضِ 0.
+> فالحدُّ **صارَ يُنادي `CompensationGuard` نفسَه** (1I — لا مُعوِّضًا جديدًا): إن رفعَ
+> مسارُ الذرّيّةِ بعدَ أن طُبِّقَ أثرٌ داخليٌّ عكسَه بالخطّةِ المربوطةِ ورفعَ
+> `CompensationRequired` (الأصلُ في `__cause__`) — ولا يبتلعُ شيئًا. وما لم يُطبَّقْ
+> فيه أثرٌ يُرفَعُ استثناؤه كما هو. التصميمُ: `docs/audit/J1_ISSUE_RULING_DESIGN.md § 7`.
+
 # الحرسُ الساكن
 
 الفرضُ الزمنيُّ لا يكفي وحدَه: لغةُ بايثون لا تملكُ عزلَ قدرات، ومَن استوردَ
@@ -64,7 +72,10 @@ from cryptography.hazmat.primitives.asymmetric import ed25519
 
 from core.constitutional_engine.model import ActionRequest
 from core.sovereignty.compensation import (
+    CompensationGuard,
+    CompensationJournal,
     CompensationPlan,
+    CompensationRequired,
     Compensator,
     bind_compensation_plan,
 )
@@ -85,6 +96,7 @@ from core.sovereignty.idempotency import (
     IdempotencyKey,
     IdempotencyLedger,
     OperationResult,
+    OperationStatus,
     compute_fingerprint,
 )
 from core.sovereignty.jurisdiction import (
@@ -248,6 +260,9 @@ class SovereignExecutionBoundary:
     outbox: SovereignOutbox | None = None
     wall: JurisdictionWall = field(default_factory=lambda: WALL)
     consumed_permits: ConsumedPermitLedger = field(default_factory=ConsumedPermitLedger)
+    # [W-603 · Q-70] دفترُ التعويضِ (1I). إن لم يُمرَّرْ اشتُقَّ بجانبِ سجلِّ الذرّيّةِ
+    # (`<stem>.compensation.json`) — فلا يتغيّرُ مُنشِئٌ قائمٌ ولا الجسر.
+    compensation_journal: CompensationJournal | None = None
     _pep: PolicyEnforcementPoint | None = field(default=None, init=False, repr=False)
     _executions: int = field(default=0, init=False, repr=False)
     _rejections: dict[str, int] = field(default_factory=dict, init=False, repr=False)
@@ -265,6 +280,11 @@ class SovereignExecutionBoundary:
         self._pep = PolicyEnforcementPoint(
             verifying_key=verifying, consumed=self.consumed_permits
         )
+        if self.compensation_journal is None:
+            ledger_path = Path(self.idempotency_ledger.path)
+            self.compensation_journal = CompensationJournal(
+                path=ledger_path.with_name(ledger_path.stem + ".compensation.json")
+            )
 
     # ── الفحصُ الذاتي ──────────────────────────────────────────────────────
     @property
@@ -346,6 +366,26 @@ class SovereignExecutionBoundary:
         # ⑦ 1H — الذرّيّةُ تلفُّ التطبيق
         enqueued: list[str] = []
         applied_holder: list[tuple[SovereignEffect, ...]] = []
+        # [W-603 · Q-70] ما طبّقه مُطبِّقُ المُنادي **وعادَ** بنجاحٍ — بترتيبِ التطبيق.
+        applied_internal: list[str] = []
+        routed = self._route_effect(
+            permit=permit,
+            operation_key=operation_key,
+            applier=applier,
+            provider=provider,
+            payload_of=payload_of,
+            correlation_id=correlation_id,
+            enqueued=enqueued,
+        )
+
+        def _tracked(effect: SovereignEffect) -> None:
+            routed(effect)
+            if (
+                plan is not None
+                and effect.kind is not EffectKind.EXTERNAL
+                and plan.covers(effect.signature)
+            ):
+                applied_internal.append(effect.signature)
 
         def _under_permit() -> tuple[str, ...]:
             """ما يُرجَعُ للحارسِ بصماتٌ نصّيّةٌ لا كائنات.
@@ -357,15 +397,7 @@ class SovereignExecutionBoundary:
             produced = self.policy_enforcement_point.enforce(
                 permit,
                 planner=planner,
-                applier=self._route_effect(
-                    permit=permit,
-                    operation_key=operation_key,
-                    applier=applier,
-                    provider=provider,
-                    payload_of=payload_of,
-                    correlation_id=correlation_id,
-                    enqueued=enqueued,
-                ),
+                applier=_tracked,
             )
             applied_holder.append(produced)
             return tuple(e.signature for e in produced)
@@ -378,17 +410,30 @@ class SovereignExecutionBoundary:
             actor=request.actor,
         )
         external_prefix = EffectKind.EXTERNAL.value + ":"
-        result: OperationResult[tuple[str, ...]] = IdempotencyGuard(
-            ledger=self.idempotency_ledger
-        ).run_once(
-            key=operation_key,
-            fingerprint=fingerprint,
-            execute=_under_permit,
-            extract_effect_signatures=lambda sigs: tuple(sigs or ()),
-            detect_external=lambda sigs: any(
-                s.startswith(external_prefix) for s in (sigs or ())
-            ),
-        )
+        try:
+            result: OperationResult[tuple[str, ...]] = IdempotencyGuard(
+                ledger=self.idempotency_ledger
+            ).run_once(
+                key=operation_key,
+                fingerprint=fingerprint,
+                execute=_under_permit,
+                extract_effect_signatures=lambda sigs: tuple(sigs or ()),
+                detect_external=lambda sigs: any(
+                    s.startswith(external_prefix) for s in (sigs or ())
+                ),
+            )
+        except Exception as exc:
+            if plan is None or not applied_internal:
+                # لا أثرَ طُبِّقَ: الاستثناءُ يُرفَعُ كما هو (لا لفَّ ولا تغييرَ نوعٍ).
+                raise
+            self._compensate_applied(
+                exc,
+                contract=contract,
+                plan=plan,
+                operation_key=operation_key,
+                applied=tuple(applied_internal),
+            )
+            raise  # pragma: no cover — `_compensate_applied` يرفعُ دائمًا
         stages.append(BoundaryStage.IDEMPOTENCY)
         if enqueued:
             stages.append(BoundaryStage.EXTERNAL_OUTBOX)
@@ -405,6 +450,80 @@ class SovereignExecutionBoundary:
             is_replay=result.is_replay,
             compensation_plan=plan,
         )
+
+    # ── التعويضُ الآليُّ بعدَ الالتزام (W-603 · Q-70) ─────────────────────────
+    def _compensate_applied(
+        self,
+        exc: BaseException,
+        *,
+        contract: ExecutionContract,
+        plan: CompensationPlan,
+        operation_key: IdempotencyKey,
+        applied: tuple[str, ...],
+    ) -> None:
+        """اعكسْ ما طُبِّقَ بالخطّةِ المربوطةِ ثمَّ ارفعْ `CompensationRequired` — دائمًا.
+
+        مفتاحُ الحلقةِ: معرِّفُ التعويضِ مُشتقٌّ من مضمونِه، فلو مُرِّرَ مفتاحُ الذرّيّةِ
+        نفسُه لأرجعَ الحارسُ في الفشلِ الثاني سجلًّا مُغلَقًا قديمًا **بلا عكسٍ**.
+        فيُشتقُّ مفتاحٌ للحلقةِ من عددِ محاولاتِ السجلِّ — ومفتاحُ الذرّيّةِ لا يتغيّر.
+        """
+        ledger = self.idempotency_ledger
+        record = ledger.get(operation_key)
+        attempt_no = len(record.attempts) if record is not None else 0
+        episode_key = IdempotencyKey(
+            scope=operation_key.scope,
+            value=f"{operation_key.value}@attempt{attempt_no}",
+        )
+        journal = self.compensation_journal
+        if journal is None:  # pragma: no cover — يُبنى في __post_init__ دائمًا
+            raise BoundaryConfigurationError("دفترُ التعويضِ لم يُبنَ.")
+        reason = f"{type(exc).__name__}: {exc}"
+        outcome = CompensationGuard(
+            journal=journal, idempotency=IdempotencyGuard(ledger=ledger)
+        ).compensate(
+            contract=contract,
+            plan=plan,
+            operation_key=episode_key,
+            applied_signatures=applied,
+            reason=reason,
+        )
+        required = CompensationRequired(outcome)
+        try:
+            if outcome.state_is_clean:
+                ledger.transition(
+                    key=operation_key,
+                    new_status=OperationStatus.FAILED_RETRYABLE,
+                    applied_effect_signatures=(),
+                    failure_reason=(
+                        f"{reason} — عُوِّضَ آليًّا في الحدّ "
+                        f"({outcome.record.compensation_id})"
+                    ),
+                    attempt={
+                        "compensated": True,
+                        "compensation_id": outcome.record.compensation_id,
+                    },
+                )
+            else:
+                # إغلاقٌ عندَ الفشل: لا إعادةَ فوقَ أثرٍ باقٍ — الحسمُ بيدِ إنسان.
+                ledger.transition(
+                    key=operation_key,
+                    new_status=OperationStatus.FAILED_FINAL,
+                    applied_effect_signatures=tuple(outcome.residual_signatures),
+                    failure_reason=(
+                        f"{reason} — تعويضٌ غيرُ نظيفٍ ({outcome.record.compensation_id}) "
+                        "يلزمُ قرارٌ بشريّ"
+                    ),
+                    attempt={
+                        "compensated": False,
+                        "compensation_id": outcome.record.compensation_id,
+                    },
+                )
+        except Exception as transition_exc:  # noqa: BLE001 — يُلحَقُ لا يُبتلَع
+            required.add_note(
+                f"تعذّرَ نقلُ سجلِّ الذرّيّةِ بعدَ التعويض: "
+                f"{type(transition_exc).__name__}: {transition_exc}"
+            )
+        raise required from exc
 
     # ── الحرسُ واحدًا واحدًا ───────────────────────────────────────────────
     def _record_rejection(self, stage: BoundaryStage) -> None:

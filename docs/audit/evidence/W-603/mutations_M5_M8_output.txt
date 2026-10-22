@@ -1,0 +1,39 @@
+## M5 · حذفُ اللفِّ (نداءُ compensate) — الاستثناءُ يُرفَعُ كما هو دائمًا
+- السطرُ الأصلُ: if plan is None or not applied_internal:
+- السطرُ المُطفَّر: if True:
+- رمزُ الخروج: 1
+```
+FAILED tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t6p_boundary_compensates_failed_settle_on_production_path
+FAILED tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t8_boundary_compensates_register_identity_on_production_path
+FAILED tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t9_failing_compensator_closes_operation_final
+FAILED tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t10_second_failed_episode_compensates_again
+======================= 4 failed, 6 deselected in 1.41s ========================
+```
+
+## M6 · إخفاءُ فشلِ المُعوِّضِ — الحصيلةُ تُعامَلُ نظيفةً
+- السطرُ الأصلُ: if outcome.state_is_clean:
+- السطرُ المُطفَّر: if True:
+- رمزُ الخروج: 1
+```
+FAILED tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t9_failing_compensator_closes_operation_final
+================== 1 failed, 3 passed, 6 deselected in 4.62s ===================
+```
+
+## M7 · نقلُ الذرّيّةِ إلى FAILED_RETRYABLE عندَ عدمِ النظافة
+- السطرُ الأصلُ: new_status=OperationStatus.FAILED_FINAL,
+- السطرُ المُطفَّر: new_status=OperationStatus.FAILED_RETRYABLE,
+- رمزُ الخروج: 1
+```
+FAILED tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t9_failing_compensator_closes_operation_final
+================== 1 failed, 3 passed, 6 deselected in 4.44s ===================
+```
+
+## M8 · حذفُ مفتاحِ الحلقةِ — المفتاحُ نفسُه يُمرَّرُ إلى compensate
+- السطرُ الأصلُ: operation_key=episode_key,
+- السطرُ المُطفَّر: operation_key=operation_key,
+- رمزُ الخروج: 1
+```
+FAILED tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t10_second_failed_episode_compensates_again
+================== 1 failed, 3 passed, 6 deselected in 4.49s ===================
+```
+
