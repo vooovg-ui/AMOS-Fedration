@@ -5,7 +5,8 @@
 التشغيل: من federal/executive/services — `python <هذا الملف>` · قراءةٌ فقط، لا كتابةَ.
 المالك: Perplexity Computer · تاريخ الإنشاء: 2026-10-22
 """
-import os, tempfile
+import os
+import tempfile
 os.environ.setdefault("AMOS_EXECUTIVE_IDEMPOTENCY_LEDGER", tempfile.mktemp(suffix=".json"))
 from amos_federation.services.executive_core.sovereignty_bridge import ConstitutionalAuthorizer
 for actor in ["EXECUTIVE","LEGISLATIVE","JUDICIAL","TREASURY","AGENT","SYSTEM"]:
