@@ -1,25 +1,30 @@
 # إحاطةُ جولةِ مراجعةِ البندِ WI-106 — الدفعةُ F1 (`governance/federation.py` بالفعلِ `coordinate`) — المقعدُ `kimi_k3`
 
 ## الهدف: إحاطةُ مراجعِ الجولةِ بكلِّ ما يصلُهُ — البندُ ومعاييرُهُ وأوامرُ المعاييرِ وحدودُ القراءةِ وأسئلةُ الحكمِ ومسبارُهُ الإلزاميُّ
-## النطاق: جولةُ مراجعةٍ واحدةٌ للبندِ WI-106 (F1 · D17-1 · التوجيهُ 19 § 2) **على الدفعةِ كلِّها: ملحقُ التصميمِ والشِّفرةُ والفحوصُ والطفراتُ والقياسُ** · نسخةٌ لكلِّ مقعدٍ لا تختلفُ إلّا في جذرِ الدليلِ واسمِ المقعدِ (§ 2.6) · تُبصَمُ sha256 في قيدِ W-618 قبلَ الإطلاقِ · **المنسِّقُ الحاضرُ عندَ الإطلاقِ Claude Opus 5.5 (عائلةُ Anthropic · Claude)** ⇒ لا مقعدَ من عائلةِ Claude (§ 1.5/§ 1.6) والمقاعدُ بترتيبِ § 1.3: gemini_3_8_flash · grok_4_7 · kimi_k3 · أدلّةُ المقاعدِ `council_w618`
+## النطاق: جولةُ مراجعةٍ واحدةٌ للبندِ WI-106 (F1 · D17-1 · التوجيهُ 19 § 2) **على الدفعةِ كلِّها: ملحقُ التصميمِ والشِّفرةُ والفحوصُ والطفراتُ والقياسُ** · نسخةٌ لكلِّ مقعدٍ لا تختلفُ إلّا في جذرِ الدليلِ واسمِ المقعدِ (§ 2.6) · تُبصَمُ sha256 في قيدَي W-618/W-620 قبلَ الإطلاقِ · **المنسِّقُ الحاضرُ عندَ الإطلاقِ GLM-5.3** ⇒ لا مقعدَ من عائلةِ GLM (§ 1.5/§ 1.6) — والمقاعدُ الثلاثةُ لا تضمُّ GLM ولا Claude والمقاعدُ بترتيبِ § 1.3: gemini_3_8_flash · grok_4_7 · kimi_k3 · أدلّةُ المقاعدِ `council_w620`
 ## المالك: بندُ WI-106 (المنسِّقُ لا يُصوِّتُ)
 ## تاريخ الإنشاء: 2026-10-22
-## تاريخ آخر تعديل: 2026-10-22 (W-618)
+## تاريخ آخر تعديل: 2026-10-22 (W-620 — تصحيحُ العقدةِ إلى رأسِ main `80e4394` وجذرِ الدليلِ `council_w620` قبلَ الإطلاقِ · سابقةُ W-596/W-598 · وقبله W-618)
 
 > معبَّأةٌ منَ البندِ نفسِهِ لا منَ تقريرِ منفِّذٍ · مُبصَمةٌ قبلَ إطلاقِ المقاعدِ · لا تُعدَّلُ بعدَ الإطلاقِ.
+> **إضافةٌ مؤرَّخةٌ (W-620 · 2026-10-22 · قبلَ الإطلاقِ — لم تُطلَقِ الجولةُ بعدُ · سابقةُ W-596/W-598):**
+> (1) **تصحيحُ العقدةِ**: العقدةُ المُعتمدةُ للمراجعةِ صارت `80e439494e3049b47ad8bf759fe9fddc3f231675` — رأسِ main بعدَ التقديمِ السريعِ للدفعةِ (296a276 → 80e4394 · مقيسًا بـ`git ls-remote`) — وهي تشملُ فوقَ `fd6c1af` قيدَ W-618 (إحاطاتٌ لا شِفرةَ) وقيدَ W-619 (تصحيحُ lint في مسبارِ W-15 · لا شِفرةَ إنتاجيّةً) **وفرقُ الشِفرةِ بينَ العقدتَينِ فارغٌ مقيسًا** (`git diff --stat fd6c1af 80e4394 -- federal/ tools/ tests/ agents/ core/ src/` ⇒ صفرُ ملفاتٍ · والفرقُ الكاملُ 20 ملفًا توثيقًا وحدَها · الدليلُ في `evidence/W-620`) — فالشِّفرةُ المحكومةُ لم تتغير.
+> (2) **جذرُ الدليلِ**: تغيَّرَ إلى `council_w620/<seat>` (جذورٌ فريدةٌ § 2.6) والبصمةُ تُعادُ في قيدِ W-620 (البصمةُ القديمةُ في تاريخِ الملفِّ لا تُمحى).
+> (3) **المنسِّقُ عندَ الإطلاقِ GLM-5.3** ⇒ لا مقعدَ من عائلةِ GLM — والمقاعدُ الثلاثةُ (gemini_3_8_flash · grok_4_7 · kimi_k3) لا تضمُّ GLM ولا Claude فتبقى سليمةً تحتَ أيٍّ منَ المنسِّقَينِ.
+
 > **المخرجاتُ خامٌ كاملةٌ — ممنوعٌ الاقتطاعُ والاختصارُ و«المقاطعُ المفتاحيّةُ» والوصفُ النثريُّ للمخرجِ وإعادةُ كتابتِهِ، مهما طالَ المخرجُ** (البروتوكولُ § 4.5). وحكمُكَ يُفحَصُ آليًّا ولا يُحتسَبُ إن رُفِضَ (§ 4.7). **وحكمُ PASS بلا مسبارٍ خاصٍّ بكَ على المسارِ الإنتاجيِّ لا يُحتسَبُ (§ 4.9).**
 
 ## أ · العقدةُ والمستودعُ
 
 - المستودعُ: `vooovg-ui/AMOS-Fedration`
-- **العقدةُ المرادُّ مراجعتُها: `fd6c1af3e6715914eaa12904a0793db58b8bc7df`** — رأسُ الفرعِ `w-613-f1-federation-coordinate` بعدَ W-613…W-617 (التسجيلُ · الحجزُ · ملحقُ التصميمِ وقياسُ ما قبلُ · CI N+1 ومساراتُ اللقطاتِ · الشِّفرةُ وفحوصُها وطفراتُها وقياسُ ما بعدُ). ويُثبِتُها الأمرُ 1.
-- **دليلُكَ الخاصُّ (§ 2.6 · لا مسارَ مشتركٌ):** `/home/user/workspace/council_w618/kimi_k3` — كلُّ ما تكتبُهُ (الاستنساخُ · الملفّاتُ المؤقّتةُ · قاعدةُ البياناتِ · كتلُ RAW · مسبارُكَ · ملفُّ حكمِكَ) داخلَهُ وحدَهُ، **لا تحتَ /tmp** ولا في دليلِ مقعدٍ آخرَ.
+- **العقدةُ المرادُّ مراجعتُها: `80e439494e3049b47ad8bf759fe9fddc3f231675`** — رأسُ `main` بعدَ التقديمِ السريعِ للدفعةِ (يشملُ فوقَ `fd6c1af` قيدَي W-618 وW-619 — توثيقٌ وتصحيحُ lint لا شِفرةَ · فرقُ الشِفرةِ فارغٌ مقيسًا). ويُثبِتُها الأمرُ 1.
+- **دليلُكَ الخاصُّ (§ 2.6 · لا مسارَ مشتركٌ):** `/home/user/workspace/council_w620/kimi_k3` — كلُّ ما تكتبُهُ (الاستنساخُ · الملفّاتُ المؤقّتةُ · قاعدةُ البياناتِ · كتلُ RAW · مسبارُكَ · ملفُّ حكمِكَ) داخلَهُ وحدَهُ، **لا تحتَ /tmp** ولا في دليلِ مقعدٍ آخرَ.
 - التهيئةُ (قبلَ أوامرِ المعاييرِ · لا تُلتقَطُ):
 
 ```text
-mkdir -p /home/user/workspace/council_w618/kimi_k3/tmp /home/user/workspace/council_w618/kimi_k3/raw /home/user/workspace/council_w618/kimi_k3/probe
-git clone https://github.com/vooovg-ui/AMOS-Fedration.git /home/user/workspace/council_w618/kimi_k3/repo
-cd /home/user/workspace/council_w618/kimi_k3/repo && git fetch origin w-613-f1-federation-coordinate && git checkout fd6c1af3e6715914eaa12904a0793db58b8bc7df
+mkdir -p /home/user/workspace/council_w620/kimi_k3/tmp /home/user/workspace/council_w620/kimi_k3/raw /home/user/workspace/council_w620/kimi_k3/probe
+git clone https://github.com/vooovg-ui/AMOS-Fedration.git /home/user/workspace/council_w620/kimi_k3/repo
+cd /home/user/workspace/council_w620/kimi_k3/repo && git checkout 80e439494e3049b47ad8bf759fe9fddc3f231675
 ```
 
 ## ب · البندُ ومعاييرُ قبولِهِ (كما كُتِبَت قبلَ التنفيذِ · قيدُ W-613)
@@ -39,36 +44,36 @@ cd /home/user/workspace/council_w618/kimi_k3/repo && git fetch origin w-613-f1-f
 **طريقةُ التشغيلِ (إلزاميّةٌ · § 4.6):** شغِّلْ كلَّ سطرٍ أدناهُ برقمِهِ n (بترتيبِهِ منَ 1 إلى 21) عبرَ أداةِ الالتقاطِ هكذا — والأمرُ بينَ علامتَي الاقتباسِ **حرفيًّا كما هو في السطرِ نفسِهِ**:
 
 ```text
-python3 /home/user/workspace/council_w618/kimi_k3/repo/tools/governance/council_raw_capture.py --n <n> --out /home/user/workspace/council_w618/kimi_k3/raw/<n بخانتين: 01 02 …>.txt '<الأمرُ>'
+python3 /home/user/workspace/council_w620/kimi_k3/repo/tools/governance/council_raw_capture.py --n <n> --out /home/user/workspace/council_w620/kimi_k3/raw/<n بخانتين: 01 02 …>.txt '<الأمرُ>'
 ```
 
 ```bash
-cd /home/user/workspace/council_w618/kimi_k3/repo && git rev-parse HEAD
-cd /home/user/workspace/council_w618/kimi_k3/repo && bash tools/dev/bootstrap.sh
-cd /home/user/workspace/council_w618/kimi_k3/repo && git log --format='%h %cI %s' 5a7520c..HEAD
-cd /home/user/workspace/council_w618/kimi_k3/repo && git diff --stat 5a7520c HEAD
-cd /home/user/workspace/council_w618/kimi_k3/repo && git log --format='%h %cI %s' -3 -- docs/audit/F1_FEDERATION_COORDINATE_DESIGN.md federal/executive/services/src/amos_federation/services/governance/federation.py
-cd /home/user/workspace/council_w618/kimi_k3/repo && git diff 5a7520c HEAD -- federal/executive/services/tests/test_federation.py tests/sovereignty core/sovereignty
-cd /home/user/workspace/council_w618/kimi_k3/repo && git diff 5a7520c HEAD -- federal/executive/services/src/amos_federation/services/governance/federation.py
-cd /home/user/workspace/council_w618/kimi_k3/repo && cat federal/executive/services/tests/test_wi106_federation_coordinate_sovereign.py
-cd /home/user/workspace/council_w618/kimi_k3/repo && .venv/bin/python tools/audit/sovereign_write_inventory.py
-cd /home/user/workspace/council_w618/kimi_k3/repo && AMOS_DATABASE_URL=sqlite:////home/user/workspace/council_w618/kimi_k3/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests/test_wi106_federation_coordinate_sovereign.py -q
-cd /home/user/workspace/council_w618/kimi_k3/repo && AMOS_DATABASE_URL=sqlite:////home/user/workspace/council_w618/kimi_k3/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests/test_federation.py -q
-cd /home/user/workspace/council_w618/kimi_k3/repo && .venv/bin/python -m pytest tests/sovereignty -q
-cd /home/user/workspace/council_w618/kimi_k3/repo && AMOS_DATABASE_URL=sqlite:////home/user/workspace/council_w618/kimi_k3/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests -q
-cd /home/user/workspace/council_w618/kimi_k3/repo && cat docs/audit/F1_FEDERATION_COORDINATE_DESIGN.md
-cd /home/user/workspace/council_w618/kimi_k3/repo && cat docs/audit/evidence/W-615/federation_sites_before.txt docs/audit/evidence/W-617/federation_sites_after.txt
-cd /home/user/workspace/council_w618/kimi_k3/repo && cat docs/audit/evidence/W-617/mutation_probe_wi106.py docs/audit/evidence/W-617/mutation_probe_wi106.out.txt
-cd /home/user/workspace/council_w618/kimi_k3/repo && AMOS_DATABASE_URL=sqlite:////home/user/workspace/council_w618/kimi_k3/tmp/amos_seat.db .venv/bin/python docs/audit/evidence/W-617/mutation_probe_wi106.py
-cd /home/user/workspace/council_w618/kimi_k3/repo && rg -n "D17-1|Q-61" docs/audit/SOVEREIGN_DECISION_REGISTER.md
-cd /home/user/workspace/council_w618/kimi_k3/repo && .venv/bin/python -m pytest tests/governance/test_q3_branch_declaration_surface.py tests/governance/test_w120_suite_size_claims.py tests/governance/test_identity_law.py -q
-cd /home/user/workspace/council_w618/kimi_k3/repo && .venv/bin/python tools/governance/measurement_provenance.py . --check --without-deps
-find /home/user/workspace/council_w618/kimi_k3 -maxdepth 1
+cd /home/user/workspace/council_w620/kimi_k3/repo && git rev-parse HEAD
+cd /home/user/workspace/council_w620/kimi_k3/repo && bash tools/dev/bootstrap.sh
+cd /home/user/workspace/council_w620/kimi_k3/repo && git log --format='%h %cI %s' 5a7520c..HEAD
+cd /home/user/workspace/council_w620/kimi_k3/repo && git diff --stat 5a7520c HEAD
+cd /home/user/workspace/council_w620/kimi_k3/repo && git log --format='%h %cI %s' -3 -- docs/audit/F1_FEDERATION_COORDINATE_DESIGN.md federal/executive/services/src/amos_federation/services/governance/federation.py
+cd /home/user/workspace/council_w620/kimi_k3/repo && git diff 5a7520c HEAD -- federal/executive/services/tests/test_federation.py tests/sovereignty core/sovereignty
+cd /home/user/workspace/council_w620/kimi_k3/repo && git diff 5a7520c HEAD -- federal/executive/services/src/amos_federation/services/governance/federation.py
+cd /home/user/workspace/council_w620/kimi_k3/repo && cat federal/executive/services/tests/test_wi106_federation_coordinate_sovereign.py
+cd /home/user/workspace/council_w620/kimi_k3/repo && .venv/bin/python tools/audit/sovereign_write_inventory.py
+cd /home/user/workspace/council_w620/kimi_k3/repo && AMOS_DATABASE_URL=sqlite:////home/user/workspace/council_w620/kimi_k3/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests/test_wi106_federation_coordinate_sovereign.py -q
+cd /home/user/workspace/council_w620/kimi_k3/repo && AMOS_DATABASE_URL=sqlite:////home/user/workspace/council_w620/kimi_k3/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests/test_federation.py -q
+cd /home/user/workspace/council_w620/kimi_k3/repo && .venv/bin/python -m pytest tests/sovereignty -q
+cd /home/user/workspace/council_w620/kimi_k3/repo && AMOS_DATABASE_URL=sqlite:////home/user/workspace/council_w620/kimi_k3/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests -q
+cd /home/user/workspace/council_w620/kimi_k3/repo && cat docs/audit/F1_FEDERATION_COORDINATE_DESIGN.md
+cd /home/user/workspace/council_w620/kimi_k3/repo && cat docs/audit/evidence/W-615/federation_sites_before.txt docs/audit/evidence/W-617/federation_sites_after.txt
+cd /home/user/workspace/council_w620/kimi_k3/repo && cat docs/audit/evidence/W-617/mutation_probe_wi106.py docs/audit/evidence/W-617/mutation_probe_wi106.out.txt
+cd /home/user/workspace/council_w620/kimi_k3/repo && AMOS_DATABASE_URL=sqlite:////home/user/workspace/council_w620/kimi_k3/tmp/amos_seat.db .venv/bin/python docs/audit/evidence/W-617/mutation_probe_wi106.py
+cd /home/user/workspace/council_w620/kimi_k3/repo && rg -n "D17-1|Q-61" docs/audit/SOVEREIGN_DECISION_REGISTER.md
+cd /home/user/workspace/council_w620/kimi_k3/repo && .venv/bin/python -m pytest tests/governance/test_q3_branch_declaration_surface.py tests/governance/test_w120_suite_size_claims.py tests/governance/test_identity_law.py -q
+cd /home/user/workspace/council_w620/kimi_k3/repo && .venv/bin/python tools/governance/measurement_provenance.py . --check --without-deps
+find /home/user/workspace/council_w620/kimi_k3 -maxdepth 1
 ```
 
 ## د · مسبارُكَ الخاصُّ (إلزاميٌّ · البروتوكولُ § 4.9 · التوجيهُ 19 § 2)
 
-اكتبْ مسبارًا واحدًا على الأقلِّ **من عندِكَ** — لا أمرًا من (ج) ولا نسخةً من فحصٍ قائمٍ — يُنادي **المسارَ الإنتاجيَّ** (أسطحُ `governance/federation.py` العامّةُ كما تُنادى في الخدمةِ) ويحاولُ **كسرَ الخاصيّةِ المُدَّعاةِ** في المعيارِ (2): مثلًا سطحٌ يكتبُ بلا عبورٍ · أو فاعلٌ غيرُ تنفيذيٍّ يمرُّ · أو فشلٌ بعدَ الأثرِ لا يُعوَّضُ كاملًا · أو إعادةٌ بالمفتاحِ نفسِه تُكرِّرُ الأثرَ · أو تسلسلٌ (propose ⇒ vote ⇒ enact) يتركُ حالًا وسطًا — أنتَ تختارُ. احفظْه تحتَ `/home/user/workspace/council_w618/kimi_k3/probe/` (ولكَ نسخُه مؤقّتًا إلى `/home/user/workspace/council_w618/kimi_k3/repo/federal/executive/services/tests/` لاستعمالِ المُثبَّتاتِ ثمَّ تشغيلُه من هناك). **واعرضْ شِفرتَه بأمرٍ مُلتقَطٍ** (`nl -ba <المسار>` — الرقمُ التالي بعدَ 21) **وشغِّلْه بأمرٍ مُلتقَطٍ آخرَ** عبرَ الأداةِ نفسِها، وأدرِجِ الأمرَينِ في `COMMANDS_RUN` وكتلتَيهما في `RAW_OUTPUTS` كاملتَين. ومسبارٌ كسرَ الخاصيّةَ ملاحظةٌ حاجبةٌ.
+اكتبْ مسبارًا واحدًا على الأقلِّ **من عندِكَ** — لا أمرًا من (ج) ولا نسخةً من فحصٍ قائمٍ — يُنادي **المسارَ الإنتاجيَّ** (أسطحُ `governance/federation.py` العامّةُ كما تُنادى في الخدمةِ) ويحاولُ **كسرَ الخاصيّةِ المُدَّعاةِ** في المعيارِ (2): مثلًا سطحٌ يكتبُ بلا عبورٍ · أو فاعلٌ غيرُ تنفيذيٍّ يمرُّ · أو فشلٌ بعدَ الأثرِ لا يُعوَّضُ كاملًا · أو إعادةٌ بالمفتاحِ نفسِه تُكرِّرُ الأثرَ · أو تسلسلٌ (propose ⇒ vote ⇒ enact) يتركُ حالًا وسطًا — أنتَ تختارُ. احفظْه تحتَ `/home/user/workspace/council_w620/kimi_k3/probe/` (ولكَ نسخُه مؤقّتًا إلى `/home/user/workspace/council_w620/kimi_k3/repo/federal/executive/services/tests/` لاستعمالِ المُثبَّتاتِ ثمَّ تشغيلُه من هناك). **واعرضْ شِفرتَه بأمرٍ مُلتقَطٍ** (`nl -ba <المسار>` — الرقمُ التالي بعدَ 21) **وشغِّلْه بأمرٍ مُلتقَطٍ آخرَ** عبرَ الأداةِ نفسِها، وأدرِجِ الأمرَينِ في `COMMANDS_RUN` وكتلتَيهما في `RAW_OUTPUTS` كاملتَين. ومسبارٌ كسرَ الخاصيّةَ ملاحظةٌ حاجبةٌ.
 
 ## هـ · حدودُ قراءتِكَ (مصادرُ المعاييرِ وحدَها)
 
@@ -88,14 +93,14 @@ find /home/user/workspace/council_w618/kimi_k3 -maxdepth 1
 
 ## ز · صيغةُ جوابِكَ (ملفُّ الحكمِ يُحفظُ حرفيًّا بلا تحريرٍ · § 4.8)
 
-اكتبْ ملفَّ حكمِكَ في `/home/user/workspace/council_w618/kimi_k3/VERDICT.md` بهذهِ الصيغةِ — وقسمُ `RAW_OUTPUTS` يُركَّبُ **آليًّا** منْ ملفّاتِ `/home/user/workspace/council_w618/kimi_k3/raw/*.txt` بترتيبِها (`cat /home/user/workspace/council_w618/kimi_k3/raw/*.txt`) بلا أيِّ نصٍّ بينها:
+اكتبْ ملفَّ حكمِكَ في `/home/user/workspace/council_w620/kimi_k3/VERDICT.md` بهذهِ الصيغةِ — وقسمُ `RAW_OUTPUTS` يُركَّبُ **آليًّا** منْ ملفّاتِ `/home/user/workspace/council_w620/kimi_k3/raw/*.txt` بترتيبِها (`cat /home/user/workspace/council_w620/kimi_k3/raw/*.txt`) بلا أيِّ نصٍّ بينها:
 
 ```
 MODEL: <اسمُ النموذجِ كما أعلنتْهُ المنصةُ>
 FAMILY: <العائلةُ>
 RUN_DATE: <YYYY-MM-DD HH:MM +00:00>
 NODE: <العقدةُ — منَ الأمرِ 1>
-CLONE_PATH: /home/user/workspace/council_w618/kimi_k3/repo
+CLONE_PATH: /home/user/workspace/council_w620/kimi_k3/repo
 COMMANDS_RUN:
  1. <الأمرُ 1 حرفيًّا كما في سطرِ CMD من كتلتِهِ>
  2. <الأمرُ 2 حرفيًّا كما في سطرِ CMD من كتلتِهِ>
@@ -132,9 +137,9 @@ VERDICT: <PASS لكلِّ المعاييرِ · أو FAIL بسببٍ مسمًّ�
 ثمَّ افحصْ ملفَّكَ بنفسِكَ قبلَ التسليمِ (الفاحصُ نفسُهُ الذي يُحتسَبُ بهِ الحكمُ · § 4.7):
 
 ```text
-python3 /home/user/workspace/council_w618/kimi_k3/repo/tools/governance/council_verdict_raw_check.py /home/user/workspace/council_w618/kimi_k3/VERDICT.md --brief /home/user/workspace/council_w618/kimi_k3/briefing.md --repo /home/user/workspace/council_w618/kimi_k3/repo
+python3 /home/user/workspace/council_w620/kimi_k3/repo/tools/governance/council_verdict_raw_check.py /home/user/workspace/council_w620/kimi_k3/VERDICT.md --brief /home/user/workspace/council_w620/kimi_k3/briefing.md --repo /home/user/workspace/council_w620/kimi_k3/repo
 ```
 
-(الإحاطةُ نفسُها منسوخةٌ إلى `/home/user/workspace/council_w618/kimi_k3/briefing.md` قبلَ إطلاقِكَ.) فإن رُفِضَ فأصلحِ **التركيبَ** (لا المخرجَ) وأعِدِ الفحصَ — ولا تُحرِّرْ مخرجًا بيدِكَ أبدًا؛ وإن احتجتَ أعِدِ التقاطَ الأمرِ.
+(الإحاطةُ نفسُها منسوخةٌ إلى `/home/user/workspace/council_w620/kimi_k3/briefing.md` قبلَ إطلاقِكَ.) فإن رُفِضَ فأصلحِ **التركيبَ** (لا المخرجَ) وأعِدِ الفحصَ — ولا تُحرِّرْ مخرجًا بيدِكَ أبدًا؛ وإن احتجتَ أعِدِ التقاطَ الأمرِ.
 
 > **تذكيرٌ (منَ البروتوكولِ):** حكمٌ بلا تشغيلٍ فعليٍّ باطلٌ · المخرجاتُ خامٌ **كاملةٌ** برموزِ خروجِها (§ 4.5) · الفحصُ الآليُّ (§ 4.7) · الحفظُ الحرفيُّ (§ 4.8) · **وPASS بلا مسبارٍ لا يُحتسَبُ (§ 4.9).**
