@@ -1,0 +1,32 @@
+$ date -u
+Thu Oct 22 04:58:17 UTC 2026
+$ git rev-parse HEAD
+8c98ca54e5b89758673da0df880343d3f552c43e
+$ .venv/bin/pytest federal/executive/services/tests/test_w601_gap_probe.py -s -q -p no:cacheprovider
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+rootdir: /home/user/workspace/AMOS-Fedration/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.5, cov-7.1.0, anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 2 items
+
+federal/executive/services/tests/test_w601_gap_probe.py 
+## (أ) issue_ruling — J1 · WI-105
+حالةُ القضيّةِ قبلَ النداء: assigned
+الاستثناءُ الناتج: builtins.RuntimeError: تثبيتُ النجاحِ مُسقَطٌ — مسبارُ W-601
+صفوفُ الحكمِ: 1 · إجراءاتُ RULING: 1 · حالةُ القضيّة: decided
+هل شُغِّلَ المُعوِّض؟ نداءاتُ CompensationGuard.compensate: 0
+سجلُّ الذرّيّة: RUNNING
+إعادةُ المحاولةِ بعدَ رفعِ الإسقاط: amos_federation.services.federal_judiciary.rulings.DuplicateRulingError
+.
+## (ب) register_identity — WI-082
+الاستثناءُ الناتج: builtins.RuntimeError: تثبيتُ النجاحِ مُسقَطٌ — مسبارُ W-601
+صفُّ الهويّة: موجود
+هل شُغِّلَ المُعوِّض؟ نداءاتُ CompensationGuard.compensate: 0
+سجلُّ الذرّيّة: RUNNING
+إعادةُ المحاولةِ بعدَ رفعِ الإسقاط: amos_federation.services.executive_core.agent_identity.DuplicateAgentIdentityError
+.
+
+============================== 2 passed in 0.87s ===============================
+EXIT 0

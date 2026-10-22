@@ -19,7 +19,7 @@
       "secret_hits": 0,
       "observed_hits": 3,
       "api_routes": 0,
-      "test_refs": 502,
+      "test_refs": 504,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -40,7 +40,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 502
+        "TEST_NAME_MENTIONS": 504
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -105,7 +105,7 @@
       "secret_hits": 0,
       "observed_hits": 155,
       "api_routes": 182,
-      "test_refs": 235,
+      "test_refs": 239,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -126,7 +126,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 235
+        "TEST_NAME_MENTIONS": 239
       },
       "maturity": "UNIT_TESTED",
       "findings_count": 60
@@ -391,10 +391,10 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 298,
-      "py_files": 13,
+      "md_files": 300,
+      "py_files": 14,
       "yaml_files": 0,
-      "code_lines": 904,
+      "code_lines": 1034,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -406,8 +406,8 @@
       "secret_hits": 0,
       "observed_hits": 2,
       "api_routes": 0,
-      "test_refs": 193,
-      "identity_violations": 0,
+      "test_refs": 195,
+      "identity_violations": 1,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
       "deployment_evidence": "ABSENT",
@@ -427,7 +427,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 193
+        "TEST_NAME_MENTIONS": 195
       },
       "maturity": "IMPLEMENTED",
       "findings_count": 0
@@ -492,7 +492,7 @@
       "secret_hits": 0,
       "observed_hits": 4,
       "api_routes": 0,
-      "test_refs": 332,
+      "test_refs": 338,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -513,7 +513,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 332
+        "TEST_NAME_MENTIONS": 338
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -989,7 +989,7 @@
     "domains_total": 12,
     "domains_proven": 0,
     "findings_total": 61,
-    "identity_violations": 0,
+    "identity_violations": 1,
     "unreadable_files": 0,
     "unparsable_files": 0,
     "by_severity": {
