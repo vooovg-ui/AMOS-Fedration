@@ -1,10 +1,10 @@
 # إحاطةُ جولةِ مراجعةِ البندِ WI-105 — جولةُ الدفعةِ (تصميمًا وشِفرةً وأدلةً) — المقعدُ `gemini_3_8_flash`
 
 ## الهدف: إحاطةُ مراجعِ الجولةِ بكلِّ ما يصلُهُ — البندُ ومعاييرُهُ وأوامرُ المعاييرِ وحدودُ القراءةِ وأسئلةُ الحكمِ
-## النطاق: جولةُ مراجعةٍ واحدةٌ للبندِ WI-105 (J1 · `issue_ruling` بفاعلٍ قضائيٍّ مُعلَنٍ · C3) **على الدفعةِ كلِّها بعدَ التنفيذِ: التصميمُ والشِّفرةُ والأدلةُ معًا** (بروتوكولُ المجلسِ § 7 كما عُدِّلَ بأمرِ المالكِ في توجيهِ المستشارِ 17 § 2 — لا جولاتِ مجلسٍ على تصميمٍ منفردٍ) · نسخةٌ لكلِّ مقعدٍ لا تختلفُ إلّا في جذرِ الدليلِ واسمِ المقعدِ (§ 2.6) · تُبصَمُ sha256 في قيدِ W-596 قبلَ الإطلاقِ · **المنسِّقُ الحاضرُ عندَ الإطلاقِ GLM-5.3 (عائلةُ GLM)** ⇒ الاستبعادُ عندَ الإطلاقِ على المنسِّقِ الفعليِّ (§ 1.5 المعدَّلُ) فلا مقعدَ من عائلةِ GLM · ومقعدُ claude_opus_5_5 متاحٌ الآنَ · أدلّةُ المقاعدِ `council_w596` · **[عُدِّلَتْ مؤرَّخًا في W-596 قبلَ الإطلاقِ (لم تُطلَقْ بعدُ): العقدةُ صُحِّحَت إلى رأسِ هذا الفرعِ ليشملَ تصحيحَ لقطاتِ القياسِ ومُثبَّتاتِ الحارسِ (W-595) · وأُضيفَتِ الأوامرُ 19–21 · وحُدِّدَت أسئلةُ الحكمِ في T6 والطفراتِ]**
+## النطاق: جولةُ مراجعةٍ واحدةٌ للبندِ WI-105 (J1 · `issue_ruling` بفاعلٍ قضائيٍّ مُعلَنٍ · C3) **على الدفعةِ كلِّها بعدَ التنفيذِ: التصميمُ والشِّفرةُ والأدلةُ معًا** (بروتوكولُ المجلسِ § 7 كما عُدِّلَ بأمرِ المالكِ في توجيهِ المستشارِ 17 § 2 — لا جولاتِ مجلسٍ على تصميمٍ منفردٍ) · نسخةٌ لكلِّ مقعدٍ لا تختلفُ إلّا في جذرِ الدليلِ واسمِ المقعدِ (§ 2.6) · تُبصَمُ sha256 في قيدِ W-598 قبلَ الإطلاقِ · **المنسِّقُ الحاضرُ عندَ الإطلاقِ GLM-5.3 (عائلةُ GLM)** ⇒ الاستبعادُ عندَ الإطلاقِ على المنسِّقِ الفعليِّ (§ 1.5 المعدَّلُ) فلا مقعدَ من عائلةِ GLM · ومقعدُ claude_opus_5_5 متاحٌ الآنَ · أدلّةُ المقاعدِ `council_w598` · **[عُدِّلَتْ مؤرَّخًا في W-596 قبلَ الإطلاقِ (لم تُطلَقْ بعدُ): العقدةُ صُحِّحَت إلى رأسِ هذا الفرعِ ليشملَ تصحيحَ لقطاتِ القياسِ ومُثبَّتاتِ الحارسِ (W-595) · وأُضيفَتِ الأوامرُ 19–21 · وحُدِّدَت أسئلةُ الحكمِ في T6 والطفراتِ]** **[عُدِّلَتْ مؤرَّخًا في W-598 قبلَ الإطلاقِ (لم تُطلَقْ بعدُ · سابقةُ W-596): العقدةُ صُحِّحَت إلى `03a6c62` — رأسِ main بعدَ الانتقالِ التوثيقيِّ W-597 (IN_PROGRESS → IN_REVIEW · § 7.4 · لا شِفرةَ زائدةً — فرقُ مساراتِ الشِّفرةِ بينَ 90cae46 و03a6c62 فارغٌ مقيسًا) · وأدلّةُ المقاعدِ تغيَّرتْ إلى `council_w598`]**
 ## المالك: بندُ WI-105 (المنسِّقُ لا يُصوِّتُ)
 ## تاريخ الإنشاء: 2026-10-21
-## تاريخ آخر تعديل: 2026-10-21 (W-596 — تعديلٌ مؤرَّخٌ قبلَ الإطلاقِ)
+## تاريخ آخر تعديل: 2026-10-22 (W-598 — تعديلٌ مؤرَّخٌ قبلَ الإطلاقِ · والسابقُ: W-596 2026-10-21)
 
 > معبَّأةٌ منَ البندِ نفسِهِ لا منَ تقريرِ منفِّذٍ · مُبصَمةٌ قبلَ إطلاقِ المقاعدِ · لا تُعدَّلُ بعدَ الإطلاقِ.
 > **المخرجاتُ خامٌ كاملةٌ — ممنوعٌ الاقتطاعُ والاختصارُ و«المقاطعُ المفتاحيّةُ» والوصفُ النثريُّ للمخرجِ وإعادةُ كتابتِهِ، مهما طالَ المخرجُ** (البروتوكولُ § 4.5). وحكمُكَ يُفحَصُ آليًّا ولا يُحتسَبُ إن رُفِضَ (§ 4.7).
@@ -12,14 +12,14 @@
 ## أ · العقدةُ والمستودعُ
 
 - المستودعُ: `vooovg-ui/AMOS-Fedration`
-- **العقدةُ المرادُّ مراجعتُها: رأسُ فرعِ `w-594-v2-j1-batch-briefs` (آخرُ التزامٍ فيه — ويُثبِتُهُ منسِّقُ الإطلاقِ في رسالةِ الإطلاقِ، ويُثبِتُهُ المقعدُ بالأمرِ 1)** — وتشملُ شِفرةَ J1 (التزامُ W-593) **وتصحيحَ لقطاتِ القياسِ ومُثبَّتاتِ الحارسِ (التزامُ W-595)** — فلا تُراجَعْ عقدةً ناقصةَ الإصلاحِ.
-- **دليلُكَ الخاصُّ (§ 2.6 · لا مسارَ مشتركٌ):** `/home/user/workspace/council_w596/gemini_3_8_flash` — كلُّ ما تكتبُهُ (الاستنساخُ · الملفّاتُ المؤقّتةُ · قاعدةُ البياناتِ · سجلُّ الذرّيّةِ · كتلُ RAW · ملفُّ حكمِكَ) داخلَهُ وحدَهُ، **لا تحتَ /tmp** ولا في دليلِ مقعدٍ آخرَ.
+- **العقدةُ المرادُّ مراجعتُها: رأسُ فرعِ `w-594-v2-j1-batch-briefs` (آخرُ التزامٍ فيه — ويُثبِتُهُ منسِّقُ الإطلاقِ في رسالةِ الإطلاقِ، ويُثبِتُهُ المقعدُ بالأمرِ 1)** **[إضافةٌ مؤرَّخةٌ (2026-10-22 · W-598): العقدةُ الآنَ `03a6c62` — رأسُ main بعدَ الانتقالِ التوثيقيِّ W-597 فوقَ رأسِ الفرعِ · شِفرةُ البندِ وتصحيحُ القياساتِ (W-593/W-595) لم يتغيرْ بايتًا بينَ العقدتَينِ (فرقُ مساراتِ الشِّفرةِ فارغٌ مقيسًا) · والأمرُ 1 يُثبِتُ العقدةَ كما في رسالةِ الإطلاقِ]** — وتشملُ شِفرةَ J1 (التزامُ W-593) **وتصحيحَ لقطاتِ القياسِ ومُثبَّتاتِ الحارسِ (التزامُ W-595)** — فلا تُراجَعْ عقدةً ناقصةَ الإصلاحِ.
+- **دليلُكَ الخاصُّ (§ 2.6 · لا مسارَ مشتركٌ):** `/home/user/workspace/council_w598/gemini_3_8_flash` — كلُّ ما تكتبُهُ (الاستنساخُ · الملفّاتُ المؤقّتةُ · قاعدةُ البياناتِ · سجلُّ الذرّيّةِ · كتلُ RAW · ملفُّ حكمِكَ) داخلَهُ وحدَهُ، **لا تحتَ /tmp** ولا في دليلِ مقعدٍ آخرَ.
 - التهيئةُ (قبلَ أوامرِ المعاييرِ · لا تُلتقَطُ لأنَّ أداةَ الالتقاطِ داخلَ الاستنساخِ):
 
 ```text
-mkdir -p /home/user/workspace/council_w596/gemini_3_8_flash/tmp /home/user/workspace/council_w596/gemini_3_8_flash/raw
-git clone https://github.com/vooovg-ui/AMOS-Fedration.git /home/user/workspace/council_w596/gemini_3_8_flash/repo
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && git checkout <الرأسُ من رسالةِ الإطلاقِ>
+mkdir -p /home/user/workspace/council_w598/gemini_3_8_flash/tmp /home/user/workspace/council_w598/gemini_3_8_flash/raw
+git clone https://github.com/vooovg-ui/AMOS-Fedration.git /home/user/workspace/council_w598/gemini_3_8_flash/repo
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && git checkout <الرأسُ من رسالةِ الإطلاقِ>
 ```
 
 ## ب · البندُ ومعاييرُ قبولِهِ (كما كُتِبَت قبلَ التنفيذِ)
@@ -44,34 +44,34 @@ cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && git checkout <ال
 **طريقةُ التشغيلِ (إلزاميّةٌ · § 4.6):** شغِّلْ كلَّ سطرٍ أدناهُ برقمِهِ n (بترتيبِهِ منَ 1 إلى 22) عبرَ أداةِ الالتقاطِ هكذا — والأمرُ بينَ علامتَي الاقتباسِ **حرفيًّا كما هو في السطرِ نفسِهِ** (بلا رقمِهِ):
 
 ```text
-python3 /home/user/workspace/council_w596/gemini_3_8_flash/repo/tools/governance/council_raw_capture.py --n <n> --out /home/user/workspace/council_w596/gemini_3_8_flash/raw/<n بخانتين: 01 02 …>.txt '<الأمرُ>'
+python3 /home/user/workspace/council_w598/gemini_3_8_flash/repo/tools/governance/council_raw_capture.py --n <n> --out /home/user/workspace/council_w598/gemini_3_8_flash/raw/<n بخانتين: 01 02 …>.txt '<الأمرُ>'
 ```
 
 الأوامرُ (22 أمرًا — البيئةُ أولًا · ثمَّ ترتيبُ الوثيقةِ قبلَ الشِّفرةِ (Q-61) · ثمَّ جردُ الدَّينِ السياديِّ (كلُّه ثمَّ الوحدةُ ثمَّ الجسرُ) · ثمَّ فحوصُ T1–T7 والفحوصُ القائمةُ والحزمةُ كاملةً · ثمَّ شِفرةُ العبورِ ووثيقةُ التصميمِ ومخرجاتُ الطفراتِ وقياساتُ الدفعةِ · ثمَّ حرسُ الحوكمةِ (فحوصُ المُثبَّتاتِ وفرقُها وعقدُ نَسَبِ القياساتِ — تصحيحُ W-595) · ثمَّ فحصُ العزلِ § 2.6):
 
 ```bash
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && git rev-parse HEAD
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && bash tools/dev/bootstrap.sh
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && git log --format='%h %cI %s' d0932c51..HEAD
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && git diff --stat d0932c51 HEAD
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && git log --format='%h %cI %s' -- docs/audit/J1_ISSUE_RULING_DESIGN.md
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && git diff d0932c51 HEAD -- federal/executive/services/tests/test_r7d_federal_judiciary.py federal/executive/services/tests/test_wi082_agent_identity_sovereign.py
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && .venv/bin/python tools/audit/sovereign_write_inventory.py
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && .venv/bin/python tools/audit/sovereign_write_inventory.py --service federal/executive/services/src/amos_federation/services/federal_judiciary --json /home/user/workspace/council_w596/gemini_3_8_flash/tmp/judiciary.json
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && rg -n "issue_ruling|guarded|public" /home/user/workspace/council_w596/gemini_3_8_flash/tmp/judiciary.json
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && .venv/bin/python tools/audit/sovereign_write_inventory.py --service federal/executive/services/src/amos_federation/services/executive_core --json /home/user/workspace/council_w596/gemini_3_8_flash/tmp/executive_core.json
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite://///home/user/workspace/council_w596/gemini_3_8_flash/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests/test_wi105_issue_ruling_sovereign.py -q
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite://///home/user/workspace/council_w596/gemini_3_8_flash/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests/test_r7d_federal_judiciary.py -q
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite://///home/user/workspace/council_w596/gemini_3_8_flash/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests/test_wi082_agent_identity_sovereign.py -q
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite://///home/user/workspace/council_w596/gemini_3_8_flash/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests -q
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && rg -n "JUDICIARY_ACTOR|judicial_action|position_scope|guard_declared\(" federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py federal/executive/services/src/amos_federation/services/federal_judiciary/service.py federal/executive/services/src/amos_federation/services/federal_judiciary/authority.py federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && cat docs/audit/J1_ISSUE_RULING_DESIGN.md
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && cat docs/audit/evidence/W-593/mutation_m1.txt docs/audit/evidence/W-593/mutation_m2.txt docs/audit/evidence/W-593/mutation_m3.txt docs/audit/evidence/W-593/mutation_m4.txt
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && cat docs/audit/evidence/W-593/measurements.txt
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite://///home/user/workspace/council_w596/gemini_3_8_flash/tmp/amos_seat.db .venv/bin/python -m pytest tests/governance/test_q3_branch_declaration_surface.py tests/governance/test_step7_factory_surfaces.py -q
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && git diff d0932c51 HEAD -- tests/governance docs/audit/measurements
-cd /home/user/workspace/council_w596/gemini_3_8_flash/repo && .venv/bin/python tools/governance/measurement_provenance.py . --check --without-deps
-find /home/user/workspace/council_w596/gemini_3_8_flash -maxdepth 1
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && git rev-parse HEAD
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && bash tools/dev/bootstrap.sh
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && git log --format='%h %cI %s' d0932c51..HEAD
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && git diff --stat d0932c51 HEAD
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && git log --format='%h %cI %s' -- docs/audit/J1_ISSUE_RULING_DESIGN.md
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && git diff d0932c51 HEAD -- federal/executive/services/tests/test_r7d_federal_judiciary.py federal/executive/services/tests/test_wi082_agent_identity_sovereign.py
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && .venv/bin/python tools/audit/sovereign_write_inventory.py
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && .venv/bin/python tools/audit/sovereign_write_inventory.py --service federal/executive/services/src/amos_federation/services/federal_judiciary --json /home/user/workspace/council_w598/gemini_3_8_flash/tmp/judiciary.json
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && rg -n "issue_ruling|guarded|public" /home/user/workspace/council_w598/gemini_3_8_flash/tmp/judiciary.json
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && .venv/bin/python tools/audit/sovereign_write_inventory.py --service federal/executive/services/src/amos_federation/services/executive_core --json /home/user/workspace/council_w598/gemini_3_8_flash/tmp/executive_core.json
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite://///home/user/workspace/council_w598/gemini_3_8_flash/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests/test_wi105_issue_ruling_sovereign.py -q
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite://///home/user/workspace/council_w598/gemini_3_8_flash/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests/test_r7d_federal_judiciary.py -q
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite://///home/user/workspace/council_w598/gemini_3_8_flash/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests/test_wi082_agent_identity_sovereign.py -q
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite://///home/user/workspace/council_w598/gemini_3_8_flash/tmp/amos_seat.db .venv/bin/python -m pytest federal/executive/services/tests -q
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && rg -n "JUDICIARY_ACTOR|judicial_action|position_scope|guard_declared\(" federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py federal/executive/services/src/amos_federation/services/federal_judiciary/service.py federal/executive/services/src/amos_federation/services/federal_judiciary/authority.py federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && cat docs/audit/J1_ISSUE_RULING_DESIGN.md
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && cat docs/audit/evidence/W-593/mutation_m1.txt docs/audit/evidence/W-593/mutation_m2.txt docs/audit/evidence/W-593/mutation_m3.txt docs/audit/evidence/W-593/mutation_m4.txt
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && cat docs/audit/evidence/W-593/measurements.txt
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && AMOS_DATABASE_URL=sqlite://///home/user/workspace/council_w598/gemini_3_8_flash/tmp/amos_seat.db .venv/bin/python -m pytest tests/governance/test_q3_branch_declaration_surface.py tests/governance/test_step7_factory_surfaces.py -q
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && git diff d0932c51 HEAD -- tests/governance docs/audit/measurements
+cd /home/user/workspace/council_w598/gemini_3_8_flash/repo && .venv/bin/python tools/governance/measurement_provenance.py . --check --without-deps
+find /home/user/workspace/council_w598/gemini_3_8_flash -maxdepth 1
 ```
 
 ## د · حدودُ قراءتِكَ (مصادرُ المعاييرِ وحدَها)
@@ -95,14 +95,14 @@ find /home/user/workspace/council_w596/gemini_3_8_flash -maxdepth 1
 
 ## و · صيغةُ جوابِكَ (ملفُّ الحكمِ يُحفظُ حرفيًّا بلا تحريرٍ · § 4.8)
 
-اكتبْ ملفَّ حكمِكَ في `/home/user/workspace/council_w596/gemini_3_8_flash/VERDICT.md` بهذهِ الصيغةِ — وقسمُ `RAW_OUTPUTS` يُركَّبُ **آليًّا** منْ ملفّاتِ `/home/user/workspace/council_w596/gemini_3_8_flash/raw/*.txt` بترتيبِها (مثلًا `cat /home/user/workspace/council_w596/gemini_3_8_flash/raw/*.txt`) بلا أيِّ نصٍّ بينها:
+اكتبْ ملفَّ حكمِكَ في `/home/user/workspace/council_w598/gemini_3_8_flash/VERDICT.md` بهذهِ الصيغةِ — وقسمُ `RAW_OUTPUTS` يُركَّبُ **آليًّا** منْ ملفّاتِ `/home/user/workspace/council_w598/gemini_3_8_flash/raw/*.txt` بترتيبِها (مثلًا `cat /home/user/workspace/council_w598/gemini_3_8_flash/raw/*.txt`) بلا أيِّ نصٍّ بينها:
 
 ```
 MODEL: <اسمُ النموذجِ كما أعلنتْهُ المنصةُ>
 FAMILY: <العائلةُ>
 RUN_DATE: <YYYY-MM-DD HH:MM +00:00>
 NODE: <رأسُ الفرعِ الذي استنسختَهُ — منَ الأمرِ 1>
-CLONE_PATH: /home/user/workspace/council_w596/gemini_3_8_flash/repo
+CLONE_PATH: /home/user/workspace/council_w598/gemini_3_8_flash/repo
 COMMANDS_RUN:
  1. <الأمرُ 1 حرفيًّا كما في سطرِ CMD من كتلتِهِ>
  2. <الأمرُ 2 حرفيًّا كما في سطرِ CMD من كتلتِهِ>
@@ -137,7 +137,7 @@ VERDICT: <PASS لكلِّ المعاييرِ · أو FAIL بسببٍ مسمًّ�
 ثمَّ افحصْ ملفَّكَ بنفسِكَ قبلَ التسليمِ (الفاحصُ نفسُهُ الذي يُحتسَبُ بهِ الحكمُ · § 4.7):
 
 ```text
-python3 /home/user/workspace/council_w596/gemini_3_8_flash/repo/tools/governance/council_verdict_raw_check.py /home/user/workspace/council_w596/gemini_3_8_flash/VERDICT.md --repo /home/user/workspace/council_w596/gemini_3_8_flash/repo
+python3 /home/user/workspace/council_w598/gemini_3_8_flash/repo/tools/governance/council_verdict_raw_check.py /home/user/workspace/council_w598/gemini_3_8_flash/VERDICT.md --repo /home/user/workspace/council_w598/gemini_3_8_flash/repo
 ```
 
 فإن رُفِضَ فأصلحِ **التركيبَ** (لا المخرجَ) وأعِدِ الفحصَ — ولا تُحرِّرْ مخرجًا بيدِكَ أبدًا؛ وإن احتجتَ أعِدِ التقاطَ الأمرِ.

@@ -1,0 +1,17 @@
+فرقُ مساراتِ الشِّفرةِ بينَ العقدتَينِ (مقيسٌ 2026-10-22 · قيدُ W-598)
+الأمر: git diff --stat 90cae46 03a6c62 -- federal/ tools/ tests/ agents/
+المخرجُ: (فارغٌ — صفرُ ملفاتٍ)
+
+الفرقُ الكاملُ بينَ العقدتَينِ (توثيقٌ وحدَه):
+ PROJECT_STATE.md                                   |  4 +--
+ docs/PROJECT_HANDBOOK.md                           |  2 +-
+ docs/audit/ACTIVE_EXECUTION_STATE.md               |  2 +-
+ docs/audit/COMPLETION_LEDGER.md                    |  2 ++
+ docs/audit/TRUTH_MATRIX.md                         |  2 +-
+ docs/audit/evidence/W-597/README.md                | 22 +++++++++++++
+ .../evidence/W-597/ci_jobs_39679264001.api.txt     |  1 +
+ .../evidence/W-597/ci_verdict_39679264001.txt      |  6 ++++
+ docs/audit/evidence/W-597/session_measurements.txt | 37 ++++++++++++++++++++++
+ docs/audit/truth_matrix.json                       |  2 +-
+ docs/governance/work/ACTIVE_WORK.md                |  9 +++---
+ 11 files changed, 79 insertions(+), 10 deletions(-)
