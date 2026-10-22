@@ -1,0 +1,230 @@
+"""مسبارُ مقعدِ grok_4_7 — ليس أمرًا من القسمِ ج ولا نسخةً من T6p/T8/T9/T10.
+
+يحاولُ كسرَ خاصيّةِ المعيارِ (7) / الملحقِ § 7.4 على المسارِ الإنتاجيِّ
+``FederalJudiciary.issue_ruling`` بسيناريو لا يغطّيه الفحصُ القائمُ:
+
+1. الفشلُ بعدَ التزامِ المُطبِّقِ وعودتِه، لكن داخلَ ``execute()``: لفُّ
+   ``PolicyEnforcementPoint.enforce`` يرفعُ بعدَ الأصلِ. فلا يُسقَطُ
+   ``mark_succeeded``. فيُنادى ``IdempotencyGuard`` ``mark_failed``
+   (FAILED_RETRYABLE) قبلَ أن يرى الحدُّ الاستثناءَ.
+2. المُعوِّضُ الإنتاجيُّ ``_restore`` يُلتزَمُ حذفُ صفِّ الحكمِ ثمَّ يرفعُ
+   قبلَ حذفِ إجراءِ RULING وإرجاعِ حالةِ القضيّةِ — فشلٌ جزئيٌّ مُلتزَمٌ
+   لا استبدالُ المُعوِّضِ برافعٍ كما في T9.
+
+الخاصيّةُ المُدَّعاةُ التي يُحاوَلُ كسرُها: بعدَ هذا الفشلِ يبقى
+``CompensationRequired`` مرفوعًا · ``state_is_clean`` كاذبة ·
+``requires_human`` · الباقي مُسمًّى · سجلُّ الذرّيّةِ ``FAILED_FINAL``
+(إغلاقٌ لا إعادةٌ فوقَ أثرٍ باقٍ) رغمَ ``mark_failed`` السابق · والإعادةُ
+مرفوضةٌ ولا يُكتَبُ حكمٌ ثانٍ.
+"""
+
+from __future__ import annotations
+
+import math
+import time
+from typing import Any
+
+import pytest
+from sqlalchemy.orm import Session
+
+from amos_federation.services.federal_judiciary.models import (
+    CaseProceedingModel,
+    RulingModel,
+)
+from core.sovereignty.enforcement import PolicyEnforcementPoint
+from tests.test_wi105_issue_ruling_sovereign import (
+    _fresh_state,
+    _prepared_case,
+    _ruling_key,
+    _ruling_rows,
+    crown,
+    judiciary,
+    national,
+    registry,
+)
+
+
+def _next_second() -> None:
+    now = time.time()
+    time.sleep(math.ceil(now) - now + 0.05)
+
+
+def test_grok_4_7_partial_restore_after_inner_execute_failure() -> None:
+    from core.sovereignty.compensation import CompensationRequired
+    from core.sovereignty.idempotency import IdempotencyError, OperationStatus
+
+    # الدوالُّ مثبّتاتُ pytest — تُستدعى النسخةُ الأصليّةُ لا الغلافُ الذي يرفضُ النداءَ.
+    _fresh_state.__wrapped__()
+    reg = registry.__wrapped__()
+    nat = national.__wrapped__()
+    jud = judiciary.__wrapped__()
+    cr = crown.__wrapped__(nat)
+    _bench_unused, case_id, judge_ctx = _prepared_case(reg, nat, jud, cr, "grok47-probe")
+    del _bench_unused
+    status_before = _ruling_rows(case_id)[2]
+    rulings_before, procs_before, _status = _ruling_rows(case_id)
+    print(
+        f"PROBE_BEFORE rulings={rulings_before} ruling_procs={procs_before} "
+        f"case_status={status_before}"
+    )
+
+    original_enforce = PolicyEnforcementPoint.enforce
+    original_get = Session.get
+    state: dict[str, Any] = {"seen_ruling": False, "partial_committed": False}
+
+    def exploding_enforce(
+        self: PolicyEnforcementPoint,
+        permit: Any,
+        *,
+        planner: Any,
+        applier: Any,
+        now: Any = None,
+    ) -> Any:
+        produced = original_enforce(self, permit, planner=planner, applier=applier, now=now)
+        raise RuntimeError(
+            "فشلٌ بعدَ عودةِ المُطبِّقِ داخلَ execute — لا إسقاطَ mark_succeeded — مسبارُ grok_4_7"
+        )
+
+    def probing_get(self: Session, entity: Any, ident: Any, **kwargs: Any) -> Any:
+        obj = original_get(self, entity, ident, **kwargs)
+        if entity is RulingModel and obj is not None:
+            state["seen_ruling"] = True
+        if (
+            entity is CaseProceedingModel
+            and state["seen_ruling"]
+            and not state["partial_committed"]
+        ):
+            # حذفُ الحكمِ معلَّقٌ في الجلسةِ: التزمْه ثمَّ ارفعْ قبلَ بقيةِ العكس.
+            self.commit()
+            state["partial_committed"] = True
+            raise RuntimeError(
+                "المُعوِّضُ الإنتاجيُّ التزمَ حذفَ الحكمِ ثمَّ رفعَ قبلَ حذفِ الإجراءِ "
+                "وإرجاعِ الحالة — مسبارُ grok_4_7"
+            )
+        return obj
+
+    PolicyEnforcementPoint.enforce = exploding_enforce  # type: ignore[method-assign]
+    Session.get = probing_get  # type: ignore[method-assign]
+    caught: pytest.ExceptionInfo[Any] | None = None
+    try:
+        with pytest.raises(Exception) as caught:
+            jud.issue_ruling(
+                context=judge_ctx,
+                case_id=case_id,
+                stage="FIRST_INSTANCE",
+                decision="GRANTED",
+                disposition="مسبارُ grok_4_7 — كسرُ التعويضِ الجزئيِّ",
+            )
+    finally:
+        PolicyEnforcementPoint.enforce = original_enforce  # type: ignore[method-assign]
+        Session.get = original_get  # type: ignore[method-assign]
+
+    assert caught is not None
+    exc = caught.value
+    print(f"PROBE_EXC type={type(exc).__module__}.{type(exc).__name__}")
+    print(f"PROBE_EXC text={exc}")
+    print(f"PROBE_PARTIAL_COMMITTED={state['partial_committed']}")
+    cause = exc.__cause__
+    print(
+        "PROBE_CAUSE "
+        + (
+            f"type={type(cause).__module__}.{type(cause).__name__} text={cause}"
+            if cause is not None
+            else "none"
+        )
+    )
+
+    rulings_after, procs_after, status_after = _ruling_rows(case_id)
+    print(
+        f"PROBE_AFTER rulings={rulings_after} ruling_procs={procs_after} "
+        f"case_status={status_after} status_before={status_before}"
+    )
+
+    from amos_federation.services.federal_judiciary import rulings as rulings_module
+
+    ledger = rulings_module._judiciary_authorizer().boundary.idempotency_ledger
+    record = ledger.get(_ruling_key(case_id))
+    print(
+        "PROBE_LEDGER "
+        + (
+            f"status={record.status.value} applied={tuple(record.applied_effect_signatures)} "
+            f"reason={record.failure_reason}"
+            if record is not None
+            else "missing"
+        )
+    )
+
+    broken: list[str] = []
+    if not isinstance(exc, CompensationRequired):
+        broken.append(f"الاستثناءُ ليس CompensationRequired بل {type(exc).__name__}")
+    outcome = exc.outcome if isinstance(exc, CompensationRequired) else None
+    if outcome is None:
+        broken.append("لا حصيلةَ تعويضٍ")
+    else:
+        print(
+            f"PROBE_OUTCOME status={outcome.record.status.value} "
+            f"state_is_clean={outcome.state_is_clean} requires_human={outcome.requires_human} "
+            f"residual={tuple(outcome.residual_signatures)}"
+        )
+        if outcome.state_is_clean is not False:
+            broken.append("state_is_clean ليست False والباقي الجزئيُّ قائمٌ")
+        if outcome.requires_human is not True:
+            broken.append("requires_human ليست True")
+        if not outcome.residual_signatures:
+            broken.append("الباقي غيرُ مُسمًّى")
+        if "يلزمُ قرارٌ بشريّ" not in str(exc):
+            broken.append("النصُّ لا يسمّي لزومَ القرارِ البشريِّ")
+    if not state["partial_committed"]:
+        broken.append("لم يُلتزَم الحذفُ الجزئيُّ — المسبارُ لم يصبِ المُعوِّضَ الإنتاجيَّ")
+    if rulings_after != 0:
+        broken.append(f"صفُّ الحكمِ لم يُحذَف بعدَ الالتزامِ الجزئيِّ ({rulings_after})")
+    if procs_after != 1:
+        broken.append(f"إجراءُ RULING لم يبقَ كما يُتوقَّعُ من الفشلِ الجزئيِّ ({procs_after})")
+    if status_after == status_before:
+        broken.append("حالةُ القضيّةِ رُدَّت رغمَ فشلِ المُعوِّضِ قبلَ الإرجاعِ — ادّعاءُ نظافةٍ")
+    if record is None:
+        broken.append("سجلُّ الذرّيّةِ غائبٌ")
+    elif record.status is not OperationStatus.FAILED_FINAL:
+        broken.append(
+            f"الذرّيّةُ {record.status.value} لا FAILED_FINAL — الإغلاقُ عندَ الفشلِ انكسرَ "
+            "(mark_failed السابقُ قد يُبقي الإعادةَ مفتوحةً فوقَ أثرٍ باقٍ)"
+        )
+
+    _next_second()
+    retry_exc: BaseException | None = None
+    try:
+        jud.issue_ruling(
+            context=judge_ctx,
+            case_id=case_id,
+            stage="FIRST_INSTANCE",
+            decision="GRANTED",
+            disposition="مسبارُ grok_4_7 — الإعادةُ بعدَ التعويضِ الجزئيِّ",
+        )
+    except Exception as retry_error:  # noqa: BLE001 — القياسُ على نوعِ الرفضِ
+        retry_exc = retry_error
+    rulings_retry, procs_retry, status_retry = _ruling_rows(case_id)
+    print(
+        "PROBE_RETRY "
+        + (
+            f"type={type(retry_exc).__module__}.{type(retry_exc).__name__} text={retry_exc}"
+            if retry_exc is not None
+            else "SUCCEEDED"
+        )
+    )
+    print(
+        f"PROBE_RETRY_ROWS rulings={rulings_retry} ruling_procs={procs_retry} "
+        f"case_status={status_retry}"
+    )
+    if retry_exc is None:
+        broken.append("الإعادةُ نَجحتْ فوقَ أثرٍ باقٍ")
+    elif not isinstance(retry_exc, (IdempotencyError, Exception)):
+        broken.append(f"الإعادةُ رُفضت بنوعٍ غيرِ متوقَّعٍ {type(retry_exc).__name__}")
+    if rulings_retry != rulings_after:
+        broken.append(
+            f"الإعادةُ غيّرت صفوفَ الحكمِ {rulings_after} → {rulings_retry} فوقَ أثرٍ باقٍ"
+        )
+
+    if broken:
+        print("PROBE_BROKEN " + " | ".join(broken))
+        pytest.fail("الخاصيّةُ انكسرت: " + " | ".join(broken))
+    print("PROBE_HELD الخاصيّةُ لم تنكسر")

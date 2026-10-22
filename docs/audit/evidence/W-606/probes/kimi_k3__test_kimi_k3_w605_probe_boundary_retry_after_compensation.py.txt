@@ -1,0 +1,199 @@
+"""مسبار مقعد kimi_k3 — جولة W-605 على WI-105 (J1 · التعويض الآلي في الحد).
+
+الزاوية المختارة (ليست فحصًا قائمًا): **إعادةٌ فوريّةٌ في الثانيةِ نفسِها بعدَ
+تعويضٍ نظيفٍ** على المسارِ الإنتاجيّ `FederalJudiciary.issue_ruling`. القائمُ
+T6p يُثبِتُ نجاحَ الإعادةِ في «الثانيةِ التالية»، وT10 يُثبِتُ حلقةً ثانيةً —
+لكن لم يجرّب أحدٌ أن يُعيدَ في الثانيةِ نفسِها بعدَ التعويض. الحدُّ المُعلَن
+DISC-129 (الملحقُ § 7.5) يعدُ بأنّ إعادةَ الثانيةِ نفسِها **تُرفَضُ إغلاقًا لا
+فتحًا** (PermitReplayError مغلَّفًا). لو نجحتِ الإعادةُ الفوريّةُ أو كتبَت
+أثرًا، انكسرتِ الخاصيّةُ المُدَّعاة.
+
+الخطوات:
+(1) قضيّةٌ حقيقيّةٌ جاهزةٌ على المسارِ الإنتاجيّ.
+(2) إسقاطُ `mark_succeeded` ⇒ المحاولةُ الأولى تفشلُ بعدَ الالتزامِ ⇒ الحدُّ
+    يعوِّضُ آليًّا ويرفعُ `CompensationRequired` والقيدُ FAILED_RETRYABLE نظيف.
+(3) الهجوم: إعادةٌ فوريّةٌ في الثانيةِ نفسِها — يجب أن تُرفَضَ برفعٍ من
+    عائلةِ IdempotencyError وبلا أيِّ أثرٍ (0 حكمَين/إجراءً، حالةُ القضيّةِ كما
+    هي، القيدُ باقٍ FAILED_RETRYABLE).
+(4) رقابةٌ إيجابيّةٌ: إعادةٌ في الثانيةِ التالية تنجحُ بصفٍّ واحدٍ بالضبط.
+"""
+
+from __future__ import annotations
+
+import time
+
+import pytest
+
+from amos_federation.common.database import get_session_factory, init_db
+from amos_federation.common.principal import AuthorizationContext
+from amos_federation.services.executive_core.engine import reset_executive_core
+from amos_federation.services.federal_judiciary import (
+    FederalJudiciary,
+    get_federal_judiciary,
+    reset_federal_judiciary,
+)
+from amos_federation.services.federal_judiciary import rulings as rulings_module
+from amos_federation.services.government_services.service import (
+    reset_government_services,
+)
+from amos_federation.services.national_registry.service import (
+    NationalRegistry,
+    get_national_registry,
+    reset_national_registry,
+)
+from amos_federation.services.state_registry.service import (
+    StateRegistry,
+    get_state_registry,
+    reset_state_registry,
+)
+from amos_federation.services.state_treasury.service import reset_state_treasury
+from core.sovereignty.compensation import CompensationRequired
+from core.sovereignty.idempotency import IdempotencyError, OperationStatus
+from tests.conftest import purge_agents, purge_tasks
+
+from tests.test_wi105_issue_ruling_sovereign import (
+    _context,
+    _drop_settle,
+    _issue,
+    _next_second,
+    _prepared_case,
+    _ruling_key,
+    _ruling_rows,
+)
+
+
+@pytest.fixture(autouse=True)
+def _k3_probe_fresh_state() -> None:
+    """قاعدةٌ نظيفةٌ قبل المسبار — لا اعتمادَ على أثرِ ملفِّ فحصٍ آخرَ."""
+    init_db()
+    session = get_session_factory()()
+    try:
+        purge_tasks(session)
+        purge_agents(session)
+        # جداولُ الهويّةِ والمناصبِ تشيرُ إلى agents بقيدٍ مرجعيٍّ مفروضٍ ولا
+        # يشملُها purge_agents — تُفرَغُ صراحةً (فرعًا قبلَ أصل).
+        from sqlalchemy import text as sa_text
+
+        for table in (
+            "state_identity_agents",
+            "state_identity_principals",
+            "state_authority_grants",
+            "state_official_positions",
+            "state_positions",
+            "state_identities",
+            "state_officials",
+        ):
+            session.execute(sa_text(f"DELETE FROM {table}"))  # noqa: S608 — أسماء ثابتة
+        session.commit()
+    finally:
+        session.close()
+    reset_executive_core()
+    reset_state_registry()
+    reset_government_services()
+    reset_state_treasury()
+    reset_national_registry()
+    reset_federal_judiciary()
+    rulings_module.reset_judiciary_authorizer()
+    yield
+
+
+@pytest.fixture
+def registry() -> StateRegistry:
+    return get_state_registry()
+
+
+@pytest.fixture
+def national() -> NationalRegistry:
+    return get_national_registry()
+
+
+@pytest.fixture
+def judiciary() -> FederalJudiciary:
+    return get_federal_judiciary()
+
+
+@pytest.fixture
+def crown(national: NationalRegistry) -> AuthorizationContext:
+    context = _context("king", username="kimi-k3-probe-crown")
+    identity = national.create_identity(
+        context=context, identity_type="PERSON", label="التاج — مسبار kimi_k3"
+    )
+    national.link_principal(
+        context=context,
+        principal_id=context.principal_id,
+        identity_id=identity["id"],
+    )
+    return context
+
+
+def test_k3_probe_immediate_retry_after_compensation_is_closed_gate(
+    registry: StateRegistry,
+    national: NationalRegistry,
+    judiciary: FederalJudiciary,
+    crown: AuthorizationContext,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # (1) التهيئة — قضيّةٌ مُسندةٌ حقيقيّةٌ ببياناتٍ حيّة.
+    _bench, case_id, judge_ctx = _prepared_case(
+        registry, national, judiciary, crown, "kimi-k3-probe"
+    )
+    status_before = _ruling_rows(case_id)[2]
+    ledger = rulings_module._judiciary_authorizer().boundary.idempotency_ledger
+
+    # (2) المحاولةُ الأولى — فشلٌ بعدَ الالتزامِ ⇒ تعويضٌ آليٌّ نظيفٌ.
+    second0 = int(time.time())  # ثانيةُ تصريحِ المحاولة — للتثبّتِ من فوريّةِ الهجوم
+    original = _drop_settle(monkeypatch, ledger, "K3-PROBE")
+    with pytest.raises(CompensationRequired) as caught:
+        _issue(judiciary, judge_ctx, case_id)
+    monkeypatch.setattr(type(ledger), "mark_succeeded", original)
+
+    outcome = caught.value.outcome
+    assert "K3-PROBE" in outcome.original_failure
+    assert outcome.state_is_clean is True
+    assert outcome.residual_signatures == ()
+    assert _ruling_rows(case_id) == (0, 0, status_before)
+    record0 = ledger.get(_ruling_key(case_id))
+    assert record0 is not None
+    assert record0.status is OperationStatus.FAILED_RETRYABLE
+
+    # (3) الهجوم — إعادةٌ فوريّةٌ في الثانيةِ نفسِها: يجب أن تُرفَضَ مغلقةً.
+    if int(time.time()) != second0:
+        pytest.skip("عبرتِ الثانيةُ قبلَ الهجومِ فبطلَتِ العيّنةُ — أعِدِ التشغيلَ")
+    with pytest.raises(IdempotencyError) as refusal:
+        _issue(judiciary, judge_ctx, case_id)
+    # — الرفضُ لسببِ DISC-129 نفسِه (إعادةُ التصريح)، لا لأيِّ عطلٍ آخر.
+    from core.sovereignty.enforcement import PermitReplayError
+
+    cause_chain = []
+    cause: BaseException | None = refusal.value.__cause__
+    while cause is not None:
+        cause_chain.append(type(cause).__name__)
+        cause = cause.__cause__
+    print(f"\n[K3-PROBE] رفضُ الإعادةِ الفوريّة: {type(refusal.value).__name__}")
+    print(f"[K3-PROBE] نصُّ الرفض: {refusal.value}")
+    print(f"[K3-PROBE] سلسلةُ السبب: {' <- '.join(cause_chain) if cause_chain else '(بلا سببٍ مُصرَّح)'}")
+    assert "PermitReplayError" in cause_chain, (
+        f"الرّفضُ ليس إعادةَ تصريحٍ (DISC-129) بل: {cause_chain}"
+    )
+    assert isinstance(refusal.value.__cause__, PermitReplayError) or any(
+        name == "PermitReplayError" for name in cause_chain
+    )
+
+    # — الإغلاقُ صادقٌ: لا حكمَ ولا إجراءَ والقضيّةُ بحالتِها والقيدُ باقٍ.
+    assert _ruling_rows(case_id) == (0, 0, status_before)
+    record1 = ledger.get(_ruling_key(case_id))
+    assert record1 is not None
+    assert record1.status is OperationStatus.FAILED_RETRYABLE
+
+    # (4) رقابةٌ إيجابيّةٌ — الإعادةُ النظاميّةُ في الثانيةِ التالية تنجحُ بصفٍّ واحدٍ.
+    _next_second()
+    issued = _issue(judiciary, judge_ctx, case_id)
+    assert issued["id"]
+    assert _ruling_rows(case_id) == (1, 1, "decided")
+    record2 = ledger.get(_ruling_key(case_id))
+    assert record2 is not None
+    assert record2.status is OperationStatus.SUCCEEDED
+    print(
+        "[K3-PROBE] الخاصيّةُ صامدةٌ: فوريّةٌ مرفوضةٌ بلا أثرٍ · "
+        "إعادةُ الثانيةِ التاليةِ ناجحةٌ بصفٍّ واحدٍ."
+    )

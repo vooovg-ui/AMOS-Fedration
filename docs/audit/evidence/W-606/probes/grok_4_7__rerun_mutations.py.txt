@@ -1,0 +1,176 @@
+#!/usr/bin/env python3
+"""إعادةُ تشغيلِ طفراتِ M1–M8 على الشجرةِ ثمَّ استعادتُها — دليلُ المقعدِ لا ملفُّ الأدلةِ وحدَه."""
+
+from __future__ import annotations
+
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path("/home/user/workspace/council_w605/grok_4_7/repo")
+PY = REPO / ".venv/bin/python"
+RULINGS = REPO / "federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py"
+BOUNDARY = REPO / "core/sovereignty/enforcement_boundary.py"
+DB = "sqlite://///home/user/workspace/council_w605/grok_4_7/tmp/amos_mut.db"
+TEST = "federal/executive/services/tests/test_wi105_issue_ruling_sovereign.py"
+
+M1_OLD = '''    guarded = _judiciary_authorizer().guard_declared(
+        "issue_ruling",
+        target,
+        declared_effects=(effect,),
+        applier=_apply,
+        operation_key=op_key,
+        compensators=(
+            compensator(
+                effect.signature,
+                _restore,
+                "استعادةٌ تقنيّةٌ: حذفُ صفَّي الحكمِ والإجراءِ وإرجاعُ حالةِ القضيّةِ — "
+                "العمليّةُ لم تثبتْ فلا حكمَ قانونيًّا وُجِدَ",
+            ),
+        ),
+        metadata={
+            "case_reference": case.reference,
+            "stage": stage,
+            "generation": generation,
+        },
+        judicial_action=_judicial_action(),
+    )
+    if guarded.is_replay:
+        # الإعادةُ ليست نجاحًا ثانيًا: يُقرأُ الحكمُ القائمُ للمرحلةِ، فإن غابَ
+        # رُفِعَ التفرُّقُ صريحًا — ولا كتابةَ ثانيةً خارجَ الحدِّ (D6).
+        standing = active_ruling_for_stage(session, case_id=case.id, stage=stage)
+        if standing is None:
+            raise RulingLedgerDivergenceError(
+                f"سجلُّ الذرّيّةِ يُثبِتُ إصدارَ حكمٍ للقضيّةِ '{case.reference}' "
+                f"في المرحلةِ '{stage}' ولا صفَّ حكمٍ قائمًا — استعادةٌ مطلوبةٌ "
+                "لا إصدارٌ يُزعَم"
+            )
+        return standing, None
+    value = guarded.value
+    row, proceeding = value
+    return row, proceeding
+'''
+M1_NEW = '''    # M1 · حذفُ العبورِ — المُطبِّقُ يُنادى مباشرةً بلا guard_declared
+    row, proceeding = _apply(effect)
+    return row, proceeding
+'''
+
+
+def run_pytest(k: str) -> int:
+    env = dict(**{k: v for k, v in __import__("os").environ.items()})
+    env["AMOS_DATABASE_URL"] = DB
+    proc = subprocess.run(
+        [str(PY), "-m", "pytest", TEST, "-q", "--tb=line", "-k", k, "-p", "no:cacheprovider"],
+        cwd=REPO,
+        env=env,
+        text=True,
+    )
+    return proc.returncode
+
+
+def apply(path: Path, old: str, new: str, label: str) -> None:
+    text = path.read_text(encoding="utf-8")
+    count = text.count(old)
+    if count != 1:
+        raise SystemExit(f"{label}: عددُ التطابقاتِ {count} لا 1")
+    path.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+
+def restore() -> None:
+    subprocess.run(
+        ["git", "checkout", "--", str(RULINGS.relative_to(REPO)), str(BOUNDARY.relative_to(REPO))],
+        cwd=REPO,
+        check=True,
+    )
+
+
+def main() -> int:
+    mutations = [
+        ("M1", RULINGS, M1_OLD, M1_NEW, "t1 or t2"),
+        (
+            "M2",
+            RULINGS,
+            'op_key = operation_key("judiciary.ruling.issue", f"{case.id}:{stage}:g{generation}")',
+            'op_key = operation_key("judiciary.ruling.issue", f"{case.id}:{stage}")',
+            "t4",
+        ),
+        (
+            "M3",
+            RULINGS,
+            """    existing = active_ruling_for_stage(session, case_id=case.id, stage=stage)
+    if existing is not None:
+        raise DuplicateRulingError(
+            f"القضية '{case.reference}' لها حكمٌ قائم '{existing.id}' في المرحلة '{stage}' — "
+            "لا حكمَ ثانٍ لنفس المرحلة القضائية"
+        )
+""",
+            "    existing = None  # M3 · فحصُ المكرَّرِ أُزيلَ من قبلِ الحدِّ\n",
+            "t5",
+        ),
+        (
+            "M4",
+            RULINGS,
+            "judicial_action=_judicial_action(),",
+            "judicial_action=None,",
+            "t1",
+        ),
+        (
+            "M5",
+            BOUNDARY,
+            "if plan is None or not applied_internal:",
+            "if True:",
+            "t6p or t8 or t9 or t10",
+        ),
+        (
+            "M6",
+            BOUNDARY,
+            "if outcome.state_is_clean:",
+            "if True:",
+            "t9",
+        ),
+        (
+            "M7",
+            BOUNDARY,
+            "new_status=OperationStatus.FAILED_FINAL,",
+            "new_status=OperationStatus.FAILED_RETRYABLE,",
+            "t9",
+        ),
+        (
+            "M8",
+            BOUNDARY,
+            "operation_key=episode_key,",
+            "operation_key=operation_key,",
+            "t10",
+        ),
+    ]
+    failed_restore = False
+    try:
+        for name, path, old, new, kexpr in mutations:
+            print(f"===== {name} BEGIN k={kexpr} =====", flush=True)
+            apply(path, old, new, name)
+            code = run_pytest(kexpr)
+            print(f"===== {name} EXIT={code} =====", flush=True)
+            restore()
+            if code == 0:
+                print(f"===== {name} DID_NOT_KILL =====", flush=True)
+    except Exception:
+        failed_restore = True
+        raise
+    finally:
+        restore()
+        diff = subprocess.run(
+            ["git", "diff", "--stat", "--", "core/sovereignty/enforcement_boundary.py",
+             "federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py"],
+            cwd=REPO,
+            text=True,
+            capture_output=True,
+        )
+        print("===== RESTORED DIFF STAT =====")
+        print(diff.stdout or "(empty)")
+        if failed_restore:
+            return 2
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

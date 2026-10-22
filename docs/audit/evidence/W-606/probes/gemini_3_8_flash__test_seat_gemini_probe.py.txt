@@ -1,0 +1,241 @@
+"""
+مسبارُ مقعدِ gemini_3_8_flash (W-605) — اختبارُ صمودِ التعويضِ الآليِّ في الحدِّ السياديِّ (Q-70 / المعيار 7).
+
+الخاصيّةُ المُختبَرةُ في هذا المسبارِ:
+صمودُ التعويضِ الآليِّ على المسارِ الإنتاجيِّ لسطحَي issue_ruling وregister_identity
+تحتَ شروطِ إخفاقٍ متتابعةٍ:
+1. ارتدادُ السجلِّ إلى FAILED_RETRYABLE واستعادةُ نظافةِ الحالةِ عندَ إسقاطِ mark_succeeded.
+2. حظرُ الإعادةِ الفوريّةِ في الثانيةِ نفسِها (PermitReplayError · DISC-129).
+3. نجاحُ الإعادةِ في الثانيةِ اللاحقةِ وإثباتُ بلوغِ SUCCEEDED مع استقرارِ صفوفِ قاعدةِ البياناتِ.
+4. صمودُ حارسِ التكرارِ بعدَ النجاحِ دونَ إثارةِ تعويضٍ طارئٍ ودونَ تلوّثِ الحالةِ.
+5. استعادةُ نظافةِ الحالةِ في issue_ruling عندَ إسقاطِ التثبيتِ مع صمودِ مفتاحِ الذرّيّةِ وصفوفِ القضاءِ.
+"""
+
+from __future__ import annotations
+
+import time
+from typing import Any
+
+import pytest
+
+from core.sovereignty import PermitReplayError
+from core.sovereignty.compensation import CompensationRequired
+from core.sovereignty.idempotency import (
+    IdempotencyError,
+    IdempotencyKey,
+    OperationStatus,
+)
+
+from amos_federation.common.database import get_session_factory, init_db
+from amos_federation.common.principal import AuthorizationContext
+from amos_federation.services.executive_core import agent_identity as agent_identity_module
+from amos_federation.services.executive_core.agent_identity import (
+    DuplicateAgentIdentityError,
+    get_identity,
+    register_identity,
+)
+from amos_federation.services.executive_core.sovereignty_bridge import (
+    ConstitutionalAuthorizer,
+)
+from amos_federation.services.federal_judiciary import (
+    DuplicateRulingError,
+    FederalJudiciary,
+    get_federal_judiciary,
+)
+from amos_federation.services.federal_judiciary import rulings as rulings_module
+from amos_federation.services.federal_judiciary.models import (
+    CaseProceedingModel,
+    LegalCaseModel,
+    RulingModel,
+)
+from amos_federation.services.national_registry.service import (
+    NationalRegistry,
+    get_national_registry,
+)
+from amos_federation.services.state_registry.service import (
+    StateRegistry,
+    get_state_registry,
+)
+
+
+def _session():
+    return get_session_factory()()
+
+
+def _drop_settle(monkeypatch: pytest.MonkeyPatch, ledger: Any, label: str) -> Any:
+    original = type(ledger).mark_succeeded
+
+    def failing_mark_succeeded(*args: Any, **kwargs: Any) -> Any:
+        raise RuntimeError(f"تثبيتُ النجاحِ مُسقَطٌ في المسبارِ — {label}")
+
+    monkeypatch.setattr(type(ledger), "mark_succeeded", failing_mark_succeeded)
+    return original
+
+
+def _ruling_rows(case_id: str) -> tuple[int, int, str]:
+    session = _session()
+    try:
+        rulings = session.query(RulingModel).filter(RulingModel.case_id == case_id).count()
+        proceedings = (
+            session.query(CaseProceedingModel)
+            .filter(
+                CaseProceedingModel.case_id == case_id,
+                CaseProceedingModel.proceeding_type == "RULING",
+            )
+            .count()
+        )
+        case = session.get(LegalCaseModel, case_id)
+        status = case.status if case is not None else ""
+        return rulings, proceedings, status
+    finally:
+        session.close()
+
+
+def _next_second() -> None:
+    now = time.time()
+    sleep_needed = (int(now) + 1.05) - now
+    if sleep_needed > 0:
+        time.sleep(sleep_needed)
+
+
+@pytest.fixture
+def registry() -> StateRegistry:
+    return get_state_registry()
+
+
+@pytest.fixture
+def national() -> NationalRegistry:
+    return get_national_registry()
+
+
+@pytest.fixture
+def judiciary() -> FederalJudiciary:
+    return get_federal_judiciary()
+
+
+@pytest.fixture
+def crown(national: NationalRegistry) -> AuthorizationContext:
+    from federal.executive.services.tests.test_wi105_issue_ruling_sovereign import _context
+
+    context = _context("king", username="crown")
+    identity = national.create_identity(context=context, identity_type="PERSON", label="التاج")
+    national.link_principal(
+        context=context, principal_id=context.principal_id, identity_id=identity["id"]
+    )
+    return context
+
+
+def test_probe_gemini_register_identity_lifecycle(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """مسبارُ register_identity: إسقاطٌ ← FAILED_RETRYABLE ← حظرُ إعادةٍ في الثانيةِ نفسِها ← نجاحٌ ← رفضُ تكرار."""
+    agent_id = f"probe-gemini-{int(time.time() * 1000)}"
+    authorizer = ConstitutionalAuthorizer(actor=agent_identity_module.AGENT_IDENTITY_ACTOR)
+    ledger = authorizer.boundary.idempotency_ledger
+    original = _drop_settle(monkeypatch, ledger, "probe-ident-1")
+
+    try:
+        # المحاولةُ 1: إسقاطُ التثبيتِ يُفعِّلُ التعويضَ الآليَّ في الحدِّ
+        with pytest.raises(CompensationRequired) as caught:
+            register_identity(agent_id, "مسبار gemini", "probe", authorizer=authorizer)
+        monkeypatch.setattr(type(ledger), "mark_succeeded", original)
+
+        assert caught.value.outcome.state_is_clean is True
+        assert caught.value.outcome.requires_human is False
+        assert get_identity(agent_id) is None
+
+        ident_key = IdempotencyKey(
+            scope=agent_identity_module.IDENTITY_SPAWN_SCOPE,
+            value=agent_id,
+        )
+        record = ledger.get(ident_key)
+        assert record is not None
+        assert record.status is OperationStatus.FAILED_RETRYABLE
+        assert tuple(record.applied_effect_signatures) == ()
+
+        # إعادةٌ فوريّةٌ في الثانيةِ نفسِها: يجبُ أن تُرفَضَ بـPermitReplayError (DISC-129)
+        with pytest.raises((IdempotencyError, PermitReplayError)):
+            register_identity(agent_id, "مسبار gemini", "probe", authorizer=authorizer)
+
+        # إعادةٌ بعدَ انقضاءِ الثانيةِ: تنجحُ استئنافًا لحالةِ FAILED_RETRYABLE
+        _next_second()
+        contract = register_identity(agent_id, "مسبار gemini", "probe", authorizer=authorizer)
+        assert contract.agent_id == agent_id
+        assert get_identity(agent_id) is not None
+
+        record_after = ledger.get(ident_key)
+        assert record_after is not None
+        assert record_after.status is OperationStatus.SUCCEEDED
+
+        # محاولةٌ ثالثةٌ (مكرَّرٌ بعدَ النجاح): تُرفَضُ قبلَ الحدِّ ولا تُغيِّرُ الحالةَ
+        with pytest.raises(DuplicateAgentIdentityError):
+            register_identity(agent_id, "مسبار gemini", "probe", authorizer=authorizer)
+    finally:
+        agent_identity_module._delete_identity_row(agent_id)
+
+
+def test_probe_gemini_issue_ruling_compensation_and_retry(
+    registry: StateRegistry,
+    national: NationalRegistry,
+    judiciary: FederalJudiciary,
+    crown: AuthorizationContext,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """مسبارُ issue_ruling: إسقاطٌ ← FAILED_RETRYABLE واسترجاعُ الحالةِ ← نجاحُ الإعادةِ ← رفضُ التكرار."""
+    from federal.executive.services.tests.test_wi105_issue_ruling_sovereign import (
+        _prepared_case,
+        _issue,
+        _ruling_key,
+    )
+
+    init_db()
+    _bench_unused, case_id, judge_ctx = _prepared_case(
+        registry, national, judiciary, crown, "probe_gemini"
+    )
+    status_before = _ruling_rows(case_id)[2]
+    ledger = rulings_module._judiciary_authorizer().boundary.idempotency_ledger
+    original = _drop_settle(monkeypatch, ledger, "probe-ruling-1")
+
+    # المحاولةُ 1: إسقاطٌ بعدَ الالتزامِ
+    with pytest.raises(CompensationRequired) as caught:
+        _issue(judiciary, judge_ctx, case_id)
+    monkeypatch.setattr(type(ledger), "mark_succeeded", original)
+
+    assert caught.value.outcome.state_is_clean is True
+    assert caught.value.outcome.requires_human is False
+    assert isinstance(caught.value.__cause__, RuntimeError)
+
+    # التحققُ من مسحِ الصفوفِ واستعادةِ حالةِ القضيةِ بدقةٍ
+    r_count, p_count, c_status = _ruling_rows(case_id)
+    assert r_count == 0
+    assert p_count == 0
+    assert c_status == status_before
+
+    op_key = _ruling_key(case_id)
+    rec = ledger.get(op_key)
+    assert rec is not None
+    assert rec.status is OperationStatus.FAILED_RETRYABLE
+    assert tuple(rec.applied_effect_signatures) == ()
+
+    # إعادةٌ في الثانيةِ التاليةِ: تنجحُ ويصيرُ السجلُّ SUCCEEDED
+    _next_second()
+    res = _issue(judiciary, judge_ctx, case_id)
+    assert res["id"]
+
+    r_count, p_count, c_status = _ruling_rows(case_id)
+    assert r_count == 1
+    assert p_count == 1
+    assert c_status == "decided"
+
+    rec_succ = ledger.get(op_key)
+    assert rec_succ is not None
+    assert rec_succ.status is OperationStatus.SUCCEEDED
+
+    # محاولةٌ بعدَ النجاحِ: تُرفَضُ ولا تُعيدُ التدوينَ
+    with pytest.raises(DuplicateRulingError):
+        _issue(judiciary, judge_ctx, case_id)
+
+    r_count_final, p_count_final, c_status_final = _ruling_rows(case_id)
+    assert r_count_final == 1
+    assert p_count_final == 1
+    assert c_status_final == "decided"
