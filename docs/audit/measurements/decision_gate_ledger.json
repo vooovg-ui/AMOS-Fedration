@@ -173,6 +173,22 @@
    "kind": "work_drift",
    "reason": "تنفيذُ J1 (بندُ WI-105 · بقرارِ المالكِ Q-69/D17-6): عبورُ issue_ruling الحدَّ السياديَّ — دَينٌ 183←181 (الوحدةُ: −1 خروجُ service.issue_ruling منَ الكتابةِ · +1 المُطبِّقُ المتداخلُ · sovereign 17←18) · W1: 52←50 · write_sites 220←220 (تنبّأَ بهِ تصحيحُ W-588/DISC-126)",
    "recorded_at": "2026-10-21T20:10:56+00:00"
+  },
+  {
+   "debt": 166,
+   "sovereign": 33,
+   "closed_legacy": 7,
+   "write_sites_total": 236,
+   "git_head": "c493939",
+   "waves": {
+    "W1": 35,
+    "W2": 34,
+    "W3": 97
+   },
+   "decision": "W-617",
+   "kind": "work_drift",
+   "reason": "F1: سطوحُ federation.py تعبرُ الحدَّ بالفعلِ coordinate — الدَّينُ 181 ← 166",
+   "recorded_at": "2026-10-22T12:23:07+00:00"
   }
  ]
 }

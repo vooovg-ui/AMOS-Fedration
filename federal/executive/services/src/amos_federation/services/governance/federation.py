@@ -6,6 +6,7 @@ AMOS-Federation Full Governance + Federal Institutions (Phase 9)
 تاريخ الإنشاء: 2026-08-15
 """
 
+import copy
 import hashlib
 import uuid
 from datetime import UTC, datetime
@@ -25,9 +26,16 @@ from sqlalchemy import (
     desc,
     select,
 )
+from sqlalchemy import inspect as sa_inspect
 from sqlalchemy.orm import DeclarativeBase
 
 from amos_federation.common.database import get_database_url, get_session_factory
+from amos_federation.services.executive_core.sovereignty_bridge import (
+    ConstitutionalAuthorizer,
+    compensator,
+    declared_effect,
+    operation_key,
+)
 
 
 class _GovBase(DeclarativeBase):
@@ -146,6 +154,113 @@ class ComplianceReportModel(_GovBase):
     recommendations = Column(JSON, default=list)
     chain_verified = Column(Boolean, default=True)
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+
+
+# === F1 · العبورُ السياديُّ (WI-106 · قرارُ المالكِ D17-1 · التصميمُ docs/audit/F1_FEDERATION_COORDINATE_DESIGN.md) ===
+
+#: فاعلُ الوحدةِ (D1): «تنسيق لا سلطة» (Q-24) — فاعلٌ تنفيذيٌّ مُعلَنٌ **ثابتًا في الوحدةِ لا
+#: معاملًا للمُنادي**، على سابقةِ `rulings.JUDICIARY_ACTOR` (J1 · D1). والاختبارُ يُبدِّلُه
+#: بـ`monkeypatch` على هذا الثابتِ لا بمعاملٍ إنتاجيّ.
+FEDERATION_ACTOR = "EXECUTIVE"
+
+#: فعلُ الوحدةِ (D2): نصُّ قرارِ المالكِ D17-1 حرفيًّا — فعلٌ واحدٌ للأسطحِ الخمسةَ عشرَ كلِّها،
+#: واسمُ العمليّةِ يُحمَلُ في البياناتِ والنطاقِ لا في فعلٍ مُخترَعٍ (ذلك سؤالُ Q-2).
+FEDERATION_VERB = "coordinate"
+
+_DEFAULT_FEDERATION_AUTHORIZER: ConstitutionalAuthorizer | None = None
+
+
+def _federation_authorizer() -> ConstitutionalAuthorizer:
+    """المُصرِّحُ الافتراضيُّ بفاعلِ الوحدةِ المُسمّى — واحدٌ للوحدةِ (D1)."""
+    global _DEFAULT_FEDERATION_AUTHORIZER
+    if _DEFAULT_FEDERATION_AUTHORIZER is None:
+        _DEFAULT_FEDERATION_AUTHORIZER = ConstitutionalAuthorizer(actor=FEDERATION_ACTOR)
+    return _DEFAULT_FEDERATION_AUTHORIZER
+
+
+def reset_federation_authorizer() -> None:
+    """أفرِغِ المُفوِّضَ المحفوظَ — للاختباراتِ التي تبدّلُ الفاعلَ (D1)."""
+    global _DEFAULT_FEDERATION_AUTHORIZER
+    _DEFAULT_FEDERATION_AUTHORIZER = None
+
+
+class FederationReplayError(ValueError):
+    """مفتاحٌ طبيعيٌّ عبرَ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا ولا كتابةً ثانيةً (D6)."""
+
+
+def _nonce() -> str:
+    """مُعرِّفُ استدعاءٍ (D3) حيثُ يُشرَعُ تكرارُ الفعلِ على الكيانِ نفسِه."""
+    return uuid.uuid4().hex
+
+
+class _FederationUndo:
+    """سجلُّ تراجعٍ لعبورٍ واحدٍ (D7): ما أُنشِئَ وما كانَ قبلَ التغييرِ — ومُعوِّضُه.
+
+    المُطبِّقُ يُسجِّلُ قبلَ الكتابةِ؛ والحدُّ يُنادي `_restore` آليًّا إن فشلَ تثبيتُ النجاحِ
+    بعدَ الالتزامِ (قرارُ المالكِ Q-70). استعادةٌ تقنيّةٌ في جلسةٍ جديدةٍ — «الحذفُ شأنٌ
+    تنفيذيٌّ» والمُعوِّضُ ليس أثرًا مُعلَنًا ولا تراجعُه البوابة.
+    """
+
+    def __init__(self) -> None:
+        self._created: list[tuple[type, Any]] = []
+        self._prior: list[tuple[type, Any, dict[str, Any]]] = []
+
+    def created(self, row: Any) -> None:
+        self._created.append((type(row), sa_inspect(row).identity or _row_pk(row)))
+
+    def prior(self, row: Any, *columns: str) -> None:
+        values = {column: copy.deepcopy(getattr(row, column)) for column in columns}
+        self._prior.append((type(row), sa_inspect(row).identity, values))
+
+    def _restore(self) -> None:
+        session = get_session_factory()()
+        try:
+            for model, identity in reversed(self._created):
+                row = session.get(model, identity)
+                if row is not None:
+                    session.delete(row)
+            for model, identity, values in reversed(self._prior):
+                row = session.get(model, identity)
+                if row is not None:
+                    for column, value in values.items():
+                        setattr(row, column, value)
+            session.commit()
+        finally:
+            session.close()
+
+
+def _row_pk(row: Any) -> tuple[Any, ...]:
+    """المفتاحُ الأساسيُّ لصفٍّ لم يُدفَعْ بعدُ — من أعمدتِه المُعلَنةِ لا تخمينًا."""
+    return tuple(getattr(row, column.key) for column in type(row).__mapper__.primary_key)
+
+
+def _crossing(
+    operation: str, kind: str, suffix: str, detail: str, undo: _FederationUndo
+) -> tuple[str, dict[str, Any]]:
+    """عقدُ عبورٍ واحدٍ (D3): الهدفُ = قيمةُ المفتاحِ · أثرٌ مُعلَنٌ · مُعوِّضُه · اسمُ العمليّة."""
+    target = f"federation/{suffix}"
+    effect = declared_effect(kind, target, detail)
+    return target, {
+        "declared_effects": (effect,),
+        "operation_key": operation_key(f"federation.{operation}", suffix),
+        "compensators": (
+            compensator(
+                effect.signature,
+                undo._restore,
+                "استعادةٌ تقنيّةٌ: حذفُ ما أُنشِئَ وإرجاعُ ما تغيَّرَ — العمليّةُ لم تثبتْ",
+            ),
+        ),
+        "metadata": {"operation": operation},
+    }
+
+
+def _refuse_replay(guarded: Any, operation: str, target: str) -> None:
+    """الإعادةُ على مفتاحٍ طبيعيٍّ تُرفَعُ صريحةً بلا كتابةٍ ثانيةٍ (D6)."""
+    if guarded.is_replay:
+        raise FederationReplayError(
+            f"العمليّةُ «{operation}» على «{target}» عبرَت الحدَّ بنجاحٍ من قبلُ — "
+            "الإعادةُ ليست نجاحًا ثانيًا"
+        )
 
 
 # === 9.1: Expanded Policy Engine ===
@@ -356,30 +471,39 @@ class ApprovalSystem:
         public_key_hex: str,
         notes: str = "",
     ) -> dict[str, Any]:
-        """طلب موافقة مع توقيع Ed25519."""
+        """طلب موافقة مع توقيع Ed25519 — يعبرُ الحدَّ بالفعلِ `coordinate` (F1)."""
         approval_id = str(uuid.uuid4())
         message = f"{request_type}:{target_id}:{requester}:{approval_id}"
         signature = self.signer.sign(private_key_hex, message)
         verified = self.signer.verify(public_key_hex, message, signature)
+        undo = _FederationUndo()
 
-        session = get_session_factory()()
-        try:
-            record = ApprovalModel(
-                id=approval_id,
-                request_type=request_type,
-                target_id=target_id,
-                requester=requester,
-                decision="pending",
-                signed_by=requester,
-                signature=signature,
-                public_key=public_key_hex,
-                verified=verified,
-                notes=notes,
-            )
-            session.add(record)
-            session.commit()
-        finally:
-            session.close()
+        def _apply(_effect: Any) -> None:
+            session = get_session_factory()()
+            try:
+                record = ApprovalModel(
+                    id=approval_id,
+                    request_type=request_type,
+                    target_id=target_id,
+                    requester=requester,
+                    decision="pending",
+                    signed_by=requester,
+                    signature=signature,
+                    public_key=public_key_hex,
+                    verified=verified,
+                    notes=notes,
+                )
+                undo.created(record)
+                session.add(record)
+                session.commit()
+            finally:
+                session.close()
+
+        operation = "ApprovalSystem.request_approval"
+        target, crossing = _crossing(
+            operation, "CREATE", f"approvals/{approval_id}/request", "طلبُ موافقةٍ موقَّعٍ", undo
+        )
+        _federation_authorizer().guard_declared(FEDERATION_VERB, target, applier=_apply, **crossing)
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -409,33 +533,55 @@ class ApprovalSystem:
         approver_public_key: str,
         notes: str = "",
     ) -> dict[str, Any]:
-        """موافقة أو رفض مع توقيع."""
+        """موافقة أو رفض مع توقيع — يعبرُ الحدَّ بالفعلِ `coordinate` (F1)."""
         if decision not in ["approve", "reject"]:
             raise ValueError("القرار يجب أن يكون approve أو reject")
 
+        # D5: التحقُّقُ قبلَ العبورِ — الرسائلُ والأنواعُ كما كانت
         session = get_session_factory()()
         try:
-            record = session.execute(
+            existing = session.execute(
                 select(ApprovalModel).where(ApprovalModel.id == approval_id)
             ).scalar_one_or_none()
-            if not record:
+            if not existing:
                 raise ValueError("الموافقة غير موجودة")
-            if record.decision != "pending":
-                raise ValueError(f"الموافقة已 تم البت فيها: {record.decision}")
-
-            message = f"{approval_id}:{decision}:{approver_public_key}"
-            signature = self.signer.sign(approver_private_key, message)
-            verified = self.signer.verify(approver_public_key, message, signature)
-
-            record.decision = decision
-            record.signed_by = approver_public_key[:16]  # identifier
-            record.signature = signature
-            record.public_key = approver_public_key
-            record.verified = verified
-            record.notes = notes
-            session.commit()
+            if existing.decision != "pending":
+                raise ValueError(f"الموافقة已 تم البت فيها: {existing.decision}")
         finally:
             session.close()
+
+        message = f"{approval_id}:{decision}:{approver_public_key}"
+        signature = self.signer.sign(approver_private_key, message)
+        verified = self.signer.verify(approver_public_key, message, signature)
+        undo = _FederationUndo()
+
+        def _apply(_effect: Any) -> None:
+            session = get_session_factory()()
+            try:
+                record = session.execute(
+                    select(ApprovalModel).where(ApprovalModel.id == approval_id)
+                ).scalar_one()
+                undo.prior(
+                    record, "decision", "signed_by", "signature", "public_key", "verified", "notes"
+                )
+                record.decision = decision
+                record.signed_by = approver_public_key[:16]  # identifier
+                record.signature = signature
+                record.public_key = approver_public_key
+                record.verified = verified
+                record.notes = notes
+                session.commit()
+            finally:
+                session.close()
+
+        operation = "ApprovalSystem.decide_approval"
+        target, crossing = _crossing(
+            operation, "WRITE", f"approvals/{approval_id}/decide", "البتُّ في موافقةٍ", undo
+        )
+        guarded = _federation_authorizer().guard_declared(
+            FEDERATION_VERB, target, applier=_apply, **crossing
+        )
+        _refuse_replay(guarded, operation, target)
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -518,24 +664,34 @@ class PromotionSystem:
         _GovBase.metadata.create_all(engine)
 
     def start_promotion(self, target_type: str, target_id: str, requester: str) -> dict[str, Any]:
-        """بدء عملية ترقية."""
+        """بدء عملية ترقية — يعبرُ الحدَّ بالفعلِ `coordinate` (F1)."""
         promotion_id = str(uuid.uuid4())
         gates: list[dict] = []
-        session = get_session_factory()()
-        try:
-            for gate_name in GATE_ORDER:
-                gate = PromotionGateModel(
-                    id=str(uuid.uuid4()),
-                    target_type=target_type,
-                    target_id=target_id,
-                    gate=gate_name,
-                    status="pending",
-                )
-                session.add(gate)
-                gates.append({"gate": gate_name, "status": "pending"})
-            session.commit()
-        finally:
-            session.close()
+        undo = _FederationUndo()
+
+        def _apply(_effect: Any) -> None:
+            session = get_session_factory()()
+            try:
+                for gate_name in GATE_ORDER:
+                    gate = PromotionGateModel(
+                        id=str(uuid.uuid4()),
+                        target_type=target_type,
+                        target_id=target_id,
+                        gate=gate_name,
+                        status="pending",
+                    )
+                    undo.created(gate)
+                    session.add(gate)
+                    gates.append({"gate": gate_name, "status": "pending"})
+                session.commit()
+            finally:
+                session.close()
+
+        operation = "PromotionSystem.start_promotion"
+        target, crossing = _crossing(
+            operation, "CREATE", f"promotions/{promotion_id}/start", "بواباتُ الترقيةِ الخمس", undo
+        )
+        _federation_authorizer().guard_declared(FEDERATION_VERB, target, applier=_apply, **crossing)
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -557,13 +713,13 @@ class PromotionSystem:
     def pass_gate(
         self, target_type: str, target_id: str, gate: str, result: dict
     ) -> dict[str, Any]:
-        """اجتياز بوابة محددة."""
+        """اجتياز بوابة محددة — يعبرُ الحدَّ بالفعلِ `coordinate` (F1)."""
         if gate not in GATE_ORDER:
             raise ValueError(f"بوابة غير معروفة: {gate}")
 
+        # D5: التحقُّقُ قبلَ العبورِ — البواباتُ السابقةُ ووجودُ البوابةِ كما كانا
         session = get_session_factory()()
         try:
-            # التحقق من البوابات السابقة
             for prev_gate in GATE_ORDER:
                 if prev_gate == gate:
                     break
@@ -575,19 +731,43 @@ class PromotionSystem:
                 ).scalar_one_or_none()
                 if not prev or prev.status != "passed":
                     raise ValueError(f"بوابة {prev_gate} لم تُجتز بعد")
-
-            record = session.execute(
+            session.execute(
                 select(PromotionGateModel)
                 .where(PromotionGateModel.target_type == target_type)
                 .where(PromotionGateModel.target_id == target_id)
                 .where(PromotionGateModel.gate == gate)
             ).scalar_one()
-            record.status = "passed"
-            record.result = result
-            record.completed_at = datetime.now(UTC)
-            session.commit()
         finally:
             session.close()
+
+        undo = _FederationUndo()
+
+        def _apply(_effect: Any) -> None:
+            session = get_session_factory()()
+            try:
+                record = session.execute(
+                    select(PromotionGateModel)
+                    .where(PromotionGateModel.target_type == target_type)
+                    .where(PromotionGateModel.target_id == target_id)
+                    .where(PromotionGateModel.gate == gate)
+                ).scalar_one()
+                undo.prior(record, "status", "result", "completed_at")
+                record.status = "passed"
+                record.result = result
+                record.completed_at = datetime.now(UTC)
+                session.commit()
+            finally:
+                session.close()
+
+        operation = "PromotionSystem.pass_gate"
+        target, crossing = _crossing(
+            operation,
+            "WRITE",
+            f"promotions/{target_type}:{target_id}/{gate}/pass/{_nonce()}",
+            "اجتيازُ بوابةِ ترقيةٍ",
+            undo,
+        )
+        _federation_authorizer().guard_declared(FEDERATION_VERB, target, applier=_apply, **crossing)
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -602,21 +782,47 @@ class PromotionSystem:
         return {"gate": gate, "status": "passed", "result": result}
 
     def fail_gate(self, target_type: str, target_id: str, gate: str, reason: str) -> dict[str, Any]:
-        """رسوب في بوابة."""
+        """رسوب في بوابة — يعبرُ الحدَّ بالفعلِ `coordinate` (F1)."""
+        # D5: وجودُ البوابةِ قبلَ العبورِ — النوعُ كما كانَ (`NoResultFound`)
         session = get_session_factory()()
         try:
-            record = session.execute(
+            session.execute(
                 select(PromotionGateModel)
                 .where(PromotionGateModel.target_type == target_type)
                 .where(PromotionGateModel.target_id == target_id)
                 .where(PromotionGateModel.gate == gate)
             ).scalar_one()
-            record.status = "failed"
-            record.result = {"reason": reason}
-            record.completed_at = datetime.now(UTC)
-            session.commit()
         finally:
             session.close()
+
+        undo = _FederationUndo()
+
+        def _apply(_effect: Any) -> None:
+            session = get_session_factory()()
+            try:
+                record = session.execute(
+                    select(PromotionGateModel)
+                    .where(PromotionGateModel.target_type == target_type)
+                    .where(PromotionGateModel.target_id == target_id)
+                    .where(PromotionGateModel.gate == gate)
+                ).scalar_one()
+                undo.prior(record, "status", "result", "completed_at")
+                record.status = "failed"
+                record.result = {"reason": reason}
+                record.completed_at = datetime.now(UTC)
+                session.commit()
+            finally:
+                session.close()
+
+        operation = "PromotionSystem.fail_gate"
+        target, crossing = _crossing(
+            operation,
+            "WRITE",
+            f"promotions/{target_type}:{target_id}/{gate}/fail/{_nonce()}",
+            "رسوبٌ في بوابةِ ترقيةٍ",
+            undo,
+        )
+        _federation_authorizer().guard_declared(FEDERATION_VERB, target, applier=_apply, **crossing)
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -700,7 +906,7 @@ class ExecutiveBranch:
             session.close()
 
     def appoint(self, role_name: str, agent_id: str) -> dict[str, Any]:
-        """تعيين وكيل في دور تنفيذي."""
+        """تعيين وكيل في دور تنفيذي — يعبرُ الحدَّ بالفعلِ `coordinate` (F1)."""
         if role_name not in [r["role_name"] for r in EXECUTIVE_ROLES]:
             raise ValueError(f"دور غير معروف: {role_name}")
 
@@ -710,17 +916,40 @@ class ExecutiveBranch:
         if not agent:
             raise ValueError(f"الوكيل {agent_id} غير موجود")
 
+        # D5: وجودُ الدورِ قبلَ العبورِ — النوعُ كما كانَ (`NoResultFound`)
         session = get_session_factory()()
         try:
-            record = session.execute(
+            session.execute(
                 select(ExecutiveRoleModel).where(ExecutiveRoleModel.role_name == role_name)
             ).scalar_one()
-            record.agent_id = agent_id
-            record.status = "filled"
-            record.appointed_at = datetime.now(UTC)
-            session.commit()
         finally:
             session.close()
+
+        undo = _FederationUndo()
+
+        def _apply(_effect: Any) -> None:
+            session = get_session_factory()()
+            try:
+                record = session.execute(
+                    select(ExecutiveRoleModel).where(ExecutiveRoleModel.role_name == role_name)
+                ).scalar_one()
+                undo.prior(record, "agent_id", "status", "appointed_at")
+                record.agent_id = agent_id
+                record.status = "filled"
+                record.appointed_at = datetime.now(UTC)
+                session.commit()
+            finally:
+                session.close()
+
+        operation = "ExecutiveBranch.appoint"
+        target, crossing = _crossing(
+            operation,
+            "WRITE",
+            f"executive_roles/{role_name}/appoint/{_nonce()}",
+            "تعيينُ وكيلٍ في دورٍ تنفيذيٍّ",
+            undo,
+        )
+        _federation_authorizer().guard_declared(FEDERATION_VERB, target, applier=_apply, **crossing)
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -799,21 +1028,31 @@ class LegislativeBranch:
         _GovBase.metadata.create_all(engine)
 
     def propose(self, title: str, body: str, proposer: str) -> dict[str, Any]:
-        """اقتراح قانون جديد."""
+        """اقتراح قانون جديد — سجلُّ تنسيقٍ لا سلطةٌ (Q-24) · يعبرُ بالفعلِ `coordinate` (F1)."""
         leg_id = str(uuid.uuid4())
-        session = get_session_factory()()
-        try:
-            record = LegislationModel(
-                id=leg_id,
-                title=title,
-                body=body,
-                proposer=proposer,
-                status="proposed",
-            )
-            session.add(record)
-            session.commit()
-        finally:
-            session.close()
+        undo = _FederationUndo()
+
+        def _apply(_effect: Any) -> None:
+            session = get_session_factory()()
+            try:
+                record = LegislationModel(
+                    id=leg_id,
+                    title=title,
+                    body=body,
+                    proposer=proposer,
+                    status="proposed",
+                )
+                undo.created(record)
+                session.add(record)
+                session.commit()
+            finally:
+                session.close()
+
+        operation = "LegislativeBranch.propose"
+        target, crossing = _crossing(
+            operation, "CREATE", f"legislations/{leg_id}/propose", "اقتراحُ قانونٍ", undo
+        )
+        _federation_authorizer().guard_declared(FEDERATION_VERB, target, applier=_apply, **crossing)
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -828,80 +1067,184 @@ class LegislativeBranch:
         return {"legislation_id": leg_id, "title": title, "status": "proposed"}
 
     def open_debate(self, legislation_id: str) -> dict[str, Any]:
-        """فتح المناقشة."""
-        self._update_status(legislation_id, "debate")
+        """فتح المناقشة — يعبرُ الحدَّ بالفعلِ `coordinate` (F1)."""
+        self._require_legislation(legislation_id)
+        undo = _FederationUndo()
+
+        def _apply(_effect: Any) -> None:
+            session = get_session_factory()()
+            try:
+                record = session.execute(
+                    select(LegislationModel).where(LegislationModel.id == legislation_id)
+                ).scalar_one()
+                undo.prior(record, "status")
+                record.status = "debate"
+                session.commit()
+            finally:
+                session.close()
+
+        operation = "LegislativeBranch.open_debate"
+        target, crossing = _crossing(
+            operation,
+            "WRITE",
+            f"legislations/{legislation_id}/debate/{_nonce()}",
+            "فتحُ المناقشةِ",
+            undo,
+        )
+        _federation_authorizer().guard_declared(FEDERATION_VERB, target, applier=_apply, **crossing)
         return {"legislation_id": legislation_id, "status": "debate"}
 
     def vote(self, legislation_id: str, agent_id: str, vote: str) -> dict[str, Any]:
-        """التصويت على قانون."""
+        """التصويت على قانون — يعبرُ الحدَّ بالفعلِ `coordinate` (F1)."""
         if vote not in ["for", "against", "abstain"]:
             raise ValueError("التصويت يجب أن يكون for/against/abstain")
 
+        # D5: التحقُّقُ قبلَ العبورِ — الرسائلُ والأنواعُ كما كانت
         session = get_session_factory()()
         try:
-            record = session.execute(
+            existing = session.execute(
                 select(LegislationModel).where(LegislationModel.id == legislation_id)
             ).scalar_one_or_none()
-            if not record:
+            if not existing:
                 raise ValueError("القانون غير موجود")
-            if record.status != "voting":
-                raise ValueError(f"القانون ليس في مرحلة التصويت (الحالة: {record.status})")
-
-            voters = record.voters or []
-            if agent_id in voters:
+            if existing.status != "voting":
+                raise ValueError(f"القانون ليس في مرحلة التصويت (الحالة: {existing.status})")
+            if agent_id in (existing.voters or []):
                 raise ValueError("الوكيل صوّت بالفعل")
-            voters.append(agent_id)
-            record.voters = voters
-
-            if vote == "for":
-                record.votes_for += 1
-            elif vote == "against":
-                record.votes_against += 1
-            else:
-                record.votes_abstain += 1
-            session.commit()
         finally:
             session.close()
+
+        undo = _FederationUndo()
+
+        def _apply(_effect: Any) -> None:
+            session = get_session_factory()()
+            try:
+                record = session.execute(
+                    select(LegislationModel).where(LegislationModel.id == legislation_id)
+                ).scalar_one()
+                undo.prior(record, "voters", "votes_for", "votes_against", "votes_abstain")
+                record.voters = [*(record.voters or []), agent_id]
+                if vote == "for":
+                    record.votes_for += 1
+                elif vote == "against":
+                    record.votes_against += 1
+                else:
+                    record.votes_abstain += 1
+                session.commit()
+            finally:
+                session.close()
+
+        operation = "LegislativeBranch.vote"
+        target, crossing = _crossing(
+            operation,
+            "WRITE",
+            f"legislations/{legislation_id}/votes/{agent_id}",
+            "صوتُ وكيلٍ على قانونٍ",
+            undo,
+        )
+        guarded = _federation_authorizer().guard_declared(
+            FEDERATION_VERB, target, applier=_apply, **crossing
+        )
+        _refuse_replay(guarded, operation, target)
 
         return {"legislation_id": legislation_id, "agent_id": agent_id, "vote": vote}
 
     def open_voting(self, legislation_id: str) -> dict[str, Any]:
-        """فتح التصويت."""
-        self._update_status(legislation_id, "voting")
+        """فتح التصويت — يعبرُ الحدَّ بالفعلِ `coordinate` (F1)."""
+        self._require_legislation(legislation_id)
+        undo = _FederationUndo()
+
+        def _apply(_effect: Any) -> None:
+            session = get_session_factory()()
+            try:
+                record = session.execute(
+                    select(LegislationModel).where(LegislationModel.id == legislation_id)
+                ).scalar_one()
+                undo.prior(record, "status")
+                record.status = "voting"
+                session.commit()
+            finally:
+                session.close()
+
+        operation = "LegislativeBranch.open_voting"
+        target, crossing = _crossing(
+            operation,
+            "WRITE",
+            f"legislations/{legislation_id}/voting/{_nonce()}",
+            "فتحُ التصويتِ",
+            undo,
+        )
+        _federation_authorizer().guard_declared(FEDERATION_VERB, target, applier=_apply, **crossing)
         return {"legislation_id": legislation_id, "status": "voting"}
 
     def enact(self, legislation_id: str) -> dict[str, Any]:
-        """إقرار قانون — يُضاف لـ Policy Engine فعليًا."""
+        """إقرار قانون — يُضاف لـ Policy Engine فعليًا · يعبرُ الحدَّ بالفعلِ `coordinate` (F1).
+
+        تغييرُ سلوكٍ مُعلَنٌ (D6): الإقرارُ الثاني لقانونٍ واحدٍ يُرفَعُ `FederationReplayError`
+        بدلَ إعادةِ الإقرارِ صامتًا.
+        """
         session = get_session_factory()()
         try:
-            record = session.execute(
+            existing = session.execute(
                 select(LegislationModel).where(LegislationModel.id == legislation_id)
             ).scalar_one_or_none()
-            if not record:
+            if not existing:
                 raise ValueError("القانون غير موجود")
-            if record.votes_for <= record.votes_against:
-                record.status = "rejected"
-                session.commit()
-                return {"legislation_id": legislation_id, "status": "rejected"}
-
-            # إضافة القانون لـ Policy Engine
-            from amos_federation.services.governance.policy_engine import PolicyEngine, RegoRule
-
-            pe = PolicyEngine()
-            rule_name = f"legislated_{record.title[:30]}".replace(" ", "_")
-            pe.add_rule(
-                RegoRule(
-                    name=rule_name,
-                    description=record.body,
-                    conditions=[{"field": "legislation.enacted", "op": "eq", "value": True}],
-                    decision="allow",
-                )
-            )
-            record.status = "enacted"
-            record.enacted_rule_name = rule_name
-            session.commit()
         finally:
             session.close()
+
+        undo = _FederationUndo()
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            session = get_session_factory()()
+            try:
+                record = session.execute(
+                    select(LegislationModel).where(LegislationModel.id == legislation_id)
+                ).scalar_one()
+                undo.prior(record, "status", "enacted_rule_name")
+                if record.votes_for <= record.votes_against:
+                    record.status = "rejected"
+                    session.commit()
+                    return {"legislation_id": legislation_id, "status": "rejected"}
+
+                # إضافة القانون لـ Policy Engine (ذاكرةُ نسخةٍ لا تخزين — D8-ج)
+                from amos_federation.services.governance.policy_engine import (
+                    PolicyEngine,
+                    RegoRule,
+                )
+
+                pe = PolicyEngine()
+                rule_name = f"legislated_{record.title[:30]}".replace(" ", "_")
+                pe.add_rule(
+                    RegoRule(
+                        name=rule_name,
+                        description=record.body,
+                        conditions=[{"field": "legislation.enacted", "op": "eq", "value": True}],
+                        decision="allow",
+                    )
+                )
+                record.status = "enacted"
+                record.enacted_rule_name = rule_name
+                session.commit()
+                return {
+                    "legislation_id": legislation_id,
+                    "status": "enacted",
+                    "rule_name": rule_name,
+                }
+            finally:
+                session.close()
+
+        operation = "LegislativeBranch.enact"
+        target, crossing = _crossing(
+            operation, "WRITE", f"legislations/{legislation_id}/enact", "إقرارُ قانونٍ أو رفضُه", undo
+        )
+        guarded = _federation_authorizer().guard_declared(
+            FEDERATION_VERB, target, applier=_apply, **crossing
+        )
+        _refuse_replay(guarded, operation, target)
+        outcome: dict[str, Any] = guarded.value
+        if outcome["status"] == "rejected":
+            return outcome
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -909,11 +1252,11 @@ class LegislativeBranch:
             "amos_federation.legislative.enacted",
             {
                 "legislation_id": legislation_id,
-                "rule_name": rule_name,
+                "rule_name": outcome["rule_name"],
             },
         )
 
-        return {"legislation_id": legislation_id, "status": "enacted", "rule_name": rule_name}
+        return outcome
 
     def run_full_legislative_cycle(
         self, title: str, body: str, proposer: str, voters: list[tuple[str, str]]
@@ -964,14 +1307,13 @@ class LegislativeBranch:
         finally:
             session.close()
 
-    def _update_status(self, legislation_id: str, status: str) -> None:
+    def _require_legislation(self, legislation_id: str) -> None:
+        """D5: وجودُ القانونِ قبلَ العبورِ — النوعُ كما كانَ (`NoResultFound`) · قراءةٌ لا كتابة."""
         session = get_session_factory()()
         try:
-            record = session.execute(
+            session.execute(
                 select(LegislationModel).where(LegislationModel.id == legislation_id)
             ).scalar_one()
-            record.status = status
-            session.commit()
         finally:
             session.close()
 
@@ -994,22 +1336,32 @@ class JudicialBranch:
     def file_case(
         self, plaintiff: str, defendant: str, subject: str, evidence: list | None = None
     ) -> dict[str, Any]:
-        """رفع دعوى."""
+        """رفع دعوى — سجلُّ تنسيقٍ لا قضاءٌ (Q-24) · يعبرُ بالفعلِ `coordinate` (F1)."""
         case_id = str(uuid.uuid4())
-        session = get_session_factory()()
-        try:
-            record = CourtCaseModel(
-                id=case_id,
-                plaintiff=plaintiff,
-                defendant=defendant,
-                subject=subject,
-                evidence=evidence or [],
-                status="open",
-            )
-            session.add(record)
-            session.commit()
-        finally:
-            session.close()
+        undo = _FederationUndo()
+
+        def _apply(_effect: Any) -> None:
+            session = get_session_factory()()
+            try:
+                record = CourtCaseModel(
+                    id=case_id,
+                    plaintiff=plaintiff,
+                    defendant=defendant,
+                    subject=subject,
+                    evidence=evidence or [],
+                    status="open",
+                )
+                undo.created(record)
+                session.add(record)
+                session.commit()
+            finally:
+                session.close()
+
+        operation = "JudicialBranch.file_case"
+        target, crossing = _crossing(
+            operation, "CREATE", f"court_cases/{case_id}/file", "رفعُ دعوى في سجلِّ التنسيقِ", undo
+        )
+        _federation_authorizer().guard_declared(FEDERATION_VERB, target, applier=_apply, **crossing)
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -1025,37 +1377,85 @@ class JudicialBranch:
         return {"case_id": case_id, "status": "open"}
 
     def add_argument(self, case_id: str, arg_text: str, by: str) -> dict[str, Any]:
-        """إضافة مرافعة."""
+        """إضافة مرافعة — يعبرُ الحدَّ بالفعلِ `coordinate` (F1)."""
+        # D5: وجودُ القضيّةِ قبلَ العبورِ — النوعُ كما كانَ (`NoResultFound`)
         session = get_session_factory()()
         try:
-            record = session.execute(
-                select(CourtCaseModel).where(CourtCaseModel.id == case_id)
-            ).scalar_one()
-            args = record.arguments or []
-            args.append({"text": arg_text, "by": by, "timestamp": datetime.now(UTC).isoformat()})
-            record.arguments = args
-            record.status = "hearing"
-            session.commit()
+            session.execute(select(CourtCaseModel).where(CourtCaseModel.id == case_id)).scalar_one()
         finally:
             session.close()
+
+        undo = _FederationUndo()
+
+        def _apply(_effect: Any) -> None:
+            session = get_session_factory()()
+            try:
+                record = session.execute(
+                    select(CourtCaseModel).where(CourtCaseModel.id == case_id)
+                ).scalar_one()
+                undo.prior(record, "arguments", "status")
+                record.arguments = [
+                    *(record.arguments or []),
+                    {"text": arg_text, "by": by, "timestamp": datetime.now(UTC).isoformat()},
+                ]
+                record.status = "hearing"
+                session.commit()
+            finally:
+                session.close()
+
+        operation = "JudicialBranch.add_argument"
+        target, crossing = _crossing(
+            operation,
+            "WRITE",
+            f"court_cases/{case_id}/arguments/{_nonce()}",
+            "إضافةُ مرافعةٍ",
+            undo,
+        )
+        _federation_authorizer().guard_declared(FEDERATION_VERB, target, applier=_apply, **crossing)
         return {"case_id": case_id, "argument_added": True}
 
     def rule(self, case_id: str, ruling: str, judge: str) -> dict[str, Any]:
-        """إصدار حكم."""
+        """إصدار حكم في سجلِّ التنسيقِ (Q-24) — يعبرُ الحدَّ بالفعلِ `coordinate` (F1).
+
+        القضاءُ الحقيقيُّ هو `federal_judiciary.rulings.issue_ruling` بفاعلِه القضائيِّ (J1)؛
+        هذا السجلُّ لا يمنحُه العبورُ سلطةً.
+        """
         session = get_session_factory()()
         try:
-            record = session.execute(
+            existing = session.execute(
                 select(CourtCaseModel).where(CourtCaseModel.id == case_id)
             ).scalar_one_or_none()
-            if not record:
+            if not existing:
                 raise ValueError("القضية غير موجودة")
-            record.ruling = ruling
-            record.ruling_judge = judge
-            record.status = "ruled"
-            record.resolved_at = datetime.now(UTC)
-            session.commit()
         finally:
             session.close()
+
+        undo = _FederationUndo()
+
+        def _apply(_effect: Any) -> None:
+            session = get_session_factory()()
+            try:
+                record = session.execute(
+                    select(CourtCaseModel).where(CourtCaseModel.id == case_id)
+                ).scalar_one()
+                undo.prior(record, "ruling", "ruling_judge", "status", "resolved_at")
+                record.ruling = ruling
+                record.ruling_judge = judge
+                record.status = "ruled"
+                record.resolved_at = datetime.now(UTC)
+                session.commit()
+            finally:
+                session.close()
+
+        operation = "JudicialBranch.rule"
+        target, crossing = _crossing(
+            operation,
+            "WRITE",
+            f"court_cases/{case_id}/ruling/{_nonce()}",
+            "تسجيلُ حكمٍ في سجلِّ التنسيقِ",
+            undo,
+        )
+        _federation_authorizer().guard_declared(FEDERATION_VERB, target, applier=_apply, **crossing)
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -1113,7 +1513,7 @@ class SupremeOversight:
         _GovBase.metadata.create_all(engine)
 
     def generate_compliance_report(self, period: str | None = None) -> dict[str, Any]:
-        """تقرير امتثال شهري حقيقي."""
+        """تقرير امتثال شهري حقيقي — يعبرُ الحدَّ بالفعلِ `coordinate` (F1)."""
         if not period:
             period = datetime.now(UTC).strftime("%Y-%m")
 
@@ -1144,22 +1544,36 @@ class SupremeOversight:
             recommendations.append("مراجعة السياسات المُنتَهَكة")
 
         report_id = str(uuid.uuid4())
-        session = get_session_factory()()
-        try:
-            record = ComplianceReportModel(
-                id=report_id,
-                period=period,
-                total_audits=total,
-                violations=violations,
-                compliance_rate=compliance_rate,
-                findings=findings,
-                recommendations=recommendations,
-                chain_verified=chain_verify.get("valid", False),
-            )
-            session.add(record)
-            session.commit()
-        finally:
-            session.close()
+        undo = _FederationUndo()
+
+        def _apply(_effect: Any) -> None:
+            session = get_session_factory()()
+            try:
+                record = ComplianceReportModel(
+                    id=report_id,
+                    period=period,
+                    total_audits=total,
+                    violations=violations,
+                    compliance_rate=compliance_rate,
+                    findings=findings,
+                    recommendations=recommendations,
+                    chain_verified=chain_verify.get("valid", False),
+                )
+                undo.created(record)
+                session.add(record)
+                session.commit()
+            finally:
+                session.close()
+
+        operation = "SupremeOversight.generate_compliance_report"
+        target, crossing = _crossing(
+            operation,
+            "CREATE",
+            f"compliance_reports/{report_id}/generate",
+            "تقريرُ امتثالٍ",
+            undo,
+        )
+        _federation_authorizer().guard_declared(FEDERATION_VERB, target, applier=_apply, **crossing)
 
         from amos_federation.common.event_bus import get_event_bus
 
