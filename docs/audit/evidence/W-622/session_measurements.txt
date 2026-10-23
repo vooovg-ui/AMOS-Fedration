@@ -1,0 +1,17 @@
+== قياساتُ قيدِ W-622 (2026-10-23 · UTC · المنسِّق GLM-5.3 · بتوجيهِ المستشارِ 20) ==
+
+-- 1) حكمَا CI على رأسِ W-621 (b043411) بالفاحصِ (واجبُ N+1)
+$ python tools/governance/ci_verdict_readability.py --from-json ci_jobs_39877552390.api.txt --require-readable --expect-sha b043411… ⇒ مقروءٌ أخضرُ (PR #125 · 39877552390)
+$ python tools/governance/ci_verdict_readability.py --from-json ci_jobs_39882046679.api.txt --require-readable --expect-sha b043411… ⇒ مقروءٌ أخضرُ (main · 39882046679)
+
+-- 2) اكتشافُ أداةِ الإطلاقِ (توجيهٌ 20 § 1: سمِّ الأداةَ حرفيًّا)
+الأداةُ الموجودةُ في الجلسةِ: run_subagent — ومعرِّفاتُ النماذجِ المقبولةُ فيهِ (قراءةُ مخططِ الأداةِ في الجلسةِ): claude_fable_5_1 · claude_opus_5_5 · claude_sonnet_5_5 · gemini_3_7_flash · gemini_3_8_flash · gpt_5_6_terra · gpt_6_1_sol · gpt_6_astra · gpt_6_luna · grok_4_7 · kimi_k3 · pplx_computer_glm_5_3_0921
+⇒ المقاعدُ الثلاثةُ (gemini_3_8_flash · grok_4_7 · kimi_k3) متاحةٌ حرفيًّا · وادِّعاءُ الجلسةِ السابقُ «لا مسارَ إطلاقٍ» كانَ افتراضًا غيرَ مقيسٍ — صُحِّحَ · والإطلاقُ يتراكمُ في طابورٍ واحدٍ (توجيهٌ 20 § 1)
+
+-- 3) قياسُ ما قبلُ لـWI-107 (R1)
+$ python tools/audit/sovereign_write_inventory.py --json ⇒ debt 166 · sovereign 33 · المواضعُ 236 (ملفُ الجردِ inventory_before_wi107.json)
+أسطحُ national_registry/service.py التسعةُ: assign_position · create_identity · create_position · grant_authority · link_agent · link_principal · revoke_assignment · revoke_authority · set_identity_status
+
+-- 4) حيادُ الفعلِ المزمعِ (register) في معاجمِ التاجِ (قراءةٌ لا افتراضٌ)
+$ python: from core.sovereignty.prerogatives import ROYAL_EXCLUSIVE_ACTIONS, ROYAL_AUTHORITY_EROSION_ACTIONS
+⇒ register ليس في الاختصاصِ الملكيِّ الحصريِّ (20 اسمًا) ولا في أفعالِ التآكلِ (16 اسمًا) — لكنَّ grant_authority وrevoke_authority اسمًا مختصانِ ملكيًّا حصريًّا: فالعبورُ بفعلِ الوحدةِ «register» لا يفتحُ الاسمَينِ الملكيَّينِ (يبقى حجبُ الاسمِ كاملًا في البوابةِ) — يُوثَّقُ قرارُ التصميمِ في ملحقِ R1 (W-623)
