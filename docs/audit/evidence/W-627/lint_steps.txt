@@ -1,0 +1,10 @@
+Set up job → success
+Run actions/checkout@v4 → success
+Run actions/setup-python@v5 → success
+Run pip install ruff==0.6.9 → success
+Run ruff check src/ tests/ → success
+Run ruff format --check src/ tests/ → failure
+ruff على المستودع كله (E3) → skipped
+Post Run actions/setup-python@v5 → skipped
+Post Run actions/checkout@v4 → success
+Complete job → success

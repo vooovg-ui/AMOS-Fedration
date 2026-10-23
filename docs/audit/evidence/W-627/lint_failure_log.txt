@@ -1,0 +1,5 @@
+Lint (ruff)	Run ruff format --check src/ tests/	2026-10-23T09:49:06.9933007Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+Lint (ruff)	Run ruff format --check src/ tests/	2026-10-23T09:49:06.9933426Z ##[endgroup]
+Lint (ruff)	Run ruff format --check src/ tests/	2026-10-23T09:49:07.0784624Z Would reformat: tests/test_wi107_national_registry_register_sovereign.py
+Lint (ruff)	Run ruff format --check src/ tests/	2026-10-23T09:49:07.0785674Z 1 file would be reformatted, 240 files already formatted
+Lint (ruff)	Run ruff format --check src/ tests/	2026-10-23T09:49:07.0809814Z ##[error]Process completed with exit code 1.

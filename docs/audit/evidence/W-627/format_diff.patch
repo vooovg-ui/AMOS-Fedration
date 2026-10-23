@@ -1,0 +1,147 @@
+diff --git a/federal/executive/services/tests/test_wi107_national_registry_register_sovereign.py b/federal/executive/services/tests/test_wi107_national_registry_register_sovereign.py
+index d3a06a8..89b9493 100644
+--- a/federal/executive/services/tests/test_wi107_national_registry_register_sovereign.py
++++ b/federal/executive/services/tests/test_wi107_national_registry_register_sovereign.py
+@@ -111,6 +111,7 @@ _STATE_MODELS = (
+     InstitutionModel,
+ )
+ 
++
+ def _purge_registry_state() -> None:
+     """مسحٌ شاملٌ لكلِّ جداولِ قاعدةِ الفحصِ — من الفاحصِ لا من نماذجِ ORM.
+ 
+@@ -134,6 +135,7 @@ def _purge_registry_state() -> None:
+     finally:
+         session.close()
+ 
++
+ _KING_PERMISSIONS = ("*",)
+ 
+ 
+@@ -285,9 +287,7 @@ def _chain(crown: AuthorizationContext) -> _Chain:
+         institution_code=institution["code"],
+         title="أمينُ الخزانة",
+     )
+-    identity = national.create_identity(
+-        context=crown, identity_type="PERSON", label="أمينُ الخزانة"
+-    )
++    identity = national.create_identity(context=crown, identity_type="PERSON", label="أمينُ الخزانة")
+     national.link_principal(
+         context=crown, principal_id=crown.principal_id, identity_id=identity["id"]
+     )
+@@ -331,9 +331,7 @@ def _exercise_all_surfaces(crown: AuthorizationContext) -> None:
+     national.revoke_assignment(
+         context=crown, assignment_id=chain.assignment["id"], reason="قياسُ T1"
+     )
+-    national.revoke_authority(
+-        context=crown, grant_id=chain.grant["id"], reason="قياسُ T1"
+-    )
++    national.revoke_authority(context=crown, grant_id=chain.grant["id"], reason="قياسُ T1")
+ 
+ 
+ # ── T1 · العبورُ: تسعُ عمليّاتٍ بالفعلِ register ──────────────────────────────
+@@ -374,9 +372,7 @@ def test_wi107_t2_declared_actor_flows_from_the_unit_constant(
+     # لا مُصرِّحٌ مُحقونٌ هنا (توجيهُ المستشارِ): المسارُ الإنتاجيُّ نفسُهُ يبني
+     # المُصرِّحَ عندَ أوّلِ عبورٍ، فسجلُّ البوّابةِ يُقرأُ من كائنِ الإنتاجِ
+     national = get_national_registry()
+-    identity = national.create_identity(
+-        context=crown, identity_type="PERSON", label="فاعلٌ مُعلَنٌ"
+-    )
++    identity = national.create_identity(context=crown, identity_type="PERSON", label="فاعلٌ مُعلَنٌ")
+     link = national.link_principal(
+         context=crown,
+         principal_id=f"pid-wi107-t2-{uuid.uuid4().hex[:8]}",
+@@ -454,15 +450,19 @@ def test_wi107_t3_denied_crossing_leaves_every_surface_untouched(
+             context=crown, identity_id=chain.identity["id"], status="suspended", reason="x"
+         ),
+         lambda: national.link_principal(
+-            context=crown, principal_id=f"pid-wi107-{uuid.uuid4().hex[:8]}",
++            context=crown,
++            principal_id=f"pid-wi107-{uuid.uuid4().hex[:8]}",
+             identity_id=spare_identity["id"],
+         ),
+         lambda: national.link_agent(
+             context=crown, agent_id=spare_agent, identity_id=spare_identity["id"]
+         ),
+         lambda: national.create_position(
+-            context=crown, code=_code("POS"), title="x",
+-            institution_code=chain.institution["code"], authority_scope="INSTITUTION",
++            context=crown,
++            code=_code("POS"),
++            title="x",
++            institution_code=chain.institution["code"],
++            authority_scope="INSTITUTION",
+         ),
+         lambda: national.assign_position(
+             context=crown, official_id=chain.official["id"], position_id=spare_position["id"]
+@@ -471,12 +471,12 @@ def test_wi107_t3_denied_crossing_leaves_every_surface_untouched(
+             context=crown, assignment_id=chain.assignment["id"], reason="x"
+         ),
+         lambda: national.grant_authority(
+-            context=crown, position_id=chain.position["id"],
+-            operation=GRANTABLE_OPERATIONS[-1], scope="INSTITUTION",
+-        ),
+-        lambda: national.revoke_authority(
+-            context=crown, grant_id=chain.grant["id"], reason="x"
++            context=crown,
++            position_id=chain.position["id"],
++            operation=GRANTABLE_OPERATIONS[-1],
++            scope="INSTITUTION",
+         ),
++        lambda: national.revoke_authority(context=crown, grant_id=chain.grant["id"], reason="x"),
+     ]
+     assert len(calls) == len(EXPECTED_OPERATIONS)
+     for call in calls:
+@@ -510,9 +510,7 @@ def test_wi107_t4_compensator_removes_created_identity(
+     monkeypatch.setattr(authorizer, "guard_declared", _capturing_guard)
+     original = _drop_settle(monkeypatch, ledger, "T4")
+     with pytest.raises(CompensationRequired) as caught:
+-        get_national_registry().create_identity(
+-            context=crown, identity_type="PERSON", label="مُعوَّضٌ"
+-        )
++        get_national_registry().create_identity(context=crown, identity_type="PERSON", label="مُعوَّضٌ")
+     monkeypatch.setattr(type(ledger), "mark_succeeded", original)
+     monkeypatch.setattr(authorizer, "guard_declared", original_guard)
+ 
+@@ -572,9 +570,7 @@ def test_wi107_t5_compensator_restores_revoked_assignment(
+     assert caught.value.outcome.state_is_clean is True
+     # كلُّ الأعمدةِ التي يُلزمُ المُعوِّضُ استعادتَها (توجيهُ المستشارِ): الحالةُ
+     # ووقتُ العزلِ وسببهُ — لا الحالةَ وحدها. والجلسةُ تُفتَحُ وتُغلَقُ نفسُها
+-    assert _assignment_fields(assignment_id) == ("active", None, ""), (
+-        "المُعوِّضُ لم يُرجِعْ الصفَّ كما كان"
+-    )
++    assert _assignment_fields(assignment_id) == ("active", None, ""), "المُعوِّضُ لم يُرجِعْ الصفَّ كما كان"
+     record = ledger.get(
+         IdempotencyKey(
+             scope="registry.NationalRegistry.revoke_assignment",
+@@ -601,9 +597,7 @@ def test_wi107_t6_second_link_is_refused_without_second_write() -> None:
+     authorizer = _install_recording_authorizer()
+     crown = _crown()
+     national = get_national_registry()
+-    identity = national.create_identity(
+-        context=crown, identity_type="PERSON", label="ربطٌ واحدٌ"
+-    )
++    identity = national.create_identity(context=crown, identity_type="PERSON", label="ربطٌ واحدٌ")
+     principal_id = f"pid-wi107-{uuid.uuid4().hex[:8]}"
+     first = national.link_principal(
+         context=crown, principal_id=principal_id, identity_id=identity["id"]
+@@ -638,7 +632,6 @@ def test_wi107_t6_second_link_is_refused_without_second_write() -> None:
+     with pytest.raises(RegistryReplayError):
+         national_registry_module._refuse_replay(guarded, "NationalRegistry.link_principal", target)
+ 
+-
+     # (ج) الاسمُ نفسُهُ في مستأجرينِ مختلفَينِ ليسَ إعادةً (تصحيحٌ مؤرَّخٌ W-625:
+     # قيدُ القاعدةِ `UNIQUE (tenant_id, principal_id)` فالمفتاحُ الطبيعيُّ يشملُ
+     # المستأجرَ — ولو لم يشملْهُ لحَجَبَ سجلُّ الذرّيّةِ الربطَ الثانيَ ظلمًا)
+@@ -679,10 +672,7 @@ def test_wi107_t7_inventory_counts_nine_guarded_and_zero_debt() -> None:
+     sys.modules[spec.name] = module
+     spec.loader.exec_module(module)
+ 
+-    sites = [
+-        s for s in module.collect(root)
+-        if s.path.endswith("national_registry/service.py")
+-    ]
++    sites = [s for s in module.collect(root) if s.path.endswith("national_registry/service.py")]
+     public = [s for s in sites if s.public]
+     assert {f"{s.owner}.{s.function}" for s in public} == EXPECTED_OPERATIONS
+     assert all(s.guarded for s in public), [s.function for s in public if not s.guarded]
