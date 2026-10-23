@@ -815,6 +815,20 @@ def check_change_set(
         for it in items:
             old = before.get(str(it["id"]))
             new = str(it["status"])
+            # حرسُ D21-د (W-637 · تحتَ WI-040): بندٌ جديدٌ في مدى التغييرِ لا يدخلُ
+            # بحالةٍ تحجزُ مساراتٍ — يُسجَّلُ PROPOSED أو READY ثمَّ ينتقلُ قيدًا
+            # مستقلًّا (H3). سدٌّ لثغرةِ «old is None ⇒ continue» التي مرَّ منها
+            # تسجيلُ WI-108 مباشرةً IN_PROGRESS في W-629 (انحرافُ W-630 · D21-د).
+            if old is None and new in CLAIMING_STATUSES:
+                violations.append(
+                    _v(
+                        "NEW_ITEM_CLAIMING_ENTRY",
+                        f"{it['id']}: بندٌ جديدٌ دخلَ بحالةِ {new} الحاجزةِ — "
+                        "يُسجَّلُ PROPOSED أو READY ثمَّ ينتقلُ قيدًا مستقلًّا "
+                        "(THE_ROADMAP § 4 · H3 · قرارُ المالكِ D21-د)",
+                    )
+                )
+                continue
             if (
                 old is None
                 or old == new
