@@ -1,0 +1,365 @@
+
+##############################################################################
+# S1
+##############################################################################
+
+=== S1 nested success (shared authorizer) ===
+rows(DB): [('s1-inner', 'inner'), ('s1-outer', 'outer')]
+idempotency(ledger of outer authorizer): [
+ {
+  "key": "q9.outer:s1",
+  "status": "SUCCEEDED",
+  "applied": [
+   "CREATE:probe/s1/outer"
+  ],
+  "attempts": 1,
+  "failure": ""
+ },
+ {
+  "key": "q9.inner:s1",
+  "status": "SUCCEEDED",
+  "applied": [
+   "CREATE:probe/s1/inner"
+  ],
+  "attempts": 1,
+  "failure": ""
+ }
+]
+compensation journal: []
+gateway records (outer authorizer): [{'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '22e7812662c8'}, {'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '22e7812662c8'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '8c708f318224'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '8c708f318224'}]
+outbox configured on boundary: False
+outer.permit_id: EP-13ca3387d1e0a4ec-1792792181
+inner.permit_id: EP-307f3832039d5079-1792792181
+outer.outcome.applied_effects: ['CREATE:probe/s1/outer']
+outer.evidence.request_fingerprint: 8c708f318224
+gateway fp of OUTER decision (first q9.outer record): 22e7812662c8
+gateway fp of INNER decision (first q9.inner record): 8c708f318224
+gateway records count (outer+inner on one gateway): 4
+outer evidence is INNER's record?: True
+
+##############################################################################
+# S2
+##############################################################################
+raised to caller: CompensationRequired: العمليّةُ «q9.outer:s2@attempt2» على العقد «EC-6bf08fe151c924ef» فشلت (IdempotencyError: العمليّةُ «q9.outer:s2» فشلت: outer second effect f <- IdempotencyError: العمليّةُ «q9.outer:s2» فشلت: outer second effect fails after inner committed <- RuntimeError: outer second effect fails after inner committed
+
+=== S2 outer fails after inner committed — outer compensator undoes only its own row ===
+rows(DB): [('s2-inner', 'inner')]
+idempotency(ledger of outer authorizer): [
+ {
+  "key": "q9.outer:s2",
+  "status": "FAILED_RETRYABLE",
+  "applied": [],
+  "attempts": 3,
+  "failure": "IdempotencyError: العمليّةُ «q9.outer:s2» فشلت: outer second effect fails after inner committed — عُوِّضَ آليً"
+ },
+ {
+  "key": "q9.inner:s2",
+  "status": "SUCCEEDED",
+  "applied": [
+   "CREATE:probe/s2/inner"
+  ],
+  "attempts": 1,
+  "failure": ""
+ }
+]
+compensation journal: [{'id': 'CMP-ce648221693ff2d9b7a7', 'status': 'COMPENSATED', 'residual': []}]
+gateway records (outer authorizer): [{'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'f347666b9543'}, {'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'f347666b9543'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '75ef7da80350'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '75ef7da80350'}]
+outbox configured on boundary: False
+
+##############################################################################
+# S2b
+##############################################################################
+  inner.is_replay = False
+attempt 1 raised: CompensationRequired: العمليّةُ «q9.outer:s2b@attempt2» على العقد «EC-a59585b60523480c» فشلت (IdempotencyError: العمليّةُ «q9.outer:s2b» فشلت: outer b fails (atte <- IdempotencyError: العمليّةُ «q9.outer:s2b» فشلت: outer b fails (attempt 1) <- RuntimeError: outer b fails (attempt 1)
+
+=== S2b after attempt 1 (outer compensated inner's row; inner ledger?) ===
+rows(DB): []
+idempotency(ledger of outer authorizer): [
+ {
+  "key": "q9.outer:s2b",
+  "status": "FAILED_RETRYABLE",
+  "applied": [],
+  "attempts": 3,
+  "failure": "IdempotencyError: العمليّةُ «q9.outer:s2b» فشلت: outer b fails (attempt 1) — عُوِّضَ آليًّا في الحدّ (CMP-231d"
+ },
+ {
+  "key": "q9.inner:s2b",
+  "status": "SUCCEEDED",
+  "applied": [
+   "CREATE:probe/s2b/inner"
+  ],
+  "attempts": 1,
+  "failure": ""
+ }
+]
+compensation journal: [{'id': 'CMP-231de27a829ad45768a9', 'status': 'COMPENSATED', 'residual': []}]
+gateway records (outer authorizer): [{'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'c004d38e7331'}, {'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'c004d38e7331'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'aad1a16550d6'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'aad1a16550d6'}]
+outbox configured on boundary: False
+  inner.is_replay = True
+attempt 2 outcome: is_replay = False
+
+=== S2b after attempt 2 (retry with same keys) ===
+rows(DB): [('s2b-outer-a', 'outer'), ('s2b-outer-b', 'outer')]
+idempotency(ledger of outer authorizer): [
+ {
+  "key": "q9.outer:s2b",
+  "status": "SUCCEEDED",
+  "applied": [
+   "CREATE:probe/s2b/outer/a",
+   "CREATE:probe/s2b/outer/b"
+  ],
+  "attempts": 4,
+  "failure": "IdempotencyError: العمليّةُ «q9.outer:s2b» فشلت: outer b fails (attempt 1) — عُوِّضَ آليًّا في الحدّ (CMP-231d"
+ },
+ {
+  "key": "q9.inner:s2b",
+  "status": "SUCCEEDED",
+  "applied": [
+   "CREATE:probe/s2b/inner"
+  ],
+  "attempts": 1,
+  "failure": ""
+ }
+]
+compensation journal: [{'id': 'CMP-231de27a829ad45768a9', 'status': 'COMPENSATED', 'residual': []}]
+gateway records (outer authorizer): [{'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'c004d38e7331'}, {'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'c004d38e7331'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'aad1a16550d6'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'aad1a16550d6'}, {'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'c004d38e7331'}, {'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'c004d38e7331'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'aad1a16550d6'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'aad1a16550d6'}]
+outbox configured on boundary: False
+inner row present?: False
+
+##############################################################################
+# S3
+##############################################################################
+raised to caller: IdempotencyError: العمليّةُ «q9.outer:s3» فشلت: outer applier fails after inner committed (same effect) <- RuntimeError: outer applier fails after inner committed (same effect)
+
+=== S3 outer fails inside the same effect — no compensation at all? ===
+rows(DB): [('s3-inner', 'inner'), ('s3-outer', 'outer')]
+idempotency(ledger of outer authorizer): [
+ {
+  "key": "q9.outer:s3",
+  "status": "FAILED_RETRYABLE",
+  "applied": [],
+  "attempts": 2,
+  "failure": "outer applier fails after inner committed (same effect)"
+ },
+ {
+  "key": "q9.inner:s3",
+  "status": "SUCCEEDED",
+  "applied": [
+   "CREATE:probe/s3/inner"
+  ],
+  "attempts": 1,
+  "failure": ""
+ }
+]
+compensation journal: []
+gateway records (outer authorizer): [{'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '765ce28287bb'}, {'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '765ce28287bb'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'd710bd0e3ff1'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'd710bd0e3ff1'}]
+outbox configured on boundary: False
+
+##############################################################################
+# S4
+##############################################################################
+raised to caller: CompensationRequired: العمليّةُ «q9.outer:s4@attempt2» على العقد «EC-f81f929e1f6927e5» فشلت (IdempotencyError: العمليّةُ «q9.outer:s4» فشلت: العمليّةُ «q9.inner:s <- IdempotencyError: العمليّةُ «q9.outer:s4» فشلت: العمليّةُ «q9.inner:s4» فشلت: inner applier fails AFTER writing its row <- IdempotencyError: العمليّةُ «q9.inner:s4» فشلت: inner applier fails AFTER writing its row <- RuntimeError: inner applier fails AFTER writing its row
+
+=== S4 inner fails after writing — inner self-compensates? outer? ===
+rows(DB): [('s4-inner', 'inner')]
+idempotency(ledger of outer authorizer): [
+ {
+  "key": "q9.outer:s4",
+  "status": "FAILED_RETRYABLE",
+  "applied": [],
+  "attempts": 3,
+  "failure": "IdempotencyError: العمليّةُ «q9.outer:s4» فشلت: العمليّةُ «q9.inner:s4» فشلت: inner applier fails AFTER writin"
+ },
+ {
+  "key": "q9.inner:s4",
+  "status": "FAILED_RETRYABLE",
+  "applied": [],
+  "attempts": 2,
+  "failure": "inner applier fails AFTER writing its row"
+ }
+]
+compensation journal: [{'id': 'CMP-2dfee9e09ac4545095c3', 'status': 'COMPENSATED', 'residual': []}]
+gateway records (outer authorizer): [{'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'e17194665d67'}, {'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'e17194665d67'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'ba3cd2d86a83'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'ba3cd2d86a83'}]
+outbox configured on boundary: False
+
+##############################################################################
+# S4b
+##############################################################################
+  outer applier swallowed: IdempotencyError
+
+=== S4b inner fails, outer swallows — outer SUCCEEDED? ===
+rows(DB): [('s4b-inner', 'inner'), ('s4b-outer', 'outer')]
+idempotency(ledger of outer authorizer): [
+ {
+  "key": "q9.outer:s4b",
+  "status": "SUCCEEDED",
+  "applied": [
+   "CREATE:probe/s4b/outer"
+  ],
+  "attempts": 1,
+  "failure": ""
+ },
+ {
+  "key": "q9.inner:s4b",
+  "status": "FAILED_RETRYABLE",
+  "applied": [],
+  "attempts": 2,
+  "failure": "inner applier fails AFTER writing its row"
+ }
+]
+compensation journal: []
+gateway records (outer authorizer): [{'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '5df8df8a388e'}, {'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '5df8df8a388e'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '497731034b31'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '497731034b31'}]
+outbox configured on boundary: False
+outer.is_replay: False
+
+##############################################################################
+# S5
+##############################################################################
+raised to caller: IdempotencyError: العمليّةُ «q9.same:s5» فشلت: المفتاحُ «q9.same:s5» مُستعمَلٌ ببصمةٍ مختلفة. <- IdempotencyKeyReuseError: المفتاحُ «q9.same:s5» مُستعمَلٌ ببصمةٍ مختلفة.
+
+=== S5 same operation_key nested (literal re-entry) ===
+rows(DB): []
+idempotency(ledger of outer authorizer): [
+ {
+  "key": "q9.same:s5",
+  "status": "FAILED_RETRYABLE",
+  "applied": [],
+  "attempts": 2,
+  "failure": "المفتاحُ «q9.same:s5» مُستعمَلٌ ببصمةٍ مختلفة."
+ }
+]
+compensation journal: []
+gateway records (outer authorizer): [{'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '1ca1bd56d4e1'}, {'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '1ca1bd56d4e1'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'c98deb42991e'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'c98deb42991e'}]
+outbox configured on boundary: False
+
+##############################################################################
+# S6
+##############################################################################
+
+=== S6 separate authorizers, same ledger file ===
+rows(DB): [('s6-inner', 'inner'), ('s6-outer', 'outer')]
+idempotency(ledger of outer authorizer): [
+ {
+  "key": "q9.outer:s6",
+  "status": "SUCCEEDED",
+  "applied": [
+   "CREATE:probe/s6/outer"
+  ],
+  "attempts": 1,
+  "failure": ""
+ },
+ {
+  "key": "q9.inner:s6",
+  "status": "SUCCEEDED",
+  "applied": [
+   "CREATE:probe/s6/inner"
+  ],
+  "attempts": 1,
+  "failure": ""
+ }
+]
+idempotency(ledger of inner authorizer instance): [
+ {
+  "key": "q9.outer:s6",
+  "status": "SUCCEEDED",
+  "applied": [
+   "CREATE:probe/s6/outer"
+  ],
+  "attempts": 1,
+  "failure": ""
+ },
+ {
+  "key": "q9.inner:s6",
+  "status": "SUCCEEDED",
+  "applied": [
+   "CREATE:probe/s6/inner"
+  ],
+  "attempts": 1,
+  "failure": ""
+ }
+]
+compensation journal: []
+gateway records (outer authorizer): [{'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '957b58a4d00a'}, {'action': 'q9.outer', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '957b58a4d00a'}]
+gateway records (inner authorizer): [{'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '853425abe8af'}, {'action': 'q9.inner', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '853425abe8af'}]
+outbox configured on boundary: False
+outer evidence fp == outer gateway record fp: True
+fresh reader of ledger file: [{'key': 'q9.outer:s6', 'status': 'SUCCEEDED', 'applied': ['CREATE:probe/s6/outer'], 'attempts': 1, 'failure': ''}, {'key': 'q9.inner:s6', 'status': 'SUCCEEDED', 'applied': ['CREATE:probe/s6/inner'], 'attempts': 1, 'failure': ''}]
+
+##############################################################################
+# S7
+##############################################################################
+raised to caller: SovereigntyViolation: DENY — 1 مخالفة دستورية:
+  [CRITICAL] A003 (المادة الثالثة — الفصل بين السلطات) · البند: الفروع الأربعة — الحدود · القاعدة R-003-1
+      الس
+
+=== S7 money verbs: EXECUTIVE execute_transfer -> TREASURY disburse_funds ===
+rows(DB): []
+idempotency(ledger of outer authorizer): []
+idempotency(ledger of inner authorizer instance): []
+compensation journal: []
+gateway records (outer authorizer): [{'action': 'execute_transfer', 'actor': 'executive', 'decision': 'DENY', 'enforcement': 'DIRECT', 'fp': 'f4f52fdd5816'}]
+gateway records (inner authorizer): []
+outbox configured on boundary: False
+
+##############################################################################
+# S7b
+##############################################################################
+outer value: {'id': 's7b-outer', 'who': 'outer', 'inner_permit': 'EP-38c4cee18679835d-1792792183'}
+
+=== S7b money verbs: TREASURY execute_transfer -> TREASURY disburse_funds ===
+rows(DB): [('s7b-inner', 'inner'), ('s7b-outer', 'outer')]
+idempotency(ledger of outer authorizer): [
+ {
+  "key": "q9.outer:s7b",
+  "status": "SUCCEEDED",
+  "applied": [
+   "WRITE:probe/s7b/expenditure"
+  ],
+  "attempts": 1,
+  "failure": ""
+ }
+]
+idempotency(ledger of inner authorizer instance): [
+ {
+  "key": "q9.inner:s7b",
+  "status": "SUCCEEDED",
+  "applied": [
+   "CREATE:probe/s7b/treasury/txn"
+  ],
+  "attempts": 1,
+  "failure": ""
+ }
+]
+compensation journal: []
+gateway records (outer authorizer): [{'action': 'execute_transfer', 'actor': 'treasury', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'babd86c5f6a5'}, {'action': 'execute_transfer', 'actor': 'treasury', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'babd86c5f6a5'}]
+gateway records (inner authorizer): [{'action': 'disburse_funds', 'actor': 'treasury', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '45d0574ef35e'}, {'action': 'disburse_funds', 'actor': 'treasury', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': '45d0574ef35e'}]
+outbox configured on boundary: False
+
+##############################################################################
+# S8
+##############################################################################
+raised to caller: IdempotencyError: العمليّةُ «q9.outer:s8» فشلت: العمليّةُ «q9.inner:s8» فشلت: الإذنُ «EP-b687d3c00fa3653c-1792792183» استُهلِك من قبل. <- IdempotencyError: العمليّةُ «q9.inner:s8» فشلت: الإذنُ «EP-b687d3c00fa3653c-1792792183» استُهلِك من قبل. <- PermitReplayError: الإذنُ «EP-b687d3c00fa3653c-1792792183» استُهلِك من قبل.
+
+=== S8 inner == outer (action,target,effect) within same second ===
+rows(DB): []
+idempotency(ledger of outer authorizer): [
+ {
+  "key": "q9.outer:s8",
+  "status": "FAILED_RETRYABLE",
+  "applied": [],
+  "attempts": 2,
+  "failure": "العمليّةُ «q9.inner:s8» فشلت: الإذنُ «EP-b687d3c00fa3653c-1792792183» استُهلِك من قبل."
+ },
+ {
+  "key": "q9.inner:s8",
+  "status": "FAILED_RETRYABLE",
+  "applied": [],
+  "attempts": 2,
+  "failure": "الإذنُ «EP-b687d3c00fa3653c-1792792183» استُهلِك من قبل."
+ }
+]
+compensation journal: []
+gateway records (outer authorizer): [{'action': 'q9.same', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'b65a1b12f920'}, {'action': 'q9.same', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'b65a1b12f920'}, {'action': 'q9.same', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'b65a1b12f920'}, {'action': 'q9.same', 'actor': 'executive', 'decision': 'ALLOW', 'enforcement': 'PERMIT_ISSUED', 'fp': 'b65a1b12f920'}]
+outbox configured on boundary: False
+
+TMP = /tmp/q9-probe-ln7v7ws1

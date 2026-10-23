@@ -1,0 +1,28 @@
+"""
+الهدف: قياسُ المستدعينَ الإنتاجيّينَ لكلِّ موضعٍ من مواضعِ A1 (تتبُّعٌ ساكنٌ بالاسمِ) — أداةُ تحليلِ WI-109 في دليلِ W-639 لا شِفرةَ إنتاجٍ.
+(ترويسةٌ أُضيفَت عندَ الإيداعِ في W-639 لقانونِ الهويّةِ — جسدُ الأداةِ كما شُغِّلَ.)
+"""
+"""أداةُ قياسٍ خارجَ المستودع: تجدُ نداءاتِ الإنتاجِ لأفعالِ A1 مع الدالّةِ والصنفِ المُحيطَين."""
+import ast, sys, pathlib, json
+ROOT = pathlib.Path(sys.argv[1])
+METHODS = set(sys.argv[2].split(','))
+SKIP = {"tests","test","__pycache__",".git",".venv","node_modules","backups"}
+out=[]
+for p in ROOT.rglob("*.py"):
+    rel=p.relative_to(ROOT)
+    if any(part in SKIP for part in rel.parts) or rel.name.startswith("test_"): continue
+    try: src=p.read_text(); tree=ast.parse(src)
+    except Exception: continue
+    stack=[]
+    class V(ast.NodeVisitor):
+        def visit_ClassDef(s,n): stack.append(n.name); s.generic_visit(n); stack.pop()
+        def visit_FunctionDef(s,n): stack.append(n.name); s.generic_visit(n); stack.pop()
+        visit_AsyncFunctionDef=visit_FunctionDef
+        def visit_Call(s,n):
+            f=n.func
+            if isinstance(f,ast.Attribute) and f.attr in METHODS:
+                out.append(dict(file=str(rel),line=n.lineno,method=f.attr,recv=ast.get_source_segment(src,f.value),scope=".".join(stack)))
+            s.generic_visit(n)
+    V().visit(tree)
+for o in sorted(out,key=lambda o:(o['method'],o['file'],o['line'])):
+    print(f"{o['method']}\t{o['file']}:{o['line']}\trecv={o['recv']}\tin={o['scope']}")

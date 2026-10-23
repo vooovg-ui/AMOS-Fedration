@@ -1,0 +1,72 @@
+APPLIER federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py:332 in register_identity applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/executive_core/engine.py:245 in _guarded_transition applier=_write -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/executive_core/engine.py:306 in submit applier=_create -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py:324 in issue_ruling applier=_apply -> 2 A1-hits
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:61 _AUDIT.append  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:69 get_durable_event_bus().publish  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+APPLIER federal/executive/services/src/amos_federation/services/governance/factories.py:304 in start_production applier=_apply -> 1 A1-hits
+      federal/executive/services/src/amos_federation/services/governance/factories.py:286 audit.append  [via federal/executive/services/src/amos_federation/services/governance/factories.py:283 _apply]
+APPLIER federal/executive/services/src/amos_federation/services/governance/factories.py:371 in complete_step applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/factories.py:635 in assign_manager applier=_apply -> 1 A1-hits
+      federal/executive/services/src/amos_federation/services/governance/factories.py:623 audit.append  [via federal/executive/services/src/amos_federation/services/governance/factories.py:617 _apply]
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:506 in request_approval applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:581 in decide_approval applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:694 in start_promotion applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:770 in pass_gate applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:825 in fail_gate applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:952 in appoint applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:1055 in propose applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:1094 in open_debate applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:1145 in vote applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:1177 in open_voting applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:1241 in enact applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:1364 in file_case applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:1414 in add_argument applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:1458 in rule applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/federation.py:1576 in generate_compliance_report applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/governance/state_runtime.py:463 in allocate_budget applier=_apply -> 1 A1-hits
+      federal/executive/services/src/amos_federation/services/governance/state_runtime.py:446 PersistentAuditStore().append  [via federal/executive/services/src/amos_federation/services/governance/state_runtime.py:437 _apply]
+APPLIER federal/executive/services/src/amos_federation/services/government_services/service.py:595 in publish_service applier=_apply -> 2 A1-hits
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:61 _AUDIT.append  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:69 get_durable_event_bus().publish  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+APPLIER federal/executive/services/src/amos_federation/services/government_services/service.py:698 in set_service_status applier=_apply -> 2 A1-hits
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:61 _AUDIT.append  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:69 get_durable_event_bus().publish  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+APPLIER federal/executive/services/src/amos_federation/services/government_services/service.py:901 in open_case applier=_apply -> 4 A1-hits
+      federal/executive/services/src/amos_federation/services/executive_core/engine.py:175 self._audit.append  [via federal/executive/services/src/amos_federation/services/executive_core/engine.py:166 _record]
+      federal/executive/services/src/amos_federation/services/executive_core/engine.py:186 self._bus.publish  [via federal/executive/services/src/amos_federation/services/executive_core/engine.py:166 _record]
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:61 _AUDIT.append  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:69 get_durable_event_bus().publish  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+APPLIER federal/executive/services/src/amos_federation/services/government_services/service.py:1008 in assign_case applier=_apply -> 2 A1-hits
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:61 _AUDIT.append  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:69 get_durable_event_bus().publish  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+APPLIER federal/executive/services/src/amos_federation/services/government_services/service.py:1277 in decide_case applier=_apply -> 2 A1-hits
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:61 _AUDIT.append  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:69 get_durable_event_bus().publish  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+APPLIER federal/executive/services/src/amos_federation/services/government_services/service.py:1437 in close_case applier=_apply -> 2 A1-hits
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:61 _AUDIT.append  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:69 get_durable_event_bus().publish  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+APPLIER federal/executive/services/src/amos_federation/services/national_registry/service.py:445 in create_identity applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/national_registry/service.py:516 in set_identity_status applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/national_registry/service.py:618 in link_principal applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/national_registry/service.py:747 in link_agent applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/national_registry/service.py:887 in create_position applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/national_registry/service.py:1015 in assign_position applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/national_registry/service.py:1088 in revoke_assignment applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/national_registry/service.py:1218 in grant_authority applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/national_registry/service.py:1292 in revoke_authority applier=_apply -> 0 A1-hits
+APPLIER federal/executive/services/src/amos_federation/services/state_registry/service.py:637 in register_institution applier=_apply -> 2 A1-hits
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:61 _AUDIT.append  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:69 get_durable_event_bus().publish  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+APPLIER federal/executive/services/src/amos_federation/services/state_registry/service.py:767 in set_institution_status applier=_apply -> 2 A1-hits
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:61 _AUDIT.append  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:69 get_durable_event_bus().publish  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+APPLIER federal/executive/services/src/amos_federation/services/state_registry/service.py:902 in create_department applier=_apply -> 2 A1-hits
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:61 _AUDIT.append  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:69 get_durable_event_bus().publish  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+APPLIER federal/executive/services/src/amos_federation/services/state_registry/service.py:1083 in appoint_official applier=_apply -> 2 A1-hits
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:61 _AUDIT.append  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:69 get_durable_event_bus().publish  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+APPLIER federal/executive/services/src/amos_federation/services/state_registry/service.py:1173 in revoke_official applier=_apply -> 2 A1-hits
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:61 _AUDIT.append  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]
+      federal/executive/services/src/amos_federation/services/state_registry/trace.py:69 get_durable_event_bus().publish  [via federal/executive/services/src/amos_federation/services/state_registry/trace.py:43 record_domain_trace]

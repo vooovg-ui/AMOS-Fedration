@@ -1,0 +1,89 @@
+"""
+الهدف: قياسُ تعشيشِ مواضعِ A1 داخلَ مُطبِّقاتِ guard_declared (تتبُّعٌ ساكنٌ بالاسمِ حتى 6 مستوياتٍ) — أداةُ تحليلِ WI-109 في دليلِ W-639 لا شِفرةَ إنتاجٍ.
+(ترويسةٌ أُضيفَت عندَ الإيداعِ في W-639 لقانونِ الهويّةِ — جسدُ الأداةِ كما شُغِّلَ.)
+"""
+"""أداةُ قياسٍ خارجَ المستودع: هل تبلغُ دوالُّ applier= الممرَّرةُ إلى guard_declared( مواقعَ A1؟
+القاعدة: موقعُ A1 = نداءٌ يطابقُ (الفعل، مستقبِلًا معروفًا)؛ ثمّ انتشارٌ بالاسمِ عبرَ المستودع (تقريبٌ زائد)
+مع استثناءِ أسماءِ أفعالِ A1 نفسِها من الانتشار (تُكشَفُ بالمستقبِل فقط)."""
+import ast, sys, pathlib, re
+ROOT = pathlib.Path(sys.argv[1])
+SKIP = {"tests","test","__pycache__",".git",".venv","node_modules","docs"}
+RECV = {
+ "append": r"^(audit|_audit|self\._audit|_audit_store|audit_store|self\._audit_store|PersistentAuditStore\(\)|_AUDIT|_audit\(\))$",
+ "publish": r"^(get_event_bus\(\)|get_durable_event_bus\(\)|self\._bus|bus|self\._local_bus|event_publisher|publisher|_bus)$",
+ "register": r"(agent_store|tool_store)$",
+ "store": r"(_memory_store|memory_store|memory)$",
+ "record": r"(exp_store|_exp_store|experience_store)$",
+ "review": r"(critic_store|_critic_store)$",
+ "get": r"(_system_state_store\(\)|state_store|_STATE)$",
+ "set_level": r".", "reset": r"(_system_state_store\(\)|state_store)$",
+ "create": r"(_promotion_store\(\)|promo|promotion_store)$",
+ "save_gates": r".", "ack": r"(bus|_bus)$", "update_status": r"(task_store|_tasks)$",
+}
+DIRECT = {"init_db","db_cursor","with_db","ensure_added_columns"}
+A1NAMES=set(RECV)
+defs={}   # name -> list of (file, node)
+files={}
+for p in ROOT.rglob("*.py"):
+    rel=p.relative_to(ROOT)
+    if any(x in SKIP for x in rel.parts) or rel.name.startswith("test_"): continue
+    try: src=p.read_text(); tree=ast.parse(src)
+    except Exception: continue
+    files[str(rel)]=(src,tree)
+    for n in ast.walk(tree):
+        if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)):
+            defs.setdefault(n.name,[]).append((str(rel),n))
+def a1_calls(fname,node):
+    src=files[fname][0]; hits=[]
+    for c in ast.walk(node):
+        if not isinstance(c,ast.Call): continue
+        f=c.func
+        if isinstance(f,ast.Attribute) and f.attr in RECV:
+            r=ast.get_source_segment(src,f.value) or ""
+            if fname.startswith("core/") : continue
+            if re.search(RECV[f.attr],r) and not (f.attr=="append" and fname.startswith("core/")):
+                hits.append(f"{fname}:{c.lineno} {r}.{f.attr}")
+        elif isinstance(f,ast.Name) and f.id in DIRECT:
+            hits.append(f"{fname}:{c.lineno} {f.id}()")
+    return hits
+def callees(node):
+    s=set()
+    for c in ast.walk(node):
+        if isinstance(c,ast.Call):
+            f=c.func
+            n=f.attr if isinstance(f,ast.Attribute) else (f.id if isinstance(f,ast.Name) else None)
+            if n and n not in A1NAMES and n in defs: s.add(n)
+    return s
+memo={}
+def reach(fname,node,depth=0,seen=None):
+    seen=seen or set()
+    key=(fname,node.lineno,node.name)
+    if key in seen or depth>6: return []
+    seen.add(key)
+    out=[f"{h}  [via {fname}:{node.lineno} {node.name}]" for h in a1_calls(fname,node)]
+    for n in callees(node):
+        cands=defs[n]
+        same=[d for d in cands if d[0]==fname]
+        for (f2,n2) in (same or (cands if len(cands)<=3 else [])):
+            if n2 is node: continue
+            out+=reach(f2,n2,depth+1,seen)
+    return out
+for fname,(src,tree) in sorted(files.items()):
+    for fn in ast.walk(tree):
+        if not isinstance(fn,(ast.FunctionDef,ast.AsyncFunctionDef)): continue
+        for c in ast.walk(fn):
+            if isinstance(c,ast.Call) and isinstance(c.func,(ast.Attribute,ast.Name)) and (getattr(c.func,'attr',None) or getattr(c.func,'id',None))=="guard_declared":
+                ap=[k.value for k in c.keywords if k.arg=="applier"]
+                if not ap: continue
+                a=ap[0]
+                inner=[]
+                if isinstance(a,ast.Name):
+                    inner=[n for n in ast.walk(fn) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name==a.id]
+                    label=a.id
+                else:
+                    label=ast.get_source_segment(src,a)
+                hits=[]
+                for n in inner: hits+=reach(fname,n)
+                hits=sorted(set(hits))
+                print(f"APPLIER {fname}:{c.lineno} in {fn.name} applier={label} -> {len(hits)} A1-hits")
+                for h in hits: print("     ",h)

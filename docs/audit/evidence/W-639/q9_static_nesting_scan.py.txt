@@ -1,0 +1,116 @@
+"""الهدف: قياسٌ ساكنٌ (AST) لمواضعِ التعشيشِ السياديِّ — مُطبِّقاتُ `guard_declared` التي تنادي عمليّاتٍ محروسةً، وعمليّاتُ المالِ التي تنادي عمليّاتِ مالٍ أخرى.
+
+تُشغَّلُ من جذرِ النسخةِ: python3 q9_static_nesting_scan.py <repo_root> <inv.json>
+مطابقةُ الأسماءِ اسميّةٌ (اسمُ الدالّةِ/الطريقةِ) — تقريبٌ يُراجَعُ يدويًّا، لا حلٌّ للأنواع.
+"""
+import ast, json, sys
+from pathlib import Path
+
+root = Path(sys.argv[1]); inv = json.load(open(sys.argv[2]))
+SKIP = ("/tests/", "/.venv/", "/docs/", "/node_modules/")
+files = [p for p in root.rglob("*.py") if not any(s in "/" + str(p.relative_to(root)) for s in SKIP) and not p.name.startswith("test_") and p.relative_to(root).parts[0] in ("federal", "core", "institutions", "states", "royal", "runtime", "interfaces", "agents", "ops")]
+
+funcs = {}  # (path, qualname) -> node
+def walk(node, path, prefix=""):
+    for ch in ast.iter_child_nodes(node):
+        if isinstance(ch, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            q = f"{prefix}{ch.name}"
+            funcs[(path, q)] = ch
+            walk(ch, path, q + ".")
+        elif isinstance(ch, ast.ClassDef):
+            walk(ch, path, f"{prefix}{ch.name}.")
+        else:
+            walk(ch, path, prefix)
+trees = {}
+for p in files:
+    try:
+        t = ast.parse(p.read_text(encoding="utf-8"))
+    except Exception:
+        continue
+    rel = str(p.relative_to(root)); trees[rel] = t; walk(t, rel)
+
+def called_names(node, skip_nested=False):
+    out = set()
+    for n in ast.walk(node):
+        if isinstance(n, ast.Call):
+            f = n.func
+            if isinstance(f, ast.Attribute): out.add(f.attr)
+            elif isinstance(f, ast.Name): out.add(f.id)
+    return out
+
+def own_calls(fn):
+    """النداءاتُ في جسدِ الدالّةِ بلا الدوالِّ المتداخلة (تُضافُ إن نوديت باسمها)."""
+    out = set()
+    stack = list(fn.body)
+    while stack:
+        n = stack.pop()
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            continue
+        if isinstance(n, ast.Call):
+            f = n.func
+            if isinstance(f, ast.Attribute): out.add(f.attr)
+            elif isinstance(f, ast.Name): out.add(f.id)
+        stack.extend(ast.iter_child_nodes(n))
+    return out
+
+# G: دوالُّ في جسدِها (بلا متداخلاتِها) نداءُ guard_declared
+G = {k for k, fn in funcs.items() if "guard_declared" in own_calls(fn) and fn.name != "guard_declared"}
+G_names = {k[1].split(".")[-1] for k in G}
+# R: تصلُ إلى الحدِّ انتقاليًّا بالاسم
+GENERIC = {"run", "execute", "get", "create", "update", "delete", "add", "submit", "rule", "vote", "decide", "propose", "enact", "appoint"}
+R_names = set(G_names); changed = True
+name_to_funcs = {}
+for k, fn in funcs.items(): name_to_funcs.setdefault(fn.name, []).append(k)
+while changed:
+    changed = False
+    for k, fn in funcs.items():
+        if fn.name in R_names or fn.name.startswith("test"): continue
+        if own_calls(fn) & (R_names - GENERIC):
+            R_names.add(fn.name); changed = True
+
+# مُطبِّقاتُ guard_declared: اسمُ المُطبِّقِ يُحَلُّ إلى دالّةٍ محلّيّة
+report_nest = []
+for (path, q), fn in funcs.items():
+    for n in ast.walk(fn):
+        if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr == "guard_declared":
+            app = next((kw.value for kw in n.keywords if kw.arg == "applier"), None)
+            if app is None:
+                # federation.py يمرّرُ applier=_apply صراحةً؛ وإلا فالموقعيّ الثالث
+                continue
+            body = None
+            if isinstance(app, ast.Lambda): body = app
+            elif isinstance(app, ast.Name):
+                body = funcs.get((path, f"{q}.{app.id}"))
+            calls = set()
+            if body is not None:
+                calls = called_names(body)
+                # الدوالُّ المحلّيّةُ المناداةُ باسمها داخلَ المُطبِّق
+                for c in list(calls):
+                    loc = funcs.get((path, f"{q}.{c}"))
+                    if loc is not None: calls |= called_names(loc)
+            hits = sorted((calls & R_names) - {"guard_declared"})
+            report_nest.append({"site": f"{path}:{n.lineno}", "function": q,
+                                "applier": getattr(app, "id", "lambda"), "applier_resolved": body is not None,
+                                "calls_reaching_guard": hits})
+
+# عمليّاتُ المالِ
+MONEY_MODS = ("services/national_economy/", "services/federal_state/", "services/state_treasury/", "services/governance/treasury.py")
+money_sites = [s for s in inv["sites"] if any(m in s["path"] for m in MONEY_MODS) and s["public"]]
+money_names = {s["function"] for s in money_sites}
+money_rows = []
+for s in money_sites:
+    rel = s["path"]; q = (s["owner"] + "." if s["owner"] != "-" else "") + s["function"]
+    fn = funcs.get((rel, q))
+    calls = own_calls(fn) if fn is not None else set()
+    # المتداخلاتُ المحلّيّة
+    if fn is not None:
+        for c in list(calls):
+            loc = funcs.get((rel, f"{q}.{c}"))
+            if loc is not None: calls |= called_names(loc)
+    money_rows.append({"path": rel, "op": q, "found": fn is not None,
+                       "calls_money_ops": sorted((calls & money_names) - {s["function"]}),
+                       "calls_reaching_guard": sorted(calls & R_names)})
+json.dump({"G_functions_with_guard_declared": sorted(f"{p}::{q}" for p, q in G),
+           "R_names_reaching_guard": sorted(R_names),
+           "guard_sites": report_nest, "money_ops": money_rows},
+          sys.stdout, ensure_ascii=False, indent=1)

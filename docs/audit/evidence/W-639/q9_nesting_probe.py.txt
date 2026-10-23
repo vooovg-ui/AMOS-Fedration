@@ -1,0 +1,454 @@
+"""الهدف: قياسُ سلوكِ `guard_declared` حينَ يُنادي مُطبِّقُ عمليّةٍ محروسةٍ عمليّةً محروسةً أخرى (التعشيشُ · Q-9) على قاعدةِ اختبارٍ مؤقّتة.
+
+يُشغَّلُ من جذرِ النسخةِ (لا المستودعِ الأصليّ):
+    cd /home/user/workspace/q9_clone && .venv/bin/python /home/user/workspace/analysis_out/q9_nesting_probe.py
+
+لا يمسُّ شِفرةَ المستودع: يبني `ConstitutionalAuthorizer` الحقيقيَّ (البوابةُ + الحدُّ +
+سجلُّ الذرّيّةِ + سجلُّ الأذونِ المستهلكةِ + دفترُ التعويض) بمسارِ سجلٍّ في مجلّدٍ مؤقّت،
+والمُطبِّقاتُ تكتبُ صفوفًا في SQLite مؤقّتٍ فيُرى الأثرُ الحقيقيُّ لا المُدَّعى.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import sqlite3
+import sys
+import tempfile
+import time
+import traceback
+from pathlib import Path
+
+ROOT = Path.cwd()
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "federal/executive/services/src"))
+
+TMP = Path(tempfile.mkdtemp(prefix="q9-probe-"))
+os.environ["AMOS_ENVIRONMENT"] = "test"
+os.environ["AMOS_DATABASE_URL"] = f"sqlite:///{TMP / 'svc.db'}"
+
+from amos_federation.services.executive_core.sovereignty_bridge import (  # noqa: E402
+    ConstitutionalAuthorizer,
+    compensator,
+    declared_effect,
+    operation_key,
+)
+
+DB = TMP / "probe.db"
+con = sqlite3.connect(DB, isolation_level=None)
+con.execute("CREATE TABLE rows (id TEXT PRIMARY KEY, who TEXT)")
+
+
+def insert(row_id: str, who: str) -> dict:
+    con.execute("INSERT INTO rows VALUES (?, ?)", (row_id, who))
+    return {"id": row_id, "who": who}
+
+
+def delete(row_id: str) -> None:
+    con.execute("DELETE FROM rows WHERE id = ?", (row_id,))
+
+
+def rows() -> list[tuple]:
+    return [tuple(r) for r in con.execute("SELECT id, who FROM rows ORDER BY id")]
+
+
+def new_authorizer(tag: str, actor: str = "EXECUTIVE", shared_dir: Path | None = None):
+    d = shared_dir or (TMP / tag)
+    d.mkdir(parents=True, exist_ok=True)
+    return ConstitutionalAuthorizer(actor=actor, idempotency_ledger_path=d / "idem.json")
+
+
+def ledger_dump(auth) -> list[dict]:
+    out = []
+    led = auth.boundary.idempotency_ledger
+    for r in led.all_records():
+        out.append(
+            {
+                "key": r.key.composite,
+                "status": r.status.value,
+                "applied": list(r.applied_effect_signatures),
+                "attempts": len(r.attempts),
+                "failure": (r.failure_reason or "")[:110],
+            }
+        )
+    return out
+
+
+def comp_dump(auth) -> list[dict]:
+    j = auth.boundary.compensation_journal
+    return [
+        {
+            "id": c.compensation_id,
+            "status": getattr(c.status, "value", str(c.status)),
+            "residual": list(c.residual_signatures),
+        }
+        for c in j.all_records()
+    ]
+
+
+def gw_dump(auth) -> list[dict]:
+    return [
+        {"action": r.action, "actor": r.actor, "decision": str(r.decision), "enforcement": r.enforcement, "fp": r.fingerprint[:12]}
+        for r in auth.gateway.records
+    ]
+
+
+def show(title: str, auth, extra: dict | None = None, other=None) -> None:
+    print(f"\n=== {title} ===")
+    print("rows(DB):", rows())
+    print("idempotency(ledger of outer authorizer):", json.dumps(ledger_dump(auth), ensure_ascii=False, indent=1))
+    if other is not None and other is not auth:
+        print("idempotency(ledger of inner authorizer instance):", json.dumps(ledger_dump(other), ensure_ascii=False, indent=1))
+    print("compensation journal:", comp_dump(auth))
+    print("gateway records (outer authorizer):", gw_dump(auth))
+    if other is not None and other is not auth:
+        print("gateway records (inner authorizer):", gw_dump(other))
+    print("outbox configured on boundary:", auth.boundary.outbox is not None)
+    if extra:
+        for k, v in extra.items():
+            print(f"{k}: {v}")
+
+
+def exc_chain(exc: BaseException) -> str:
+    parts = []
+    e: BaseException | None = exc
+    while e is not None:
+        parts.append(f"{type(e).__name__}: {str(e)[:140]}")
+        e = e.__cause__ or e.__context__
+    return " <- ".join(parts)
+
+
+def inner_call(auth, tag: str, *, fail: bool = False, key_value: str | None = None,
+               action: str = "q9.inner", target: str | None = None):
+    target = target or f"probe/{tag}/inner"
+    eff = declared_effect("CREATE", target, "inner row")
+
+    def _apply(_e):
+        r = insert(f"{tag}-inner", "inner")
+        if fail:
+            raise RuntimeError("inner applier fails AFTER writing its row")
+        return r
+
+    return auth.guard_declared(
+        action,
+        target,
+        declared_effects=(eff,),
+        applier=_apply,
+        operation_key=operation_key("q9.inner", key_value or f"{tag}"),
+        compensators=(compensator(eff.signature, lambda: delete(f"{tag}-inner"), "delete inner"),),
+    )
+
+
+def scenario(name, fn):
+    con.execute("DELETE FROM rows")
+    print("\n" + "#" * 78 + f"\n# {name}\n" + "#" * 78)
+    try:
+        fn()
+    except Exception as exc:  # noqa: BLE001 — المسبارُ يطبعُ ولا يبتلعُ صامتًا
+        print("UNEXPECTED (probe-level):", exc_chain(exc))
+        traceback.print_exc(limit=3)
+
+
+# ── S1: تعشيشٌ ناجحٌ على مُصرِّحٍ مشترك ─────────────────────────────────────
+def s1():
+    auth = new_authorizer("s1")
+    tag = "s1"
+    eff = declared_effect("CREATE", f"probe/{tag}/outer", "outer row")
+    inner_results = []
+
+    def _apply(_e):
+        inner_results.append(inner_call(auth, tag))
+        return insert(f"{tag}-outer", "outer")
+
+    res = auth.guard_declared(
+        "q9.outer", f"probe/{tag}/outer", declared_effects=(eff,), applier=_apply,
+        operation_key=operation_key("q9.outer", tag),
+        compensators=(compensator(eff.signature, lambda: delete(f"{tag}-outer"), "delete outer"),),
+    )
+    inner = inner_results[0]
+    recs = auth.gateway.records
+    show("S1 nested success (shared authorizer)", auth, {
+        "outer.permit_id": res.outcome.permit_id,
+        "inner.permit_id": inner.outcome.permit_id,
+        "outer.outcome.applied_effects": [e.signature for e in res.outcome.applied_effects],
+        "outer.evidence.request_fingerprint": res.evidence.request_fingerprint[:12],
+        "gateway fp of OUTER decision (first q9.outer record)": next(r for r in recs if r.action == "q9.outer").fingerprint[:12],
+        "gateway fp of INNER decision (first q9.inner record)": next(r for r in recs if r.action == "q9.inner").fingerprint[:12],
+        "gateway records count (outer+inner on one gateway)": len(recs),
+        "outer evidence is INNER's record?": res.evidence.request_fingerprint == recs[-1].fingerprint
+        and recs[-1].action == "q9.inner",
+    })
+
+
+# ── S2: الخارجيُّ يفشلُ بعدَ التزامِ الداخليّ (أثرٌ ثانٍ للخارجيِّ يفشل) ───────────
+def s2():
+    auth = new_authorizer("s2")
+    tag = "s2"
+    e1 = declared_effect("CREATE", f"probe/{tag}/outer/a", "outer a (calls inner)")
+    e2 = declared_effect("CREATE", f"probe/{tag}/outer/b", "outer b (fails)")
+
+    def _apply(e):
+        if e.signature == e1.signature:
+            inner_call(auth, tag)
+            return insert(f"{tag}-outer-a", "outer")
+        raise RuntimeError("outer second effect fails after inner committed")
+
+    try:
+        auth.guard_declared(
+            "q9.outer", f"probe/{tag}/outer", declared_effects=(e1, e2), applier=_apply,
+            operation_key=operation_key("q9.outer", tag),
+            compensators=(
+                compensator(e1.signature, lambda: delete(f"{tag}-outer-a"), "delete outer a ONLY"),
+                compensator(e2.signature, lambda: delete(f"{tag}-outer-b"), "delete outer b"),
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001
+        print("raised to caller:", exc_chain(exc))
+    show("S2 outer fails after inner committed — outer compensator undoes only its own row", auth)
+
+
+# ── S2b: معوِّضُ الخارجيِّ يعكسُ أثرَ الداخليِّ (نمطُ open_case) ثمَّ إعادةٌ بالمفاتيحِ نفسِها ──
+def s2b():
+    auth = new_authorizer("s2b")
+    tag = "s2b"
+    e1 = declared_effect("CREATE", f"probe/{tag}/outer/a", "outer a (calls inner)")
+    e2 = declared_effect("CREATE", f"probe/{tag}/outer/b", "outer b")
+    state = {"fail_b": True}
+
+    def _apply(e):
+        if e.signature == e1.signature:
+            inner = inner_call(auth, tag)  # مفتاحُ الداخليِّ حتميٌّ (مشتقٌّ من المرجع)
+            print("  inner.is_replay =", inner.is_replay)
+            return insert(f"{tag}-outer-a", "outer")
+        if state["fail_b"]:
+            raise RuntimeError("outer b fails (attempt 1)")
+        return insert(f"{tag}-outer-b", "outer")
+
+    def comp_a():
+        delete(f"{tag}-outer-a")
+        delete(f"{tag}-inner")  # يعكسُ أثرَ الداخليِّ مباشرةً — بلا علمِ سجلِّ الداخليّ
+
+    kw = dict(
+        declared_effects=(e1, e2), applier=_apply,
+        operation_key=operation_key("q9.outer", tag),
+        compensators=(
+            compensator(e1.signature, comp_a, "delete outer a + inner row"),
+            compensator(e2.signature, lambda: delete(f"{tag}-outer-b"), "delete outer b"),
+        ),
+    )
+    try:
+        auth.guard_declared("q9.outer", f"probe/{tag}/outer", **kw)
+    except Exception as exc:  # noqa: BLE001
+        print("attempt 1 raised:", exc_chain(exc))
+    show("S2b after attempt 1 (outer compensated inner's row; inner ledger?)", auth)
+    state["fail_b"] = False
+    time.sleep(1.1)  # Q-11: هويّةُ الإذنِ بدقّةِ ثانية — نتجنّبُ تصادمَه ليُقاسَ التعشيشُ وحدَه
+    try:
+        res = auth.guard_declared("q9.outer", f"probe/{tag}/outer", **kw)
+        print("attempt 2 outcome: is_replay =", res.is_replay)
+    except Exception as exc:  # noqa: BLE001
+        print("attempt 2 raised:", exc_chain(exc))
+    show("S2b after attempt 2 (retry with same keys)", auth, {
+        "inner row present?": any(r[0] == f"{tag}-inner" for r in rows()),
+    })
+
+
+# ── S3: الخارجيُّ يفشلُ في الأثرِ نفسِه الذي نادى الداخليّ ─────────────────────
+def s3():
+    auth = new_authorizer("s3")
+    tag = "s3"
+    eff = declared_effect("CREATE", f"probe/{tag}/outer", "outer row")
+
+    def _apply(_e):
+        inner_call(auth, tag)
+        insert(f"{tag}-outer", "outer")
+        raise RuntimeError("outer applier fails after inner committed (same effect)")
+
+    try:
+        auth.guard_declared(
+            "q9.outer", f"probe/{tag}/outer", declared_effects=(eff,), applier=_apply,
+            operation_key=operation_key("q9.outer", tag),
+            compensators=(compensator(eff.signature, lambda: delete(f"{tag}-outer"), "delete outer"),),
+        )
+    except Exception as exc:  # noqa: BLE001
+        print("raised to caller:", exc_chain(exc))
+    show("S3 outer fails inside the same effect — no compensation at all?", auth)
+
+
+# ── S4: الداخليُّ يفشلُ (بعدَ أثرٍ سابقٍ للخارجيّ) ─────────────────────────────
+def s4():
+    auth = new_authorizer("s4")
+    tag = "s4"
+    e1 = declared_effect("CREATE", f"probe/{tag}/outer/a", "outer a")
+    e2 = declared_effect("CREATE", f"probe/{tag}/outer/b", "outer b (calls failing inner)")
+
+    def _apply(e):
+        if e.signature == e1.signature:
+            return insert(f"{tag}-outer-a", "outer")
+        inner_call(auth, tag, fail=True)
+        return insert(f"{tag}-outer-b", "outer")
+
+    try:
+        auth.guard_declared(
+            "q9.outer", f"probe/{tag}/outer", declared_effects=(e1, e2), applier=_apply,
+            operation_key=operation_key("q9.outer", tag),
+            compensators=(
+                compensator(e1.signature, lambda: delete(f"{tag}-outer-a"), "delete outer a"),
+                compensator(e2.signature, lambda: delete(f"{tag}-outer-b"), "delete outer b"),
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001
+        print("raised to caller:", exc_chain(exc))
+    show("S4 inner fails after writing — inner self-compensates? outer?", auth)
+
+
+# ── S4b: الداخليُّ يفشلُ والخارجيُّ يبتلعُ الاستثناءَ داخلَ مُطبِّقِه ─────────────
+def s4b():
+    auth = new_authorizer("s4b")
+    tag = "s4b"
+    eff = declared_effect("CREATE", f"probe/{tag}/outer", "outer row")
+
+    def _apply(_e):
+        try:
+            inner_call(auth, tag, fail=True)
+        except Exception as exc:  # noqa: BLE001 — يُقاسُ أنَّ الحدَّ لا يكشفُ الابتلاعَ وقتَ التشغيل
+            print("  outer applier swallowed:", type(exc).__name__)
+        return insert(f"{tag}-outer", "outer")
+
+    res = auth.guard_declared(
+        "q9.outer", f"probe/{tag}/outer", declared_effects=(eff,), applier=_apply,
+        operation_key=operation_key("q9.outer", tag),
+        compensators=(compensator(eff.signature, lambda: delete(f"{tag}-outer"), "delete outer"),),
+    )
+    show("S4b inner fails, outer swallows — outer SUCCEEDED?", auth, {"outer.is_replay": res.is_replay})
+
+
+# ── S5: تعشيشٌ بالمفتاحِ نفسِه (إعادةُ دخولٍ حرفيّة) ───────────────────────────
+def s5():
+    auth = new_authorizer("s5")
+    tag = "s5"
+    eff = declared_effect("CREATE", f"probe/{tag}/outer", "outer row")
+    key = operation_key("q9.same", tag)
+
+    def _apply(_e):
+        eff_i = declared_effect("CREATE", f"probe/{tag}/inner", "inner")
+        auth.guard_declared(
+            "q9.inner", f"probe/{tag}/inner", declared_effects=(eff_i,),
+            applier=lambda _x: insert(f"{tag}-inner", "inner"), operation_key=key,
+            compensators=(compensator(eff_i.signature, lambda: delete(f"{tag}-inner")),),
+        )
+        return insert(f"{tag}-outer", "outer")
+
+    try:
+        auth.guard_declared(
+            "q9.outer", f"probe/{tag}/outer", declared_effects=(eff,), applier=_apply,
+            operation_key=key,
+            compensators=(compensator(eff.signature, lambda: delete(f"{tag}-outer"), "delete outer"),),
+        )
+    except Exception as exc:  # noqa: BLE001
+        print("raised to caller:", exc_chain(exc))
+    show("S5 same operation_key nested (literal re-entry)", auth)
+
+
+# ── S6: مُصرِّحانِ منفصلانِ (كلُّ خدمةٍ تبني مُصرِّحَها) على سجلِّ ذرّيّةٍ واحد ──────
+def s6():
+    shared = TMP / "s6shared"
+    outer_auth = new_authorizer("s6o", shared_dir=shared)
+    inner_auth = new_authorizer("s6i", shared_dir=shared)
+    tag = "s6"
+    eff = declared_effect("CREATE", f"probe/{tag}/outer", "outer row")
+
+    def _apply(_e):
+        inner_call(inner_auth, tag)
+        return insert(f"{tag}-outer", "outer")
+
+    res = outer_auth.guard_declared(
+        "q9.outer", f"probe/{tag}/outer", declared_effects=(eff,), applier=_apply,
+        operation_key=operation_key("q9.outer", tag),
+        compensators=(compensator(eff.signature, lambda: delete(f"{tag}-outer"), "delete outer"),),
+    )
+    # مُصرِّحٌ ثالثٌ يقرأُ الملفَّ من جديد: هل الحالةُ على القرصِ متّسقة؟
+    fresh = new_authorizer("s6f", shared_dir=shared)
+    show("S6 separate authorizers, same ledger file", outer_auth, {
+        "outer evidence fp == outer gateway record fp": res.evidence.request_fingerprint
+        == outer_auth.gateway.records[-1].fingerprint,
+        "fresh reader of ledger file": ledger_dump(fresh),
+    }, other=inner_auth)
+
+
+# ── S7: فعلُ مالٍ متعشِّشٌ بفاعلِ الخزانة (هل تأذنُ البوابةُ للتعشيشِ بين فاعلَين؟) ──
+def s7():
+    exec_auth = new_authorizer("s7e")
+    treas_auth = new_authorizer("s7t", actor="TREASURY")
+    tag = "s7"
+    eff = declared_effect("WRITE", f"probe/{tag}/expenditure", "wrapper status")
+
+    def _apply(_e):
+        r = inner_call(treas_auth, tag, action="disburse_funds", target=f"probe/{tag}/treasury/txn")
+        print("  inner disburse_funds decision:", gw_dump(treas_auth))
+        return insert(f"{tag}-outer", "outer") | {"inner_permit": r.outcome.permit_id}
+
+    try:
+        res = exec_auth.guard_declared(
+            "execute_transfer", f"probe/{tag}/expenditure", declared_effects=(eff,), applier=_apply,
+            operation_key=operation_key("q9.outer", tag),
+            compensators=(compensator(eff.signature, lambda: delete(f"{tag}-outer"), "revert outer"),),
+        )
+        print("outer value:", res.value)
+    except Exception as exc:  # noqa: BLE001
+        print("raised to caller:", exc_chain(exc))
+    show("S7 money verbs: EXECUTIVE execute_transfer -> TREASURY disburse_funds", exec_auth, other=treas_auth)
+
+
+# ── S7b: فاعلُ الخزانةِ في الطبقتين — مالٌ داخلَ مال (شكلُ execute_transfer → disburse بعدَ M1) ──
+def s7b():
+    outer_auth = new_authorizer("s7bo", actor="TREASURY")
+    inner_auth = new_authorizer("s7bi", actor="TREASURY")
+    tag = "s7b"
+    eff = declared_effect("WRITE", f"probe/{tag}/expenditure", "wrapper status")
+
+    def _apply(_e):
+        r = inner_call(inner_auth, tag, action="disburse_funds", target=f"probe/{tag}/treasury/txn")
+        return insert(f"{tag}-outer", "outer") | {"inner_permit": r.outcome.permit_id}
+
+    try:
+        res = outer_auth.guard_declared(
+            "execute_transfer", f"probe/{tag}/expenditure", declared_effects=(eff,), applier=_apply,
+            operation_key=operation_key("q9.outer", tag),
+            compensators=(compensator(eff.signature, lambda: delete(f"{tag}-outer"), "revert outer"),),
+        )
+        print("outer value:", res.value)
+    except Exception as exc:  # noqa: BLE001
+        print("raised to caller:", exc_chain(exc))
+    show("S7b money verbs: TREASURY execute_transfer -> TREASURY disburse_funds", outer_auth, other=inner_auth)
+
+
+# ── S8: Q-11 داخلَ التعشيش — داخليٌّ بالفعلِ والهدفِ والأثرِ نفسِه في الثانيةِ نفسِها ──
+def s8():
+    auth = new_authorizer("s8")
+    tag = "s8"
+    tgt = f"probe/{tag}/same"
+    eff = declared_effect("CREATE", tgt, "same")
+
+    def _apply(_e):
+        inner_call(auth, tag, action="q9.same", target=tgt)
+        return insert(f"{tag}-outer", "outer")
+
+    try:
+        auth.guard_declared(
+            "q9.same", tgt, declared_effects=(eff,), applier=_apply,
+            operation_key=operation_key("q9.outer", tag),
+            compensators=(compensator(eff.signature, lambda: delete(f"{tag}-outer")),),
+        )
+    except Exception as exc:  # noqa: BLE001
+        print("raised to caller:", exc_chain(exc))
+    show("S8 inner == outer (action,target,effect) within same second", auth)
+
+
+for name, fn in [
+    ("S1", s1), ("S2", s2), ("S2b", s2b), ("S3", s3), ("S4", s4), ("S4b", s4b),
+    ("S5", s5), ("S6", s6), ("S7", s7), ("S7b", s7b), ("S8", s8),
+]:
+    scenario(name, fn)
+
+print("\nTMP =", TMP)
