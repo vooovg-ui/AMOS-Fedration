@@ -112,5 +112,5 @@ tests/test_wi107_national_registry_register_sovereign.py .........       [100%]
     from starlette.testclient import TestClient as TestClient  # noqa
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-=========== 1502 passed, 53 skipped, 1 warning in 400.28s (0:06:40) ============
+=========== 1502 passed, 53 skipped, 1 warning in 516.21s (0:08:36) ============
 exit=0

@@ -272,9 +272,13 @@ def test_bridge_actor_is_declared_parameter_defaulting_to_executive() -> None:
     assert isinstance(default, ast.Name) and default.id == "DEFAULT_ACTOR"
 
 
-# ── 4. مواضعُ بناءِ المُصرِّحِ: سبعةٌ تُعلِنُ فاعلَها وأربعةٌ تتَّكِلُ على الافتراض ──
-def test_production_authorizer_sites_split_seven_declared_four_defaulted() -> None:
-    """(محدّثة في W-617 · WI-106/F1): المُصرِّحُ السابعُ المُعلِنُ فاعلَهُ — المُفوِّضُ
+# ── 4. مواضعُ بناءِ المُصرِّحِ: ثمانيةٌ تُعلِنُ فاعلَها وأربعةٌ تتَّكِلُ على الافتراض ──
+def test_production_authorizer_sites_split_eight_declared_four_defaulted() -> None:
+    """(محدّثة في W-625 · WI-107/R1): المُصرِّحُ الثامنُ المُعلِنُ فاعلَهُ — المُفوِّضُ
+    الوطنيُّ الكسولُ في national_registry/service.py (REGISTRY_ACTOR="EXECUTIVE" · بالفعلِ
+    register · ملحقُ التصميمِ docs/audit/R1_NATIONAL_REGISTRY_REGISTER_DESIGN.md الملتزَمُ في
+    W-623 قبلَ الشِّفرةِ · بقرارِ المالكِ D17-3 خيارِ 1) على سابقةِ federation.py نفسِها.
+    والافتراضيّةُ الأربعُ كما هي. (محدّثة في W-617 · WI-106/F1): المُصرِّحُ السابعُ المُعلِنُ فاعلَهُ — المُفوِّضُ
     الاتحاديُّ الكسولُ في federation.py (FEDERATION_ACTOR="EXECUTIVE" · بالفعلِ coordinate ·
     ملحقُ التصميمِ docs/audit/F1_FEDERATION_COORDINATE_DESIGN.md الملتزَمُ في W-615 قبلَ
     الشِّفرةِ) على سابقةِ rulings.py نفسِها. والافتراضيّةُ الأربعُ كما هي.
@@ -283,7 +287,7 @@ def test_production_authorizer_sites_split_seven_declared_four_defaulted() -> No
     Q-69/D17-6) — على سابقةِ factories.py نفسِها، لا هروبًا من الإعلانِ. والافتراضيّةُ
     الأربعُ كما هي. (وكانت خمسةً بعدَ WI-082 · W-402.)"""
     sites = _authorizer_construction_sites()
-    assert len(sites["declared"]) == 7, sites["declared"]
+    assert len(sites["declared"]) == 8, sites["declared"]
     assert len(sites["defaulted"]) == 4, sites["defaulted"]
     assert sorted(Path(p.split(":")[0]).name for p in sites["declared"]) == [
         "agent_identity.py",
@@ -293,6 +297,7 @@ def test_production_authorizer_sites_split_seven_declared_four_defaulted() -> No
         "money_authority.py",
         "money_authority.py",
         "rulings.py",
+        "service.py",
     ], sites["declared"]
     assert sorted(Path(p.split(":")[0]).name for p in sites["defaulted"]) == [
         "engine.py",
@@ -303,31 +308,34 @@ def test_production_authorizer_sites_split_seven_declared_four_defaulted() -> No
 
 
 # ── 5. دَينُ W1 وتواقيعُه ─────────────────────────────────────────────────────
-def test_w1_debt_is_thirty_five_sites() -> None:
-    """(محدّثة في W-617 · F1): 50 ← 35 — خمسةَ عشرَ سطحًا عامًّا في federation.py عبرت
+def test_w1_debt_is_twenty_six_sites() -> None:
+    """(محدّثة في W-625 · R1): 35 ← 26 — أسطحُ السجلِّ الوطنيِّ التسعةُ في
+    national_registry/service.py عبرتِ الحدَّ بالفعلِ register فخرجت منَ دَينِ W1 كلُّها
+    (كلُّها كانت «سياقًا وحدَه»). (محدّثة في W-617 · F1): 50 ← 35 — خمسةَ عشرَ سطحًا عامًّا في federation.py عبرت
     الحدَّ السياديَّ بالفعلِ coordinate فخرجت منَ دَينِ W1 كلُّها (كلُّها كانت «بلا فاعلٍ»).
     (محدّثة في W-593 · J1): 52 ← 50 — issue_ruling عبرَ الحدَّ السياديَّ فخرجَ منَ
     دَينِ W1. (سابقةُ WI-082 · W-402.)"""
-    assert len(_w1_debt()) == 35
+    assert len(_w1_debt()) == 26
 
 
-def test_w1_signature_buckets_are_twenty_seven_four_four() -> None:
-    """الدعوى المحروسة (محدّثة في W-617 · F1: 19 ← 4 في «بلا فاعلٍ» — سطوحُ federation.py
+def test_w1_signature_buckets_are_eighteen_four_four() -> None:
+    """الدعوى المحروسة (محدّثة في W-625 · R1: 27 ← 18 في «سياقٍ وحدَه» — أسطحُ
+    السجلِّ الوطنيِّ التسعةُ خرجت) (ومحدّثة في W-617 · F1: 19 ← 4 في «بلا فاعلٍ» — سطوحُ federation.py
     الخمسةَ عشرَ خرجت منه) (ومحدّثة في W-593 · J1: 28/20 ← 27/19): 27 سياقًا وحدَه ·
     4 فاعلًا مُسمّىً · 4 بلا فاعلٍ بأيِّ صورةٍ · 0 كِلاهما."""
     buckets = _signature_buckets()
     counts = {key: len(value) for key, value in buckets.items()}
     assert counts == {
-        "context_only": 27,
+        "context_only": 18,
         "actor_named": 4,
         "neither": 4,
         "both": 0,
     }, counts
-    assert sum(counts.values()) == 35
+    assert sum(counts.values()) == 26
 
 
 def test_no_w1_debt_site_declares_a_branch_today() -> None:
-    """لا موضعَ واحدًا منَ الـ50 (كانت 52 قبلَ J1 · W-593) يُمرِّرُ فرعًا — فالفرعُ اليومَ لا يُعلَنُ في التوقيعِ أصلًا."""
+    """لا موضعَ واحدًا منَ الـ26 (كانت 35 قبلَ R1 · W-625 · و50 قبلَ F1 · و52 قبلَ J1 · W-593) يُمرِّرُ فرعًا — فالفرعُ اليومَ لا يُعلَنُ في التوقيعِ أصلًا."""
     for site in _w1_debt():
         source = (REPO_ROOT / site.path).read_text(encoding="utf-8")
         node = _function_node(ast.parse(source), site.function)
@@ -340,11 +348,14 @@ def test_no_w1_debt_site_declares_a_branch_today() -> None:
 
 # ── 6. أثرُ الإعلانِ على الحكم — من المُحرِّكِ نفسِه ──────────────────────────
 def test_no_debt_action_is_branch_sensitive_today() -> None:
-    """الدعوى المحروسة (محدّثة في W-617 · F1: 43/41/0 ← 29/27/0 — أربعةَ عشرَ اسمَ فعلٍ منَ
+    """الدعوى المحروسة (محدّثة في W-625 · R1: 29/27/2 ← 20/20/0 — أسطحُ السجلِّ الوطنيِّ
+    التسعةُ خرجت منَ الدَّينِ كلِّه ومنها الممنوعانِ grant_authority/revoke_authority: عبورُها
+    بالفعلِ register لا يعني إذنَ المحرّكِ لها — الحكمُ حقيقيٌّ عندَ الحدِّ وT3 قِيسَ على
+    رفضٍ فعليٍّ) (ومحدّثة في W-617 · F1: 43/41/0 ← 29/27/0 — أربعةَ عشرَ اسمَ فعلٍ منَ
     federation.py خرجت منَ الدَّينِ كلِّه، والممنوعانِ كما هما) (ومحدّثة في W-593 · J1: 44/41/1 ← 43/41/0 — issue_ruling كانَ الحسّاسَ الوحيدَ فخرجَ منَ الدَّينِ كلِّهِ فلم يبقَ حسّاسٌ فيه): من 29 اسمَ فعلٍ في دَينِ W1 —
     27 خارجَ المعجمِ · 0 حسّاسٌ للفرعِ · 2 ممنوعانِ لكلِّ فاعل."""
     actions = sorted({site.function.split(".")[-1] for site in _w1_debt()})
-    assert len(actions) == 29, actions
+    assert len(actions) == 20, actions
     actors = ["EXECUTIVE", "JUDICIAL", "LEGISLATIVE", "TREASURY", "ROYAL"]
     verdicts = _engine_verdicts(actions, actors)
 
@@ -358,9 +369,9 @@ def test_no_debt_action_is_branch_sensitive_today() -> None:
         else:
             sensitive.append(action)
 
-    assert len(outside) == 27, sorted(outside)
+    assert len(outside) == 20, sorted(outside)
     assert sensitive == [], sensitive
-    assert sorted(denied) == ["grant_authority", "revoke_authority"], sorted(denied)
+    assert denied == [], sorted(denied)
 
 
 def test_issue_ruling_is_denied_for_the_default_actor_and_allowed_for_judicial() -> (

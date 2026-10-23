@@ -20,7 +20,7 @@ E
 E     - executive
 E     + judicial
 ____________________ test_wi107_t8_actor_and_verb_constants ____________________
-tests/test_wi107_national_registry_register_sovereign.py:696: in test_wi107_t8_actor_and_verb_constants
+tests/test_wi107_national_registry_register_sovereign.py:695: in test_wi107_t8_actor_and_verb_constants
     assert national_registry_module.REGISTRY_ACTOR == "EXECUTIVE"
 E   AssertionError: assert 'JUDICIAL' == 'EXECUTIVE'
 E     
@@ -29,4 +29,4 @@ E     + JUDICIAL
 =========================== short test summary info ============================
 FAILED tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t1_every_surface_crosses_as_register
 FAILED tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t8_actor_and_verb_constants
-============================== 2 failed in 2.04s ===============================
+============================== 2 failed in 2.46s ===============================

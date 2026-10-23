@@ -13,12 +13,12 @@ tests/test_wi107_national_registry_register_sovereign.py FF              [100%]
 
 =================================== FAILURES ===================================
 ______________ test_wi107_t4_compensator_removes_created_identity ______________
-tests/test_wi107_national_registry_register_sovereign.py:522: in test_wi107_t4_compensator_removes_created_identity
+tests/test_wi107_national_registry_register_sovereign.py:521: in test_wi107_t4_compensator_removes_created_identity
     assert _count(IdentityModel) == 0
 E   assert 1 == 0
 E    +  where 1 = _count(IdentityModel)
 ____________ test_wi107_t5_compensator_restores_revoked_assignment _____________
-tests/test_wi107_national_registry_register_sovereign.py:576: in test_wi107_t5_compensator_restores_revoked_assignment
+tests/test_wi107_national_registry_register_sovereign.py:575: in test_wi107_t5_compensator_restores_revoked_assignment
     assert _assignment_fields(assignment_id) == ("active", None, ""), (
 E   AssertionError: المُعوِّضُ لم يُرجِعْ الصفَّ كما كان
 E   assert ('revoked', d...), 'قياسُ T5') == ('active', None, '')
@@ -28,4 +28,4 @@ E     Use -v to get more diff
 =========================== short test summary info ============================
 FAILED tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t4_compensator_removes_created_identity
 FAILED tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t5_compensator_restores_revoked_assignment
-============================== 2 failed in 2.01s ===============================
+============================== 2 failed in 2.45s ===============================

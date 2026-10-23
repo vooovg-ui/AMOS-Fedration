@@ -13,8 +13,8 @@ flaky tests caused by stale SQLite files. Never touches production DB.
 
 import contextlib
 import os
-import sys
 import shutil
+import sys
 import tempfile
 from pathlib import Path
 

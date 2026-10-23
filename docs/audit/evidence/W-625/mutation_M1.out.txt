@@ -21,11 +21,11 @@ E     Extra items in the right set:
 E     'NationalRegistry.create_identity'
 E     Use -v to get more diff
 _________ test_wi107_t3_denied_crossing_leaves_every_surface_untouched _________
-tests/test_wi107_national_registry_register_sovereign.py:484: in test_wi107_t3_denied_crossing_leaves_every_surface_untouched
+tests/test_wi107_national_registry_register_sovereign.py:483: in test_wi107_t3_denied_crossing_leaves_every_surface_untouched
     with pytest.raises(SovereigntyViolation):
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E   Failed: DID NOT RAISE SovereigntyViolation
 =========================== short test summary info ============================
 FAILED tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t1_every_surface_crosses_as_register
 FAILED tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t3_denied_crossing_leaves_every_surface_untouched
-============================== 2 failed in 2.50s ===============================
+============================== 2 failed in 3.14s ===============================

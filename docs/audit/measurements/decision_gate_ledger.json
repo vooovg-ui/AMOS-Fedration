@@ -189,6 +189,22 @@
    "kind": "work_drift",
    "reason": "F1: سطوحُ federation.py تعبرُ الحدَّ بالفعلِ coordinate — الدَّينُ 181 ← 166",
    "recorded_at": "2026-10-22T12:23:07+00:00"
+  },
+  {
+   "debt": 157,
+   "sovereign": 42,
+   "closed_legacy": 7,
+   "write_sites_total": 246,
+   "git_head": "f65ae2d",
+   "waves": {
+    "W1": 26,
+    "W2": 34,
+    "W3": 97
+   },
+   "decision": "W-625",
+   "kind": "work_drift",
+   "reason": "حرقُ R1 (W-625 · WI-107): أسطحُ السجلِّ الوطنيِّ التسعةُ عبرتِ الحدَّ — الدَّينُ 166 ← 157 والموجةُ W1: 35 ← 26 · المواضعُ 236 ← 246 والسياديُّ 33 ← 42 (evidence/W-625/inventory_after_wi107.json)",
+   "recorded_at": "2026-10-23T08:55:36+00:00"
   }
  ]
 }

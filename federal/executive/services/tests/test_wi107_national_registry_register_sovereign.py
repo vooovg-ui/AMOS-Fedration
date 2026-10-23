@@ -37,14 +37,18 @@ import math
 import sys
 import time
 import uuid
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 import pytest
-from sqlalchemy import create_engine, delete, select
+from sqlalchemy import select
 
-from amos_federation.common.database import get_database_url, get_session_factory, init_db
+from amos_federation.common.database import get_session_factory, init_db
 from amos_federation.common.principal import (
     DEFAULT_TENANT,
     AuthorizationContext,
@@ -60,8 +64,6 @@ from amos_federation.services.national_registry.models import (
     IdentityPrincipalModel,
     OfficialPositionModel,
     PositionModel,
-    DecisionProvenanceModel,
-    TransactionAuthorityModel,
 )
 from amos_federation.services.national_registry.service import (
     REGISTRY_ACTOR,
@@ -79,8 +81,6 @@ from amos_federation.services.state_registry.service import (
     get_state_registry,
     reset_state_registry,
 )
-from amos_federation.services.state_treasury.models import LedgerEntryModel
-from tests.conftest import purge_agents, purge_tasks
 
 #: الأسطحُ التسعةُ المقيسةُ بعدَ الشِّفرةِ (جردُ evidence/W-623 + تعديلاتُ W-625).
 EXPECTED_OPERATIONS = frozenset(
@@ -121,7 +121,8 @@ def _purge_registry_state() -> None:
     يتيمًا — وهو عينُ ما يفعلهُ حذفُ ملفِّ القاعدةِ نفسِه في بدايةِ الجلسةِ
     (`pytest_sessionstart`)، بلا إعادةِ إنشاءِ المخطَّطِ.
     """
-    from sqlalchemy import inspect as sa_inspect, text as sa_text
+    from sqlalchemy import inspect as sa_inspect
+    from sqlalchemy import text as sa_text
 
     init_db()
     session = get_session_factory()()
@@ -320,7 +321,6 @@ def _chain(crown: AuthorizationContext) -> _Chain:
 
 def _exercise_all_surfaces(crown: AuthorizationContext) -> None:
     """استدعاءُ الأسطحِ التسعةِ كلِّها مرّةً — بالواجهةِ العامّةِ كما هي."""
-    state = get_state_registry()
     national = get_national_registry()
     chain = _chain(crown)
 
@@ -421,7 +421,6 @@ def test_wi107_t3_denied_crossing_leaves_every_surface_untouched(
 
     # التحضيرُ بالفاعلِ الصحيحِ: كيانٌ قائمٌ لكلِّ سطحٍ، وسلسلةٌ كاملةٌ
     crown = _crown()
-    state = get_state_registry()
     national = get_national_registry()
     chain = _chain(crown)
     spare_identity = national.create_identity(
