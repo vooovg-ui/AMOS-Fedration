@@ -1,0 +1,1646 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+rootdir: /home/user/workspace/amos/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.5, cov-7.1.0, anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1555 items
+
+tests/test_1n_boundary_integration.py ..........                         [  0%]
+tests/test_2a_precedent_correction.py ...........                        [  1%]
+tests/test_2a_sovereign_runtime_integration.py .............             [  2%]
+tests/test_2b_government_services_sovereign.py ......................... [  3%]
+..............                                                           [  4%]
+tests/test_2b_state_registry_sovereign.py .............................. [  6%]
+.......................                                                  [  8%]
+tests/test_agent_runtime.py ......                                       [  8%]
+tests/test_api_gateway.py ...                                            [  8%]
+tests/test_audit_canonical_record.py ..................                  [  9%]
+tests/test_auth.py ...                                                   [ 10%]
+tests/test_benchmark.py ..........                                       [ 10%]
+tests/test_common_branches.py .......................................... [ 13%]
+.....                                                                    [ 13%]
+tests/test_config.py ...                                                 [ 13%]
+tests/test_control_console.py .........................                  [ 15%]
+tests/test_critic.py ...........                                         [ 16%]
+tests/test_durable_bus_branches.py ...........                           [ 16%]
+tests/test_e2e.py ...                                                    [ 17%]
+tests/test_edge_branches.py .........                                    [ 17%]
+tests/test_event_bus.py ..............                                   [ 18%]
+tests/test_event_schemas.py .....                                        [ 18%]
+tests/test_executive_core.py ..............................              [ 20%]
+tests/test_expansion.py .....................................            [ 23%]
+tests/test_experience.py ...........                                     [ 23%]
+tests/test_federation.py ...........................................     [ 26%]
+tests/test_governance.py ...........................                     [ 28%]
+tests/test_governance_phase3.py .........................                [ 30%]
+tests/test_hash_chain.py ......                                          [ 30%]
+tests/test_health.py ..............                                      [ 31%]
+tests/test_health_system.py ................................             [ 33%]
+tests/test_inmemory_stores.py ................................           [ 35%]
+tests/test_king_login_boundary.py ......................                 [ 36%]
+tests/test_memory_service.py ........                                    [ 37%]
+tests/test_model_gateway.py ....                                         [ 37%]
+tests/test_model_layer.py ..............                                 [ 38%]
+tests/test_models.py ...                                                 [ 38%]
+tests/test_orchestrator.py .......                                       [ 39%]
+tests/test_p13_factories_sovereign.py ......................             [ 40%]
+tests/test_persistence.py ........                                       [ 41%]
+tests/test_phase12_states.py .................                           [ 42%]
+tests/test_phase13_factories.py .............                            [ 43%]
+tests/test_phase14_15_learning.py ..............                         [ 43%]
+tests/test_phase16_security.py ................                          [ 44%]
+tests/test_phase17_system_life.py ............                           [ 45%]
+tests/test_phase1_postgres.py ssssssss                                   [ 46%]
+tests/test_phase1_postgres_events.py sssssssssssssssss                   [ 47%]
+tests/test_phase2_events.py ...........................                  [ 49%]
+tests/test_phase3_governance.py ........................                 [ 50%]
+tests/test_phase4_tools.py ..................                            [ 51%]
+tests/test_phase5_models.py ...........                                  [ 52%]
+tests/test_phase6_population.py ...............                          [ 53%]
+tests/test_phase7_health.py .........                                    [ 54%]
+tests/test_population.py ..................                              [ 55%]
+tests/test_q19_money_delegation.py ............................          [ 56%]
+tests/test_q20_money_representation.py .......ss..................       [ 58%]
+tests/test_q31_money_engine_wiring.py ............                       [ 59%]
+tests/test_q32_money_enforcement_surface.py ...............              [ 60%]
+tests/test_r1_canonical_execution_path.py .................              [ 61%]
+tests/test_r2_task_execution_integration.py .........................    [ 63%]
+tests/test_r3_agent_runtime_integration.py .............                 [ 63%]
+tests/test_r4_agent_identity_and_population.py ................          [ 65%]
+tests/test_r5_multi_provider_sandbox.py ...................              [ 66%]
+tests/test_r6_1_authorization_closure.py ..................              [ 67%]
+tests/test_r6_identity_authorization_root.py .................           [ 68%]
+tests/test_r7_government_services.py ................................    [ 70%]
+tests/test_r7_state_registry.py ..........................               [ 72%]
+tests/test_r7b_state_treasury.py ....................................    [ 74%]
+tests/test_r7c_national_registry.py ...................................  [ 76%]
+tests/test_r7d_federal_judiciary.py .EEEEEEEEEEEEEEEEE.EEEEEEEE          [ 78%]
+tests/test_r8_federal_state_integration.py EEEEEE.EEEEEEEEEEEEEEE.EEEEEE [ 80%]
+EEEE                                                                     [ 80%]
+tests/test_r9_national_economic_state.py EEEEEEEEEEEEEEEEEEEEEEEEEEEE... [ 82%]
+.EEEEEEEEEEEEE                                                           [ 83%]
+tests/test_real_tools.py ....................                            [ 84%]
+tests/test_shadow.py ..........                                          [ 85%]
+tests/test_step19_durable_governance_state.py ........                   [ 85%]
+tests/test_step7_gate_denial.py .....                                    [ 86%]
+tests/test_tool_registry.py .......                                      [ 86%]
+tests/test_training.py ...............                                   [ 87%]
+tests/test_treasury.py ................................                  [ 89%]
+tests/test_w032_registry_ownership.py .............                      [ 90%]
+tests/test_w033_cost_record_durability.py .........                      [ 91%]
+tests/test_w036_cost_precision.py ...........                            [ 91%]
+tests/test_w166_postgres_driver_declared.py ................             [ 92%]
+tests/test_w190_durable_model_registry.py ..                             [ 93%]
+tests/test_w308_test_ledger_is_per_session.py ...                        [ 93%]
+tests/test_wi062_migrations_cover_orm_tables.py ..s                      [ 93%]
+tests/test_wi063_tenant_isolation_http.py ..ss..ss.s..ss.s.s.s..s.s.     [ 95%]
+tests/test_wi064_migrations_follow_orm.py .s                             [ 95%]
+tests/test_wi065_orm_declares_jsonb_timestamptz.py ..s                   [ 95%]
+tests/test_wi066_convert_create_all_databases.py .sssss                  [ 95%]
+tests/test_wi066_pg_session_isolation.py .ss                             [ 96%]
+tests/test_wi067_legal_search_isolated.py .......................        [ 97%]
+tests/test_wi076_pg_backup_restore.py ssss                               [ 97%]
+tests/test_wi082_agent_identity_sovereign.py ........                    [ 98%]
+tests/test_wi105_issue_ruling_sovereign.py EEEEEEE.EE                    [ 98%]
+tests/test_wi106_federation_coordinate_sovereign.py ........             [ 99%]
+tests/test_wi107_national_registry_register_sovereign.py EEEEEEEEE       [100%]
+
+==================================== ERRORS ====================================
+____ ERROR at setup of test_02_jurisdiction_is_explicit_and_never_a_ladder _____
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:53.962925Z"}
+_____ ERROR at setup of test_03_judge_appointment_requires_the_whole_chain _____
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:54.161040Z"}
+___ ERROR at setup of test_04_role_and_permission_are_not_judicial_authority ___
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:54.302733Z"}
+_____________ ERROR at setup of test_05_suspended_judge_is_denied ______________
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:54.440496Z"}
+__ ERROR at setup of test_06_judge_outside_the_courts_jurisdiction_is_denied ___
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:54.832239Z"}
+_ ERROR at setup of test_07_case_lifecycle_is_ordered_with_no_force_transition _
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:54.975956Z"}
+__ ERROR at setup of test_08_party_must_be_a_canonical_identity_not_a_string ___
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:55.113345Z"}
+__ ERROR at setup of test_09_claim_records_an_unverified_legal_basis_honestly __
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:55.250957Z"}
+_ ERROR at setup of test_10_evidence_is_a_deposit_record_and_claims_no_chain_of_custody _
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:55.389019Z"}
+_ ERROR at setup of test_11_proceedings_are_sequenced_and_ruling_type_is_reserved _
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:55.527261Z"}
+_ ERROR at setup of test_12_ruling_requires_proven_authority_and_links_to_the_case _
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:55.663240Z"}
+_____ ERROR at setup of test_13_second_ruling_for_the_same_stage_is_denied _____
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:55.801999Z"}
+__ ERROR at setup of test_14_judicial_chain_is_readable_and_names_every_link ___
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:55.940826Z"}
+____ ERROR at setup of test_15_enforcement_goes_through_executive_core_task ____
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:56.330583Z"}
+____ ERROR at setup of test_16_ruling_never_bypasses_treasury_authorization ____
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:56.467327Z"}
+____ ERROR at setup of test_17_every_judicial_action_writes_audit_and_event ____
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:56.607708Z"}
+__ ERROR at setup of test_18_unauthorized_and_cross_tenant_actions_are_denied __
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:56.802052Z"}
+_ ERROR at setup of test_20_court_registration_rejects_unknown_levels_codes_and_institutions _
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:56.963856Z"}
+_ ERROR at setup of test_21_status_changes_need_a_written_reason_and_a_known_vocabulary _
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:57.101035Z"}
+_ ERROR at setup of test_22_appointing_a_judge_reads_the_whole_chain_from_the_database _
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:57.238034Z"}
+_ ERROR at setup of test_23_opening_and_assigning_a_case_enforces_every_named_row _
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:57.375995Z"}
+_ ERROR at setup of test_24_a_case_is_never_closed_by_a_plain_transition_and_never_without_a_reason _
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:57.521100Z"}
+_ ERROR at setup of test_25_parties_claims_evidence_and_proceedings_enforce_closed_vocabularies _
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:57.669939Z"}
+__ ERROR at setup of test_26_a_closed_case_accepts_no_new_parties_or_evidence __
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:58.085471Z"}
+_ ERROR at setup of test_27_listings_filter_by_jurisdiction_status_and_inactive_judges _
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:58.224388Z"}
+_ ERROR at setup of test_01_state_is_a_row_with_stable_identity_and_federal_relation _
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:58.357109Z"}
+_ ERROR at setup of test_02_state_requires_a_federal_parent_and_federal_forbids_one _
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:58.489848Z"}
+_______ ERROR at setup of test_03_duplicate_state_code_is_refused_twice ________
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:58.620828Z"}
+____ ERROR at setup of test_04_government_lifecycle_never_destroys_history _____
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:58.755155Z"}
+___ ERROR at setup of test_05_institution_belongs_to_exactly_one_government ____
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:58.896836Z"}
+__ ERROR at setup of test_06_unbound_institution_reads_unresolved_not_a_guess __
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:59.081134Z"}
+___ ERROR at setup of test_08_federal_position_cannot_act_on_a_state_target ____
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:59.240241Z"}
+___________ ERROR at setup of test_09_state_a_cannot_act_on_state_b ____________
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:59.388444Z"}
+__ ERROR at setup of test_10_department_scope_cannot_reach_institution_level ___
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:59.805295Z"}
+___________ ERROR at setup of test_11_role_string_is_never_authority ___________
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:47:59.951139Z"}
+_________ ERROR at setup of test_12_relations_describe_and_never_grant _________
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:00.153379Z"}
+_ ERROR at setup of test_13_explicit_delegation_is_the_only_crossing_and_is_revocable _
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:00.297898Z"}
+_ ERROR at setup of test_14_delegation_requires_exactly_one_target_and_no_invented_operation _
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:00.434880Z"}
+_ ERROR at setup of test_15_delegation_never_grants_authority_to_a_principal_without_a_position _
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:00.584165Z"}
+______ ERROR at setup of test_16_service_scope_is_explicit_and_consistent ______
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:00.729487Z"}
+_ ERROR at setup of test_17_federal_scope_without_a_binding_is_refused_as_unresolved _
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:00.877116Z"}
+______ ERROR at setup of test_18_case_provenance_records_the_whole_chain _______
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:01.023151Z"}
+__ ERROR at setup of test_19_unprovable_provenance_is_never_written_as_proven __
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:01.170009Z"}
+_ ERROR at setup of test_20_execution_goes_through_executive_core_and_records_a_real_task _
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:01.600124Z"}
+____ ERROR at setup of test_21_unauthorized_execution_never_creates_a_task _____
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:01.746901Z"}
+_ ERROR at setup of test_22_treasury_write_requires_scoped_treasury_authority __
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:01.890012Z"}
+_ ERROR at setup of test_24_agent_membership_grants_no_federal_or_state_authority _
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:02.075084Z"}
+_ ERROR at setup of test_25_crown_authority_is_preserved_and_forged_authority_is_refused _
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:02.216419Z"}
+_ ERROR at setup of test_26_tenant_boundary_holds_and_tenant_is_never_authority _
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:02.360780Z"}
+_ ERROR at setup of test_27_single_authorization_engine_and_single_event_vocabulary _
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:02.493916Z"}
+___ ERROR at setup of test_28_every_write_correlates_audit_and_durable_event ___
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:02.641139Z"}
+____ ERROR at setup of test_29_closed_vocabularies_are_rejected_at_the_door ____
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:02.780143Z"}
+_ ERROR at setup of test_30_unknown_scope_levels_are_refused_in_every_scoped_entry _
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:03.225311Z"}
+_ ERROR at setup of test_31_revoking_a_delegation_needs_a_reason_and_happens_once _
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:03.379297Z"}
+__ ERROR at setup of test_32_scoping_reads_the_rows_it_names_and_invents_none __
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:03.572465Z"}
+_ ERROR at setup of test_33_an_unbound_institution_has_no_invented_government_scope _
+tests/test_r8_federal_state_integration.py:260: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:03.721492Z"}
+_ ERROR at setup of test_01_economic_entities_have_stable_identity_and_explicit_ownership _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:03.869687Z"}
+_____ ERROR at setup of test_02_duplicate_codes_are_rejected_within_tenant _____
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:04.021001Z"}
+_ ERROR at setup of test_03_federal_scope_program_is_owned_by_federal_government _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:04.168495Z"}
+___ ERROR at setup of test_04_state_scope_program_is_owned_by_its_own_state ____
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:04.321219Z"}
+______ ERROR at setup of test_05_institution_scope_is_narrower_than_state ______
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:04.472810Z"}
+__ ERROR at setup of test_06_department_scope_requires_department_identifier ___
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:04.915067Z"}
+________ ERROR at setup of test_07_cross_state_economic_write_is_denied ________
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:05.072691Z"}
+_ ERROR at setup of test_08_policy_is_not_executable_merely_because_it_exists __
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:05.224340Z"}
+_ ERROR at setup of test_09_policy_activation_requires_second_authorized_operation _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:05.378859Z"}
+____ ERROR at setup of test_10_revenue_source_is_definition_not_collection _____
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:05.531187Z"}
+______ ERROR at setup of test_11_expenditure_authorization_moves_no_money ______
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:05.682693Z"}
+_ ERROR at setup of test_12_expenditure_execution_uses_the_canonical_treasury __
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:05.838510Z"}
+_ ERROR at setup of test_13_unauthorized_treasury_operation_is_denied_and_leaves_no_trace _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:05.998064Z"}
+_ ERROR at setup of test_14_transfers_are_authorized_then_paid_by_treasury[GRANT-economy.grant.authorize] _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:06.157267Z"}
+_ ERROR at setup of test_14_transfers_are_authorized_then_paid_by_treasury[SUBSIDY-economy.subsidy.authorize] _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:06.648306Z"}
+_ ERROR at setup of test_15_transfer_beneficiary_must_be_a_canonical_identity __
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:06.816342Z"}
+_ ERROR at setup of test_16_public_asset_registration_claims_no_external_ownership _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:06.974643Z"}
+_ ERROR at setup of test_17_public_liability_requires_real_creditor_and_claims_no_enforceability _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:07.133612Z"}
+____ ERROR at setup of test_18_procurement_is_an_internal_abstraction_only _____
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:07.287642Z"}
+____________ ERROR at setup of test_19_revoked_authority_is_denied _____________
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:07.441946Z"}
+_____ ERROR at setup of test_20_expired_session_is_denied_before_any_write _____
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:07.598587Z"}
+_______ ERROR at setup of test_21_provenance_is_reported_not_fabricated ________
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:07.751101Z"}
+_ ERROR at setup of test_22_economic_decision_executes_through_executive_core __
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:07.913979Z"}
+_ ERROR at setup of test_23_agent_economic_authorization_flows_through_identity _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:08.071120Z"}
+__ ERROR at setup of test_24_crown_authority_cannot_be_claimed_by_role_alone ___
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:08.582371Z"}
+_________ ERROR at setup of test_25_forged_official_claim_is_rejected __________
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:08.751354Z"}
+___ ERROR at setup of test_26_tenant_boundary_is_enforced_on_economic_reads ____
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:08.903314Z"}
+_ ERROR at setup of test_27_events_and_audit_are_correlated_with_the_decision __
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:09.062807Z"}
+___ ERROR at setup of test_32_capability_classifications_are_stated_honestly ___
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:09.272115Z"}
+_____ ERROR at setup of test_33_currency_code_must_be_three_upper_letters ______
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:09.416183Z"}
+_ ERROR at setup of test_34_unknown_government_or_institution_is_not_invented __
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:09.559893Z"}
+_ ERROR at setup of test_35_sector_scope_is_a_government_level_not_an_institution_one _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:09.708864Z"}
+_____ ERROR at setup of test_36_category_code_is_unique_within_its_sector ______
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:09.857018Z"}
+_ ERROR at setup of test_37_indicator_definition_cannot_claim_a_real_measurement _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:10.371211Z"}
+___ ERROR at setup of test_38_unknown_vocabularies_are_rejected_not_widened ____
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:10.518861Z"}
+_ ERROR at setup of test_39_money_guards_reject_non_positive_amounts_and_empty_purpose _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:10.663964Z"}
+_ ERROR at setup of test_40_asset_book_value_and_currency_are_declared_together_or_not_at_all _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:10.809563Z"}
+__ ERROR at setup of test_41_references_that_do_not_exist_are_not_fabricated ___
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:10.955987Z"}
+_ ERROR at setup of test_42_program_scope_and_category_guards_run_before_any_row_is_written _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:11.100329Z"}
+_ ERROR at setup of test_43_an_institution_with_no_government_yields_no_invented_one _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:11.248374Z"}
+_ ERROR at setup of test_44_unknown_institution_code_stops_the_authorization_chain _
+tests/test_r9_national_economic_state.py:308: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:48:11.394203Z"}
+__ ERROR at setup of test_wi105_t1_issue_ruling_crosses_boundary_as_judicial ___
+tests/test_wi105_issue_ruling_sovereign.py:288: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:49:32.227065Z"}
+__________ ERROR at setup of test_wi105_t2_executive_actor_is_denied ___________
+tests/test_wi105_issue_ruling_sovereign.py:288: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:49:32.387137Z"}
+____ ERROR at setup of test_wi105_t3_jurisdiction_request_carries_live_data ____
+tests/test_wi105_issue_ruling_sovereign.py:288: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:49:32.522166Z"}
+_ ERROR at setup of test_wi105_t4_replacement_after_vacation_uses_new_generation _
+tests/test_wi105_issue_ruling_sovereign.py:288: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:49:32.918596Z"}
+------------------------------ Captured log setup ------------------------------
+WARNING  opentelemetry.exporter.otlp.proto.grpc.exporter:exporter.py:478 Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.93s. Error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+______ ERROR at setup of test_wi105_t5_duplicate_rejected_before_boundary ______
+tests/test_wi105_issue_ruling_sovereign.py:288: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:49:33.054924Z"}
+_ ERROR at setup of test_wi105_t6p_boundary_compensates_failed_settle_on_production_path _
+tests/test_wi105_issue_ruling_sovereign.py:288: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:49:33.190114Z"}
+__ ERROR at setup of test_wi105_t7_replay_with_missing_row_raises_divergence ___
+tests/test_wi105_issue_ruling_sovereign.py:288: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:49:33.329597Z"}
+__ ERROR at setup of test_wi105_t9_failing_compensator_closes_operation_final __
+tests/test_wi105_issue_ruling_sovereign.py:288: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:49:34.138235Z"}
+___ ERROR at setup of test_wi105_t10_second_failed_episode_compensates_again ___
+tests/test_wi105_issue_ruling_sovereign.py:288: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+---------------------------- Captured stdout setup -----------------------------
+{"message": "تلاعب في السجل audit-630de8a6-d61a-4619-9369-5e12256e214a — hash لا يطابق المحتوى", "event": "audit.chain_broken_on_init", "level": "warning", "timestamp": "2026-10-23T04:49:34.286727Z"}
+______ ERROR at setup of test_wi107_t1_every_surface_crosses_as_register _______
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+
+The above exception was the direct cause of the following exception:
+tests/test_wi107_national_registry_register_sovereign.py:129: in _fresh_registry
+    session.query(model).delete()
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py:3275: in delete
+    self.session.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2473: in execute
+    return self._execute_internal(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2363: in _execute_internal
+    compile_state_cls.orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:2068: in orm_execute_statement
+    return super().orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py:320: in orm_execute_statement
+    result = conn.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1463: in execute
+    return meth(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1683: in _execute_clauseelement
+    ret = self._execute_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1837: in _execute_context
+    return self._exec_single_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1977: in _exec_single_context
+    self._handle_dbapi_exception(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2347: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) FOREIGN KEY constraint failed
+E   [SQL: DELETE FROM state_institutions]
+E   (Background on this error at: https://sqlalche.me/e/21/gkpj)
+_ ERROR at setup of test_wi107_t2_declared_actor_flows_from_the_unit_constant __
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+
+The above exception was the direct cause of the following exception:
+tests/test_wi107_national_registry_register_sovereign.py:129: in _fresh_registry
+    session.query(model).delete()
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py:3275: in delete
+    self.session.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2473: in execute
+    return self._execute_internal(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2363: in _execute_internal
+    compile_state_cls.orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:2068: in orm_execute_statement
+    return super().orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py:320: in orm_execute_statement
+    result = conn.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1463: in execute
+    return meth(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1683: in _execute_clauseelement
+    ret = self._execute_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1837: in _execute_context
+    return self._exec_single_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1977: in _exec_single_context
+    self._handle_dbapi_exception(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2347: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) FOREIGN KEY constraint failed
+E   [SQL: DELETE FROM state_institutions]
+E   (Background on this error at: https://sqlalche.me/e/21/gkpj)
+_ ERROR at setup of test_wi107_t3_denied_crossing_leaves_every_surface_untouched _
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+
+The above exception was the direct cause of the following exception:
+tests/test_wi107_national_registry_register_sovereign.py:129: in _fresh_registry
+    session.query(model).delete()
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py:3275: in delete
+    self.session.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2473: in execute
+    return self._execute_internal(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2363: in _execute_internal
+    compile_state_cls.orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:2068: in orm_execute_statement
+    return super().orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py:320: in orm_execute_statement
+    result = conn.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1463: in execute
+    return meth(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1683: in _execute_clauseelement
+    ret = self._execute_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1837: in _execute_context
+    return self._exec_single_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1977: in _exec_single_context
+    self._handle_dbapi_exception(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2347: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) FOREIGN KEY constraint failed
+E   [SQL: DELETE FROM state_institutions]
+E   (Background on this error at: https://sqlalche.me/e/21/gkpj)
+_____ ERROR at setup of test_wi107_t4_compensator_removes_created_identity _____
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+
+The above exception was the direct cause of the following exception:
+tests/test_wi107_national_registry_register_sovereign.py:129: in _fresh_registry
+    session.query(model).delete()
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py:3275: in delete
+    self.session.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2473: in execute
+    return self._execute_internal(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2363: in _execute_internal
+    compile_state_cls.orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:2068: in orm_execute_statement
+    return super().orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py:320: in orm_execute_statement
+    result = conn.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1463: in execute
+    return meth(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1683: in _execute_clauseelement
+    ret = self._execute_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1837: in _execute_context
+    return self._exec_single_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1977: in _exec_single_context
+    self._handle_dbapi_exception(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2347: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) FOREIGN KEY constraint failed
+E   [SQL: DELETE FROM state_institutions]
+E   (Background on this error at: https://sqlalche.me/e/21/gkpj)
+___ ERROR at setup of test_wi107_t5_compensator_restores_revoked_assignment ____
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+
+The above exception was the direct cause of the following exception:
+tests/test_wi107_national_registry_register_sovereign.py:129: in _fresh_registry
+    session.query(model).delete()
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py:3275: in delete
+    self.session.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2473: in execute
+    return self._execute_internal(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2363: in _execute_internal
+    compile_state_cls.orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:2068: in orm_execute_statement
+    return super().orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py:320: in orm_execute_statement
+    result = conn.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1463: in execute
+    return meth(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1683: in _execute_clauseelement
+    ret = self._execute_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1837: in _execute_context
+    return self._exec_single_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1977: in _exec_single_context
+    self._handle_dbapi_exception(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2347: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) FOREIGN KEY constraint failed
+E   [SQL: DELETE FROM state_institutions]
+E   (Background on this error at: https://sqlalche.me/e/21/gkpj)
+_ ERROR at setup of test_wi107_t6_second_link_is_refused_without_second_write __
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+
+The above exception was the direct cause of the following exception:
+tests/test_wi107_national_registry_register_sovereign.py:129: in _fresh_registry
+    session.query(model).delete()
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py:3275: in delete
+    self.session.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2473: in execute
+    return self._execute_internal(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2363: in _execute_internal
+    compile_state_cls.orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:2068: in orm_execute_statement
+    return super().orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py:320: in orm_execute_statement
+    result = conn.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1463: in execute
+    return meth(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1683: in _execute_clauseelement
+    ret = self._execute_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1837: in _execute_context
+    return self._exec_single_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1977: in _exec_single_context
+    self._handle_dbapi_exception(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2347: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) FOREIGN KEY constraint failed
+E   [SQL: DELETE FROM state_institutions]
+E   (Background on this error at: https://sqlalche.me/e/21/gkpj)
+_ ERROR at setup of test_wi107_t7_inventory_counts_nine_guarded_and_zero_debt __
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+
+The above exception was the direct cause of the following exception:
+tests/test_wi107_national_registry_register_sovereign.py:129: in _fresh_registry
+    session.query(model).delete()
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py:3275: in delete
+    self.session.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2473: in execute
+    return self._execute_internal(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2363: in _execute_internal
+    compile_state_cls.orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:2068: in orm_execute_statement
+    return super().orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py:320: in orm_execute_statement
+    result = conn.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1463: in execute
+    return meth(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1683: in _execute_clauseelement
+    ret = self._execute_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1837: in _execute_context
+    return self._exec_single_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1977: in _exec_single_context
+    self._handle_dbapi_exception(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2347: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) FOREIGN KEY constraint failed
+E   [SQL: DELETE FROM state_institutions]
+E   (Background on this error at: https://sqlalche.me/e/21/gkpj)
+___________ ERROR at setup of test_wi107_t8_actor_and_verb_constants ___________
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+
+The above exception was the direct cause of the following exception:
+tests/test_wi107_national_registry_register_sovereign.py:129: in _fresh_registry
+    session.query(model).delete()
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py:3275: in delete
+    self.session.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2473: in execute
+    return self._execute_internal(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2363: in _execute_internal
+    compile_state_cls.orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:2068: in orm_execute_statement
+    return super().orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py:320: in orm_execute_statement
+    result = conn.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1463: in execute
+    return meth(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1683: in _execute_clauseelement
+    ret = self._execute_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1837: in _execute_context
+    return self._exec_single_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1977: in _exec_single_context
+    self._handle_dbapi_exception(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2347: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) FOREIGN KEY constraint failed
+E   [SQL: DELETE FROM state_institutions]
+E   (Background on this error at: https://sqlalche.me/e/21/gkpj)
+________ ERROR at setup of test_wi107_existing_r7c_suite_still_collects ________
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+
+The above exception was the direct cause of the following exception:
+tests/test_wi107_national_registry_register_sovereign.py:129: in _fresh_registry
+    session.query(model).delete()
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py:3275: in delete
+    self.session.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2473: in execute
+    return self._execute_internal(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2363: in _execute_internal
+    compile_state_cls.orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/bulk_persistence.py:2068: in orm_execute_statement
+    return super().orm_execute_statement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py:320: in orm_execute_statement
+    result = conn.execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1463: in execute
+    return meth(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1683: in _execute_clauseelement
+    ret = self._execute_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1837: in _execute_context
+    return self._exec_single_context(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1977: in _exec_single_context
+    self._handle_dbapi_exception(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2347: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1958: in _exec_single_context
+    self.dialect.do_execute(
+../../../.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) FOREIGN KEY constraint failed
+E   [SQL: DELETE FROM state_institutions]
+E   (Background on this error at: https://sqlalche.me/e/21/gkpj)
+=============================== warnings summary ===============================
+../../../.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /home/user/workspace/amos/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/test_r7d_federal_judiciary.py::test_02_jurisdiction_is_explicit_and_never_a_ladder
+ERROR tests/test_r7d_federal_judiciary.py::test_03_judge_appointment_requires_the_whole_chain
+ERROR tests/test_r7d_federal_judiciary.py::test_04_role_and_permission_are_not_judicial_authority
+ERROR tests/test_r7d_federal_judiciary.py::test_05_suspended_judge_is_denied
+ERROR tests/test_r7d_federal_judiciary.py::test_06_judge_outside_the_courts_jurisdiction_is_denied
+ERROR tests/test_r7d_federal_judiciary.py::test_07_case_lifecycle_is_ordered_with_no_force_transition
+ERROR tests/test_r7d_federal_judiciary.py::test_08_party_must_be_a_canonical_identity_not_a_string
+ERROR tests/test_r7d_federal_judiciary.py::test_09_claim_records_an_unverified_legal_basis_honestly
+ERROR tests/test_r7d_federal_judiciary.py::test_10_evidence_is_a_deposit_record_and_claims_no_chain_of_custody
+ERROR tests/test_r7d_federal_judiciary.py::test_11_proceedings_are_sequenced_and_ruling_type_is_reserved
+ERROR tests/test_r7d_federal_judiciary.py::test_12_ruling_requires_proven_authority_and_links_to_the_case
+ERROR tests/test_r7d_federal_judiciary.py::test_13_second_ruling_for_the_same_stage_is_denied
+ERROR tests/test_r7d_federal_judiciary.py::test_14_judicial_chain_is_readable_and_names_every_link
+ERROR tests/test_r7d_federal_judiciary.py::test_15_enforcement_goes_through_executive_core_task
+ERROR tests/test_r7d_federal_judiciary.py::test_16_ruling_never_bypasses_treasury_authorization
+ERROR tests/test_r7d_federal_judiciary.py::test_17_every_judicial_action_writes_audit_and_event
+ERROR tests/test_r7d_federal_judiciary.py::test_18_unauthorized_and_cross_tenant_actions_are_denied
+ERROR tests/test_r7d_federal_judiciary.py::test_20_court_registration_rejects_unknown_levels_codes_and_institutions
+ERROR tests/test_r7d_federal_judiciary.py::test_21_status_changes_need_a_written_reason_and_a_known_vocabulary
+ERROR tests/test_r7d_federal_judiciary.py::test_22_appointing_a_judge_reads_the_whole_chain_from_the_database
+ERROR tests/test_r7d_federal_judiciary.py::test_23_opening_and_assigning_a_case_enforces_every_named_row
+ERROR tests/test_r7d_federal_judiciary.py::test_24_a_case_is_never_closed_by_a_plain_transition_and_never_without_a_reason
+ERROR tests/test_r7d_federal_judiciary.py::test_25_parties_claims_evidence_and_proceedings_enforce_closed_vocabularies
+ERROR tests/test_r7d_federal_judiciary.py::test_26_a_closed_case_accepts_no_new_parties_or_evidence
+ERROR tests/test_r7d_federal_judiciary.py::test_27_listings_filter_by_jurisdiction_status_and_inactive_judges
+ERROR tests/test_r8_federal_state_integration.py::test_01_state_is_a_row_with_stable_identity_and_federal_relation
+ERROR tests/test_r8_federal_state_integration.py::test_02_state_requires_a_federal_parent_and_federal_forbids_one
+ERROR tests/test_r8_federal_state_integration.py::test_03_duplicate_state_code_is_refused_twice
+ERROR tests/test_r8_federal_state_integration.py::test_04_government_lifecycle_never_destroys_history
+ERROR tests/test_r8_federal_state_integration.py::test_05_institution_belongs_to_exactly_one_government
+ERROR tests/test_r8_federal_state_integration.py::test_06_unbound_institution_reads_unresolved_not_a_guess
+ERROR tests/test_r8_federal_state_integration.py::test_08_federal_position_cannot_act_on_a_state_target
+ERROR tests/test_r8_federal_state_integration.py::test_09_state_a_cannot_act_on_state_b
+ERROR tests/test_r8_federal_state_integration.py::test_10_department_scope_cannot_reach_institution_level
+ERROR tests/test_r8_federal_state_integration.py::test_11_role_string_is_never_authority
+ERROR tests/test_r8_federal_state_integration.py::test_12_relations_describe_and_never_grant
+ERROR tests/test_r8_federal_state_integration.py::test_13_explicit_delegation_is_the_only_crossing_and_is_revocable
+ERROR tests/test_r8_federal_state_integration.py::test_14_delegation_requires_exactly_one_target_and_no_invented_operation
+ERROR tests/test_r8_federal_state_integration.py::test_15_delegation_never_grants_authority_to_a_principal_without_a_position
+ERROR tests/test_r8_federal_state_integration.py::test_16_service_scope_is_explicit_and_consistent
+ERROR tests/test_r8_federal_state_integration.py::test_17_federal_scope_without_a_binding_is_refused_as_unresolved
+ERROR tests/test_r8_federal_state_integration.py::test_18_case_provenance_records_the_whole_chain
+ERROR tests/test_r8_federal_state_integration.py::test_19_unprovable_provenance_is_never_written_as_proven
+ERROR tests/test_r8_federal_state_integration.py::test_20_execution_goes_through_executive_core_and_records_a_real_task
+ERROR tests/test_r8_federal_state_integration.py::test_21_unauthorized_execution_never_creates_a_task
+ERROR tests/test_r8_federal_state_integration.py::test_22_treasury_write_requires_scoped_treasury_authority
+ERROR tests/test_r8_federal_state_integration.py::test_24_agent_membership_grants_no_federal_or_state_authority
+ERROR tests/test_r8_federal_state_integration.py::test_25_crown_authority_is_preserved_and_forged_authority_is_refused
+ERROR tests/test_r8_federal_state_integration.py::test_26_tenant_boundary_holds_and_tenant_is_never_authority
+ERROR tests/test_r8_federal_state_integration.py::test_27_single_authorization_engine_and_single_event_vocabulary
+ERROR tests/test_r8_federal_state_integration.py::test_28_every_write_correlates_audit_and_durable_event
+ERROR tests/test_r8_federal_state_integration.py::test_29_closed_vocabularies_are_rejected_at_the_door
+ERROR tests/test_r8_federal_state_integration.py::test_30_unknown_scope_levels_are_refused_in_every_scoped_entry
+ERROR tests/test_r8_federal_state_integration.py::test_31_revoking_a_delegation_needs_a_reason_and_happens_once
+ERROR tests/test_r8_federal_state_integration.py::test_32_scoping_reads_the_rows_it_names_and_invents_none
+ERROR tests/test_r8_federal_state_integration.py::test_33_an_unbound_institution_has_no_invented_government_scope
+ERROR tests/test_r9_national_economic_state.py::test_01_economic_entities_have_stable_identity_and_explicit_ownership
+ERROR tests/test_r9_national_economic_state.py::test_02_duplicate_codes_are_rejected_within_tenant
+ERROR tests/test_r9_national_economic_state.py::test_03_federal_scope_program_is_owned_by_federal_government
+ERROR tests/test_r9_national_economic_state.py::test_04_state_scope_program_is_owned_by_its_own_state
+ERROR tests/test_r9_national_economic_state.py::test_05_institution_scope_is_narrower_than_state
+ERROR tests/test_r9_national_economic_state.py::test_06_department_scope_requires_department_identifier
+ERROR tests/test_r9_national_economic_state.py::test_07_cross_state_economic_write_is_denied
+ERROR tests/test_r9_national_economic_state.py::test_08_policy_is_not_executable_merely_because_it_exists
+ERROR tests/test_r9_national_economic_state.py::test_09_policy_activation_requires_second_authorized_operation
+ERROR tests/test_r9_national_economic_state.py::test_10_revenue_source_is_definition_not_collection
+ERROR tests/test_r9_national_economic_state.py::test_11_expenditure_authorization_moves_no_money
+ERROR tests/test_r9_national_economic_state.py::test_12_expenditure_execution_uses_the_canonical_treasury
+ERROR tests/test_r9_national_economic_state.py::test_13_unauthorized_treasury_operation_is_denied_and_leaves_no_trace
+ERROR tests/test_r9_national_economic_state.py::test_14_transfers_are_authorized_then_paid_by_treasury[GRANT-economy.grant.authorize]
+ERROR tests/test_r9_national_economic_state.py::test_14_transfers_are_authorized_then_paid_by_treasury[SUBSIDY-economy.subsidy.authorize]
+ERROR tests/test_r9_national_economic_state.py::test_15_transfer_beneficiary_must_be_a_canonical_identity
+ERROR tests/test_r9_national_economic_state.py::test_16_public_asset_registration_claims_no_external_ownership
+ERROR tests/test_r9_national_economic_state.py::test_17_public_liability_requires_real_creditor_and_claims_no_enforceability
+ERROR tests/test_r9_national_economic_state.py::test_18_procurement_is_an_internal_abstraction_only
+ERROR tests/test_r9_national_economic_state.py::test_19_revoked_authority_is_denied
+ERROR tests/test_r9_national_economic_state.py::test_20_expired_session_is_denied_before_any_write
+ERROR tests/test_r9_national_economic_state.py::test_21_provenance_is_reported_not_fabricated
+ERROR tests/test_r9_national_economic_state.py::test_22_economic_decision_executes_through_executive_core
+ERROR tests/test_r9_national_economic_state.py::test_23_agent_economic_authorization_flows_through_identity
+ERROR tests/test_r9_national_economic_state.py::test_24_crown_authority_cannot_be_claimed_by_role_alone
+ERROR tests/test_r9_national_economic_state.py::test_25_forged_official_claim_is_rejected
+ERROR tests/test_r9_national_economic_state.py::test_26_tenant_boundary_is_enforced_on_economic_reads
+ERROR tests/test_r9_national_economic_state.py::test_27_events_and_audit_are_correlated_with_the_decision
+ERROR tests/test_r9_national_economic_state.py::test_32_capability_classifications_are_stated_honestly
+ERROR tests/test_r9_national_economic_state.py::test_33_currency_code_must_be_three_upper_letters
+ERROR tests/test_r9_national_economic_state.py::test_34_unknown_government_or_institution_is_not_invented
+ERROR tests/test_r9_national_economic_state.py::test_35_sector_scope_is_a_government_level_not_an_institution_one
+ERROR tests/test_r9_national_economic_state.py::test_36_category_code_is_unique_within_its_sector
+ERROR tests/test_r9_national_economic_state.py::test_37_indicator_definition_cannot_claim_a_real_measurement
+ERROR tests/test_r9_national_economic_state.py::test_38_unknown_vocabularies_are_rejected_not_widened
+ERROR tests/test_r9_national_economic_state.py::test_39_money_guards_reject_non_positive_amounts_and_empty_purpose
+ERROR tests/test_r9_national_economic_state.py::test_40_asset_book_value_and_currency_are_declared_together_or_not_at_all
+ERROR tests/test_r9_national_economic_state.py::test_41_references_that_do_not_exist_are_not_fabricated
+ERROR tests/test_r9_national_economic_state.py::test_42_program_scope_and_category_guards_run_before_any_row_is_written
+ERROR tests/test_r9_national_economic_state.py::test_43_an_institution_with_no_government_yields_no_invented_one
+ERROR tests/test_r9_national_economic_state.py::test_44_unknown_institution_code_stops_the_authorization_chain
+ERROR tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t1_issue_ruling_crosses_boundary_as_judicial
+ERROR tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t2_executive_actor_is_denied
+ERROR tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t3_jurisdiction_request_carries_live_data
+ERROR tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t4_replacement_after_vacation_uses_new_generation
+ERROR tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t5_duplicate_rejected_before_boundary
+ERROR tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t6p_boundary_compensates_failed_settle_on_production_path
+ERROR tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t7_replay_with_missing_row_raises_divergence
+ERROR tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t9_failing_compensator_closes_operation_final
+ERROR tests/test_wi105_issue_ruling_sovereign.py::test_wi105_t10_second_failed_episode_compensates_again
+ERROR tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t1_every_surface_crosses_as_register
+ERROR tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t2_declared_actor_flows_from_the_unit_constant
+ERROR tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t3_denied_crossing_leaves_every_surface_untouched
+ERROR tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t4_compensator_removes_created_identity
+ERROR tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t5_compensator_restores_revoked_assignment
+ERROR tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t6_second_link_is_refused_without_second_write
+ERROR tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t7_inventory_counts_nine_guarded_and_zero_debt
+ERROR tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t8_actor_and_verb_constants
+ERROR tests/test_wi107_national_registry_register_sovereign.py::test_wi107_existing_r7c_suite_still_collects
+===== 1387 passed, 53 skipped, 1 warning, 115 errors in 310.99s (0:05:10) ======
+exit=1

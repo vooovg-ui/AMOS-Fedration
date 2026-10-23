@@ -1,0 +1,22 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+rootdir: /home/user/workspace/amos/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.5, cov-7.1.0, anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 2 items
+
+tests/test_r7d_federal_judiciary.py .E                                   [100%]
+
+==================================== ERRORS ====================================
+_____ ERROR at setup of test_03_judge_appointment_requires_the_whole_chain _____
+tests/test_r7d_federal_judiciary.py:247: in crown
+    national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/crown/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+=========================== short test summary info ============================
+ERROR tests/test_r7d_federal_judiciary.py::test_03_judge_appointment_requires_the_whole_chain
+========================== 1 passed, 1 error in 1.37s ==========================

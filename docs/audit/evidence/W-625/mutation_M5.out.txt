@@ -1,0 +1,25 @@
+$ -q tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t6_second_link_is_refused_without_second_write
+exit=1
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+rootdir: /home/user/workspace/amos/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.5, cov-7.1.0, anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1 item
+
+tests/test_wi107_national_registry_register_sovereign.py F               [100%]
+
+=================================== FAILURES ===================================
+__________ test_wi107_t6_second_link_is_refused_without_second_write ___________
+tests/test_wi107_national_registry_register_sovereign.py:618: in test_wi107_t6_second_link_is_refused_without_second_write
+    second = national.link_principal(
+src/amos_federation/services/national_registry/service.py:621: in link_principal
+    _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+src/amos_federation/services/national_registry/service.py:267: in _refuse_replay
+    raise RegistryReplayError(
+E   amos_federation.services.national_registry.service.RegistryReplayError: العمليّةُ «NationalRegistry.link_principal» على «registry/principals/default/pid-wi107-dac06db8/link» عبرَت الحدَّ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا
+=========================== short test summary info ============================
+FAILED tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t6_second_link_is_refused_without_second_write
+============================== 1 failed in 1.65s ===============================

@@ -3,7 +3,7 @@
 # النطاق: federal/executive/services/tests
 # المالك: federal/executive/services
 # تاريخ الإنشاء: 2026-08-15
-# تاريخ آخر تعديل: 2026-09-01
+# تاريخ آخر تعديل: 2026-10-23 (`W-625` · قرارُ المالكِ `Q-71` — عزلُ سجلِّ الذرّيّةِ لكلِّ فحصٍ)
 
 """Pytest configuration for AMOS-Federation tests.
 
@@ -13,6 +13,7 @@ flaky tests caused by stale SQLite files. Never touches production DB.
 
 import contextlib
 import os
+import sys
 import shutil
 import tempfile
 from pathlib import Path
@@ -291,3 +292,70 @@ def _lift_durable_halt_after_each_test():
 
         if canary.get_system_status().get("level") != "normal":
             canary.reset_kill_switch()
+
+
+# ── عزلُ سجلِّ الذرّيّةِ لكلِّ فحصٍ (R1 · W-625 · قرارُ المالكِ Q-71) ───────────
+# منذَ R1 تعبرُ أسطحُ السجلِّ الوطنيِّ التسعةُ ضمانَ الذرّيّةِ (1I) بمفاتيحَ
+# طبيعيّةٍ — `link_principal` على (المستأجر، المبدأ). وتجهيزاتُ الفحوصِ الثابتةِ
+# (‏`crown` في r7d/r8/r9/wi105) تربطُ المبدأَ نفسَه في كلِّ فحصٍ، والقاعدةُ
+# تُمسَحُ لكلِّ فحصٍ بينما سجلُّ الذرّيّةِ كانَ لكلِّ جلسةٍ (W-308/W-312) — فصارَ
+# الفحصُ الثاني يُرفَضُ `RegistryReplayError` على مفتاحٍ يشهدُ بأثرٍ مُحيت
+# قاعدتُه. قِيسَ في W-625: فحصانِ متتاليانِ في جلسةٍ واحدةٍ ⇒ الأولُ ينجحُ والثاني
+# يُخطئُ (`evidence/W-625/repro_r7d_crown_pair.out.txt`) — 106 أخطاءٍ في الحزمةِ
+# كلُّها سببًا واحدًا. فالإصلاحُ هو المبدأُ نفسُه الذي قامَ عليهِ W-312، مُطبَّقًا
+# على حدِّ الفحصِ: **حالتا التخزينِ تُمسحانِ معًا** — قاعدةُ الفحصِ تُمسَحُ في
+# التجهيزاتِ وسجلُّ الذرّيّةِ يُمسَحُ هنا، بإعادةِ استخدامِ `_cleanup_test_ledger`
+# نفسِه (المسارُ المُعلَنُ لا يتغيّرُ فيبقى حرسُ W-308 قائمًا) — والاستبدالُ
+# لا المسحُ: كي لا يُنشئَ مصرِّحٌ حيٌّ سجلًّا بلا ترويسةٍ (قياسُ W-625) —
+# وتصاريحُ الخدمةِ المُستهلَكةُ تُمسَحُ معه بالحجّةِ المُوثَّقةِ نفسِها. ولا يُمسُّ الإنتاجُ ولا
+# مسارُ السجلِّ الدائمُ فيه ولا مفتاحُ (المستأجر، المبدأ) ولا سلوكُ رفضِ
+# الإعادةِ. وإعادةُ الضبطِ للمصرِّحِ الوطنيِّ **وحدَه** — دونهُ بقيةُ الخدماتِ:
+# لا دليلَ مقيسًا يستوجبُ مسَّها، والخدمةُ نفسُها لا تحتفظُ بالمصرِّحِ بل
+# الوحدةُ (`_registry_authorizer()`) — فإعادةُ الضبطِ تُلزمُ حداً جديدًا يقرأُ
+# الحالةَ الممسوحةَ لا أنَّ الخدمةَ تحتفظُ بحالةٍ (توجيهُ المستشارِ في W-625).
+def _fresh_test_idempotency_ledger() -> Path:
+    """سجلٌّ جديدٌ سليمُ الترويسةِ لكلِّ فحصٍ — استبدالٌ لا مسحًا.
+
+    المسحُ (إلغاءُ الرابطِ) تحتَ مصرِّحٍ مخزَّنٍ حيٍّ يُنشئُ سجلًّا **بلا ترويسةٍ**:
+    فالمصرِّحُ القديمُ يُعيدُ فتحَ المقبضِ (`_refresh_handle_if_replaced`) ويُلحقُ
+    حدثًا فلا يكونُ أوّلَ سطرٍ الترويسةَ — فقِيسَ في W-625 أنّ فحوصَ federation
+    (30) وwi106 (5) وr7c (1) تُرفَضُ كلُّها «سجلٌّ تالفٌ لا يمكنُ قراءتُه»
+    (`evidence/W-625/services_suite_after_conftest_fix.out.txt`). فالاستبدالُ
+    بعقدةِ ملفٍّ جديدةٍ تحملُ ترويسةً شرعيّةً (ترويسةُ `Q-40 ج` نفسُها) يجعلُ
+    `_sync` يعيدُ البناءَ منَ الصفرِ على سجلٍّ سليمٍ — وهذا هو عزلُ «ملفٍّ
+    جديدٍ لكلِّ فحصٍ» بلا كسرِ حيٍّ، وتصاريحُ الخدمةِ المُستهلَكةُ تُمسَحُ معه
+    بالحجّةِ المُوثَّقةِ نفسِها (اقترانُ الحالتَينِ في `_cleanup_test_ledger`).
+    """
+    import json
+
+    # النواةُ السياديّةُ (`core/`) لا تُستوردُ من بيئةِ الخدماتِ إلّا بعدَ تثبيتِ
+    # جذرِ المستودعِ في المسارِ — نفسُ آليّةِ الجسرِ (`sovereignty_bridge`).
+    from amos_federation.services.executive_core.sovereignty_bridge import locate_repo_root
+
+    root = locate_repo_root()
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+    from core.sovereignty.idempotency import IDEMPOTENCY_STATE_CARD, IDENTITY_KEY
+
+    ledger = TEST_ARTIFACT_DIR / TEST_IDEMPOTENCY_LEDGER_FILE
+    fresh = ledger.with_name(ledger.name + ".fresh.tmp")
+    fresh.write_text(
+        json.dumps({IDENTITY_KEY: IDEMPOTENCY_STATE_CARD.comment()}, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    os.replace(fresh, ledger)
+    with contextlib.suppress(OSError):
+        (TEST_ARTIFACT_DIR / TEST_CONSUMED_PERMITS_FILE).unlink()
+    return ledger
+
+
+@pytest.fixture(autouse=True)
+def _fresh_idempotency_ledger_per_test():
+    """سجلُّ ذرّيّةٍ جديدٌ سليمٌ لكلِّ فحصٍ + إعادةُ ضبطِ مصرِّحِ السجلِّ الوطنيِّ."""
+    _fresh_test_idempotency_ledger()
+    from amos_federation.services.national_registry import service as _national_registry
+
+    _national_registry.reset_registry_authorizer()
+    yield
+    _fresh_test_idempotency_ledger()
+    _national_registry.reset_registry_authorizer()

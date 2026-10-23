@@ -1,0 +1,32 @@
+$ -q tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t1_every_surface_crosses_as_register tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t8_actor_and_verb_constants
+exit=1
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+rootdir: /home/user/workspace/amos/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.5, cov-7.1.0, anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 2 items
+
+tests/test_wi107_national_registry_register_sovereign.py FF              [100%]
+
+=================================== FAILURES ===================================
+_______________ test_wi107_t1_every_surface_crosses_as_register ________________
+tests/test_wi107_national_registry_register_sovereign.py:356: in test_wi107_t1_every_surface_crosses_as_register
+    assert record.actor == "executive"
+E   AssertionError: assert 'judicial' == 'executive'
+E     
+E     - executive
+E     + judicial
+____________________ test_wi107_t8_actor_and_verb_constants ____________________
+tests/test_wi107_national_registry_register_sovereign.py:696: in test_wi107_t8_actor_and_verb_constants
+    assert national_registry_module.REGISTRY_ACTOR == "EXECUTIVE"
+E   AssertionError: assert 'JUDICIAL' == 'EXECUTIVE'
+E     
+E     - EXECUTIVE
+E     + JUDICIAL
+=========================== short test summary info ============================
+FAILED tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t1_every_surface_crosses_as_register
+FAILED tests/test_wi107_national_registry_register_sovereign.py::test_wi107_t8_actor_and_verb_constants
+============================== 2 failed in 2.04s ===============================

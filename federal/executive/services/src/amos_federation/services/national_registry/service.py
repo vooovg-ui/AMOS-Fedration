@@ -29,9 +29,12 @@ AMOS-Federation National Registry — Service Layer
 
 from __future__ import annotations
 
+import copy
 import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
+
+from sqlalchemy import inspect as sa_inspect
 
 from amos_federation.common.database import get_session_factory, init_db
 from amos_federation.common.money import to_money
@@ -69,6 +72,12 @@ from amos_federation.services.state_registry.models import (
     DepartmentModel,
     InstitutionModel,
     OfficialModel,
+)
+from amos_federation.services.executive_core.sovereignty_bridge import (
+    ConstitutionalAuthorizer,
+    compensator,
+    declared_effect,
+    operation_key,
 )
 from amos_federation.services.state_registry.trace import record_domain_trace
 
@@ -149,6 +158,116 @@ def _now() -> datetime:
 
 def _iso(value: datetime | None) -> str | None:
     return value.isoformat() if value else None
+
+
+# === عبورُ الحدِّ السياديِّ (R1 · ملحقُ التصميمِ D1–D8) =========================
+
+#: فاعلُ الوحدةِ (D1): السجلُّ الوطنيُّ كتابةٌ إداريّةٌ تنفيذيّةٌ — فاعلٌ مُعلَنٌ
+#: **ثابتٌ في الوحدةِ لا معاملًا للمُنادي**، على سابقةِ `federation.FEDERATION_ACTOR`
+#: (F1 · D1) و`rulings.JUDICIARY_ACTOR` (J1). والاختبارُ يُبدِّلُه بـ`monkeypatch`
+#: على هذا الثابتِ لا بمعاملٍ إنتاجيّ.
+REGISTRY_ACTOR = "EXECUTIVE"
+
+#: فعلُ الوحدةِ (D2): فعلٌ واحدٌ للأسطحِ التسعةِ كلِّها، واسمُ العمليّةِ يُحمَلُ في
+#: البياناتِ والنطاقِ لا في فعلٍ مُخترَعٍ (سؤالُ Q-2 المعلَّقُ). وحيادُ الفعلِ مقيسٌ
+#: (evidence/W-623): ليس في الاختصاصِ الملكيِّ الحصريِّ ولا في أفعالِ التآكلِ —
+#: واسمَا grant_authority/revoke_authority يبقيانِ محجوبَينِ للاسمِ في البوابةِ.
+REGISTRY_VERB = "register"
+
+_DEFAULT_REGISTRY_AUTHORIZER: ConstitutionalAuthorizer | None = None
+
+
+def _registry_authorizer() -> ConstitutionalAuthorizer:
+    """المُصرِّحُ الافتراضيُّ بفاعلِ الوحدةِ المُسمّى — واحدٌ للوحدةِ (D1)."""
+    global _DEFAULT_REGISTRY_AUTHORIZER
+    if _DEFAULT_REGISTRY_AUTHORIZER is None:
+        _DEFAULT_REGISTRY_AUTHORIZER = ConstitutionalAuthorizer(actor=REGISTRY_ACTOR)
+    return _DEFAULT_REGISTRY_AUTHORIZER
+
+
+def reset_registry_authorizer() -> None:
+    """أفرِغِ المُفوِّضَ المحفوظَ — للاختباراتِ التي تبدّلُ الفاعلَ (D1)."""
+    global _DEFAULT_REGISTRY_AUTHORIZER
+    _DEFAULT_REGISTRY_AUTHORIZER = None
+
+
+class RegistryReplayError(ValueError):
+    """مفتاحٌ طبيعيٌّ عبرَ بنجاحٍ من قبلُ — الإعادةُ ليست نجاحًا ثانيًا ولا كتابةً ثانيةً (D6)."""
+
+
+def _nonce() -> str:
+    """مُعرِّفُ استدعاءٍ (D3) حيثُ يُشرَعُ تكرارُ الفعلِ على الكيانِ نفسِه."""
+    return uuid.uuid4().hex
+
+
+class _RegistryUndo:
+    """سجلُّ تراجعٍ لعبورٍ واحدٍ (D7): ما أُنشِئَ وما كانَ قبلَ التغييرِ — ومُعوِّضُه.
+
+    المُطبِّقُ يُسجِّلُ قبلَ الكتابةِ؛ والحدُّ يُنادي `_restore` آليًّا إن فشلَ تثبيتُ
+    النجاحِ بعدَ الالتزامِ (قرارُ المالكِ Q-70). استعادةٌ تقنيّةٌ في جلسةٍ جديدةٍ —
+    «الحذفُ شأنٌ تنفيذيٌّ» والمُعوِّضُ ليس أثرًا مُعلَنًا ولا تراجعُه البوابة.
+    """
+
+    def __init__(self) -> None:
+        self._created: list[tuple[type, Any]] = []
+        self._prior: list[tuple[type, Any, dict[str, Any]]] = []
+
+    def created(self, row: Any) -> None:
+        self._created.append((type(row), sa_inspect(row).identity or _row_pk(row)))
+
+    def prior(self, row: Any, *columns: str) -> None:
+        values = {column: copy.deepcopy(getattr(row, column)) for column in columns}
+        self._prior.append((type(row), sa_inspect(row).identity, values))
+
+    def _restore(self) -> None:
+        session = get_session_factory()()
+        try:
+            for model, identity in reversed(self._created):
+                row = session.get(model, identity)
+                if row is not None:
+                    session.delete(row)
+            for model, identity, values in reversed(self._prior):
+                row = session.get(model, identity)
+                if row is not None:
+                    for column, value in values.items():
+                        setattr(row, column, value)
+            session.commit()
+        finally:
+            session.close()
+
+
+def _row_pk(row: Any) -> tuple[Any, ...]:
+    """المفتاحُ الأساسيُّ لصفٍّ لم يُدفَعْ بعدُ — من أعمدتِه المُعلَنةِ لا تخمينًا."""
+    return tuple(getattr(row, column.key) for column in type(row).__mapper__.primary_key)
+
+
+def _crossing(
+    operation: str, kind: str, suffix: str, detail: str, undo: _RegistryUndo
+) -> tuple[str, dict[str, Any]]:
+    """عقدُ عبورٍ واحدٍ (D3): الهدفُ = قيمةُ المفتاحِ · أثرٌ مُعلَنٌ · مُعوِّضُه · اسمُ العمليّة."""
+    target = f"registry/{suffix}"
+    effect = declared_effect(kind, target, detail)
+    return target, {
+        "declared_effects": (effect,),
+        "operation_key": operation_key(f"registry.{operation}", suffix),
+        "compensators": (
+            compensator(
+                effect.signature,
+                undo._restore,
+                "استعادةٌ تقنيّةٌ: حذفُ ما أُنشِئَ وإرجاعُ ما تغيَّرَ — العمليّةُ لم تثبتْ",
+            ),
+        ),
+        "metadata": {"operation": operation},
+    }
+
+
+def _refuse_replay(guarded: Any, operation: str, target: str) -> None:
+    """الإعادةُ على مفتاحٍ طبيعيٍّ تُرفَعُ صريحةً بلا كتابةٍ ثانيةٍ (D6)."""
+    if guarded.is_replay:
+        raise RegistryReplayError(
+            f"العمليّةُ «{operation}» على «{target}» عبرَت الحدَّ بنجاحٍ من قبلُ — "
+            "الإعادةُ ليست نجاحًا ثانيًا"
+        )
 
 
 class NationalRegistry:
@@ -273,6 +392,8 @@ class NationalRegistry:
     ) -> dict[str, Any]:
         """أنشئ هويةً كانونية — بمعرّفٍ مستقرّ لا باسمٍ ولا بدور.
 
+        يعبرُ الحدَّ السياديَّ بالفعلِ `register` بفاعلٍ تنفيذيٍّ مُعلَنٍ (R1 · D1/D2).
+
         `label` وصفٌ للعرض ولا يُستعمل في التعريف ولا يحمل قيدًا فريدًا. والغموض
         يُنشأ صريحًا: `status="unresolved"` مع سببٍ مكتوب، ولا هوية تُختلق.
         """
@@ -289,22 +410,43 @@ class NationalRegistry:
             raise ValueError("الهوية غير المحلولة تلزمها كتابة سببها — الغموض يُسمّى ولا يُترك فراغًا")
 
         tenant = self._tenant_of(context)
-        session = self._session()
-        try:
-            row = IdentityModel(
-                id=f"idn-{uuid.uuid4()}",
-                identity_type=identity_type,
-                status=status,
-                label=label,
-                status_reason=status_reason,
-                tenant_id=tenant,
-                created_by=context.principal_id,
-            )
-            session.add(row)
-            session.commit()
-            identity = self._identity_dict(row)
-        finally:
-            session.close()
+        # معرّفُ الصفّ يُولَّدُ قبلَ العبورِ فيحملهُ المفتاحُ والهدفُ معًا (D3):
+        # الإنشاءُ مشروعُ التكرارِ فالمفتاحُ بمعرّفِ استدعاءٍ لا طبيعيٌّ (D6).
+        identity_id = f"idn-{uuid.uuid4()}"
+        undo = _RegistryUndo()
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            """المُطبّقُ المتداخلُ الخاصّ — الكتابةُ الوحيدةُ داخلَ الحدّ (D4)."""
+            session = self._session()
+            try:
+                row = IdentityModel(
+                    id=identity_id,
+                    identity_type=identity_type,
+                    status=status,
+                    label=label,
+                    status_reason=status_reason,
+                    tenant_id=tenant,
+                    created_by=context.principal_id,
+                )
+                undo.created(row)
+                session.add(row)
+                session.commit()
+                return self._identity_dict(row)
+            finally:
+                session.close()
+
+        target, crossing = _crossing(
+            "NationalRegistry.create_identity",
+            "CREATE",
+            f"identities/{identity_id}/create",
+            "إنشاءُ هويةٍ كانونيةٍ بمعرّفٍ مستقرّ",
+            undo,
+        )
+        guarded = _registry_authorizer().guard_declared(
+            REGISTRY_VERB, target, applier=_apply, **crossing
+        )
+        _refuse_replay(guarded, "NationalRegistry.create_identity", target)
+        identity = guarded.value
 
         trace = self._record(
             context,
@@ -327,7 +469,11 @@ class NationalRegistry:
         status: str,
         reason: str,
     ) -> dict[str, Any]:
-        """غيّر حالة هوية — تعليقًا أو تقاعدًا أو حلًّا لغموضٍ سابق."""
+        """غيّر حالة هوية — تعليقًا أو تقاعدًا أو حلًّا لغموضٍ سابق.
+
+        يعبرُ الحدَّ السياديَّ بالفعلِ `register` (R1). وتغييرُ الحالةِ متكرّرٌ مشروعًا
+        (تعليقٌ ثمّ تقاعدٌ) فالمفتاحُ بمعرّفِ استدعاءٍ (D3/D6).
+        """
         require_domain_permission(context, "identity.status", PERMISSIONS_IDENTITY_WRITE)
         if status not in IDENTITY_STATUSES:
             raise ValueError(
@@ -336,17 +482,42 @@ class NationalRegistry:
         if not reason:
             raise ValueError("تغيير حالة الهوية يلزمه سبب مكتوب")
 
-        session = self._session()
+        # D5: التحقّقُ قبلَ العبورِ — الرسائلُ والأنواعُ كما كانت
+        read = self._session()
         try:
-            row = self._identity_row(session, context, identity_id)
-            previous = row.status
-            row.status = status
-            row.status_reason = reason
-            row.updated_at = _now()
-            session.commit()
-            identity = self._identity_dict(row)
+            previous = self._identity_row(read, context, identity_id).status
         finally:
-            session.close()
+            read.close()
+
+        nonce = _nonce()
+        undo = _RegistryUndo()
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            """المُطبّقُ المتداخلُ الخاصّ — الكتابةُ الوحيدةُ داخلَ الحدّ (D4)."""
+            session = self._session()
+            try:
+                row = self._identity_row(session, context, identity_id)
+                undo.prior(row, "status", "status_reason", "updated_at")
+                row.status = status
+                row.status_reason = reason
+                row.updated_at = _now()
+                session.commit()
+                return self._identity_dict(row)
+            finally:
+                session.close()
+
+        target, crossing = _crossing(
+            "NationalRegistry.set_identity_status",
+            "WRITE",
+            f"identities/{identity_id}/status/{nonce}",
+            "تغييرُ حالةِ هويةٍ بسببٍ مكتوبٍ",
+            undo,
+        )
+        guarded = _registry_authorizer().guard_declared(
+            REGISTRY_VERB, target, applier=_apply, **crossing
+        )
+        _refuse_replay(guarded, "NationalRegistry.set_identity_status", target)
+        identity = guarded.value
 
         trace = self._record(
             context,
@@ -374,6 +545,13 @@ class NationalRegistry:
     ) -> dict[str, Any]:
         """اربط مبدأً بهويته الكانونية — والربط قرارٌ إداريٌّ مُخوَّل.
 
+        يعبرُ الحدَّ السياديَّ بالفعلِ `register` (R1). والمفتاحُ طبيعيٌّ على
+        `(المستأجر، المبدأ)` (D3/D6 · تصحيحٌ مؤرَّخٌ W-625): قيدُ القاعدةِ
+        `UNIQUE (tenant_id, principal_id)` فالاسمُ نفسُهُ جائزٌ في مستأجرينِ،
+        والمفتاحُ يشملُ المستأجرَ كهدفِ 2B `institutions/{tenant}/{code}`.
+        والربطُ القائمُ نفسُهُ يُرجِعُ الردَّ الخاملَ **قبلَ العبورِ** (D5)
+        فلا عمليّةً ثانيةً.
+
         لا يستطيع مبدأٌ أن يربط نفسه بهوية عبر طلبٍ عاديّ: العملية تلزمها
         `manage:all`. وهذا هو معنى «لا يحدّد المُستدعي هويته»: الجلسة تحمل اسمًا،
         وتحويله إلى هوية يجري في هذا الجدول لا في جسم الطلب.
@@ -383,11 +561,14 @@ class NationalRegistry:
         """
         require_domain_permission(context, "identity.principal.link", PERMISSIONS_PRINCIPAL_LINK)
         tenant = self._tenant_of(context)
-        session = self._session()
+
+        # D5: فحصُ الربطِ القائمِ قبلَ العبورِ — السكوتُ المرتجَعُ والتعارضُ
+        # يُقرَّرانِ هنا بلا كتابةٍ ولا قيدٍ في الذرّيّةِ (نفسُ سلوكِ اليومِ)
+        read = self._session()
         try:
-            identity = self._identity_row(session, context, identity_id)
+            self._identity_row(read, context, identity_id)
             existing = (
-                session.query(IdentityPrincipalModel)
+                read.query(IdentityPrincipalModel)
                 .filter(
                     IdentityPrincipalModel.principal_id == principal_id,
                     IdentityPrincipalModel.tenant_id == tenant,
@@ -401,19 +582,44 @@ class NationalRegistry:
                     f"المبدأ '{principal_id}' مربوطٌ بالهوية '{existing.identity_id}' — "
                     "لا يُدمَج تلقائيًّا؛ افصل الربط بقرار صريح أولًا"
                 )
-            row = IdentityPrincipalModel(
-                id=f"idp-{uuid.uuid4()}",
-                principal_id=principal_id,
-                identity_id=identity.id,
-                binding_source=binding_source,
-                tenant_id=tenant,
-                linked_by=context.principal_id,
-            )
-            session.add(row)
-            session.commit()
-            link = self._link_dict(row)
+            link_id = f"idp-{uuid.uuid4()}"
         finally:
-            session.close()
+            read.close()
+
+        undo = _RegistryUndo()
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            """المُطبّقُ المتداخلُ الخاصّ — الكتابةُ الوحيدةُ داخلَ الحدّ (D4)."""
+            session = self._session()
+            try:
+                identity = self._identity_row(session, context, identity_id)
+                row = IdentityPrincipalModel(
+                    id=link_id,
+                    principal_id=principal_id,
+                    identity_id=identity.id,
+                    binding_source=binding_source,
+                    tenant_id=tenant,
+                    linked_by=context.principal_id,
+                )
+                undo.created(row)
+                session.add(row)
+                session.commit()
+                return self._link_dict(row)
+            finally:
+                session.close()
+
+        target, crossing = _crossing(
+            "NationalRegistry.link_principal",
+            "CREATE",
+            f"principals/{tenant}/{principal_id}/link",
+            "ربطُ مبدأٍ بهويته الكانونية",
+            undo,
+        )
+        guarded = _registry_authorizer().guard_declared(
+            REGISTRY_VERB, target, applier=_apply, **crossing
+        )
+        _refuse_replay(guarded, "NationalRegistry.link_principal", target)
+        link = guarded.value
 
         trace = self._record(
             context,
@@ -452,6 +658,10 @@ class NationalRegistry:
     ) -> dict[str, Any]:
         """اربط وكيلًا تشغيليًّا قائمًا بهويةٍ كانونية — R7-C5.
 
+        يعبرُ الحدَّ السياديَّ بالفعلِ `register` (R1) والمفتاحُ طبيعيٌّ على
+        `agent_id` (D3/D6). وعندَ غيابِ `identity_id` يُنشئُ الهويةَ عبرَ السطحِ
+        العامّ `create_identity` فيعبُرُ كلُّ سطحٍ بعبورِهِ المستقلّ (D8-ب).
+
         الوكيل يجب أن يكون موجودًا في `agents` (سجلّ R4 الكانوني): لا يُنشأ وكيل
         هنا ولا تُنسَخ صلاحياته ولا تُلمَس دورة حياته. وإن لم تُعطَ `identity_id`
         أُنشئت هوية من نوع `AGENT` وربُطت به — وهذا **ليس** دمج الجدولين: صفّان في
@@ -477,11 +687,13 @@ class NationalRegistry:
             )
             identity_id = created_identity["id"]
 
-        session = self._session()
+        # D5: فحصُ الربطِ القائمِ قبلَ العبورِ — السكوتُ المرتجَعُ والتعارضُ
+        # يُقرَّرانِ هنا بلا كتابةٍ ولا قيدٍ في الذرّيّةِ (نفسُ سلوكِ اليومِ)
+        read = self._session()
         try:
-            identity = self._identity_row(session, context, identity_id)
+            self._identity_row(read, context, identity_id)
             by_agent = (
-                session.query(IdentityAgentModel)
+                read.query(IdentityAgentModel)
                 .filter(IdentityAgentModel.agent_id == agent_id)
                 .first()
             )
@@ -492,7 +704,7 @@ class NationalRegistry:
                     f"الوكيل '{agent_id}' مربوطٌ بالهوية '{by_agent.identity_id}' — لا دمج تلقائيّ"
                 )
             by_identity = (
-                session.query(IdentityAgentModel)
+                read.query(IdentityAgentModel)
                 .filter(IdentityAgentModel.identity_id == identity_id)
                 .first()
             )
@@ -500,18 +712,43 @@ class NationalRegistry:
                 raise IdentityConflictError(
                     f"الهوية '{identity_id}' مربوطةٌ بالوكيل '{by_identity.agent_id}'"
                 )
-            row = IdentityAgentModel(
-                id=f"ida-{uuid.uuid4()}",
-                agent_id=agent_id,
-                identity_id=identity.id,
-                tenant_id=tenant,
-                linked_by=context.principal_id,
-            )
-            session.add(row)
-            session.commit()
-            link = self._agent_link_dict(row)
+            link_id = f"ida-{uuid.uuid4()}"
         finally:
-            session.close()
+            read.close()
+
+        undo = _RegistryUndo()
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            """المُطبّقُ المتداخلُ الخاصّ — الكتابةُ الوحيدةُ داخلَ الحدّ (D4)."""
+            session = self._session()
+            try:
+                identity = self._identity_row(session, context, identity_id)
+                row = IdentityAgentModel(
+                    id=link_id,
+                    agent_id=agent_id,
+                    identity_id=identity.id,
+                    tenant_id=tenant,
+                    linked_by=context.principal_id,
+                )
+                undo.created(row)
+                session.add(row)
+                session.commit()
+                return self._agent_link_dict(row)
+            finally:
+                session.close()
+
+        target, crossing = _crossing(
+            "NationalRegistry.link_agent",
+            "CREATE",
+            f"agents/{agent_id}/link",
+            "ربطُ وكيلٍ تشغيليٍّ قائمٍ بهويةٍ كانونية",
+            undo,
+        )
+        guarded = _registry_authorizer().guard_declared(
+            REGISTRY_VERB, target, applier=_apply, **crossing
+        )
+        _refuse_replay(guarded, "NationalRegistry.link_agent", target)
+        link = guarded.value
 
         trace = self._record(
             context,
@@ -552,6 +789,10 @@ class NationalRegistry:
     ) -> dict[str, Any]:
         """أنشئ منصبًا في مؤسسة — المنصب مصدر السلطة، مستقلٌّ عن شاغله.
 
+        يعبرُ الحدَّ السياديَّ بالفعلِ `register` (R1) بمعرّفِ استدعاءٍ (D3):
+        إنشاءُ منصبٍ مشروعُ التكرارِ بغيرِ المفتاحِ الطبيعيّ (رمزُ المنصبِ مفتاحُ
+        فريدٌ للمؤسسةِ ويُحفظُ به قيدُ التكرارِ لا بمفتاحِ العبورِ).
+
         نطاق `DEPARTMENT` يلزمه إدارة، وما فوقه لا يحمل إدارة — والقيد مفروضٌ في
         القاعدة أيضًا (`ck_state_positions_department_scope`) لا هنا وحده.
         """
@@ -560,9 +801,11 @@ class NationalRegistry:
             raise ValueError(
                 f"نطاق سلطة غير معروف '{authority_scope}' — المفردة: {list(AUTHORITY_SCOPES)}"
             )
-        session = self._session()
+
+        # D5: التحقّقُ كلّهُ قبلَ العبورِ — الرسائلُ والأنواعُ كما كانت
+        read = self._session()
         try:
-            institution = self._institution_row(session, context, institution_code)
+            institution = self._institution_row(read, context, institution_code)
             if institution.status != "active":
                 raise NationalRegistryError(
                     f"المؤسسة '{institution_code}' حالتها '{institution.status}' — لا منصب فيها"
@@ -570,7 +813,7 @@ class NationalRegistry:
             department_id = None
             if department_code:
                 department = (
-                    session.query(DepartmentModel)
+                    read.query(DepartmentModel)
                     .filter(
                         DepartmentModel.institution_id == institution.id,
                         DepartmentModel.code == department_code,
@@ -591,7 +834,7 @@ class NationalRegistry:
                     f"نطاق '{authority_scope}' لا يحمل إدارة — الإدارة تخصّ نطاق DEPARTMENT وحده"
                 )
             duplicate = (
-                session.query(PositionModel)
+                read.query(PositionModel)
                 .filter(
                     PositionModel.institution_id == institution.id,
                     PositionModel.code == code,
@@ -602,23 +845,50 @@ class NationalRegistry:
                 raise NationalRegistryError(
                     f"رمز المنصب '{code}' مستعمل في المؤسسة '{institution_code}'"
                 )
-            row = PositionModel(
-                id=f"pos-{uuid.uuid4()}",
-                code=code,
-                title=title,
-                institution_id=institution.id,
-                department_id=department_id,
-                authority_scope=authority_scope,
-                status="active",
-                mandate=mandate,
-                tenant_id=institution.tenant_id,
-                created_by=context.principal_id,
-            )
-            session.add(row)
-            session.commit()
-            position = self._position_dict(row)
+            institution_id = institution.id
+            institution_tenant = institution.tenant_id
         finally:
-            session.close()
+            read.close()
+
+        # معرّفُ الصفّ يُولَّدُ قبلَ العبورِ فيحملهُ المفتاحُ والهدفُ معًا (D3)
+        position_id = f"pos-{uuid.uuid4()}"
+        undo = _RegistryUndo()
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            """المُطبّقُ المتداخلُ الخاصّ — الكتابةُ الوحيدةُ داخلَ الحدّ (D4)."""
+            session = self._session()
+            try:
+                row = PositionModel(
+                    id=position_id,
+                    code=code,
+                    title=title,
+                    institution_id=institution_id,
+                    department_id=department_id,
+                    authority_scope=authority_scope,
+                    status="active",
+                    mandate=mandate,
+                    tenant_id=institution_tenant,
+                    created_by=context.principal_id,
+                )
+                undo.created(row)
+                session.add(row)
+                session.commit()
+                return self._position_dict(row)
+            finally:
+                session.close()
+
+        target, crossing = _crossing(
+            "NationalRegistry.create_position",
+            "CREATE",
+            f"positions/{position_id}/create",
+            "إنشاءُ منصبٍ في مؤسسةٍ — مصدرُ السلطةِ مستقلٌّ عن شاغله",
+            undo,
+        )
+        guarded = _registry_authorizer().guard_declared(
+            REGISTRY_VERB, target, applier=_apply, **crossing
+        )
+        _refuse_replay(guarded, "NationalRegistry.create_position", target)
+        position = guarded.value
 
         trace = self._record(
             context,
@@ -644,6 +914,9 @@ class NationalRegistry:
     ) -> dict[str, Any]:
         """قلِّد مسؤولًا قائمًا منصبًا، ونسبه إلى هويته الكانونية — R7-C4.
 
+        يعبرُ الحدَّ السياديَّ بالفعلِ `register` (R1) بمعرّفِ استدعاءٍ (D3):
+        التقليدُ النشطُ مقيّدٌ بالفريدِ (مسؤول، منصب) ويُحفظُ بذلك لا بمفتاحِ العبورِ.
+
         شرطان لا يُتجاوزان: سجلّ المسؤول `appointed`، ووكيله مربوطٌ بهوية. فبلا
         هوية لا تقليد — لأن التقليد بلا هوية هو بالضبط ما جعل الإسناد `PARTIAL`
         قبل R7-C. والمؤسسة يجب أن تكون واحدة في الطرفين: منصبُ مؤسسةٍ لا يُقلَّد
@@ -655,9 +928,11 @@ class NationalRegistry:
         """
         require_domain_permission(context, "position.assign", PERMISSIONS_ASSIGNMENT_WRITE)
         tenant = self._tenant_of(context)
-        session = self._session()
+
+        # D5: التحقّقُ كلّهُ قبلَ العبورِ — الرسائلُ والأنواعُ كما كانت
+        read = self._session()
         try:
-            official = session.get(OfficialModel, official_id)
+            official = read.get(OfficialModel, official_id)
             if official is None or official.tenant_id != tenant:
                 raise AssignmentNotFoundError(
                     f"لا تقليد رسميّ بالمعرّف '{official_id}' في مستأجر '{tenant}'"
@@ -667,7 +942,7 @@ class NationalRegistry:
                 raise PositionInactiveError(
                     f"المسؤول '{official_id}' حالته '{official.status}' — لا منصب لغير القائم"
                 )
-            position = session.get(PositionModel, position_id)
+            position = read.get(PositionModel, position_id)
             if position is None or position.tenant_id != tenant:
                 raise PositionNotFoundError(f"لا منصب بالمعرّف '{position_id}'")
             if position.status != "active":
@@ -680,7 +955,7 @@ class NationalRegistry:
                     f"'{official.institution_id}' — لا تقليد عبر المؤسسات"
                 )
             agent_link = (
-                session.query(IdentityAgentModel)
+                read.query(IdentityAgentModel)
                 .filter(IdentityAgentModel.agent_id == official.agent_id)
                 .first()
             )
@@ -690,7 +965,7 @@ class NationalRegistry:
                     "اربطه بهوية قبل التقليد (R7-C5)"
                 )
             duplicate = (
-                session.query(OfficialPositionModel)
+                read.query(OfficialPositionModel)
                 .filter(
                     OfficialPositionModel.official_id == official_id,
                     OfficialPositionModel.position_id == position_id,
@@ -702,20 +977,46 @@ class NationalRegistry:
                 raise DuplicateAssignmentError(
                     f"المسؤول '{official_id}' يشغل المنصب '{position_id}' بالفعل ({duplicate.id})"
                 )
-            row = OfficialPositionModel(
-                id=f"opos-{uuid.uuid4()}",
-                official_id=official_id,
-                identity_id=agent_link.identity_id,
-                position_id=position_id,
-                status="active",
-                assigned_by=context.principal_id,
-                tenant_id=tenant,
-            )
-            session.add(row)
-            session.commit()
-            assignment = self._assignment_dict(row)
+            identity_id = agent_link.identity_id
         finally:
-            session.close()
+            read.close()
+
+        # معرّفُ الصفّ يُولَّدُ قبلَ العبورِ فيحملهُ المفتاحُ والهدفُ معًا (D3)
+        assignment_id = f"opos-{uuid.uuid4()}"
+        undo = _RegistryUndo()
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            """المُطبّقُ المتداخلُ الخاصّ — الكتابةُ الوحيدةُ داخلَ الحدّ (D4)."""
+            session = self._session()
+            try:
+                row = OfficialPositionModel(
+                    id=assignment_id,
+                    official_id=official_id,
+                    identity_id=identity_id,
+                    position_id=position_id,
+                    status="active",
+                    assigned_by=context.principal_id,
+                    tenant_id=tenant,
+                )
+                undo.created(row)
+                session.add(row)
+                session.commit()
+                return self._assignment_dict(row)
+            finally:
+                session.close()
+
+        target, crossing = _crossing(
+            "NationalRegistry.assign_position",
+            "CREATE",
+            f"assignments/{assignment_id}/assign",
+            "تقليدُ مسؤولٍ قائمٍ منصبًا ونسبُهُ إلى هويتهِ الكانونية",
+            undo,
+        )
+        guarded = _registry_authorizer().guard_declared(
+            REGISTRY_VERB, target, applier=_apply, **crossing
+        )
+        _refuse_replay(guarded, "NationalRegistry.assign_position", target)
+        assignment = guarded.value
 
         trace = self._record(
             context,
@@ -738,26 +1039,57 @@ class NationalRegistry:
         assignment_id: str,
         reason: str,
     ) -> dict[str, Any]:
-        """اعزل تقليد منصب — والصفّ يبقى تاريخًا ولا يُحذَف."""
+        """اعزل تقليد منصب — والصفّ يبقى تاريخًا ولا يُحذَف.
+
+        يعبرُ الحدَّ السياديَّ بالفعلِ `register` (R1) بمفتاحٍ طبيعيٍّ على
+        `assignment_id` (D3/D6): العزلُ كتابةٌ واحدة، والمعزولُ سلفًا يُرجِعُ
+        الردَّ الخاملَ **قبلَ العبورِ** (D5).
+        """
         require_domain_permission(context, "position.revoke", PERMISSIONS_ASSIGNMENT_WRITE)
         if not reason:
             raise ValueError("العزل يلزمه سبب مكتوب")
         tenant = self._tenant_of(context)
-        session = self._session()
+
+        # D5: الردُّ الخاملُ للمعزولِ سلفًا قبلَ العبورِ (نفسُ سلوكِ اليومِ)
+        read = self._session()
         try:
-            row = session.get(OfficialPositionModel, assignment_id)
-            if row is None or row.tenant_id != tenant:
+            existing = read.get(OfficialPositionModel, assignment_id)
+            if existing is None or existing.tenant_id != tenant:
                 raise AssignmentNotFoundError(f"لا تقليد منصبٍ بالمعرّف '{assignment_id}'")
-            require_tenant(context, row.tenant_id)
-            if row.status == "revoked":
-                return {**self._assignment_dict(row), "changed": False}
-            row.status = "revoked"
-            row.revoked_at = _now()
-            row.revocation_reason = reason
-            session.commit()
-            assignment = self._assignment_dict(row)
+            require_tenant(context, existing.tenant_id)
+            if existing.status == "revoked":
+                return {**self._assignment_dict(existing), "changed": False}
         finally:
-            session.close()
+            read.close()
+
+        undo = _RegistryUndo()
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            """المُطبّقُ المتداخلُ الخاصّ — الكتابةُ الوحيدةُ داخلَ الحدّ (D4)."""
+            session = self._session()
+            try:
+                row = session.get(OfficialPositionModel, assignment_id)
+                undo.prior(row, "status", "revoked_at", "revocation_reason")
+                row.status = "revoked"
+                row.revoked_at = _now()
+                row.revocation_reason = reason
+                session.commit()
+                return self._assignment_dict(row)
+            finally:
+                session.close()
+
+        target, crossing = _crossing(
+            "NationalRegistry.revoke_assignment",
+            "WRITE",
+            f"assignments/{assignment_id}/revoke",
+            "عزلُ تقليدِ منصبٍ بسببٍ مكتوبٍ — الصفّ يبقى تاريخًا",
+            undo,
+        )
+        guarded = _registry_authorizer().guard_declared(
+            REGISTRY_VERB, target, applier=_apply, **crossing
+        )
+        _refuse_replay(guarded, "NationalRegistry.revoke_assignment", target)
+        assignment = guarded.value
 
         trace = self._record(
             context,
@@ -791,6 +1123,9 @@ class NationalRegistry:
     ) -> dict[str, Any]:
         """امنح منصبًا سلطةً على عمليةٍ مُسمّاة وهدفٍ مُسمّى — R7-C8.
 
+        يعبرُ الحدَّ السياديَّ بالفعلِ `register` (R1) بمعرّفِ استدعاءٍ (D3):
+        المنحُ مشروعُ التكرارِ على المنصبِ نفسِهِ بعمليّاتٍ/أهدافٍ مختلفةٍ.
+
         الأهداف تُتحقَّق من القاعدة: الموازنة والحساب والإدارة يجب أن تنتمي إلى
         مؤسسة المِنحة. فلا مِنحة على موازنة مؤسسةٍ أخرى، ولو صحّ معرّفها.
 
@@ -806,9 +1141,11 @@ class NationalRegistry:
             raise ValueError(f"نطاق غير معروف '{scope}' — المفردة: {list(AUTHORITY_SCOPES)}")
 
         tenant = self._tenant_of(context)
-        session = self._session()
+
+        # D5: التحقّقُ كلّهُ قبلَ العبورِ — الرسائلُ والأنواعُ كما كانت
+        read = self._session()
         try:
-            position = session.get(PositionModel, position_id)
+            position = read.get(PositionModel, position_id)
             if position is None or position.tenant_id != tenant:
                 raise PositionNotFoundError(f"لا منصب بالمعرّف '{position_id}'")
             require_tenant(context, position.tenant_id)
@@ -827,38 +1164,62 @@ class NationalRegistry:
                 target_department = department_id or position.department_id
                 if target_department is None:
                     raise InvalidGrantTargetError("نطاق الإدارة يلزمه إدارة مُسمّاة")
-                self._assert_department_in(session, target_department, target_institution)
+                self._assert_department_in(read, target_department, target_institution)
                 department_id = target_department
             else:
                 if department_id is not None:
-                    self._assert_department_in(session, department_id, target_institution)
+                    self._assert_department_in(read, department_id, target_institution)
 
             if budget_id is not None:
-                self._assert_budget_in(session, budget_id, target_institution)
+                self._assert_budget_in(read, budget_id, target_institution)
             if account_id is not None:
-                self._assert_account_exists(session, account_id)
-
-            row = AuthorityGrantModel(
-                id=f"agr-{uuid.uuid4()}",
-                position_id=position_id,
-                operation=operation,
-                scope=scope,
-                institution_id=target_institution,
-                department_id=department_id,
-                budget_id=budget_id,
-                account_id=account_id,
-                # لا `str(max_amount)`: كانت تُبيِّضُ العائمَ فتُمرِّرُه عبرَ بابِ
-                # المالِ الذي يرفضُه. و`to_money` هو البابُ (Q-20).
-                max_amount=None if max_amount is None else to_money(max_amount),
-                status="active",
-                granted_by=context.principal_id,
-                tenant_id=tenant,
-            )
-            session.add(row)
-            session.commit()
-            grant = self._grant_dict(row)
+                self._assert_account_exists(read, account_id)
         finally:
-            session.close()
+            read.close()
+
+        # معرّفُ الصفّ يُولَّدُ قبلَ العبورِ فيحملهُ المفتاحُ والهدفُ معًا (D3)
+        grant_row_id = f"agr-{uuid.uuid4()}"
+        undo = _RegistryUndo()
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            """المُطبّقُ المتداخلُ الخاصّ — الكتابةُ الوحيدةُ داخلَ الحدّ (D4)."""
+            session = self._session()
+            try:
+                row = AuthorityGrantModel(
+                    id=grant_row_id,
+                    position_id=position_id,
+                    operation=operation,
+                    scope=scope,
+                    institution_id=target_institution,
+                    department_id=department_id,
+                    budget_id=budget_id,
+                    account_id=account_id,
+                    # لا `str(max_amount)`: كانت تُبيِّضُ العائمَ فتُمرِّرُه عبرَ بابِ
+                    # المالِ الذي يرفضُه. و`to_money` هو البابُ (Q-20).
+                    max_amount=None if max_amount is None else to_money(max_amount),
+                    status="active",
+                    granted_by=context.principal_id,
+                    tenant_id=tenant,
+                )
+                undo.created(row)
+                session.add(row)
+                session.commit()
+                return self._grant_dict(row)
+            finally:
+                session.close()
+
+        target, crossing = _crossing(
+            "NationalRegistry.grant_authority",
+            "CREATE",
+            f"grants/{grant_row_id}/grant",
+            "منحُ منصبٍ سلطةً على عمليّةٍ مُسمّاةٍ وهدفٍ مُسمّى",
+            undo,
+        )
+        guarded = _registry_authorizer().guard_declared(
+            REGISTRY_VERB, target, applier=_apply, **crossing
+        )
+        _refuse_replay(guarded, "NationalRegistry.grant_authority", target)
+        grant = guarded.value
 
         trace = self._record(
             context,
@@ -882,26 +1243,57 @@ class NationalRegistry:
         grant_id: str,
         reason: str,
     ) -> dict[str, Any]:
-        """اسحب مِنحة سلطة — والصفّ يبقى، فيُقرأ لاحقًا أن السلطة كانت ثم سُحبت."""
+        """اسحب مِنحة سلطة — والصفّ يبقى، فيُقرأ لاحقًا أن السلطة كانت ثم سُحبت.
+
+        يعبرُ الحدَّ السياديَّ بالفعلِ `register` (R1) بمفتاحٍ طبيعيٍّ على
+        `grant_id` (D3/D6): السحبُ كتابةٌ واحدة، والمسحوبُ سلفًا يُرجِعُ الردَّ
+        الخاملَ **قبلَ العبورِ** (D5).
+        """
         require_domain_permission(context, "authority.revoke", PERMISSIONS_GRANT_WRITE)
         if not reason:
             raise ValueError("سحب المِنحة يلزمه سبب مكتوب")
         tenant = self._tenant_of(context)
-        session = self._session()
+
+        # D5: الردُّ الخاملُ للمسحوبِ سلفًا قبلَ العبورِ (نفسُ سلوكِ اليومِ)
+        read = self._session()
         try:
-            row = session.get(AuthorityGrantModel, grant_id)
-            if row is None or row.tenant_id != tenant:
+            existing = read.get(AuthorityGrantModel, grant_id)
+            if existing is None or existing.tenant_id != tenant:
                 raise GrantNotFoundError(f"لا مِنحة سلطةٍ بالمعرّف '{grant_id}'")
-            require_tenant(context, row.tenant_id)
-            if row.status == "revoked":
-                return {**self._grant_dict(row), "changed": False}
-            row.status = "revoked"
-            row.revoked_at = _now()
-            row.revocation_reason = reason
-            session.commit()
-            grant = self._grant_dict(row)
+            require_tenant(context, existing.tenant_id)
+            if existing.status == "revoked":
+                return {**self._grant_dict(existing), "changed": False}
         finally:
-            session.close()
+            read.close()
+
+        undo = _RegistryUndo()
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            """المُطبّقُ المتداخلُ الخاصّ — الكتابةُ الوحيدةُ داخلَ الحدّ (D4)."""
+            session = self._session()
+            try:
+                row = session.get(AuthorityGrantModel, grant_id)
+                undo.prior(row, "status", "revoked_at", "revocation_reason")
+                row.status = "revoked"
+                row.revoked_at = _now()
+                row.revocation_reason = reason
+                session.commit()
+                return self._grant_dict(row)
+            finally:
+                session.close()
+
+        target, crossing = _crossing(
+            "NationalRegistry.revoke_authority",
+            "WRITE",
+            f"grants/{grant_id}/revoke",
+            "سحبُ مِنحةِ سلطةٍ بسببٍ مكتوبٍ — الصفّ يبقى تاريخًا",
+            undo,
+        )
+        guarded = _registry_authorizer().guard_declared(
+            REGISTRY_VERB, target, applier=_apply, **crossing
+        )
+        _refuse_replay(guarded, "NationalRegistry.revoke_authority", target)
+        grant = guarded.value
 
         trace = self._record(
             context,
@@ -1143,7 +1535,11 @@ __all__ = [
     "NationalRegistryError",
     "PositionInactiveError",
     "PositionNotFoundError",
+    "REGISTRY_ACTOR",
+    "REGISTRY_VERB",
+    "RegistryReplayError",
     "UnknownAgentError",
     "get_national_registry",
     "reset_national_registry",
+    "reset_registry_authorizer",
 ]
