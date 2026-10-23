@@ -68,9 +68,11 @@
   {
    "action": "vacate_ruling",
    "actor": "EXECUTIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "vacate_ruling",
@@ -82,9 +84,11 @@
   {
    "action": "vacate_ruling",
    "actor": "LEGISLATIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "vacate_ruling",
@@ -96,9 +100,11 @@
   {
    "action": "admit_evidence",
    "actor": "EXECUTIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "admit_evidence",
@@ -110,9 +116,11 @@
   {
    "action": "admit_evidence",
    "actor": "LEGISLATIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "admit_evidence",
@@ -124,9 +132,11 @@
   {
    "action": "register_judgment",
    "actor": "EXECUTIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "register_judgment",
@@ -138,9 +148,11 @@
   {
    "action": "register_judgment",
    "actor": "LEGISLATIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "register_judgment",
@@ -152,9 +164,11 @@
   {
    "action": "refer_case",
    "actor": "EXECUTIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "refer_case",
@@ -166,9 +180,11 @@
   {
    "action": "refer_case",
    "actor": "LEGISLATIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "refer_case",
@@ -180,9 +196,11 @@
   {
    "action": "admit_case",
    "actor": "EXECUTIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "admit_case",
@@ -194,9 +212,11 @@
   {
    "action": "admit_case",
    "actor": "LEGISLATIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "admit_case",
@@ -208,9 +228,11 @@
   {
    "action": "recuse_judge",
    "actor": "EXECUTIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "recuse_judge",
@@ -222,9 +244,11 @@
   {
    "action": "recuse_judge",
    "actor": "LEGISLATIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "recuse_judge",
@@ -404,9 +428,11 @@
   {
    "action": "assign_case",
    "actor": "EXECUTIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "assign_case",
@@ -418,9 +444,11 @@
   {
    "action": "assign_case",
    "actor": "LEGISLATIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "assign_case",
@@ -600,9 +628,11 @@
   {
    "action": "record_proceeding",
    "actor": "EXECUTIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "record_proceeding",
@@ -614,9 +644,11 @@
   {
    "action": "record_proceeding",
    "actor": "LEGISLATIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "record_proceeding",

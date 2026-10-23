@@ -91,6 +91,11 @@ JUDICIAL_ACTIONS: Final[frozenset[str]] = frozenset(
         "admit_evidence",      # قبولُ دليل
         "recuse_judge",        # تنحيةُ قاضٍ (إجراءٌ داخليٌّ قضائيّ)
         "register_judgment",   # تسجيلُ الحكمِ في السجلّ
+        # الأربعةُ الجديدةُ — قرارُ المالكِ D17-2 (خيارُ 1) · الدفعةُ J2+J3 (WI-111):
+        "assign_case",         # إسنادُ القضيّةِ إلى قاضٍ في محكمتِها
+        "record_proceeding",   # قيدُ إجراءٍ في سجلِّ القضيّة
+        "join_party",          # ضمُّ طرفٍ إلى الدعوى
+        "admit_claim",         # قبولُ مطالبةٍ في الدعوى
     }
 )
 

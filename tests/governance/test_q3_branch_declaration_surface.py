@@ -308,34 +308,38 @@ def test_production_authorizer_sites_split_eight_declared_four_defaulted() -> No
 
 
 # ── 5. دَينُ W1 وتواقيعُه ─────────────────────────────────────────────────────
-def test_w1_debt_is_twenty_six_sites() -> None:
-    """(محدّثة في W-625 · R1): 35 ← 26 — أسطحُ السجلِّ الوطنيِّ التسعةُ في
+def test_w1_debt_is_eleven_sites() -> None:
+    """(محدّثة في W-640 · J2+J3): 26 ← 11 — الأسطحُ القضائيّةُ الخمسةَ عشرَ المحسومةُ
+    (D17-2) عبرتِ الحدَّ أو خرجت منَ العدِّ (الخدماتُ المُنسِّقةُ لا تكتبُ) فخرجت منَ
+    دَينِ W1 كلُّها؛ والباقي: المؤجَّلةُ السبعُ (D21-أ بند 9) وJ4 الثلاثةُ و`process_case`.
+    (محدّثة في W-625 · R1): 35 ← 26 — أسطحُ السجلِّ الوطنيِّ التسعةُ في
     national_registry/service.py عبرتِ الحدَّ بالفعلِ register فخرجت منَ دَينِ W1 كلُّها
     (كلُّها كانت «سياقًا وحدَه»). (محدّثة في W-617 · F1): 50 ← 35 — خمسةَ عشرَ سطحًا عامًّا في federation.py عبرت
     الحدَّ السياديَّ بالفعلِ coordinate فخرجت منَ دَينِ W1 كلُّها (كلُّها كانت «بلا فاعلٍ»).
     (محدّثة في W-593 · J1): 52 ← 50 — issue_ruling عبرَ الحدَّ السياديَّ فخرجَ منَ
     دَينِ W1. (سابقةُ WI-082 · W-402.)"""
-    assert len(_w1_debt()) == 26
+    assert len(_w1_debt()) == 11
 
 
-def test_w1_signature_buckets_are_eighteen_four_four() -> None:
-    """الدعوى المحروسة (محدّثة في W-625 · R1: 27 ← 18 في «سياقٍ وحدَه» — أسطحُ
+def test_w1_signature_buckets_are_seven_two_two() -> None:
+    """الدعوى المحروسة (محدّثة في W-640 · J2+J3: 18/4/4 ← 7/2/2 — خرجَ منَ «السياقِ
+    وحدَه» 11 ومنَ «الفاعلِ المُسمّى» 2 ومنَ «بلا فاعلٍ» 2: الأسطحُ الخمسةَ عشرَ) (محدّثة في W-625 · R1: 27 ← 18 في «سياقٍ وحدَه» — أسطحُ
     السجلِّ الوطنيِّ التسعةُ خرجت) (ومحدّثة في W-617 · F1: 19 ← 4 في «بلا فاعلٍ» — سطوحُ federation.py
     الخمسةَ عشرَ خرجت منه) (ومحدّثة في W-593 · J1: 28/20 ← 27/19): 27 سياقًا وحدَه ·
     4 فاعلًا مُسمّىً · 4 بلا فاعلٍ بأيِّ صورةٍ · 0 كِلاهما."""
     buckets = _signature_buckets()
     counts = {key: len(value) for key, value in buckets.items()}
     assert counts == {
-        "context_only": 18,
-        "actor_named": 4,
-        "neither": 4,
+        "context_only": 7,
+        "actor_named": 2,
+        "neither": 2,
         "both": 0,
     }, counts
-    assert sum(counts.values()) == 26
+    assert sum(counts.values()) == 11
 
 
 def test_no_w1_debt_site_declares_a_branch_today() -> None:
-    """لا موضعَ واحدًا منَ الـ26 (كانت 35 قبلَ R1 · W-625 · و50 قبلَ F1 · و52 قبلَ J1 · W-593) يُمرِّرُ فرعًا — فالفرعُ اليومَ لا يُعلَنُ في التوقيعِ أصلًا."""
+    """لا موضعَ واحدًا منَ الـ11 (كانت 26 قبلَ J2+J3 · W-640 · و35 قبلَ R1 · W-625 · و50 قبلَ F1 · و52 قبلَ J1 · W-593) يُمرِّرُ فرعًا — فالفرعُ اليومَ لا يُعلَنُ في التوقيعِ أصلًا."""
     for site in _w1_debt():
         source = (REPO_ROOT / site.path).read_text(encoding="utf-8")
         node = _function_node(ast.parse(source), site.function)
@@ -348,14 +352,16 @@ def test_no_w1_debt_site_declares_a_branch_today() -> None:
 
 # ── 6. أثرُ الإعلانِ على الحكم — من المُحرِّكِ نفسِه ──────────────────────────
 def test_no_debt_action_is_branch_sensitive_today() -> None:
-    """الدعوى المحروسة (محدّثة في W-625 · R1: 29/27/2 ← 20/20/0 — أسطحُ السجلِّ الوطنيِّ
+    """الدعوى المحروسة (محدّثة في W-640 · J2+J3: 20/20/0 ← 9/9/0 — أحدَ عشرَ اسمَ فعلٍ
+    منَ الأسطحِ الخمسةَ عشرَ خرجت منَ الدَّينِ؛ والتسعةُ الباقيةُ كلُّها خارجَ المعجمِ —
+    والمؤجَّلةُ الأربعةُ غائبةٌ عمدًا عنه) (محدّثة في W-625 · R1: 29/27/2 ← 20/20/0 — أسطحُ السجلِّ الوطنيِّ
     التسعةُ خرجت منَ الدَّينِ كلِّه ومنها الممنوعانِ grant_authority/revoke_authority: عبورُها
     بالفعلِ register لا يعني إذنَ المحرّكِ لها — الحكمُ حقيقيٌّ عندَ الحدِّ وT3 قِيسَ على
     رفضٍ فعليٍّ) (ومحدّثة في W-617 · F1: 43/41/0 ← 29/27/0 — أربعةَ عشرَ اسمَ فعلٍ منَ
     federation.py خرجت منَ الدَّينِ كلِّه، والممنوعانِ كما هما) (ومحدّثة في W-593 · J1: 44/41/1 ← 43/41/0 — issue_ruling كانَ الحسّاسَ الوحيدَ فخرجَ منَ الدَّينِ كلِّهِ فلم يبقَ حسّاسٌ فيه): من 29 اسمَ فعلٍ في دَينِ W1 —
     27 خارجَ المعجمِ · 0 حسّاسٌ للفرعِ · 2 ممنوعانِ لكلِّ فاعل."""
     actions = sorted({site.function.split(".")[-1] for site in _w1_debt()})
-    assert len(actions) == 20, actions
+    assert len(actions) == 9, actions
     actors = ["EXECUTIVE", "JUDICIAL", "LEGISLATIVE", "TREASURY", "ROYAL"]
     verdicts = _engine_verdicts(actions, actors)
 
@@ -369,7 +375,7 @@ def test_no_debt_action_is_branch_sensitive_today() -> None:
         else:
             sensitive.append(action)
 
-    assert len(outside) == 20, sorted(outside)
+    assert len(outside) == 9, sorted(outside)
     assert sensitive == [], sensitive
     assert denied == [], sorted(denied)
 

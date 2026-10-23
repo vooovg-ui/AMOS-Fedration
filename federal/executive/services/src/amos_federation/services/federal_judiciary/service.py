@@ -49,6 +49,7 @@ AMOS-Federation Federal Judiciary — Service Facade
 
 from __future__ import annotations
 
+import uuid
 from typing import TYPE_CHECKING, Any
 
 from amos_federation.common.database import get_session_factory, init_db
@@ -74,6 +75,7 @@ from amos_federation.services.federal_judiciary.enforcement import EnforcementEr
 from amos_federation.services.federal_judiciary.models import (
     FEDERAL_JUDICIARY_TABLES,
     CaseEvidenceModel,
+    CaseProceedingModel,
     CourtJudgeModel,
     CourtModel,
     LegalCaseModel,
@@ -91,6 +93,25 @@ if TYPE_CHECKING:
 #: في كل نداء، على نمط `DISBURSEMENT_TASK_TYPE` القائم في الخزانة.
 RULING_TASK_TYPE = "judiciary.ruling.enforce"
 RULING_TASK_DOMAIN = "judiciary"
+
+
+def _replayed_transition(
+    session: Session, case_id: str, tenant_id: str, proceeding_type: str
+) -> tuple[LegalCaseModel, CaseProceedingModel] | None:
+    """الإعادةُ تُقرأُ (D6): القضيّةُ وآخرُ إجراءٍ من النوعِ — وغيابُ الإجراءِ تفرُّقٌ لا نجاح."""
+    case = docket.load_case(session, case_id, tenant_id=tenant_id)
+    proceeding = (
+        session.query(CaseProceedingModel)
+        .filter(
+            CaseProceedingModel.case_id == case.id,
+            CaseProceedingModel.proceeding_type == proceeding_type,
+        )
+        .order_by(CaseProceedingModel.sequence.desc())
+        .first()
+    )
+    if proceeding is None:
+        return None
+    return case, proceeding
 
 
 class FederalJudiciary:
@@ -254,18 +275,45 @@ class FederalJudiciary:
     ) -> dict[str, Any]:
         """علِّق قاضيًا أو اعزله — وأثرُه أن سلطته القضائية تسقط آليًّا."""
         require_domain_permission(context, "judiciary.judge.status", PERMISSIONS_JUDGE_WRITE)
+        tenant = self._tenant_of(context)
         session = self._session()
         try:
-            row, previous = registry.set_judge_status(
+            # فحوصُ `registry.set_judge_status` قبلَ الحدِّ (WI-111 · D8 · `registry.py` خارجَ
+            # النطاقِ فتُعادُ هنا مُطابِقةً — والكاتبُ يُعيدُها داخلَ المُطبِّقِ بلا تغيير).
+            if status not in ("active", "suspended", "revoked"):
+                raise registry.JudiciaryError(f"حالةُ تقليدٍ غير معروفة '{status}'")
+            if not reason.strip():
+                raise registry.JudiciaryError("تغييرُ حالة تقليدٍ قضائيّ يلزمه سببٌ مكتوب")
+            judge = session.get(CourtJudgeModel, judge_id)
+            if judge is None or judge.tenant_id != tenant:
+                raise registry.JudiciaryError(
+                    f"لا تقليدَ قضاءٍ بالمعرّف '{judge_id}' في مستأجر '{tenant}'"
+                )
+            require_tenant(context, judge.tenant_id)
+            court = registry.load_court(session, judge.court_id, tenant_id=tenant)
+            # `recuse_judge` (D17-2 · ونقطةُ D8-أ المعلَنةُ: الدالّةُ تُعلِّقُ وتعزلُ) · الحالةُ
+            # قد تتكرّرُ (active↔suspended) فالمفتاحُ فريدٌ لكلِّ نداءٍ (D6).
+            plan = docket._plan_crossing(
                 session,
-                judge_id=judge_id,
-                status=status,
-                reason=reason,
-                tenant_id=self._tenant_of(context),
+                action="recuse_judge",
+                court=court,
+                case_scope=court.jurisdiction,
+                namespace="judiciary.judge.status",
+                key=f"{judge.id}:{judge.status}->{status}:{uuid.uuid4()}",
+                kind="WRITE",
+                description=f"تغييرُ حالةِ تقليدِ القاضي إلى '{status}' في المحكمةِ '{court.code}'",
+                mutate=lambda _created: registry.set_judge_status(
+                    session, judge_id=judge.id, status=status, reason=reason, tenant_id=tenant
+                ),
+                snapshots=(judge,),
             )
-            require_tenant(context, row.tenant_id)
+            guarded = rulings._judiciary_authorizer().guard_declared(
+                plan.action, plan.target, **plan.kwargs
+            )
+            row, previous = docket.crossed_value(
+                guarded, replay=lambda: None, what="تغييرَ حالةِ التقليدِ"
+            )
             payload = registry.judge_dict(row)
-            session.commit()
         finally:
             session.close()
         trace = self._record(
@@ -311,8 +359,8 @@ class FederalJudiciary:
                 opened_by_identity_id=identity_id,
                 tenant_id=self._tenant_of(context),
             )
+            # `docket.open_case` يعبرُ الحدَّ ويلتزمُ داخلَه (WI-111 · D3) — الخدمةُ مُنسِّقٌ.
             payload = docket.case_dict(row)
-            session.commit()
         finally:
             session.close()
         trace = self._record(
@@ -338,20 +386,49 @@ class FederalJudiciary:
         session = self._session()
         try:
             identity_id = self._identity_of(session, context)
-            row = docket.file_case(session, case_id=case_id, tenant_id=self._tenant_of(context))
-            require_tenant(context, row.tenant_id)
-            proceeding = docket.record_proceeding(
+            tenant = self._tenant_of(context)
+            case = docket.load_case(session, case_id, tenant_id=tenant)
+            require_tenant(context, case.tenant_id)
+            docket.assert_transition(case.status, "filed")
+            summary = f"قيدُ القضية '{case.reference}' رسميًّا"
+
+            def _mutate(created: list[Any]) -> tuple[Any, Any]:
+                moved = docket.file_case(session, case_id=case.id, tenant_id=tenant)
+                proceeding = docket._insert_proceeding(
+                    session,
+                    case_id=case.id,
+                    proceeding_type="FILING",
+                    actor_principal=context.principal_id,
+                    actor_identity_id=identity_id,
+                    summary=summary,
+                    tenant_id=tenant,
+                    created=created,
+                )
+                return moved, proceeding
+
+            # `refer_case` (D17-2) · الخريطةُ لا دوائرَ فيها: (القضيّةُ · السابقةُ→اللاحقةُ) فريدٌ (D6).
+            plan = docket._plan_crossing(
                 session,
-                case_id=row.id,
-                proceeding_type="FILING",
-                actor_principal=context.principal_id,
-                actor_identity_id=identity_id,
-                summary=f"قيدُ القضية '{row.reference}' رسميًّا",
-                tenant_id=self._tenant_of(context),
+                action="refer_case",
+                court=registry.load_court(session, case.court_id, tenant_id=tenant),
+                case_scope=case.jurisdiction,
+                namespace="judiciary.case.file",
+                key=f"{case.id}:{case.status}->filed",
+                kind="WRITE",
+                description=f"انتقالُ القضيّةِ '{case.reference}' إلى 'filed' وقيدُ إجراءِ FILING",
+                mutate=_mutate,
+                snapshots=(case,),
+            )
+            guarded = rulings._judiciary_authorizer().guard_declared(
+                plan.action, plan.target, **plan.kwargs
+            )
+            row, proceeding = docket.crossed_value(
+                guarded,
+                replay=lambda: _replayed_transition(session, case.id, tenant, "FILING"),
+                what=f"انتقالَ القضيّةِ '{case.reference}' إلى 'filed'",
             )
             payload = docket.case_dict(row)
             proceeding_payload = docket.proceeding_dict(proceeding)
-            session.commit()
         finally:
             session.close()
         self._publish_proceeding(context, proceeding_payload)
@@ -362,14 +439,37 @@ class FederalJudiciary:
     ) -> dict[str, Any]:
         """`filed → assigned` بقاضٍ نشطٍ في محكمة القضية بالذات."""
         require_domain_permission(context, "judiciary.case.assign", PERMISSIONS_DOCKET_WRITE)
+        tenant = self._tenant_of(context)
         session = self._session()
         try:
-            row = docket.assign_case(
-                session, case_id=case_id, judge_id=judge_id, tenant_id=self._tenant_of(context)
+            case, judge = docket.check_assign(
+                session, case_id=case_id, judge_id=judge_id, tenant_id=tenant
             )
-            require_tenant(context, row.tenant_id)
+            require_tenant(context, case.tenant_id)
+            # `assign_case` (D17-2 · جديدٌ في المعجمَينِ) · (القضيّةُ · filed→assigned) فريدٌ (D6).
+            plan = docket._plan_crossing(
+                session,
+                action="assign_case",
+                court=registry.load_court(session, case.court_id, tenant_id=tenant),
+                case_scope=case.jurisdiction,
+                namespace="judiciary.case.assign",
+                key=f"{case.id}:{case.status}->assigned",
+                kind="WRITE",
+                description=f"إسنادُ القضيّةِ '{case.reference}' إلى قاضٍ في محكمتِها",
+                mutate=lambda _created: docket.assign_case(
+                    session, case_id=case.id, judge_id=judge.id, tenant_id=tenant
+                ),
+                snapshots=(case,),
+            )
+            guarded = rulings._judiciary_authorizer().guard_declared(
+                plan.action, plan.target, **plan.kwargs
+            )
+            row = docket.crossed_value(
+                guarded,
+                replay=lambda: docket.load_case(session, case.id, tenant_id=tenant),
+                what=f"إسنادَ القضيّةِ '{case.reference}'",
+            )
             payload = docket.case_dict(row)
-            session.commit()
         finally:
             session.close()
         trace = self._record(
@@ -393,20 +493,49 @@ class FederalJudiciary:
         session = self._session()
         try:
             identity_id = self._identity_of(session, context)
-            row = docket.open_hearing(session, case_id=case_id, tenant_id=self._tenant_of(context))
-            require_tenant(context, row.tenant_id)
-            proceeding = docket.record_proceeding(
+            tenant = self._tenant_of(context)
+            case = docket.load_case(session, case_id, tenant_id=tenant)
+            require_tenant(context, case.tenant_id)
+            docket.assert_transition(case.status, "hearing")
+            summary = f"افتتاحُ جلسةٍ في القضية '{case.reference}'"
+
+            def _mutate(created: list[Any]) -> tuple[Any, Any]:
+                moved = docket.open_hearing(session, case_id=case.id, tenant_id=tenant)
+                proceeding = docket._insert_proceeding(
+                    session,
+                    case_id=case.id,
+                    proceeding_type="HEARING",
+                    actor_principal=context.principal_id,
+                    actor_identity_id=identity_id,
+                    summary=summary,
+                    tenant_id=tenant,
+                    created=created,
+                )
+                return moved, proceeding
+
+            # `adjudicate` (D17-2) · الخريطةُ لا دوائرَ فيها: (القضيّةُ · السابقةُ→اللاحقةُ) فريدٌ (D6).
+            plan = docket._plan_crossing(
                 session,
-                case_id=row.id,
-                proceeding_type="HEARING",
-                actor_principal=context.principal_id,
-                actor_identity_id=identity_id,
-                summary=f"افتتاحُ جلسةٍ في القضية '{row.reference}'",
-                tenant_id=self._tenant_of(context),
+                action="adjudicate",
+                court=registry.load_court(session, case.court_id, tenant_id=tenant),
+                case_scope=case.jurisdiction,
+                namespace="judiciary.case.hearing",
+                key=f"{case.id}:{case.status}->hearing",
+                kind="WRITE",
+                description=f"انتقالُ القضيّةِ '{case.reference}' إلى 'hearing' وقيدُ إجراءِ HEARING",
+                mutate=_mutate,
+                snapshots=(case,),
+            )
+            guarded = rulings._judiciary_authorizer().guard_declared(
+                plan.action, plan.target, **plan.kwargs
+            )
+            row, proceeding = docket.crossed_value(
+                guarded,
+                replay=lambda: _replayed_transition(session, case.id, tenant, "HEARING"),
+                what=f"انتقالَ القضيّةِ '{case.reference}' إلى 'hearing'",
             )
             payload = docket.case_dict(row)
             proceeding_payload = docket.proceeding_dict(proceeding)
-            session.commit()
         finally:
             session.close()
         self._publish_proceeding(context, proceeding_payload)
@@ -417,14 +546,39 @@ class FederalJudiciary:
     ) -> dict[str, Any]:
         """`decided|enforcement → closed` بسببٍ مكتوب."""
         require_domain_permission(context, "judiciary.case.close", PERMISSIONS_DOCKET_WRITE)
+        tenant = self._tenant_of(context)
         session = self._session()
         try:
-            row, previous = docket.close_case(
-                session, case_id=case_id, reason=reason, tenant_id=self._tenant_of(context)
+            case = docket.check_close(session, case_id=case_id, reason=reason, tenant_id=tenant)
+            require_tenant(context, case.tenant_id)
+            previous_status = case.status
+            # `register_judgment` (D17-2) · (القضيّةُ · السابقةُ→closed) فريدٌ — الإغلاقُ نهائيٌّ (D6).
+            plan = docket._plan_crossing(
+                session,
+                action="register_judgment",
+                court=registry.load_court(session, case.court_id, tenant_id=tenant),
+                case_scope=case.jurisdiction,
+                namespace="judiciary.case.close",
+                key=f"{case.id}:{case.status}->closed",
+                kind="WRITE",
+                description=f"إغلاقُ القضيّةِ '{case.reference}' بسببٍ مكتوبٍ",
+                mutate=lambda _created: docket.close_case(
+                    session, case_id=case.id, reason=reason, tenant_id=tenant
+                ),
+                snapshots=(case,),
             )
-            require_tenant(context, row.tenant_id)
+            guarded = rulings._judiciary_authorizer().guard_declared(
+                plan.action, plan.target, **plan.kwargs
+            )
+            row, previous = docket.crossed_value(
+                guarded,
+                replay=lambda: (
+                    docket.load_case(session, case.id, tenant_id=tenant),
+                    previous_status,
+                ),
+                what=f"إغلاقَ القضيّةِ '{case.reference}'",
+            )
             payload = docket.case_dict(row)
-            session.commit()
         finally:
             session.close()
         trace = self._record(
@@ -474,8 +628,7 @@ class FederalJudiciary:
                 institution_id=institution_id,
                 display_label=display_label,
             )
-            payload = docket.party_dict(row)
-            session.commit()
+            payload = docket.party_dict(row)  # `docket.add_party` يعبرُ ويلتزمُ (WI-111)
         finally:
             session.close()
         return payload
@@ -509,8 +662,7 @@ class FederalJudiciary:
                 legal_basis_ref=legal_basis_ref,
                 amount=amount,
             )
-            payload = docket.claim_dict(row)
-            session.commit()
+            payload = docket.claim_dict(row)  # `docket.add_claim` يعبرُ ويلتزمُ (WI-111)
         finally:
             session.close()
         return payload
@@ -569,18 +721,36 @@ class FederalJudiciary:
     ) -> dict[str, Any]:
         """اقبل الدليل أو استبعِده أو اسحبه — بأثرٍ مكتوبٍ لا بحذف."""
         require_domain_permission(context, "judiciary.evidence.status", PERMISSIONS_DOCKET_WRITE)
+        tenant = self._tenant_of(context)
         session = self._session()
         try:
-            row, previous = docket.set_evidence_status(
-                session,
-                evidence_id=evidence_id,
-                status=status,
-                reason=reason,
-                tenant_id=self._tenant_of(context),
+            evidence = docket.check_evidence_status(
+                session, evidence_id=evidence_id, status=status, reason=reason, tenant_id=tenant
             )
-            require_tenant(context, row.tenant_id)
+            require_tenant(context, evidence.tenant_id)
+            case = docket.load_case(session, evidence.case_id, tenant_id=tenant)
+            # `admit_evidence` (D17-2) · الحالةُ قد تتكرّرُ فالمفتاحُ فريدٌ لكلِّ نداءٍ (D6).
+            plan = docket._plan_crossing(
+                session,
+                action="admit_evidence",
+                court=registry.load_court(session, case.court_id, tenant_id=tenant),
+                case_scope=case.jurisdiction,
+                namespace="judiciary.evidence.status",
+                key=f"{evidence.id}:{evidence.status}->{status}:{uuid.uuid4()}",
+                kind="WRITE",
+                description=f"تغييرُ حالةِ دليلٍ إلى '{status}' في القضيّةِ '{case.reference}'",
+                mutate=lambda _created: docket.set_evidence_status(
+                    session, evidence_id=evidence.id, status=status, reason=reason, tenant_id=tenant
+                ),
+                snapshots=(evidence,),
+            )
+            guarded = rulings._judiciary_authorizer().guard_declared(
+                plan.action, plan.target, **plan.kwargs
+            )
+            row, previous = docket.crossed_value(
+                guarded, replay=lambda: None, what="تغييرَ حالةِ الدليلِ"
+            )
             payload = docket.evidence_dict(row)
-            session.commit()
         finally:
             session.close()
         return {**payload, "previous_status": previous}
@@ -617,8 +787,7 @@ class FederalJudiciary:
                 tenant_id=self._tenant_of(context),
                 record=record,
             )
-            payload = docket.proceeding_dict(row)
-            session.commit()
+            payload = docket.proceeding_dict(row)  # `docket.record_proceeding` يعبرُ ويلتزمُ (WI-111)
         finally:
             session.close()
         trace = self._publish_proceeding(context, payload)
@@ -709,18 +878,47 @@ class FederalJudiciary:
     ) -> dict[str, Any]:
         """ألغِ حكمًا غير مُنفَّذ بسلطةٍ قضائية في محكمته — تغييرُ حالةٍ لا حذف."""
         require_domain_permission(context, "judiciary.ruling.vacate", PERMISSIONS_RULING_WRITE)
+        tenant = self._tenant_of(context)
         session = self._session()
         try:
-            ruling = rulings.load_ruling(session, ruling_id, tenant_id=self._tenant_of(context))
+            ruling = rulings.load_ruling(session, ruling_id, tenant_id=tenant)
             require_tenant(context, ruling.tenant_id)
-            require_judicial_authority(
+            authority = require_judicial_authority(
                 session, context, court_id=ruling.court_id, case_id=ruling.case_id
             )
-            row, previous = rulings.vacate_ruling(
-                session, ruling_id=ruling_id, reason=reason, tenant_id=self._tenant_of(context)
+            rulings.check_vacate(session, ruling_id=ruling.id, reason=reason, tenant_id=tenant)
+            case = docket.load_case(session, ruling.case_id, tenant_id=tenant)
+            # `vacate_ruling` (J2 · D17-2) · المنصبُ مُثبَتٌ هنا فنطاقُ الفاعلِ منه (D4 كـJ1) ·
+            # الإلغاءُ مرّةً واحدةً للحكمِ (D6).
+            plan = docket._plan_crossing(
+                session,
+                action="vacate_ruling",
+                court=registry.load_court(session, ruling.court_id, tenant_id=tenant),
+                case_scope=case.jurisdiction,
+                namespace="judiciary.ruling.vacate",
+                key=f"{ruling.id}:{ruling.status}->vacated",
+                kind="WRITE",
+                description=f"إلغاءُ حكمِ المرحلةِ '{ruling.stage}' في القضيّةِ '{case.reference}'",
+                mutate=lambda _created: rulings.vacate_ruling(
+                    session, ruling_id=ruling.id, reason=reason, tenant_id=tenant
+                ),
+                snapshots=(ruling,),
+                actor_scope=authority.position_scope or "",
+                institution_id=authority.institution_id,
+            )
+            previous_status = ruling.status
+            guarded = rulings._judiciary_authorizer().guard_declared(
+                plan.action, plan.target, **plan.kwargs
+            )
+            row, previous = docket.crossed_value(
+                guarded,
+                replay=lambda: (
+                    rulings.load_ruling(session, ruling.id, tenant_id=tenant),
+                    previous_status,
+                ),
+                what="إلغاءَ الحكمِ",
             )
             payload = rulings.ruling_dict(row)
-            session.commit()
         finally:
             session.close()
         return {**payload, "previous_status": previous}

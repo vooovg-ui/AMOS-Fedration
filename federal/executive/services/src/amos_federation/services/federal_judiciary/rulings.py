@@ -47,9 +47,9 @@ from amos_federation.services.executive_core.sovereignty_bridge import (
     operation_key,
 )
 from amos_federation.services.federal_judiciary.docket import (
+    _insert_proceeding,
     advance_case,
     load_case,
-    record_proceeding,
 )
 from amos_federation.services.federal_judiciary.models import (
     RULING_DECISIONS,
@@ -281,7 +281,8 @@ def issue_ruling(
         )
         session.add(row)
         session.flush()
-        proceeding = record_proceeding(
+        # الكاتبُ الخاصُّ لا العمليّةُ العامّةُ العابرةُ (WI-111 · D3): لا عبورَ داخلَ عبورٍ.
+        proceeding = _insert_proceeding(
             session,
             case_id=case.id,
             proceeding_type="RULING",
@@ -358,6 +359,18 @@ def issue_ruling(
     return row, proceeding
 
 
+def check_vacate(session: Session, *, ruling_id: str, reason: str, tenant_id: str) -> RulingModel:
+    """فحوصُ الإلغاءِ — قبلَ الحدِّ وفي الكاتبِ نفسِه (مصدرٌ واحدٌ · WI-111)."""
+    if not reason.strip():
+        raise RulingError("إلغاءُ حكمٍ يلزمه سببٌ مكتوب")
+    row = load_ruling(session, ruling_id, tenant_id=tenant_id)
+    if row.status == "vacated":
+        raise RulingError(f"الحكم '{ruling_id}' مُلغىً أصلًا")
+    if row.status == "enforced":
+        raise RulingError(f"الحكم '{ruling_id}' نُفِّذ — عكسُ أثرٍ تنفيذيّ ليس مبنيًّا في هذه الوحدة")
+    return row
+
+
 def vacate_ruling(
     session: Session, *, ruling_id: str, reason: str, tenant_id: str
 ) -> tuple[RulingModel, str]:
@@ -366,13 +379,7 @@ def vacate_ruling(
     والحكمُ المُنفَّذ (`enforced`) لا يُلغى في هذه الوحدة: إلغاءُ أثرٍ تنفيذيّ جرى
     يحتاج عكسَ حركةٍ أو إبطالَ مهمّة، وذاك مسارٌ **غير مبنيّ** ويُقال ولا يُموَّه.
     """
-    if not reason.strip():
-        raise RulingError("إلغاءُ حكمٍ يلزمه سببٌ مكتوب")
-    row = load_ruling(session, ruling_id, tenant_id=tenant_id)
-    if row.status == "vacated":
-        raise RulingError(f"الحكم '{ruling_id}' مُلغىً أصلًا")
-    if row.status == "enforced":
-        raise RulingError(f"الحكم '{ruling_id}' نُفِّذ — عكسُ أثرٍ تنفيذيّ ليس مبنيًّا في هذه الوحدة")
+    row = check_vacate(session, ruling_id=ruling_id, reason=reason, tenant_id=tenant_id)
     previous = row.status
     row.status = "vacated"
     row.vacated_at = _now()

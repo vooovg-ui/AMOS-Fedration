@@ -378,6 +378,17 @@ def _prepared_case(
 # ── T1 · ALLOW للقضائيّ — العبورُ والصفوفُ الثلاثةُ ──────────────────────────
 
 
+
+def _ruling_results(authorizer: Any) -> list[Any]:
+    """عبوراتُ `issue_ruling` وحدَها منَ المُصرِّحِ المشتركِ.
+
+    مُضافٌ في WI-111 (J2+J3 · W-640): المُصرِّحُ نفسُه صارَ يعبرُ به تجهيزُ الفحصِ أيضًا
+    (فتحُ القضيّةِ وقيدُها وإسنادُها وإلغاءُ الحكمِ) — فعدُّ `authorizer.results` كلِّها
+    لم يعُدْ يقيسُ `issue_ruling`. والتصفيةُ بالفعلِ تُبقي قصدَ الفحصِ كما هو: عددُ
+    عبوراتِ إصدارِ الحكمِ بعينِه (لا تخفيفَ — والقيدُ الثاني في T5 على سجلِّ البوابةِ باقٍ).
+    """
+    return [r for r in authorizer.results if r.evidence.as_dict()["action"] == "issue_ruling"]
+
 def test_wi105_t1_issue_ruling_crosses_boundary_as_judicial(
     registry: StateRegistry,
     national: NationalRegistry,
@@ -399,8 +410,8 @@ def test_wi105_t1_issue_ruling_crosses_boundary_as_judicial(
     assert payload["status"] == "issued"
 
     # عبورٌ واحدٌ بدليلِهِ الحرفيِّ: الفعلُ والقرارُ والهدفُ بجيلِهِ.
-    assert len(authorizer.results) == 1
-    evidence = authorizer.results[0].evidence.as_dict()
+    assert len(_ruling_results(authorizer)) == 1
+    evidence = _ruling_results(authorizer)[0].evidence.as_dict()
     assert evidence["action"] == "issue_ruling"
     assert evidence["decision"] == "ALLOW"
     assert evidence["target"] == f"judiciary/rulings/{case_id}/FIRST_INSTANCE/g0"
@@ -583,8 +594,8 @@ def test_wi105_t4_replacement_after_vacation_uses_new_generation(
     finally:
         session.close()
 
-    assert len(authorizer.results) == 2
-    targets = [r.evidence.as_dict()["target"] for r in authorizer.results]
+    assert len(_ruling_results(authorizer)) == 2
+    targets = [r.evidence.as_dict()["target"] for r in _ruling_results(authorizer)]
     assert targets[0] == f"judiciary/rulings/{case_id}/FIRST_INSTANCE/g0"
     assert targets[1] == f"judiciary/rulings/{case_id}/FIRST_INSTANCE/g1"
 
@@ -620,7 +631,7 @@ def test_wi105_t5_duplicate_rejected_before_boundary(
         )
 
     # المكرَّرُ لم يعبُرِ الحدَّ أصلًا: لا عبورَ جديدَ ولا قرارَ في البوابةِ.
-    assert len(authorizer.results) == 1
+    assert len(_ruling_results(authorizer)) == 1
     assert len(authorizer.gateway.records) == decisions_before
 
 

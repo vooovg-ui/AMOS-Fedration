@@ -30,7 +30,21 @@ from .model import ActionRequest, Branch, CrownEffect, Severity
 # ---------------------------------------------------------------------------
 
 LEGISLATIVE_ACTIONS = frozenset({"legislate", "enact_policy", "amend_policy", "repeal_policy"})
-JUDICIAL_ACTIONS = frozenset({"adjudicate", "arbitrate", "interpret_constitution", "issue_ruling"})
+# معجمُ القضاءِ — قرارُ المالكِ D17-2 (خيارُ 1 · W-592) وتنفيذُه في الدفعةِ J2+J3 (WI-111).
+# كانَ أربعةَ أفعالٍ، وجدارُ الاختصاصِ (`core/sovereignty/jurisdiction.py`) يعرفُ ستّةً
+# أخرى غائبةً هنا، فمرَّت `ALLOW` لكلِّ فرعٍ (مقيسًا: `judicial_gate_probe.py` · W-638).
+# والتوسيعُ تضييقٌ لا توسيعٌ (سابقةُ Q-18): كلُّ فعلٍ يُضافُ يصيرُ حصرًا قضائيًّا يُرفَضُ
+# للفروعِ الأخرى بـ`R-003-1`. والأفعالُ الأربعةُ المؤجَّلةُ (establish_court ·
+# set_court_status · appoint_judge · submit_evidence) **غائبةٌ عمدًا** (D17-2 · D21-أ بند 9).
+JUDICIAL_ACTIONS = frozenset({
+    # المعجمُ الأصليُّ (قبلَ D17-2)
+    "adjudicate", "arbitrate", "interpret_constitution", "issue_ruling",
+    # الستّةُ القائمةُ في جدارِ الاختصاصِ (D17-2 · نعم في الجدار)
+    "refer_case", "admit_case", "vacate_ruling", "admit_evidence", "recuse_judge",
+    "register_judgment",
+    # الأربعةُ الجديدةُ في المعجمَينِ (D17-2 · لا — جديد)
+    "assign_case", "record_proceeding", "join_party", "admit_claim",
+})
 EXECUTIVE_ACTIONS = frozenset({"execute_task", "dispatch_agent", "orchestrate", "coordinate"})
 # معجمُ المالِ الدستوريّ — القرارُ السياديُّ Q-18 · الخيارُ 2 (2026-08-21).
 # كانَ المعجمُ أربعةَ أفعالٍ، فمرَّ ستةَ عشرَ فعلًا ماليًّا آخرَ `ALLOW` للتنفيذِ

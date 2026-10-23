@@ -1,7 +1,7 @@
 {
  "$comment": "الهدف: جردُ مواضعِ الكتابةِ في المستودعِ وتصنيفُ ما عبرَ الحدَّ السّياديَّ وما لم يعبُر— مُخرَجُ tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039).",
  "summary": {
-  "write_sites_total": 246,
+  "write_sites_total": 239,
   "by_area": {
    "core": {
     "public": 1,
@@ -14,9 +14,9 @@
     "non_sovereign": 28
    },
    "services": {
-    "public": 171,
-    "sovereign": 42,
-    "non_sovereign": 128
+    "public": 160,
+    "sovereign": 46,
+    "non_sovereign": 113
    },
    "tools": {
     "public": 1,
@@ -24,13 +24,12 @@
     "non_sovereign": 1
    }
   },
-  "public_write_operations": 201,
-  "sovereign_write_operations": 42,
+  "public_write_operations": 190,
+  "sovereign_write_operations": 46,
   "closed_legacy_paths": 7,
-  "non_sovereign_write_operations": 157,
+  "non_sovereign_write_operations": 142,
   "non_sovereign_by_file": {
    "federal/executive/services/src/amos_federation/common/persistent.py": 20,
-   "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py": 17,
    "federal/executive/services/src/amos_federation/services/national_economy/service.py": 16,
    "federal/executive/services/src/amos_federation/services/federal_state/service.py": 10,
    "federal/executive/services/src/amos_federation/services/governance/treasury.py": 9,
@@ -39,8 +38,8 @@
    "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py": 7,
    "federal/executive/services/src/amos_federation/services/governance/system_life.py": 7,
    "federal/executive/services/src/amos_federation/services/state_treasury/service.py": 7,
+   "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py": 6,
    "federal/executive/services/src/amos_federation/services/agent_runtime/health.py": 5,
-   "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py": 5,
    "federal/executive/services/src/amos_federation/services/governance/security.py": 5,
    "federal/executive/services/src/amos_federation/services/governance/state_runtime.py": 5,
    "federal/executive/services/src/amos_federation/common/database.py": 4,
@@ -55,6 +54,7 @@
    "federal/executive/services/src/amos_federation/common/events.py": 1,
    "federal/executive/services/src/amos_federation/services/api_gateway/store.py": 1,
    "federal/executive/services/src/amos_federation/services/executive_core/dispatcher.py": 1,
+   "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py": 1,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py": 1,
    "federal/executive/services/src/amos_federation/services/government_services/service.py": 1,
    "tools/migrations/r4_unify_agent_identity.py": 1
@@ -739,15 +739,69 @@
   {
    "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
    "owner": "-",
-   "function": "add_claim",
+   "function": "_apply",
    "ordinal": 0,
-   "public": true,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+   "owner": "-",
+   "function": "_insert",
+   "ordinal": 0,
+   "public": false,
    "writes": [
     "add()"
    ],
    "guarded": false,
    "closed_legacy": false,
    "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+   "owner": "-",
+   "function": "_insert",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "add()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+   "owner": "-",
+   "function": "_insert",
+   "ordinal": 2,
+   "public": false,
+   "writes": [
+    "add()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+   "owner": "-",
+   "function": "add_claim",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_plan_crossing"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
@@ -758,9 +812,11 @@
    "writes": [
     "add()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_plan_crossing"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
@@ -771,9 +827,11 @@
    "writes": [
     "add()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_plan_crossing"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
@@ -781,12 +839,13 @@
    "function": "record_proceeding",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_insert_proceeding",
+    "_plan_crossing"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
@@ -871,59 +930,7 @@
   {
    "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
    "owner": "FederalJudiciary",
-   "function": "add_claim",
-   "ordinal": 0,
-   "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": []
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
-   "owner": "FederalJudiciary",
-   "function": "add_party",
-   "ordinal": 0,
-   "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": []
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
-   "owner": "FederalJudiciary",
    "function": "appoint_judge",
-   "ordinal": 0,
-   "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": []
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
-   "owner": "FederalJudiciary",
-   "function": "assign_case",
-   "ordinal": 0,
-   "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": []
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
-   "owner": "FederalJudiciary",
-   "function": "close_case",
    "ordinal": 0,
    "public": true,
    "writes": [
@@ -962,58 +969,6 @@
   {
    "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
    "owner": "FederalJudiciary",
-   "function": "file_case",
-   "ordinal": 0,
-   "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": []
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
-   "owner": "FederalJudiciary",
-   "function": "open_case",
-   "ordinal": 0,
-   "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": []
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
-   "owner": "FederalJudiciary",
-   "function": "open_hearing",
-   "ordinal": 0,
-   "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": []
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
-   "owner": "FederalJudiciary",
-   "function": "record_proceeding",
-   "ordinal": 0,
-   "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": []
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
-   "owner": "FederalJudiciary",
    "function": "register_court",
    "ordinal": 0,
    "public": true,
@@ -1040,46 +995,7 @@
   {
    "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
    "owner": "FederalJudiciary",
-   "function": "set_evidence_status",
-   "ordinal": 0,
-   "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": []
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
-   "owner": "FederalJudiciary",
-   "function": "set_judge_status",
-   "ordinal": 0,
-   "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": []
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
-   "owner": "FederalJudiciary",
    "function": "submit_evidence",
-   "ordinal": 0,
-   "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": []
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
-   "owner": "FederalJudiciary",
-   "function": "vacate_ruling",
    "ordinal": 0,
    "public": true,
    "writes": [

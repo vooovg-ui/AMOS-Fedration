@@ -48,7 +48,14 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import func, select
+from sqlalchemy import inspect as sa_inspect
 
+from amos_federation.common.database import get_session_factory
+from amos_federation.services.executive_core.sovereignty_bridge import (
+    compensator,
+    declared_effect,
+    operation_key,
+)
 from amos_federation.services.federal_judiciary.jurisdiction import assert_jurisdiction_match
 from amos_federation.services.federal_judiciary.models import (
     CASE_TYPES,
@@ -193,6 +200,167 @@ def proceeding_dict(row: CaseProceedingModel) -> dict[str, Any]:
     }
 
 
+# ── العبورُ السياديُّ (WI-111 · الدفعةُ J2+J3 · ملحقُ التصميمِ D1–D8) ─────────────
+#
+# الفاعلُ واحدٌ للوحدةِ: مُصرِّحُ J1 نفسُه (`rulings._judiciary_authorizer` · D1) —
+# يُستورَدُ كسولًا لأنَّ `rulings` يستوردُ هذه الوحدةَ. وكلُّ عمليّةٍ عامّةٍ تعبرُ
+# تحملُ نداءَ الحدِّ **في جسدِها** (هكذا يقيسُ الجردُ)، والمُساعداتُ هنا تبني
+# المعاملاتِ فقط: الأثرَ والمفتاحَ والمُطبِّقَ والمُعوِّضَ وطلبَ الاختصاصِ.
+
+
+class JudicialLedgerDivergenceError(JudiciaryError):
+    """سجلُّ الذرّيّةِ يُثبِتُ العمليّةَ والصفُّ غائبٌ — استعادةٌ لا نجاحٌ يُزعَم (D6)."""
+
+
+def _authorizer() -> Any:
+    """مُصرِّحُ الوحدةِ القضائيّةِ الواحدُ (D1) — لا مُصرِّحَ ثانٍ."""
+    from amos_federation.services.federal_judiciary.rulings import _judiciary_authorizer
+
+    return _judiciary_authorizer()
+
+
+def judicial_request(
+    action: str,
+    *,
+    court: Any,
+    case_scope: str,
+    target: str,
+    actor_scope: str | None = None,
+    institution_id: str | None = None,
+) -> Any:
+    """طلبُ الاختصاصِ منَ البياناتِ الحيّةِ (D4) — نطاقُ المحكمةِ ونطاقُ القضيّةِ منَ الصفوفِ.
+
+    `actor_scope` منصبُ القاضي المُثبَتُ حيثُ يُثبَتُ (`vacate_ruling`)؛ وإلّا فنطاقُ
+    المحكمةِ **مُعلَنًا** — حدٌّ معلَنٌ في الملحقِ (D4): هذه الأسطحُ لا تُثبِتُ منصبًا
+    اليومَ، فيصيرُ فحصُ المنصبِ عندَها تحصيلَ حاصلٍ لا ادّعاءَ إثباتٍ.
+    """
+    import sys as _sys
+
+    from amos_federation.services.executive_core.sovereignty_bridge import locate_repo_root
+
+    root = locate_repo_root()
+    if str(root) not in _sys.path:
+        _sys.path.insert(0, str(root))
+    from core.sovereignty.jurisdiction import JudicialAction
+
+    return JudicialAction(
+        action=action,
+        court_scope=court.jurisdiction,
+        case_scope=case_scope,
+        actor_scope=court.jurisdiction if actor_scope is None else actor_scope,
+        target=target,
+        institution_id=institution_id or court.institution_id,
+        case_institution_id=court.institution_id,
+        is_royal_decree_target=False,
+    )
+
+
+def _snapshot(row: Any) -> dict[str, Any]:
+    """قيمُ الأعمدةِ كلِّها قبلَ العمليّةِ — يستعيدُها المُعوِّضُ حرفيًّا (D7)."""
+    return {attr.key: getattr(row, attr.key) for attr in sa_inspect(row).mapper.column_attrs}
+
+
+class Crossing:
+    """معاملاتُ عبورٍ واحدٍ — يبنيها `_plan_crossing` ويُمرِّرُها النداءُ إلى الحدِّ."""
+
+    def __init__(self, action: str, target: str, kwargs: dict[str, Any]) -> None:
+        self.action = action
+        self.target = target
+        self.kwargs = kwargs
+
+
+def _plan_crossing(
+    session: Session,
+    *,
+    action: str,
+    court: Any,
+    case_scope: str,
+    namespace: str,
+    key: str,
+    kind: str,
+    description: str,
+    mutate: Any,
+    snapshots: tuple[Any, ...] = (),
+    actor_scope: str | None = None,
+    institution_id: str | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> Crossing:
+    """ابنِ عبورًا: أثرٌ واحدٌ مُعلَنٌ · مفتاحٌ · مُطبِّقٌ يكتبُ ويلتزمُ · مُعوِّضٌ تقنيٌّ.
+
+    `mutate(created)` يكتبُ في `session` ويُلحِقُ بـ`created` كلَّ صفٍّ يُدرِجُه
+    (`(النموذج, المعرِّف)`)؛ و`snapshots` صفوفٌ قائمةٌ يُغيِّرُها — تُلتقَطُ قيمُها قبلَ
+    الحدِّ ويُعيدُها المُعوِّضُ. والهدفُ يحملُ المفتاحَ (درسُ J1 D5: بصمةُ الإذنِ منَ
+    الفاعلِ والفعلِ والهدفِ والآثارِ، فهدفٌ بلا هويّةِ العمليّةِ يتصادمُ في الثانيةِ نفسِها).
+    """
+    target = f"judiciary/{action}/{key}"
+    effect = declared_effect(kind, target, description)
+    before = [(type(row), row.id, _snapshot(row)) for row in snapshots]
+    created: list[tuple[Any, str]] = []
+
+    def _apply(_effect: Any) -> Any:
+        """المُطبِّقُ — الكتابةُ والالتزامُ في معاملةٍ واحدةٍ خلفَ الحدِّ."""
+        value = mutate(created)
+        session.commit()
+        return value
+
+    def _restore() -> None:
+        """المُعوِّضُ (D7): استعادةٌ تقنيّةٌ في جلسةٍ جديدةٍ — حذفُ المُدرَجِ وإرجاعُ المنقولِ.
+
+        العمليّةُ لم تثبتْ (فشلٌ بعدَ الالتزامِ) فلا أثرَ قضائيًّا وُجِدَ؛ «الحذفُ شأنٌ
+        تنفيذيّ» — والمُعوِّضُ ليس أثرًا مُعلَنًا، فيُكتَبُ ذلك صريحًا هنا كما في J1.
+        """
+        restore = get_session_factory()()
+        try:
+            for model, row_id in reversed(created):
+                row = restore.get(model, row_id)
+                if row is not None:
+                    restore.delete(row)
+            for model, row_id, values in before:
+                row = restore.get(model, row_id)
+                if row is not None:
+                    for name, value in values.items():
+                        setattr(row, name, value)
+            restore.commit()
+        finally:
+            restore.close()
+
+    kwargs: dict[str, Any] = {
+        "declared_effects": (effect,),
+        "applier": _apply,
+        "operation_key": operation_key(namespace, key),
+        "compensators": (
+            compensator(
+                effect.signature,
+                _restore,
+                "استعادةٌ تقنيّةٌ: حذفُ الصفوفِ المُدرَجةِ وإرجاعُ الحقولِ المنقولةِ "
+                "إلى قيمِها قبلَ العمليّةِ — العمليّةُ لم تثبتْ",
+            ),
+        ),
+        "metadata": {"key": key, **(metadata or {})},
+        "judicial_action": judicial_request(
+            action,
+            court=court,
+            case_scope=case_scope,
+            target=target,
+            actor_scope=actor_scope,
+            institution_id=institution_id,
+        ),
+    }
+    return Crossing(action, target, kwargs)
+
+
+def crossed_value(guarded: Any, *, replay: Any, what: str) -> Any:
+    """قيمةُ العبورِ — والإعادةُ تُقرأُ ولا تُكتَبُ (D6): إن غابَ الصفُّ فتفرُّقٌ صريحٌ."""
+    if not guarded.is_replay:
+        return guarded.value
+    value = replay()
+    if value is None:
+        raise JudicialLedgerDivergenceError(
+            f"سجلُّ الذرّيّةِ يُثبِتُ {what} ولا صفَّ قائمًا — استعادةٌ مطلوبةٌ لا نجاحٌ يُزعَم"
+        )
+    return value
+
+
 def load_case(session: Session, case_id: str, *, tenant_id: str) -> LegalCaseModel:
     row = session.get(LegalCaseModel, case_id)
     if row is None or row.tenant_id != tenant_id:
@@ -275,9 +443,35 @@ def open_case(
         opened_by_identity_id=opened_by_identity_id,
         tenant_id=tenant_id,
     )
-    session.add(row)
-    session.flush()
-    return row
+
+    def _insert(created: list[tuple[Any, str]]) -> LegalCaseModel:
+        session.add(row)
+        session.flush()
+        created.append((LegalCaseModel, row.id))
+        return row
+
+    # `admit_case` (D17-2) · المفتاحُ (المستأجرُ · المرجعُ) — فريدٌ بقيدِ القاعدةِ (D6).
+    plan = _plan_crossing(
+        session,
+        action="admit_case",
+        court=court,
+        case_scope=court.jurisdiction,
+        namespace="judiciary.case.open",
+        key=f"{tenant_id}:{reference}",
+        kind="CREATE",
+        description=f"قبولُ قضيّةٍ بالمرجعِ '{reference}' في المحكمةِ '{court.code}'",
+        mutate=_insert,
+    )
+    guarded = _authorizer().guard_declared(plan.action, plan.target, **plan.kwargs)
+    return crossed_value(
+        guarded,
+        replay=lambda: session.execute(
+            select(LegalCaseModel).where(
+                LegalCaseModel.reference == reference, LegalCaseModel.tenant_id == tenant_id
+            )
+        ).scalar_one_or_none(),
+        what=f"قبولَ القضيّةِ '{reference}'",
+    )
 
 
 def file_case(session: Session, *, case_id: str, tenant_id: str) -> LegalCaseModel:
@@ -289,8 +483,10 @@ def file_case(session: Session, *, case_id: str, tenant_id: str) -> LegalCaseMod
     return row
 
 
-def assign_case(session: Session, *, case_id: str, judge_id: str, tenant_id: str) -> LegalCaseModel:
-    """`filed → assigned` بقاضٍ مُقلَّدٍ نشطٍ في محكمة القضية بالذات."""
+def check_assign(
+    session: Session, *, case_id: str, judge_id: str, tenant_id: str
+) -> tuple[LegalCaseModel, CourtJudgeModel]:
+    """فحوصُ الإسنادِ كلُّها — تُنادى قبلَ الحدِّ وفي الكاتبِ نفسِه (مصدرٌ واحدٌ)."""
     row = load_case(session, case_id, tenant_id=tenant_id)
     assert_transition(row.status, "assigned")
     judge = session.get(CourtJudgeModel, judge_id)
@@ -300,6 +496,12 @@ def assign_case(session: Session, *, case_id: str, judge_id: str, tenant_id: str
         raise JudiciaryError(f"القاضي حالتُه '{judge.status}' لا 'active' — لا إسنادَ إليه")
     if judge.court_id != row.court_id:
         raise JudiciaryError("القاضي مُقلَّدٌ في محكمةٍ أخرى — لا إسنادَ عبر المحاكم")
+    return row, judge
+
+
+def assign_case(session: Session, *, case_id: str, judge_id: str, tenant_id: str) -> LegalCaseModel:
+    """`filed → assigned` بقاضٍ مُقلَّدٍ نشطٍ في محكمة القضية بالذات."""
+    row, judge = check_assign(session, case_id=case_id, judge_id=judge_id, tenant_id=tenant_id)
     row.assigned_judge_id = judge.id
     row.assigned_at = _now()
     row.status = "assigned"
@@ -331,15 +533,21 @@ def advance_case(session: Session, *, case_id: str, target: str, tenant_id: str)
     return row
 
 
+def check_close(session: Session, *, case_id: str, reason: str, tenant_id: str) -> LegalCaseModel:
+    """فحوصُ الإغلاقِ — قبلَ الحدِّ وفي الكاتبِ نفسِه (مصدرٌ واحدٌ)."""
+    if not reason.strip():
+        raise JudiciaryError("إغلاقُ القضية يلزمه سببٌ مكتوب")
+    row = load_case(session, case_id, tenant_id=tenant_id)
+    assert_transition(row.status, "closed")
+    return row
+
+
 def close_case(
     session: Session, *, case_id: str, reason: str, tenant_id: str
 ) -> tuple[LegalCaseModel, str]:
     """`decided|enforcement → closed` بسببٍ مكتوبٍ وطابعِ إغلاق."""
-    if not reason.strip():
-        raise JudiciaryError("إغلاقُ القضية يلزمه سببٌ مكتوب")
-    row = load_case(session, case_id, tenant_id=tenant_id)
+    row = check_close(session, case_id=case_id, reason=reason, tenant_id=tenant_id)
     previous = row.status
-    assert_transition(previous, "closed")
     row.status = "closed"
     row.closed_at = _now()
     row.closure_reason = reason
@@ -388,9 +596,37 @@ def add_party(
         added_by=added_by,
         tenant_id=tenant_id,
     )
-    session.add(row)
-    session.flush()
-    return row
+
+    def _insert(created: list[tuple[Any, str]]) -> CasePartyModel:
+        session.add(row)
+        session.flush()
+        created.append((CasePartyModel, row.id))
+        return row
+
+    # `join_party` (D17-2) · المفتاحُ (القضيّةُ · الهويّةُ · الدورُ) — والمكرَّرُ رُفِضَ قبلَ الحدِّ.
+    plan = _plan_crossing(
+        session,
+        action="join_party",
+        court=load_court(session, case.court_id, tenant_id=tenant_id),
+        case_scope=case.jurisdiction,
+        namespace="judiciary.party.add",
+        key=f"{case.id}:{identity.id}:{party_role}",
+        kind="CREATE",
+        description=f"ضمُّ طرفٍ بدورِ '{party_role}' إلى القضيّةِ '{case.reference}'",
+        mutate=_insert,
+    )
+    guarded = _authorizer().guard_declared(plan.action, plan.target, **plan.kwargs)
+    return crossed_value(
+        guarded,
+        replay=lambda: session.execute(
+            select(CasePartyModel).where(
+                CasePartyModel.case_id == case.id,
+                CasePartyModel.identity_id == identity.id,
+                CasePartyModel.party_role == party_role,
+            )
+        ).scalar_one_or_none(),
+        what=f"ضمَّ الطرفِ إلى القضيّةِ '{case.reference}'",
+    )
 
 
 def add_claim(
@@ -441,9 +677,32 @@ def add_claim(
         filed_by=filed_by,
         tenant_id=tenant_id,
     )
-    session.add(row)
-    session.flush()
-    return row
+
+    def _insert(created: list[tuple[Any, str]]) -> CaseClaimModel:
+        session.add(row)
+        session.flush()
+        created.append((CaseClaimModel, row.id))
+        return row
+
+    # `admit_claim` (D17-2) · لا مفتاحَ طبيعيًّا: المفتاحُ معرِّفُ الصفِّ نفسُه — حدٌّ معلَنٌ
+    # (D6): لا ذرّيّةَ عبرَ إعادةِ المُنادي، والإعادةُ داخلَ النداءِ الواحدِ وحدَها.
+    plan = _plan_crossing(
+        session,
+        action="admit_claim",
+        court=load_court(session, case.court_id, tenant_id=tenant_id),
+        case_scope=case.jurisdiction,
+        namespace="judiciary.claim.add",
+        key=row.id,
+        kind="CREATE",
+        description=f"قبولُ مطالبةٍ من نوعِ '{claim_type}' في القضيّةِ '{case.reference}'",
+        mutate=_insert,
+    )
+    guarded = _authorizer().guard_declared(plan.action, plan.target, **plan.kwargs)
+    return crossed_value(
+        guarded,
+        replay=lambda: session.get(CaseClaimModel, row.id),
+        what=f"قبولَ المطالبةِ في القضيّةِ '{case.reference}'",
+    )
 
 
 def submit_evidence(
@@ -495,10 +754,10 @@ def submit_evidence(
     return row
 
 
-def set_evidence_status(
+def check_evidence_status(
     session: Session, *, evidence_id: str, status: str, reason: str, tenant_id: str
-) -> tuple[CaseEvidenceModel, str]:
-    """اقبل الدليل أو استبعِده أو اسحبه — بأثرٍ مكتوبٍ لا بحذف صفّ."""
+) -> CaseEvidenceModel:
+    """فحوصُ تغييرِ حالةِ الدليلِ — قبلَ الحدِّ وفي الكاتبِ نفسِه (مصدرٌ واحدٌ)."""
     if status not in ("admitted", "excluded", "withdrawn"):
         raise EvidenceError(f"حالةُ دليلٍ غير مسموحة '{status}'")
     if not reason.strip():
@@ -506,6 +765,16 @@ def set_evidence_status(
     row = session.get(CaseEvidenceModel, evidence_id)
     if row is None or row.tenant_id != tenant_id:
         raise EvidenceError(f"لا دليل بالمعرّف '{evidence_id}' في مستأجر '{tenant_id}'")
+    return row
+
+
+def set_evidence_status(
+    session: Session, *, evidence_id: str, status: str, reason: str, tenant_id: str
+) -> tuple[CaseEvidenceModel, str]:
+    """اقبل الدليل أو استبعِده أو اسحبه — بأثرٍ مكتوبٍ لا بحذف صفّ."""
+    row = check_evidence_status(
+        session, evidence_id=evidence_id, status=status, reason=reason, tenant_id=tenant_id
+    )
     previous = row.status
     row.status = status
     row.status_reason = reason
@@ -513,7 +782,26 @@ def set_evidence_status(
     return row, previous
 
 
-def record_proceeding(
+def _check_proceeding(
+    session: Session,
+    *,
+    case_id: str,
+    proceeding_type: str,
+    actor_identity_id: str,
+    summary: str,
+    tenant_id: str,
+) -> LegalCaseModel:
+    """فحوصُ الإجراءِ كلُّها قبلَ الحدِّ — مصدرٌ واحدٌ للكاتبِ الخاصِّ وللعمليّةِ العامّةِ."""
+    if proceeding_type not in PROCEEDING_TYPES:
+        raise JudiciaryError(f"نوعُ إجراءٍ غير معروف '{proceeding_type}'")
+    if not summary.strip():
+        raise JudiciaryError("خلاصةُ الإجراء لا تكون فارغة")
+    case = load_case(session, case_id, tenant_id=tenant_id)
+    _load_identity(session, actor_identity_id, tenant_id=tenant_id)
+    return case
+
+
+def _insert_proceeding(
     session: Session,
     *,
     case_id: str,
@@ -523,15 +811,21 @@ def record_proceeding(
     summary: str,
     tenant_id: str,
     record: dict[str, Any] | None = None,
+    created: list[tuple[Any, str]] | None = None,
 ) -> CaseProceedingModel:
-    """قيِّد إجراءً بترتيبٍ مفروضٍ في القاعدة — بديلُ النصّ الحرّ."""
-    if proceeding_type not in PROCEEDING_TYPES:
-        raise JudiciaryError(f"نوعُ إجراءٍ غير معروف '{proceeding_type}'")
-    if not summary.strip():
-        raise JudiciaryError("خلاصةُ الإجراء لا تكون فارغة")
-    case = load_case(session, case_id, tenant_id=tenant_id)
-    _load_identity(session, actor_identity_id, tenant_id=tenant_id)
+    """الكاتبُ الخامُ للإجراءِ — **خاصٌّ** يُنادى من داخلِ مُطبِّقاتٍ عابرةٍ فقط (D3).
 
+    يُناديه مُطبِّقُ `record_proceeding` ومُطبِّقاتُ `file_case`/`open_hearing` في الخدمةِ
+    و`rulings.issue_ruling`؛ فلا يقعُ عبورٌ داخلَ عبورٍ (Q-9 لم يُحسَمْ — WI-110).
+    """
+    case = _check_proceeding(
+        session,
+        case_id=case_id,
+        proceeding_type=proceeding_type,
+        actor_identity_id=actor_identity_id,
+        summary=summary,
+        tenant_id=tenant_id,
+    )
     current_max = session.execute(
         select(func.max(CaseProceedingModel.sequence)).where(CaseProceedingModel.case_id == case.id)
     ).scalar()
@@ -549,7 +843,64 @@ def record_proceeding(
     )
     session.add(row)
     session.flush()
+    if created is not None:
+        created.append((CaseProceedingModel, row.id))
     return row
+
+
+def record_proceeding(
+    session: Session,
+    *,
+    case_id: str,
+    proceeding_type: str,
+    actor_principal: str,
+    actor_identity_id: str,
+    summary: str,
+    tenant_id: str,
+    record: dict[str, Any] | None = None,
+) -> CaseProceedingModel:
+    """قيِّد إجراءً بترتيبٍ مفروضٍ في القاعدة — بديلُ النصّ الحرّ — عابرًا الحدَّ (`record_proceeding`)."""
+    case = _check_proceeding(
+        session,
+        case_id=case_id,
+        proceeding_type=proceeding_type,
+        actor_identity_id=actor_identity_id,
+        summary=summary,
+        tenant_id=tenant_id,
+    )
+    # لا مفتاحَ طبيعيًّا قبلَ الحدِّ (التسلسلُ يُحسَبُ داخلَه): مفتاحٌ فريدٌ لكلِّ نداءٍ (D6).
+    key = f"{case.id}:{uuid.uuid4()}"
+
+    def _insert(created: list[tuple[Any, str]]) -> CaseProceedingModel:
+        return _insert_proceeding(
+            session,
+            case_id=case.id,
+            proceeding_type=proceeding_type,
+            actor_principal=actor_principal,
+            actor_identity_id=actor_identity_id,
+            summary=summary,
+            tenant_id=tenant_id,
+            record=record,
+            created=created,
+        )
+
+    plan = _plan_crossing(
+        session,
+        action="record_proceeding",
+        court=load_court(session, case.court_id, tenant_id=tenant_id),
+        case_scope=case.jurisdiction,
+        namespace="judiciary.proceeding.record",
+        key=key,
+        kind="CREATE",
+        description=f"قيدُ إجراءٍ من نوعِ '{proceeding_type}' في القضيّةِ '{case.reference}'",
+        mutate=_insert,
+    )
+    guarded = _authorizer().guard_declared(plan.action, plan.target, **plan.kwargs)
+    return crossed_value(
+        guarded,
+        replay=lambda: None,
+        what=f"قيدَ الإجراءِ في القضيّةِ '{case.reference}'",
+    )
 
 
 def list_proceedings(
@@ -570,6 +921,8 @@ def list_proceedings(
 __all__ = [
     "ALLOWED_TRANSITIONS",
     "CaseNotFoundError",
+    "Crossing",
+    "JudicialLedgerDivergenceError",
     "CaseTransitionError",
     "EvidenceError",
     "PartyIdentityError",
@@ -579,6 +932,10 @@ __all__ = [
     "assert_transition",
     "assign_case",
     "case_dict",
+    "check_assign",
+    "check_close",
+    "check_evidence_status",
+    "crossed_value",
     "claim_dict",
     "close_case",
     "evidence_dict",
@@ -587,6 +944,7 @@ __all__ = [
     "load_case",
     "open_case",
     "open_hearing",
+    "judicial_request",
     "party_dict",
     "proceeding_dict",
     "record_proceeding",
