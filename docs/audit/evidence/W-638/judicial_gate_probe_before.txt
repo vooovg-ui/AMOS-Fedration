@@ -1,0 +1,128 @@
+*DENY* EXECUTIVE  adjudicate                       DENY       R-003-1
+ALLOW  JUDICIAL   adjudicate                       ALLOW      
+*DENY* LEGISLATIVE adjudicate                       DENY       R-003-1
+ALLOW  ROYAL      adjudicate                       ALLOW      
+*DENY* EXECUTIVE  issue_ruling                     DENY       R-003-1
+ALLOW  JUDICIAL   issue_ruling                     ALLOW      
+*DENY* LEGISLATIVE issue_ruling                     DENY       R-003-1
+ALLOW  ROYAL      issue_ruling                     ALLOW      
+ALLOW  EXECUTIVE  vacate_ruling                    ALLOW      
+ALLOW  JUDICIAL   vacate_ruling                    ALLOW      
+ALLOW  LEGISLATIVE vacate_ruling                    ALLOW      
+ALLOW  ROYAL      vacate_ruling                    ALLOW      
+ALLOW  EXECUTIVE  admit_evidence                   ALLOW      
+ALLOW  JUDICIAL   admit_evidence                   ALLOW      
+ALLOW  LEGISLATIVE admit_evidence                   ALLOW      
+ALLOW  ROYAL      admit_evidence                   ALLOW      
+ALLOW  EXECUTIVE  register_judgment                ALLOW      
+ALLOW  JUDICIAL   register_judgment                ALLOW      
+ALLOW  LEGISLATIVE register_judgment                ALLOW      
+ALLOW  ROYAL      register_judgment                ALLOW      
+ALLOW  EXECUTIVE  refer_case                       ALLOW      
+ALLOW  JUDICIAL   refer_case                       ALLOW      
+ALLOW  LEGISLATIVE refer_case                       ALLOW      
+ALLOW  ROYAL      refer_case                       ALLOW      
+ALLOW  EXECUTIVE  admit_case                       ALLOW      
+ALLOW  JUDICIAL   admit_case                       ALLOW      
+ALLOW  LEGISLATIVE admit_case                       ALLOW      
+ALLOW  ROYAL      admit_case                       ALLOW      
+ALLOW  EXECUTIVE  recuse_judge                     ALLOW      
+ALLOW  JUDICIAL   recuse_judge                     ALLOW      
+ALLOW  LEGISLATIVE recuse_judge                     ALLOW      
+ALLOW  ROYAL      recuse_judge                     ALLOW      
+ALLOW  EXECUTIVE  create_court                     ALLOW      
+ALLOW  JUDICIAL   create_court                     ALLOW      
+ALLOW  LEGISLATIVE create_court                     ALLOW      
+ALLOW  ROYAL      create_court                     ALLOW      
+ALLOW  EXECUTIVE  appoint_judge                    ALLOW      
+ALLOW  JUDICIAL   appoint_judge                    ALLOW      
+ALLOW  LEGISLATIVE appoint_judge                    ALLOW      
+ALLOW  ROYAL      appoint_judge                    ALLOW      
+ALLOW  EXECUTIVE  register_court                   ALLOW      
+ALLOW  JUDICIAL   register_court                   ALLOW      
+ALLOW  LEGISLATIVE register_court                   ALLOW      
+ALLOW  ROYAL      register_court                   ALLOW      
+ALLOW  EXECUTIVE  set_court_status                 ALLOW      
+ALLOW  JUDICIAL   set_court_status                 ALLOW      
+ALLOW  LEGISLATIVE set_court_status                 ALLOW      
+ALLOW  ROYAL      set_court_status                 ALLOW      
+ALLOW  EXECUTIVE  set_judge_status                 ALLOW      
+ALLOW  JUDICIAL   set_judge_status                 ALLOW      
+ALLOW  LEGISLATIVE set_judge_status                 ALLOW      
+ALLOW  ROYAL      set_judge_status                 ALLOW      
+ALLOW  EXECUTIVE  file_case                        ALLOW      
+ALLOW  JUDICIAL   file_case                        ALLOW      
+ALLOW  LEGISLATIVE file_case                        ALLOW      
+ALLOW  ROYAL      file_case                        ALLOW      
+ALLOW  EXECUTIVE  assign_case                      ALLOW      
+ALLOW  JUDICIAL   assign_case                      ALLOW      
+ALLOW  LEGISLATIVE assign_case                      ALLOW      
+ALLOW  ROYAL      assign_case                      ALLOW      
+ALLOW  EXECUTIVE  open_hearing                     ALLOW      
+ALLOW  JUDICIAL   open_hearing                     ALLOW      
+ALLOW  LEGISLATIVE open_hearing                     ALLOW      
+ALLOW  ROYAL      open_hearing                     ALLOW      
+ALLOW  EXECUTIVE  close_case                       ALLOW      
+ALLOW  JUDICIAL   close_case                       ALLOW      
+ALLOW  LEGISLATIVE close_case                       ALLOW      
+ALLOW  ROYAL      close_case                       ALLOW      
+ALLOW  EXECUTIVE  add_party                        ALLOW      
+ALLOW  JUDICIAL   add_party                        ALLOW      
+ALLOW  LEGISLATIVE add_party                        ALLOW      
+ALLOW  ROYAL      add_party                        ALLOW      
+ALLOW  EXECUTIVE  add_claim                        ALLOW      
+ALLOW  JUDICIAL   add_claim                        ALLOW      
+ALLOW  LEGISLATIVE add_claim                        ALLOW      
+ALLOW  ROYAL      add_claim                        ALLOW      
+ALLOW  EXECUTIVE  submit_evidence                  ALLOW      
+ALLOW  JUDICIAL   submit_evidence                  ALLOW      
+ALLOW  LEGISLATIVE submit_evidence                  ALLOW      
+ALLOW  ROYAL      submit_evidence                  ALLOW      
+ALLOW  EXECUTIVE  set_evidence_status              ALLOW      
+ALLOW  JUDICIAL   set_evidence_status              ALLOW      
+ALLOW  LEGISLATIVE set_evidence_status              ALLOW      
+ALLOW  ROYAL      set_evidence_status              ALLOW      
+ALLOW  EXECUTIVE  record_proceeding                ALLOW      
+ALLOW  JUDICIAL   record_proceeding                ALLOW      
+ALLOW  LEGISLATIVE record_proceeding                ALLOW      
+ALLOW  ROYAL      record_proceeding                ALLOW      
+ALLOW  EXECUTIVE  record_enforcement               ALLOW      
+ALLOW  JUDICIAL   record_enforcement               ALLOW      
+ALLOW  LEGISLATIVE record_enforcement               ALLOW      
+ALLOW  ROYAL      record_enforcement               ALLOW      
+ALLOW  EXECUTIVE  enforce_ruling                   ALLOW      
+ALLOW  JUDICIAL   enforce_ruling                   ALLOW      
+ALLOW  LEGISLATIVE enforce_ruling                   ALLOW      
+ALLOW  ROYAL      enforce_ruling                   ALLOW      
+*DENY* EXECUTIVE  pardon                           DENY       R-010-1,R-010-5
+*DENY* JUDICIAL   pardon                           DENY       R-010-1,R-010-5
+*DENY* LEGISLATIVE pardon                           DENY       R-010-1,R-010-5
+*DENY* ROYAL      pardon                           DENY       R-010-3,R-010-5
+*DENY* EXECUTIVE  overturn_judicial_ruling         DENY       R-010-1,R-010-5
+*DENY* JUDICIAL   overturn_judicial_ruling         DENY       R-010-1,R-010-5
+*DENY* LEGISLATIVE overturn_judicial_ruling         DENY       R-010-1,R-010-5
+*DENY* ROYAL      overturn_judicial_ruling         DENY       R-010-3,R-010-5
+*DENY* EXECUTIVE  legislate                        DENY       R-003-1
+*DENY* JUDICIAL   legislate                        DENY       R-003-1
+ALLOW  LEGISLATIVE legislate                        ALLOW      
+ALLOW  ROYAL      legislate                        ALLOW      
+*DENY* EXECUTIVE  enact_policy                     DENY       R-003-1
+*DENY* JUDICIAL   enact_policy                     DENY       R-003-1
+ALLOW  LEGISLATIVE enact_policy                     ALLOW      
+ALLOW  ROYAL      enact_policy                     ALLOW      
+*DENY* EXECUTIVE  amend_policy                     DENY       R-003-1
+*DENY* JUDICIAL   amend_policy                     DENY       R-003-1
+ALLOW  LEGISLATIVE amend_policy                     ALLOW      
+ALLOW  ROYAL      amend_policy                     ALLOW      
+*DENY* EXECUTIVE  repeal_policy                    DENY       R-003-1
+*DENY* JUDICIAL   repeal_policy                    DENY       R-003-1
+ALLOW  LEGISLATIVE repeal_policy                    ALLOW      
+ALLOW  ROYAL      repeal_policy                    ALLOW      
+ALLOW  EXECUTIVE  suspend_policy                   ALLOW      
+ALLOW  JUDICIAL   suspend_policy                   ALLOW      
+ALLOW  LEGISLATIVE suspend_policy                   ALLOW      
+ALLOW  ROYAL      suspend_policy                   ALLOW      
+ALLOW  EXECUTIVE  vote                             ALLOW      
+ALLOW  JUDICIAL   vote                             ALLOW      
+ALLOW  LEGISLATIVE vote                             ALLOW      
+ALLOW  ROYAL      vote                             ALLOW      
