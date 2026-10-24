@@ -391,7 +391,7 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 415,
+      "md_files": 418,
       "py_files": 18,
       "yaml_files": 0,
       "code_lines": 1246,
@@ -407,7 +407,7 @@
       "observed_hits": 2,
       "api_routes": 0,
       "test_refs": 200,
-      "identity_violations": 3,
+      "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
       "deployment_evidence": "ABSENT",
@@ -989,7 +989,7 @@
     "domains_total": 12,
     "domains_proven": 0,
     "findings_total": 61,
-    "identity_violations": 3,
+    "identity_violations": 0,
     "unreadable_files": 0,
     "unparsable_files": 0,
     "by_severity": {
