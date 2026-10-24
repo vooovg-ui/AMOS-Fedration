@@ -1,0 +1,13 @@
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-647/verdicts/wi084/gemini_3_8_flash/VERDICT.md · أوامرُ 16 · كتلُ RAW 16
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-647/verdicts/wi084/grok_4_7/VERDICT.md · أوامرُ 16 · كتلُ RAW 16
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-647/verdicts/wi084/kimi_k3/VERDICT.md · أوامرُ 16 · كتلُ RAW 16
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-647/verdicts/wi106/gemini_3_8_flash/VERDICT.md · أوامرُ 23 · كتلُ RAW 23
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-647/verdicts/wi106/grok_4_7/VERDICT.md · أوامرُ 23 · كتلُ RAW 23
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-647/verdicts/wi106/kimi_k3/VERDICT.md · أوامرُ 23 · كتلُ RAW 23
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-647/verdicts/wi107/gemini_3_8_flash/VERDICT.md · أوامرُ 27 · كتلُ RAW 27
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-647/verdicts/wi107/grok_4_7/VERDICT.md · أوامرُ 27 · كتلُ RAW 27
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-647/verdicts/wi107/kimi_k3/VERDICT.md · أوامرُ 27 · كتلُ RAW 27
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-647/verdicts/wi111/gemini_3_8_flash/VERDICT.md · أوامرُ 26 · كتلُ RAW 26
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-647/verdicts/wi111/grok_4_7/VERDICT.md · أوامرُ 26 · كتلُ RAW 26
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-647/verdicts/wi111/kimi_k3/VERDICT.md · أوامرُ 26 · كتلُ RAW 26
+[RAW CHECK] ✓ 12/12 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
