@@ -16,5 +16,5 @@ Perplexity Computer (المنسِّقُ الحاضرُ GLM-5.3).
 2026-10-24 (W-645).
 
 ## المحتويات
-- `ci_jobs_pr140_40069458982_failed.api.json` — تشغيلُ CI ‏40069458982 على `a34ddbf` (PR #140 · W-644): **Truth Audit وحدَه سقط** — `final_audit_p14.json` متقادمٌ في حقلَينِ (questions_count منشورٌ 71 · مقيسٌ 72 · وquestions_headed) بعدَ تسجيلِ Q-72 (سابقةُ W-328 مع Q-46) — والوظائفُ الباقيةُ 12 خضراءَ.
-- **التصحيحُ:** أُعيدَ توليدُ اللقطةِ بأمرِها المُقيَّدِ (`tools/audit/final_audit.py` على الجردِ القائمِ `write_inventory_p13.json` — الشجرةُ بلا شِفرةٍ فالجردُ لم يتغيرْ: debt 142 · sovereign 46 · questions_count 72) — قِيسَ عقدُ النسبِ مستقيمًا محليًّا بعده (`measurement_provenance.py . --check --without-deps` ✓) · لا force-push: التزامٌ فوقَ `a34ddbf`.
+- `ci_jobs_pr140_40069458982_failed.api.json` — تشغيلُ CI ‏40069458982 على `d7979855` (PR #140 · W-644): **Truth Audit وحدَه سقط** — `final_audit_p14.json` متقادمٌ في حقلَينِ (questions_count منشورٌ 71 · مقيسٌ 72 · وquestions_headed) بعدَ تسجيلِ Q-72 (سابقةُ W-328 مع Q-46) — والوظائفُ الباقيةُ 12 خضراءَ.
+- **التصحيحُ:** أُعيدَ توليدُ اللقطةِ بأمرِها المُقيَّدِ (`tools/audit/final_audit.py` على الجردِ القائمِ `write_inventory_p13.json` — الشجرةُ بلا شِفرةٍ فالجردُ لم يتغيرْ: debt 142 · sovereign 46 · questions_count 72) — قِيسَ عقدُ النسبِ مستقيمًا محليًّا بعده (`measurement_provenance.py . --check --without-deps` ✓) · لا force-push: التزامٌ فوقَ `d7979855` (تصحيحٌ مؤرَّخٌ: قِيدَ أولًا `a34ddbf` — عقدةٌ محليةٌ لم تصلْ للبعيدِ لأنَّ دفعَها الأولَ رُفِضَ بفحصِ الهويةِ وعُدِّلَ التزامُها قبلَ الدفعِ الناجحِ).
