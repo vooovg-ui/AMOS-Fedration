@@ -1,0 +1,49 @@
+# قياساتُ جلسةِ المنفِّذِ الجديدِ (W-644 — قبلَ دفعِ الدفعةِ · 2026-10-24 ~06:1x UTC)
+
+## bootstrap (قبلَ الدفعِ · أنشأَ .venv في هذه الجلسة وتعملُ أدواتُها)
+• الجذر: /home/user/workspace/amos
+• ثُبِّتَ خُطّافُ pre-push (يُشغِّلُ حرسَ ما قبلَ الدفعِ على كلِّ دفعٍ — WI-078)
+• تركيبُ تبعيّاتِ الجذر (requirements-dev.txt)
+• تركيبُ حزمةِ الخدماتِ (قد تطولُ: تبعيّاتٌ كثيرة)
+• تركيبُ ruff==0.6.9 (‏المُثبَّتُ في .github/workflows/ci.yml)
+✓ البيئةُ جاهزة. للتنشيطِ في جلسةٍ جديدة: source .venv/bin/activate
+
+الأوامرُ الواجبةُ قبلَ أيِّ دفع (دليلُ المشروع § 8 و§ 9):
+  python -m pytest tests/ -q
+  AMOS_DATABASE_URL="sqlite:////tmp/amos_test.db" \
+    python -m pytest federal/executive/services/tests -q
+  python tools/governance/truth_audit.py .
+  python tools/governance/check_repository_identity.py .
+  python tools/governance/check_completion_ledger.py --commit HEAD
+  python tests/smoke/run_smoke_tests.py
+  ruff check . && ruff format --check \
+    federal/executive/services/src federal/executive/services/tests
+
+وتذكّرْ: آخرُ أمرٍ يُغيِّرُ بايتًا من الكودِ يسبقُ آخرَ توليدٍ للمصفوفة.
+exit=0
+
+## check_work_governance --self-check
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-111: قيدُه (W-636، W-638، W-639، W-640، W-641، W-642) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-112: قيدُه (W-643) مدموجٌ في «origin/main» وحالتُه ما زالت READY — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+## check_work_governance --today 2026-10-28
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-111: قيدُه (W-636، W-638، W-639، W-640، W-641، W-642) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-112: قيدُه (W-643) مدموجٌ في «origin/main» وحالتُه ما زالت READY — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+## truth_audit --ratchet
+  - HARDCODED_TRUTH: 2
+[TRUTH AUDIT] كُتبت: /home/user/workspace/amos/docs/audit/TRUTH_MATRIX.md
+[RATCHET] ثابت عند 61 مخالفة.
+
+## state_document_drift
+    الحقلُ المُعلَنُ حالةً: تاريخ آخر تعديل · قيدُه W-643 · السطرُ 12
+  ملاحظة · LEDGER_HEAD: أحدثُ قيدٍ مقروءٍ في § 8: W-643 (2026-10-24) · وعددُ الصفوفِ 641 · ووثائقُ الحالةِ المُعلَنةُ 2 منها 0 متأخِّرةٌ · وحقولٌ مُعلَنةٌ متأخِّرةٌ 0.
+  ✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ.
+
+## جردُ الفروعِ والطلباتِ (أعلى رقمٍ في أيِّ فرعٍ)
+164
+139	W-643: تسجيلُ WI-112 (بذرُ Q-34) READY · حكمُ N+1 لـPR #138 · إطلاقُ المجلسِ الواحدِ	w-643-q34-register	MERGED	2026-10-24T00:35:29Z
+138	W-640+W-641: شِفرةُ J2+J3 (WI-111 · D-4 157←142) · IN_REVIEW ×3 · إحاطاتُ الطابورِ الواحدِ	w-640-j2j3-code	MERGED	2026-10-24T00:01:40Z
+137	W-639: WI-109/110/111 RESERVED→IN_PROGRESS · إيداعُ تحليلَي A1 وQ-9 · DISC-132/133/134 · حكمُ N+1 لـPR #136	w-639-in-progress-analyses	MERGED	2026-10-23T23:30:19Z
