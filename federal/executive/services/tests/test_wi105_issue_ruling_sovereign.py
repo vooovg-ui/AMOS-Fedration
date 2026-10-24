@@ -378,7 +378,6 @@ def _prepared_case(
 # ── T1 · ALLOW للقضائيّ — العبورُ والصفوفُ الثلاثةُ ──────────────────────────
 
 
-
 def _ruling_results(authorizer: Any) -> list[Any]:
     """عبوراتُ `issue_ruling` وحدَها منَ المُصرِّحِ المشتركِ.
 
@@ -388,6 +387,7 @@ def _ruling_results(authorizer: Any) -> list[Any]:
     عبوراتِ إصدارِ الحكمِ بعينِه (لا تخفيفَ — والقيدُ الثاني في T5 على سجلِّ البوابةِ باقٍ).
     """
     return [r for r in authorizer.results if r.evidence.as_dict()["action"] == "issue_ruling"]
+
 
 def test_wi105_t1_issue_ruling_crosses_boundary_as_judicial(
     registry: StateRegistry,
