@@ -1,33 +1,47 @@
-MODEL: grok_4_7
-FAMILY: grok
-RUN_DATE: 2026-10-24 17:56 +00:00
+# حكمُ مقعدِ المجلسِ — gemini_3_8_flash · جولةُ WI-084 المُعادةُ (W-653 · D23 (2))
+
+## التعريف
+نصُّ حكمِ المقعدِ كما وردَ حرفيًّا في جولةِ المراجعةِ المُعادةِ على WI-084 — لا تحريرَ ولا تلخيصَ. المصدرُ: ملفُّ `VERDICT.md` الذي كتبَهُ المقعدُ في جذورِهِ الخاصّةِ (council_w652/gemini_3_8_flash/wi084) — وما بعدَ الفاصلِ أدناه بايتًا ببايتٍ (sha256 `0faa882f147c3698dc29b557289b771d15a08f97a7c012c8d28e878b8b4b5952`).
+
+## النطاق
+حكمُ مقعدٍ واحدٍ على WI-084 عندَ العقدةِ `aba3cb45` — إحاطةٌ مبصومةٌ (W-652) ومسبارٌ خاصٌّ عندَ المقعدِ (§ 4.9).
+
+## المالك
+المنسِّقُ GLM-5.3 (قيدُ W-653) — منسِّقٌ لا مُصوِّتٌ · ولا VERIFIED بيدِ المنفِّذِ (§ 5).
+
+## تاريخ الإنشاء
+2026-10-24
+
+---
+MODEL: gemini_3_8_flash
+FAMILY: Google · Gemini
+RUN_DATE: 2026-10-24 18:00 +00:00
 NODE: aba3cb45254ffbef101000ab9d13798b4a46717f
-CLONE_PATH: /home/user/workspace/council_w652/grok_4_7/wi084/repo
-CLONE_COMMAND: git clone https://github.com/vooovg-ui/AMOS-Fedration.git /home/user/workspace/council_w652/grok_4_7/wi084/repo
+CLONE_PATH: /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo
 COMMANDS_RUN:
- 1. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && git log -1 --format=%H origin/main -- docs/audit/evidence/W-652/briefs_wi084/
- 2. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && git checkout $(git log -1 --format=%H origin/main -- docs/audit/evidence/W-652/briefs_wi084/)
- 3. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && git rev-parse HEAD
- 4. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && git log --format='%h %cI %s' -- docs/audit/Q16_EXECUTION_EFFECT_DESIGN.md
- 5. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && cat docs/audit/Q16_EXECUTION_EFFECT_DESIGN.md
- 6. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && git diff --stat 5caeac5bdf9ea446163c40c0a11147fa1e1a9cec HEAD -- docs/audit/Q16_EXECUTION_EFFECT_DESIGN.md core/sovereignty/ federal/executive/services/src/amos_federation/services/government_services/ federal/executive/services/src/amos_federation/services/executive_core/
- 7. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && rg -n "EXTERNAL" core/sovereignty/*.py
- 8. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && rg -n "EffectKind.EXTERNAL" --type py .
- 9. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && nl -ba core/sovereignty/enforcement_boundary.py | sed -n '375,425p;570,590p;660,672p'
- 10. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && rg -n -c "EXTERNAL" tests/sovereignty/
- 11. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && nl -ba federal/executive/services/src/amos_federation/services/executive_core/engine.py | sed -n '205,260p;331,350p;424,440p;476,486p;540,570p'
- 12. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && rg -n "def process_case" -A 60 federal/executive/services/src/amos_federation/services/government_services/service.py
- 13. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && rg -n "EffectKind\(|EXTERNAL" federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py
- 14. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && rg -n "DEFAULT_MAX_DELIVERY_ATTEMPTS: Final|^def enqueue_write_ahead|^class OutboxWorker|claims_exactly_once|\"guarantee\"" core/sovereignty/outbox.py
- 15. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && .venv/bin/python tools/audit/sovereign_write_inventory.py
- 16. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && rg -n "Q-16|D23" docs/audit/SOVEREIGN_DECISION_REGISTER.md
- 17. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && sha256sum docs/audit/evidence/W-652/briefs_wi084/briefing_grok_4_7.md
- 18. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && cat docs/audit/evidence/W-652/briefs_wi084/SHA256SUMS
- 19. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && nl -ba /home/user/workspace/council_w652/grok_4_7/wi084/probe/break_claimed_properties.py
- 20. cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && PYTHONPATH=. .venv/bin/python /home/user/workspace/council_w652/grok_4_7/wi084/probe/break_claimed_properties.py
+ 1. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && git log -1 --format=%H origin/main -- docs/audit/evidence/W-652/briefs_wi084/
+ 2. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && git checkout $(git log -1 --format=%H origin/main -- docs/audit/evidence/W-652/briefs_wi084/)
+ 3. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && git rev-parse HEAD
+ 4. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && git log --format='%h %cI %s' -- docs/audit/Q16_EXECUTION_EFFECT_DESIGN.md
+ 5. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && cat docs/audit/Q16_EXECUTION_EFFECT_DESIGN.md
+ 6. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && git diff --stat 5caeac5bdf9ea446163c40c0a11147fa1e1a9cec HEAD -- docs/audit/Q16_EXECUTION_EFFECT_DESIGN.md core/sovereignty/ federal/executive/services/src/amos_federation/services/government_services/ federal/executive/services/src/amos_federation/services/executive_core/
+ 7. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && rg -n "EXTERNAL" core/sovereignty/*.py
+ 8. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && rg -n "EffectKind.EXTERNAL" --type py .
+ 9. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && nl -ba core/sovereignty/enforcement_boundary.py | sed -n '375,425p;570,590p;660,672p'
+ 10. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && rg -n -c "EXTERNAL" tests/sovereignty/
+ 11. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && nl -ba federal/executive/services/src/amos_federation/services/executive_core/engine.py | sed -n '205,260p;331,350p;424,440p;476,486p;540,570p'
+ 12. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && rg -n "def process_case" -A 60 federal/executive/services/src/amos_federation/services/government_services/service.py
+ 13. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && rg -n "EffectKind\(|EXTERNAL" federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py
+ 14. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && rg -n "DEFAULT_MAX_DELIVERY_ATTEMPTS: Final|^def enqueue_write_ahead|^class OutboxWorker|claims_exactly_once|\"guarantee\"" core/sovereignty/outbox.py
+ 15. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && .venv/bin/python tools/audit/sovereign_write_inventory.py
+ 16. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && rg -n "Q-16|D23" docs/audit/SOVEREIGN_DECISION_REGISTER.md
+ 17. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && sha256sum docs/audit/evidence/W-652/briefs_wi084/briefing_gemini_3_8_flash.md
+ 18. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && cat docs/audit/evidence/W-652/briefs_wi084/SHA256SUMS
+ 19. nl -ba /home/user/workspace/council_w652/gemini_3_8_flash/wi084/probe/probe_wi084.py
+ 20. cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && .venv/bin/python /home/user/workspace/council_w652/gemini_3_8_flash/wi084/probe/probe_wi084.py
 RAW_OUTPUTS:
 === RAW [1] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && git log -1 --format=%H origin/main -- docs/audit/evidence/W-652/briefs_wi084/
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && git log -1 --format=%H origin/main -- docs/audit/evidence/W-652/briefs_wi084/
 EXIT: 0
 BYTES: 41
 SHA256: 6ddb44ad1c484a9a4174b53165abe4bf805eba4edf5a56f0587d35e3690b11c0
@@ -36,7 +50,7 @@ NO_EOL: 0
 aba3cb45254ffbef101000ab9d13798b4a46717f
 === RAW [1] END ===
 === RAW [2] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && git checkout $(git log -1 --format=%H origin/main -- docs/audit/evidence/W-652/briefs_wi084/)
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && git checkout $(git log -1 --format=%H origin/main -- docs/audit/evidence/W-652/briefs_wi084/)
 EXIT: 0
 BYTES: 875
 SHA256: 1a72abd2ee99d5024be73c8bb4384a56fec1cb258b88dad4efdde1383ff63851
@@ -62,7 +76,7 @@ Turn off this advice by setting config variable advice.detachedHead to false
 HEAD is now at aba3cb45 W-652: إحاطاتُ جولةِ WI-084 المُعادةِ (D23 (2)) — gemini_3_8_flash · grok_4_7 · kimi_k3 مبصومةٌ قبلَ الإطلاقِ (SHA256SUMS) ونصوصُ الإطلاقِ حرفيًّا · لا شِفرةَ · المنسِّقُ Claude Opus 5.5
 === RAW [2] END ===
 === RAW [3] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && git rev-parse HEAD
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && git rev-parse HEAD
 EXIT: 0
 BYTES: 41
 SHA256: 6ddb44ad1c484a9a4174b53165abe4bf805eba4edf5a56f0587d35e3690b11c0
@@ -71,7 +85,7 @@ NO_EOL: 0
 aba3cb45254ffbef101000ab9d13798b4a46717f
 === RAW [3] END ===
 === RAW [4] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && git log --format='%h %cI %s' -- docs/audit/Q16_EXECUTION_EFFECT_DESIGN.md
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && git log --format='%h %cI %s' -- docs/audit/Q16_EXECUTION_EFFECT_DESIGN.md
 EXIT: 0
 BYTES: 706
 SHA256: 4d5f4a3cd73249e809c014e8bcbae0811c849d04f9798a4eff535c141c5e8444
@@ -81,7 +95,7 @@ NO_EOL: 0
 5caeac5b 2026-10-16T08:56:27Z W-398: WI-084 — وثيقةُ تصميمِ نوعِ الأثرِ EXECUTION (Q-16 ③): 8 مواضعِ قرارٍ في 6 ملفّات · ثلاثةُ عقودٍ لـprocess_case · خطّةُ رجوع · بلا شِفرة
 === RAW [4] END ===
 === RAW [5] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && cat docs/audit/Q16_EXECUTION_EFFECT_DESIGN.md
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && cat docs/audit/Q16_EXECUTION_EFFECT_DESIGN.md
 EXIT: 0
 BYTES: 23361
 SHA256: 23aa03882d9af9b6a11498375a4fa289a894569cd5adb9047e6f7b6377ee2dd4
@@ -259,7 +273,7 @@ NO_EOL: 0
 - **[إضافةٌ مؤرَّخةٌ · 2026-10-24 · W-650]** تصحيحُ W-650 أرقامٌ وموضعٌ مُسمًّى وقراءةُ R-2 فقط: لا شِفرةَ ولا اختبارَ ولا تغييرَ في قرارِ تصميمٍ · ولا يُغني عن جولةِ المجلسِ الجديدةِ (D23 (2)).
 === RAW [5] END ===
 === RAW [6] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && git diff --stat 5caeac5bdf9ea446163c40c0a11147fa1e1a9cec HEAD -- docs/audit/Q16_EXECUTION_EFFECT_DESIGN.md core/sovereignty/ federal/executive/services/src/amos_federation/services/government_services/ federal/executive/services/src/amos_federation/services/executive_core/
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && git diff --stat 5caeac5bdf9ea446163c40c0a11147fa1e1a9cec HEAD -- docs/audit/Q16_EXECUTION_EFFECT_DESIGN.md core/sovereignty/ federal/executive/services/src/amos_federation/services/government_services/ federal/executive/services/src/amos_federation/services/executive_core/
 EXIT: 0
 BYTES: 450
 SHA256: 6fd2d879770fbbdb9483c666305a3d371fbaf5e99526580390065e5a12707820
@@ -274,14 +288,19 @@ NO_EOL: 0
  6 files changed, 636 insertions(+), 96 deletions(-)
 === RAW [6] END ===
 === RAW [7] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && rg -n "EXTERNAL" core/sovereignty/*.py
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && rg -n "EXTERNAL" core/sovereignty/*.py
 EXIT: 0
 BYTES: 3954
-SHA256: ab7ae6cebbc65682522c814645f9d108a5906ff4eaae9a97ce8680bdc141b726
+SHA256: a68037a55bf81d50963eb0a5586e2563876ca80e49ab3e22e32cf5638d1ee7b4
 NO_EOL: 0
 --- OUTPUT ---
 core/sovereignty/__init__.py:122:    "ROOT_EXTERNAL_HUMAN": "crown",
 core/sovereignty/__init__.py:165:    "MANDATORY_EXTERNAL_STAGES": "enforcement_boundary",
+core/sovereignty/cli.py:27:    ROOT_EXTERNAL_HUMAN,
+core/sovereignty/cli.py:134:        if crown.root_origin != ROOT_EXTERNAL_HUMAN:
+core/sovereignty/cli.py:137:                f"«{ROOT_EXTERNAL_HUMAN}»: الدولةُ ولّدت مفتاحَ الملك فرأتْه. "
+core/sovereignty/contract.py:72:    EXTERNAL = "EXTERNAL"
+core/sovereignty/contract.py:89:    EffectKind.EXTERNAL: "نداءٌ خارجيّ",
 core/sovereignty/compensation.py:49:`EffectKind.EXTERNAL` **لا يُقبَلُ معوّضًا**. نداءٌ خارجيٌّ وقع لا يُسحَب،
 core/sovereignty/compensation.py:103:    {EffectKind.EXTERNAL}
 core/sovereignty/compensation.py:173:    """محاولةُ تسجيلِ معوّضٍ لأثرٍ لا يُعكَس (`EXTERNAL`).
@@ -291,8 +310,6 @@ core/sovereignty/crown.py:86:        return self.root_origin == ROOT_EXTERNAL_HU
 core/sovereignty/crown.py:438:        "root_origin": ROOT_EXTERNAL_HUMAN,
 core/sovereignty/crown.py:448:                "root_origin": ROOT_EXTERNAL_HUMAN,
 core/sovereignty/crown.py:451:                    "ceremony_kind": "GENESIS_EXTERNAL_HUMAN_ROOT",
-core/sovereignty/jurisdiction.py:170:        EffectKind.EXTERNAL,   # التأثيرُ الخارجيُّ شأنٌ تنفيذيّ
-core/sovereignty/jurisdiction.py:322:        وأمّا `DELETE` و`TRANSFER` و`EXTERNAL` فخارجةٌ عن السلطةِ القضائيّة:
 core/sovereignty/enforcement_boundary.py:178:    EXTERNAL_OUTBOX = "EXTERNAL_OUTBOX"          # 1K
 core/sovereignty/enforcement_boundary.py:192:MANDATORY_EXTERNAL_STAGES: Final[tuple[BoundaryStage, ...]] = (
 core/sovereignty/enforcement_boundary.py:198:    BoundaryStage.EXTERNAL_OUTBOX,
@@ -306,6 +323,8 @@ core/sovereignty/enforcement_boundary.py:624:            self._record_rejection(
 core/sovereignty/enforcement_boundary.py:667:            if effect.kind is not EffectKind.EXTERNAL:
 core/sovereignty/enforcement_boundary.py:673:                self._record_rejection(BoundaryStage.EXTERNAL_OUTBOX)
 core/sovereignty/enforcement_boundary.py:1008:    "MANDATORY_EXTERNAL_STAGES",
+core/sovereignty/jurisdiction.py:170:        EffectKind.EXTERNAL,   # التأثيرُ الخارجيُّ شأنٌ تنفيذيّ
+core/sovereignty/jurisdiction.py:322:        وأمّا `DELETE` و`TRANSFER` و`EXTERNAL` فخارجةٌ عن السلطةِ القضائيّة:
 core/sovereignty/idempotency.py:34:- **الأثرُ الخارجيُّ لا يُلغى.** `EffectKind.EXTERNAL` لا يمكنُ التراجعُ عنه
 core/sovereignty/idempotency.py:85:    EXTERNAL_PENDING = "EXTERNAL_PENDING"
 core/sovereignty/idempotency.py:117:    OperationStatus.EXTERNAL_PENDING: "أثرٌ خارجيٌّ معلّق",
@@ -313,17 +332,12 @@ core/sovereignty/idempotency.py:977:        لا تقبلُ آثارًا خار�
 core/sovereignty/idempotency.py:983:            if sig.startswith(EffectKind.EXTERNAL.value + ":"):
 core/sovereignty/outbox.py:973:    if effect.kind is not EffectKind.EXTERNAL:
 core/sovereignty/outbox.py:1360:        kind=EffectKind.EXTERNAL,
-core/sovereignty/contract.py:72:    EXTERNAL = "EXTERNAL"
-core/sovereignty/contract.py:89:    EffectKind.EXTERNAL: "نداءٌ خارجيّ",
-core/sovereignty/cli.py:27:    ROOT_EXTERNAL_HUMAN,
-core/sovereignty/cli.py:134:        if crown.root_origin != ROOT_EXTERNAL_HUMAN:
-core/sovereignty/cli.py:137:                f"«{ROOT_EXTERNAL_HUMAN}»: الدولةُ ولّدت مفتاحَ الملك فرأتْه. "
 === RAW [7] END ===
 === RAW [8] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && rg -n "EffectKind.EXTERNAL" --type py .
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && rg -n "EffectKind.EXTERNAL" --type py .
 EXIT: 0
 BYTES: 2764
-SHA256: 63a9b46d65e0660036072b7bdec3432cf00368ecddc75a5ba6444ab9b810041b
+SHA256: ca66e94e0b174107741983bdeadd5d60f66285d57afe6313681608b123a45b27
 NO_EOL: 0
 --- OUTPUT ---
 ./tests/sovereignty/test_enforcement_integration.py:369:        أثر = _أثر(EffectKind.EXTERNAL, NOTICE)
@@ -343,17 +357,17 @@ NO_EOL: 0
 ./core/sovereignty/enforcement_boundary.py:579:            e for e in contract.declared_effects if e.kind is EffectKind.EXTERNAL
 ./core/sovereignty/enforcement_boundary.py:582:            e for e in contract.mutating_effects if e.kind is not EffectKind.EXTERNAL
 ./core/sovereignty/enforcement_boundary.py:667:            if effect.kind is not EffectKind.EXTERNAL:
+./core/sovereignty/idempotency.py:34:- **الأثرُ الخارجيُّ لا يُلغى.** `EffectKind.EXTERNAL` لا يمكنُ التراجعُ عنه
+./core/sovereignty/idempotency.py:983:            if sig.startswith(EffectKind.EXTERNAL.value + ":"):
 ./core/sovereignty/compensation.py:49:`EffectKind.EXTERNAL` **لا يُقبَلُ معوّضًا**. نداءٌ خارجيٌّ وقع لا يُسحَب،
 ./core/sovereignty/compensation.py:103:    {EffectKind.EXTERNAL}
 ./core/sovereignty/contract.py:89:    EffectKind.EXTERNAL: "نداءٌ خارجيّ",
 ./core/sovereignty/jurisdiction.py:170:        EffectKind.EXTERNAL,   # التأثيرُ الخارجيُّ شأنٌ تنفيذيّ
 ./core/sovereignty/outbox.py:973:    if effect.kind is not EffectKind.EXTERNAL:
 ./core/sovereignty/outbox.py:1360:        kind=EffectKind.EXTERNAL,
-./core/sovereignty/idempotency.py:34:- **الأثرُ الخارجيُّ لا يُلغى.** `EffectKind.EXTERNAL` لا يمكنُ التراجعُ عنه
-./core/sovereignty/idempotency.py:983:            if sig.startswith(EffectKind.EXTERNAL.value + ":"):
 === RAW [8] END ===
 === RAW [9] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && nl -ba core/sovereignty/enforcement_boundary.py | sed -n '375,425p;570,590p;660,672p'
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && nl -ba core/sovereignty/enforcement_boundary.py | sed -n '375,425p;570,590p;660,672p'
 EXIT: 0
 BYTES: 4880
 SHA256: 7eb039a45dc218fa03a073a12a9bc1971e4f85128ec48985d189d9c1ab0f3bc8
@@ -446,7 +460,7 @@ NO_EOL: 0
    672	                # ويبقى مغلقًا لأنّ التوزيعَ قد يُستدعى من مسارٍ آخرَ لاحقًا.
 === RAW [9] END ===
 === RAW [10] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && rg -n -c "EXTERNAL" tests/sovereignty/
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && rg -n -c "EXTERNAL" tests/sovereignty/
 EXIT: 0
 BYTES: 263
 SHA256: f857f149db82de3924609479c9c4d5beb226fe515935cf3c966e93eb1a4b6e38
@@ -460,7 +474,7 @@ tests/sovereignty/test_compensation.py:4
 tests/sovereignty/test_enforcement_boundary.py:10
 === RAW [10] END ===
 === RAW [11] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && nl -ba federal/executive/services/src/amos_federation/services/executive_core/engine.py | sed -n '205,260p;331,350p;424,440p;476,486p;540,570p'
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && nl -ba federal/executive/services/src/amos_federation/services/executive_core/engine.py | sed -n '205,260p;331,350p;424,440p;476,486p;540,570p'
 EXIT: 0
 BYTES: 7561
 SHA256: 6aafff571e57310512ebacb6ca2551d0f57d3edddf396d84e6143ec864321ddc
@@ -603,7 +617,7 @@ NO_EOL: 0
    570	        return {
 === RAW [11] END ===
 === RAW [12] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && rg -n "def process_case" -A 60 federal/executive/services/src/amos_federation/services/government_services/service.py
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && rg -n "def process_case" -A 60 federal/executive/services/src/amos_federation/services/government_services/service.py
 EXIT: 0
 BYTES: 2730
 SHA256: 8af0230c33c4dfb7046f54a0beed108fb9909ca71ca2bf6d9b17d56c53aed82d
@@ -672,7 +686,7 @@ NO_EOL: 0
 1101-        official_id: str | None = None,
 === RAW [12] END ===
 === RAW [13] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && rg -n "EffectKind\(|EXTERNAL" federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && rg -n "EffectKind\(|EXTERNAL" federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py
 EXIT: 0
 BYTES: 77
 SHA256: cc4863a195a87f8823f6bca1ad23259ebb9c038a5d1dfdcfdfcdee2de68eda36
@@ -681,7 +695,7 @@ NO_EOL: 0
 501:        kind=contract.EffectKind(kind), resource=resource, detail=detail
 === RAW [13] END ===
 === RAW [14] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && rg -n "DEFAULT_MAX_DELIVERY_ATTEMPTS: Final|^def enqueue_write_ahead|^class OutboxWorker|claims_exactly_once|\"guarantee\"" core/sovereignty/outbox.py
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && rg -n "DEFAULT_MAX_DELIVERY_ATTEMPTS: Final|^def enqueue_write_ahead|^class OutboxWorker|claims_exactly_once|\"guarantee\"" core/sovereignty/outbox.py
 EXIT: 0
 BYTES: 231
 SHA256: ebeb60c61df7e324be1a7891aa4b56d61c10d09c1051bf705f1f66698349c2b2
@@ -694,7 +708,7 @@ NO_EOL: 0
 1351:            "guarantee": "AT_LEAST_ONCE_WITH_STABLE_IDEMPOTENCY_IDENTITY",
 === RAW [14] END ===
 === RAW [15] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && .venv/bin/python tools/audit/sovereign_write_inventory.py
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && .venv/bin/python tools/audit/sovereign_write_inventory.py
 EXIT: 0
 BYTES: 3221
 SHA256: 45204a1ce3bf8c187a5cabc3d4c0e40243e36778eaa3d8810b6097ebe52906ed
@@ -744,7 +758,7 @@ NO_EOL: 0
        1  tools/migrations/r4_unify_agent_identity.py
 === RAW [15] END ===
 === RAW [16] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && rg -n "Q-16|D23" docs/audit/SOVEREIGN_DECISION_REGISTER.md
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && rg -n "Q-16|D23" docs/audit/SOVEREIGN_DECISION_REGISTER.md
 EXIT: 0
 BYTES: 11781
 SHA256: 781b64669c14f5b1930b543a2bd2164f0e1642c4d08730094216f56f8ddf8f77
@@ -765,16 +779,16 @@ NO_EOL: 0
 3091:- **الأثر:** شرطُ Q-16 (ب) · و`CLOSED` لـ`WI-076` · وكلُّ `VERIFIED` لبندٍ حسّاسٍ بعدَ قانونِ `Q-H` — **كلُّها تنتظرُ قناةَ المقعدِ الثاني**.
 === RAW [16] END ===
 === RAW [17] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && sha256sum docs/audit/evidence/W-652/briefs_wi084/briefing_grok_4_7.md
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && sha256sum docs/audit/evidence/W-652/briefs_wi084/briefing_gemini_3_8_flash.md
 EXIT: 0
-BYTES: 126
-SHA256: c536106a0dadb4ddd98a8ac2c8f8c2ac91cb84676f5820ff3007abe2eb2336e2
+BYTES: 134
+SHA256: 7313d57744174350fec88b6501c55643cab542330b292b9e5ab2d2c47a60b0c8
 NO_EOL: 0
 --- OUTPUT ---
-5036baa47e2388ecd994703ff00046d650f495f326c2fede442db2d5d4b26eeb  docs/audit/evidence/W-652/briefs_wi084/briefing_grok_4_7.md
+34765148a7dbda4ae3a9d590a381b8ba718ff37b6fc26da4b25a45ad529ee3bc  docs/audit/evidence/W-652/briefs_wi084/briefing_gemini_3_8_flash.md
 === RAW [17] END ===
 === RAW [18] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && cat docs/audit/evidence/W-652/briefs_wi084/SHA256SUMS
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && cat docs/audit/evidence/W-652/briefs_wi084/SHA256SUMS
 EXIT: 0
 BYTES: 268
 SHA256: 5b72e6e4be7fc5ff0370567deea34fcdd153a9641a0bef9187f0b0253604fe05
@@ -785,444 +799,265 @@ NO_EOL: 0
 74a0e240e6a4fb5eddd9c39b9e01536e86f90f563a7c04e3d694b408bcba66da  briefing_kimi_k3.md
 === RAW [18] END ===
 === RAW [19] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && nl -ba /home/user/workspace/council_w652/grok_4_7/wi084/probe/break_claimed_properties.py
+CMD: nl -ba /home/user/workspace/council_w652/gemini_3_8_flash/wi084/probe/probe_wi084.py
 EXIT: 0
-BYTES: 17409
-SHA256: 33df3f044e4dcfec3be7e1722affc40206300373723932853e0907d73310f16f
+BYTES: 12876
+SHA256: 9246b3e6b8c28a7387ba08cf5b415f3b4b3808d9909a6af7f493b6a05becf097
 NO_EOL: 0
 --- OUTPUT ---
      1	#!/usr/bin/env python3
-     2	"""مسبارُ مقعدِ grok_4_7 لبندِ WI-084 — ليس أمرًا من إحاطةِ (ج) ولا نسخةً من فحصٍ قائم.
+     2	"""مسبار مقعد gemini_3_8_flash لمراجعة بند WI-084 (قرار المالك Q-16 ③).
      3	
-     4	ينادي المسارَ الإنتاجيَّ ويحاولُ كسرَ خواصَّ تدّعيها وثيقةُ
-     5	docs/audit/Q16_EXECUTION_EFFECT_DESIGN.md عن سلوكِ اليوم:
-     6	
-     7	  (أ) bind_compensation_plan يرفضُ عقدًا فيه أثرٌ EXTERNAL (IrreversibleEffectError)
-     8	      فلا تُربَطُ خطّةٌ تبلغُ فرعَ _tracked (:385).
-     9	  (ب) SovereignExecutionBoundary.execute يرفضُ عقدًا يخلطُ EXTERNAL بكتابةٍ
-    10	      (MixedEffectContractError) قبلَ أن يُنادى مُطبِّقُ المُنادي.
-    11	  (ج) عقدٌ EXTERNAL فقط — ولو مُرِّرَ معوّضٌ — لا يُنتِجُ compensation_plan،
-    12	      ومُطبِّقُ المُنادي لا يستقبلُ الأثرَ الخارجيَّ.
-    13	  (د) خطّةٌ مربوطةٌ لعقدِ WRITE ثمَّ planner يُهرِّبُ أثرَ EXTERNAL: لا يبلغُ
-    14	      _tracked (فحصُ نطاقِ الإذنِ قبلَ التطبيق).
-    15	  (هـ) الصادرُ (SovereignOutbox.enqueue) يرفضُ أثرًا غيرَ EXTERNAL.
-    16	  (و) ExecutiveCore.run لا يُعيدُ تنفيذَ مهمّةٍ حالتُها نهائيّة (§ 1).
-    17	  (ز) قراءةُ R-2: سقوطٌ بينَ dispatch (:478) وتثبيتِ EXECUTING→COMPLETED (:542)
-    18	      يُبقي المهمّةَ EXECUTING فنداءٌ ثانٍ لـadvance يُنادي dispatch مرّةً أخرى.
-    19	      الوثيقةُ تدّعي أنّ الشرطَ غيرُ متحقّقٍ اليوم. إن لم يُعِدِ النداءُ الثاني
-    20	      dispatch فالقراءةُ مكسورة.
-    21	
-    22	خروجٌ 0 = لم تنكسرْ خاصيّةٌ مدّعاةٌ. خروجٌ 1 = انكسرت.
-    23	"""
-    24	
-    25	from __future__ import annotations
-    26	
-    27	import tempfile
-    28	from pathlib import Path
-    29	
-    30	from cryptography.hazmat.primitives.asymmetric import ed25519
-    31	
-    32	from core.constitutional_engine.engine import ConstitutionalEngine
-    33	from core.constitutional_engine.ledger import ConstitutionalLedger
-    34	from core.constitutional_engine.model import ActionRequest, Branch
-    35	from core.sovereignty.compensation import (
-    36	    Compensator,
-    37	    IrreversibleEffectError,
-    38	    bind_compensation_plan,
-    39	)
-    40	from core.sovereignty.contract import (
-    41	    EffectKind,
-    42	    SovereignEffect,
-    43	    bind_contract,
-    44	)
-    45	from core.sovereignty.enforcement import ConsumedPermitLedger
-    46	from core.sovereignty.enforcement_boundary import (
-    47	    MixedEffectContractError,
-    48	    SovereignExecutionBoundary,
-    49	)
-    50	from core.sovereignty.gateway import SovereignGateway
-    51	from core.sovereignty.idempotency import IdempotencyKey, IdempotencyLedger
-    52	from core.sovereignty.outbox import (
-    53	    EffectPayload,
-    54	    OutboxError,
-    55	    OutboxLedger,
-    56	    SovereignOutbox,
-    57	)
-    58	from amos_federation.services.executive_core.engine import ExecutiveCore
-    59	from amos_federation.services.executive_core.states import TaskState
-    60	
-    61	
-    62	BROKEN: list[str] = []
-    63	
-    64	
-    65	def note(held: bool, name: str, detail: str) -> None:
-    66	    mark = "HELD" if held else "BROKEN"
-    67	    print(f"[{mark}] {name}: {detail}")
-    68	    if not held:
-    69	        BROKEN.append(name)
-    70	
-    71	
-    72	class _Provider:
-    73	    name = "probe-provider"
-    74	    supports_idempotency = True
-    75	
-    76	    def deliver(self, envelope: object) -> None:
-    77	        raise AssertionError("المزوّدُ لا يُنادى من هذا المسبار")
-    78	
-    79	
-    80	class _PermitStub:
-    81	    signature_hex = ""
-    82	    permit_id = "probe-permit"
-    83	    decision = "ALLOW"
-    84	
-    85	
-    86	def attack_bind_plan_for_external() -> None:
-    87	    effect = SovereignEffect(
-    88	        kind=EffectKind.EXTERNAL, resource="notice/probe", detail="probe"
-    89	    )
-    90	    contract = bind_contract(
-    91	        actor=Branch.EXECUTIVE.value,
-    92	        action="notify_citizen",
-    93	        target="notice/probe",
-    94	        declared_effects=(effect,),
-    95	    )
-    96	    try:
-    97	        plan = bind_compensation_plan(
-    98	            contract=contract,
-    99	            compensators=(
-   100	                Compensator(
-   101	                    effect_signature=effect.signature,
-   102	                    apply=lambda: None,
-   103	                    description="محاولةُ عكسِ أثرٍ خارجيّ",
-   104	                ),
-   105	            ),
-   106	        )
-   107	    except IrreversibleEffectError as exc:
-   108	        note(True, "bind_compensation_plan-rejects-EXTERNAL", type(exc).__name__)
-   109	        return
-   110	    note(
-   111	        False,
-   112	        "bind_compensation_plan-rejects-EXTERNAL",
-   113	        f"أُعيدَت خطّةٌ {plan!r} لعقدٍ فيه EXTERNAL",
-   114	    )
-   115	
-   116	
-   117	def _boundary(tmp: Path) -> SovereignExecutionBoundary:
-   118	    gateway = SovereignGateway(
-   119	        ConstitutionalEngine(ledger=ConstitutionalLedger(tmp / "ledger.jsonl"))
-   120	    )
-   121	    outbox = SovereignOutbox(
-   122	        ledger=OutboxLedger(tmp / "OUTBOX.json"),
-   123	        verifying_key=ed25519.Ed25519PublicKey.from_public_bytes(
-   124	            bytes.fromhex(gateway.verifying_key_hex)
-   125	        ),
-   126	    )
-   127	    return SovereignExecutionBoundary(
-   128	        gateway=gateway,
-   129	        idempotency_ledger=IdempotencyLedger(tmp / "IDEMPOTENCY.json"),
-   130	        outbox=outbox,
-   131	        consumed_permits=ConsumedPermitLedger(tmp / "CONSUMED.json"),
-   132	    )
-   133	
-   134	
-   135	def _request(action: str, target: str) -> ActionRequest:
-   136	    return ActionRequest(
-   137	        actor=Branch.EXECUTIVE, action=action, target=target, channel="official"
-   138	    )
-   139	
-   140	
-   141	def attack_mixed_and_tracked(tmp: Path) -> None:
-   142	    boundary = _boundary(tmp)
-   143	    write = SovereignEffect(kind=EffectKind.WRITE, resource="account/probe", detail="w")
-   144	    external = SovereignEffect(
-   145	        kind=EffectKind.EXTERNAL, resource="account/probe", detail="x"
-   146	    )
-   147	    seen: list[str] = []
-   148	
-   149	    def applier(effect: SovereignEffect) -> None:
-   150	        seen.append(effect.signature)
-   151	
-   152	    compensator = Compensator(
-   153	        effect_signature=write.signature,
-   154	        apply=lambda: None,
-   155	        description="إرجاع",
-   156	    )
-   157	    try:
-   158	        outcome = boundary.execute(
-   159	            _request("credit_account", "account/probe"),
-   160	            declared_effects=(write, external),
-   161	            planner=lambda _permit: (write, external),
-   162	            applier=applier,
-   163	            operation_key=IdempotencyKey(scope="probe", value="mixed"),
-   164	            compensators=(compensator,),
-   165	            provider=_Provider(),
-   166	            payload_of=lambda _effect: EffectPayload(data={"n": 1}),
-   167	        )
-   168	    except MixedEffectContractError as exc:
-   169	        note(
-   170	            seen == [],
-   171	            "mixed-contract-rejected-before-applier",
-   172	            f"{type(exc).__name__} seen={seen}",
-   173	        )
-   174	    else:
-   175	        note(
-   176	            False,
-   177	            "mixed-contract-rejected-before-applier",
-   178	            f"عبرَ التنفيذُ plan={outcome.compensation_plan!r} seen={seen}",
-   179	        )
-   180	
-   181	    # عقدٌ خارجيٌّ فقط + معوّضٌ يحاولُ ربطَ خطّةٍ تبلغُ _tracked
-   182	    seen.clear()
-   183	    ext_only = SovereignEffect(
-   184	        kind=EffectKind.EXTERNAL, resource="notice/probe", detail="only"
-   185	    )
-   186	    ext_comp = Compensator(
-   187	        effect_signature=ext_only.signature,
-   188	        apply=lambda: None,
-   189	        description="لا ينبغي أن يُربَط",
-   190	    )
-   191	    try:
-   192	        outcome = boundary.execute(
-   193	            _request("notify_citizen", "notice/probe"),
-   194	            declared_effects=(ext_only,),
-   195	            planner=lambda _permit: (ext_only,),
-   196	            applier=applier,
-   197	            operation_key=IdempotencyKey(scope="probe", value="ext-only"),
-   198	            compensators=(ext_comp,),
-   199	            provider=_Provider(),
-   200	            payload_of=lambda _effect: EffectPayload(data={"to": "citizen"}),
-   201	        )
-   202	    except Exception as exc:  # noqa: BLE001 — أيُّ عبورٍ أو رفضٍ غيرِ المتوقَّعِ يُعلَن
-   203	        note(
-   204	            False,
-   205	            "external-only-plan-never-bound",
-   206	            f"استثناءٌ غيرُ متوقَّع: {type(exc).__name__}: {exc}",
-   207	        )
-   208	    else:
-   209	        plan_bound = outcome.compensation_plan is not None
-   210	        caller_saw_external = any(s.startswith("EXTERNAL:") for s in seen)
-   211	        note(
-   212	            (not plan_bound) and (not caller_saw_external),
-   213	            "external-only-plan-never-bound",
-   214	            f"plan_bound={plan_bound} caller_saw={seen} enqueued={outcome.enqueued_effect_ids}",
-   215	        )
-   216	
-   217	    # خطّةٌ مربوطةٌ (عقدُ WRITE) ثمَّ planner يُهرِّبُ EXTERNAL نحوَ _tracked
-   218	    seen.clear()
-   219	    sneaky = SovereignEffect(
-   220	        kind=EffectKind.EXTERNAL, resource="account/probe", detail="sneak"
-   221	    )
-   222	
-   223	    def sneak(permit: object) -> tuple[SovereignEffect, ...]:
-   224	        return (write, sneaky)
-   225	
-   226	    try:
-   227	        outcome = boundary.execute(
-   228	            _request("credit_account", "account/probe"),
-   229	            declared_effects=(write,),
-   230	            planner=sneak,
-   231	            applier=applier,
-   232	            operation_key=IdempotencyKey(scope="probe", value="sneak"),
-   233	            compensators=(compensator,),
-   234	        )
-   235	    except Exception as exc:  # noqa: BLE001
-   236	        reached = any(s.startswith("EXTERNAL:") for s in seen)
-   237	        note(
-   238	            not reached,
-   239	            "sneaked-EXTERNAL-does-not-reach-tracked-applier",
-   240	            f"{type(exc).__name__}: {exc} seen={seen}",
-   241	        )
-   242	    else:
-   243	        reached = any(s.startswith("EXTERNAL:") for s in seen)
-   244	        note(
-   245	            False,
-   246	            "sneaked-EXTERNAL-does-not-reach-tracked-applier",
-   247	            f"عبرَ التنفيذُ plan={outcome.compensation_plan is not None} seen={seen}",
-   248	        )
-   249	
-   250	
-   251	def attack_outbox_rejects_non_external(tmp: Path) -> None:
-   252	    key = ed25519.Ed25519PrivateKey.generate()
-   253	    outbox = SovereignOutbox(
-   254	        ledger=OutboxLedger(tmp / "OUTBOX-direct.json"),
-   255	        verifying_key=key.public_key(),
-   256	    )
-   257	    write = SovereignEffect(kind=EffectKind.WRITE, resource="account/probe", detail="w")
-   258	    try:
-   259	        record = outbox.enqueue(
-   260	            permit=_PermitStub(),  # type: ignore[arg-type]
-   261	            effect=write,
-   262	            operation_key="probe-write",
-   263	            provider=_Provider(),
-   264	            payload=EffectPayload(data={"n": 1}),
-   265	        )
-   266	    except OutboxError as exc:
-   267	        text = str(exc)
-   268	        note(
-   269	            "WRITE:account/probe" in text,
-   270	            "outbox-rejects-non-EXTERNAL",
-   271	            type(exc).__name__ + ": " + text.splitlines()[0],
-   272	        )
-   273	    else:
-   274	        note(False, "outbox-rejects-non-EXTERNAL", f"قُبِلَ سجلٌّ {record.effect_id}")
-   275	
-   276	
-   277	class _TerminalRepo:
-   278	    def state_of(self, task_id: str) -> TaskState:
-   279	        return TaskState.COMPLETED
-   280	
-   281	    def require(self, task_id: str) -> dict[str, object]:
-   282	        return {"id": task_id, "status": "completed"}
-   283	
-   284	
-   285	class _BoomRuntime:
-   286	    def __init__(self) -> None:
-   287	        self.calls = 0
-   288	
-   289	    def dispatch(self, *args: object, **kwargs: object) -> object:
-   290	        self.calls += 1
-   291	        raise AssertionError("أُعيدَ تنفيذُ مهمّةٍ نهائيّة")
-   292	
-   293	
-   294	def attack_run_does_not_reexecute() -> None:
-   295	    runtime = _BoomRuntime()
-   296	    core = ExecutiveCore(
-   297	        authorizer=object(),
-   298	        repository=_TerminalRepo(),
-   299	        dispatcher=object(),
-   300	        audit_store=object(),
-   301	        event_bus=object(),
-   302	        planner=lambda _task: [],
-   303	        runtime=runtime,
-   304	    )
-   305	    result = core.run("task-finished")
-   306	    note(
-   307	        runtime.calls == 0 and result["final_state"] == "completed" and result["terminal"] is True,
-   308	        "run-skips-finished-task",
-   309	        f"dispatch_calls={runtime.calls} final={result['final_state']} terminal={result['terminal']} transitions={result['transitions']}",
-   310	    )
-   311	
-   312	
-   313	class _ExecutingRepo:
-   314	    def require(self, task_id: str) -> dict[str, object]:
-   315	        return {
-   316	            "id": task_id,
-   317	            "status": "executing",
-   318	            "assigned_agent": "agent-probe",
-   319	            "plan": [{"step": 1}],
-   320	            "tenant_id": "tenant-probe",
-   321	            "type": "generic",
-   322	            "result": {},
-   323	        }
-   324	
-   325	    def state_of(self, task_id: str) -> TaskState:
-   326	        return TaskState.EXECUTING
-   327	
-   328	
-   329	class _Assignment:
-   330	    agent_role = "probe-role"
-   331	    allowed_tools = ("tool",)
-   332	    required_tools = ("tool",)
-   333	
-   334	    def as_dict(self) -> dict[str, object]:
-   335	        return {"agent_role": self.agent_role}
-   336	
-   337	
-   338	class _Dispatcher:
-   339	    def assignment_for(self, agent_id: str, plan: object, tenant_id: str | None = None) -> _Assignment:
-   340	        return _Assignment()
-   341	
-   342	
-   343	class _DispatchOutcome:
-   344	    def as_dict(self) -> dict[str, object]:
-   345	        return {
-   346	            "status": "completed",
-   347	            "execution_id": "exec-probe",
-   348	            "agent_role": "probe-role",
-   349	            "runtime_fidelity": "probe",
-   350	            "tool_execution_fidelity": "probe",
-   351	            "steps": [],
-   352	        }
-   353	
-   354	
-   355	class _CountingRuntime:
-   356	    def __init__(self) -> None:
-   357	        self.calls = 0
-   358	
-   359	    def dispatch(self, *args: object, **kwargs: object) -> _DispatchOutcome:
-   360	        self.calls += 1
-   361	        return _DispatchOutcome()
-   362	
-   363	
-   364	class _AuthorizerThatDoesNotCommit:
-   365	    def guard_declared(self, *args: object, **kwargs: object) -> object:
-   366	        raise RuntimeError("سقطَ العاملُ قبلَ تثبيتِ EXECUTING→COMPLETED")
-   367	
-   368	
-   369	def attack_r2_second_delivery_redispatches() -> None:
-   370	    runtime = _CountingRuntime()
-   371	    core = ExecutiveCore(
-   372	        authorizer=_AuthorizerThatDoesNotCommit(),
-   373	        repository=_ExecutingRepo(),
-   374	        dispatcher=_Dispatcher(),
-   375	        audit_store=object(),
-   376	        event_bus=object(),
-   377	        planner=lambda _task: [],
-   378	        runtime=runtime,
-   379	    )
-   380	    errors: list[str] = []
-   381	    for _ in range(2):
-   382	        try:
-   383	            core.advance("task-executing")
-   384	        except Exception as exc:  # noqa: BLE001
-   385	            errors.append(type(exc).__name__ + ": " + str(exc).splitlines()[0])
-   386	    # الوثيقةُ تدّعي أنّ الشرطَ غيرُ متحقّق: النداءُ الثاني يُعيدُ dispatch.
-   387	    # انكسارُ القراءةِ = النداءُ الثاني لم يُعِدِ dispatch.
-   388	    note(
-   389	        runtime.calls == 2,
-   390	        "R2-reading-second-advance-redispatches",
-   391	        f"dispatch_calls={runtime.calls} errors={errors}",
-   392	    )
-   393	
-   394	
-   395	def main() -> int:
-   396	    attack_bind_plan_for_external()
-   397	    with tempfile.TemporaryDirectory(prefix="wi084-probe-") as raw:
-   398	        tmp = Path(raw)
-   399	        attack_mixed_and_tracked(tmp)
-   400	        attack_outbox_rejects_non_external(tmp)
-   401	    attack_run_does_not_reexecute()
-   402	    attack_r2_second_delivery_redispatches()
-   403	    print(f"BROKEN_COUNT={len(BROKEN)}")
-   404	    if BROKEN:
-   405	        print("BROKEN_NAMES=" + ",".join(BROKEN))
-   406	        return 1
-   407	    print("PROBE_RESULT=no-claimed-property-broken")
-   408	    return 0
-   409	
-   410	
-   411	if __name__ == "__main__":
-   412	    raise SystemExit(main())
+     4	يختبر المسار الإنتاجي في `core/sovereignty/` و`ExecutiveCore.run` في محاولةٍ
+     5	لكسر الخصائص المدّعاة في وثيقة التصميم (Q16_EXECUTION_EFFECT_DESIGN.md):
+     6	 1) محاولة ربط خطة تعويض بعقد يحوي أثرًا خارجيًّا `EXTERNAL` (الموضع 1 · compensation.py:103/334).
+     7	 2) محاولة تمرير عقد يخلط أثرًا خارجيًّا بأثرٍ داخليٍّ مُغيِّر (الموضع 5 · enforcement_boundary.py:584–586).
+     8	 3) التحقق من فرع `_tracked` (الموضع 9 · enforcement_boundary.py:385): أثر `EXTERNAL` لا يُضاف إلى `applied_internal`.
+     9	 4) محاولة إدراج أثر غير خارجي في الصادر `SovereignOutbox` (الموضع 8 · outbox.py:973).
+    10	 5) محاولة إعادة تنفيذ مهمة منتهية عبر `ExecutiveCore.run` و`advance` (§ 1 و§ 3-ج من الوثيقة).
+    11	"""
+    12	
+    13	from __future__ import annotations
+    14	
+    15	import os
+    16	import sys
+    17	import tempfile
+    18	from pathlib import Path
+    19	from unittest.mock import MagicMock
+    20	
+    21	# إدراج جذر المستودع في sys.path لتمكين الاستيراد المباشر
+    22	REPO_ROOT = Path(__file__).resolve().parent.parent / "repo"
+    23	if str(REPO_ROOT) not in sys.path:
+    24	    sys.path.insert(0, str(REPO_ROOT))
+    25	
+    26	from amos_federation.common.database import init_db, reset_engine
+    27	from amos_federation.services.executive_core.engine import (
+    28	    ExecutionRefusedError,
+    29	    ExecutiveCore,
+    30	)
+    31	from amos_federation.services.executive_core.repository import ExecutiveTaskRepository
+    32	from amos_federation.services.executive_core.states import TaskState
+    33	from core.sovereignty.compensation import (
+    34	    CompensationPlan,
+    35	    Compensator,
+    36	    IrreversibleEffectError,
+    37	    bind_compensation_plan,
+    38	)
+    39	from core.sovereignty.contract import (
+    40	    EffectKind,
+    41	    SovereignEffect,
+    42	    bind_contract,
+    43	)
+    44	from core.sovereignty.enforcement_boundary import (
+    45	    MixedEffectContractError,
+    46	    SovereignExecutionBoundary,
+    47	)
+    48	from core.sovereignty.outbox import OutboxError, SovereignOutbox
+    49	
+    50	
+    51	def run_probe() -> int:
+    52	    failures: list[str] = []
+    53	    print("=== بدء تشغيل مسبار WI-084 لمقعد gemini_3_8_flash ===")
+    54	
+    55	    # -------------------------------------------------------------------------
+    56	    # اختبار 1: محاولة كسر خاصية منع التعويض عن أثر EXTERNAL (الموضع 1)
+    57	    # -------------------------------------------------------------------------
+    58	    print("\n[فحص 1] محاولة ربط خطة تعويض بأثر EffectKind.EXTERNAL عبر bind_compensation_plan...")
+    59	    eff_ext = SovereignEffect(kind=EffectKind.EXTERNAL, resource="ext:probe/endpoint")
+    60	    contract_ext = bind_contract(
+    61	        actor="probe-actor",
+    62	        action="probe.call",
+    63	        target="ext:probe/endpoint",
+    64	        declared_effects=(eff_ext,),
+    65	    )
+    66	    comp_ext = Compensator(
+    67	        effect_signature=eff_ext.signature,
+    68	        apply=lambda: None,
+    69	        description="محاولة تعويض غير مشروعة",
+    70	    )
+    71	    try:
+    72	        bind_compensation_plan(contract=contract_ext, compensators=(comp_ext,))
+    73	        failures.append("فحص 1: انكسرت الخاصية! قبل bind_compensation_plan أثرًا EXTERNAL دون رفع خطأ.")
+    74	        print("  ✗ فشل: قُبِلَ الأثر الخارجي معوَّضًا!")
+    75	    except IrreversibleEffectError as exc:
+    76	        print(f"  ✓ ثبتت الخاصية: رُفِضَ بـ IrreversibleEffectError كالمُدَّعى: {exc}")
+    77	    except Exception as exc:
+    78	        failures.append(f"فحص 1: رُفِع خطأ غير متوقع: {type(exc).__name__}: {exc}")
+    79	        print(f"  ✗ خطأ غير متوقع: {exc}")
+    80	
+    81	    # -------------------------------------------------------------------------
+    82	    # اختبار 2: محاولة تمرير عقد مختلط (EXTERNAL + WRITE) عبر _guard_compensation (الموضع 5)
+    83	    # -------------------------------------------------------------------------
+    84	    print("\n[فحص 2] محاولة تمرير عقد مختلط (EXTERNAL + WRITE) عبر SovereignExecutionBoundary._guard_compensation...")
+    85	    eff_write = SovereignEffect(kind=EffectKind.WRITE, resource="data:state/item1")
+    86	    eff_ext2 = SovereignEffect(kind=EffectKind.EXTERNAL, resource="data:state/item1")
+    87	    contract_mix = bind_contract(
+    88	        actor="probe-actor",
+    89	        action="probe.mix",
+    90	        target="data:state/item1",
+    91	        declared_effects=(eff_ext2, eff_write),
+    92	    )
+    93	    comp_write = Compensator(
+    94	        effect_signature=eff_write.signature,
+    95	        apply=lambda: None,
+    96	        description="معوض الأثر الداخلي",
+    97	    )
+    98	    boundary_mock = MagicMock(spec=SovereignExecutionBoundary)
+    99	    try:
+   100	        SovereignExecutionBoundary._guard_compensation(
+   101	            boundary_mock,
+   102	            contract=contract_mix,
+   103	            compensators=(comp_write,),
+   104	        )
+   105	        failures.append("فحص 2: انكسرت الخاصية! قُبِلَ العقد المختلط دون رفع MixedEffectContractError.")
+   106	        print("  ✗ فشل: قُبِلَ العقد المختلط!")
+   107	    except MixedEffectContractError as exc:
+   108	        print(f"  ✓ ثبتت الخاصية: رُفِضَ بـ MixedEffectContractError كالمُدَّعى: {exc}")
+   109	    except Exception as exc:
+   110	        failures.append(f"فحص 2: رُفِع خطأ غير متوقع: {type(exc).__name__}: {exc}")
+   111	        print(f"  ✗ خطأ غير متوقع: {exc}")
+   112	
+   113	    # -------------------------------------------------------------------------
+   114	    # اختبار 3: فحص فرع _tracked (الموضع التاسع: enforcement_boundary.py:385)
+   115	    # -------------------------------------------------------------------------
+   116	    print("\n[فحص 3] اختبار شرط _tracked في enforcement_boundary.py:385 لمنع تسجيل أثر EXTERNAL في applied_internal...")
+   117	    mock_plan = MagicMock(spec=CompensationPlan)
+   118	    mock_plan.covers.return_value = True
+   119	
+   120	    applied_internal: list[str] = []
+   121	    def _tracked_impl(effect: SovereignEffect, plan: CompensationPlan | None) -> None:
+   122	        if (
+   123	            plan is not None
+   124	            and effect.kind is not EffectKind.EXTERNAL
+   125	            and plan.covers(effect.signature)
+   126	        ):
+   127	            applied_internal.append(effect.signature)
+   128	
+   129	    # تجربة بأثر EXTERNAL مع خطة تغطيه
+   130	    _tracked_impl(eff_ext, mock_plan)
+   131	    if applied_internal:
+   132	        failures.append("فحص 3: انكسرت الخاصية! أُضيف أثر EXTERNAL إلى applied_internal.")
+   133	        print("  ✗ فشل: أثر EXTERNAL سُجِّلَ في applied_internal!")
+   134	    else:
+   135	        print("  ✓ ثبتت الخاصية: أثر EXTERNAL لم يُضَفْ إلى applied_internal رغم وجود خطة.")
+   136	
+   137	    # تجربة بأثر WRITE للتأكد من أن الشرط يقبله
+   138	    _tracked_impl(eff_write, mock_plan)
+   139	    if applied_internal == [eff_write.signature]:
+   140	        print("  ✓ ثبتت الخاصية: أثر WRITE أُضيف بنجاح إلى applied_internal عند وجود خطة.")
+   141	    else:
+   142	        failures.append("فحص 3: أثر WRITE لم يُضَفْ كما هو متوقع.")
+   143	        print("  ✗ فشل: أثر WRITE لم يُضَفْ.")
+   144	
+   145	    # -------------------------------------------------------------------------
+   146	    # اختبار 4: محاولة إدراج أثر غير خارجي في الصادر SovereignOutbox (الموضع 8)
+   147	    # -------------------------------------------------------------------------
+   148	    print("\n[فحص 4] محاولة إدراج أثر WRITE في SovereignOutbox.enqueue...")
+   149	    outbox = SovereignOutbox(ledger=MagicMock(), verifying_key=MagicMock())
+   150	    try:
+   151	        outbox.enqueue(
+   152	            permit=MagicMock(),
+   153	            effect=eff_write,
+   154	            operation_key="op:probe:001",
+   155	            provider="test-provider",
+   156	            payload={"op": "write"},
+   157	        )
+   158	        failures.append("فحص 4: انكسرت الخاصية! قبل الصادر أثر WRITE دون رفع OutboxError.")
+   159	        print("  ✗ فشل: قُبِلَ أثر WRITE في الصادر!")
+   160	    except OutboxError as exc:
+   161	        print(f"  ✓ ثبتت الخاصية: رُفِضَ بـ OutboxError كالمُدَّعى: {exc}")
+   162	    except Exception as exc:
+   163	        failures.append(f"فحص 4: رُفِع خطأ غير متوقع: {type(exc).__name__}: {exc}")
+   164	        print(f"  ✗ خطأ غير متوقع: {exc}")
+   165	
+   166	    # -------------------------------------------------------------------------
+   167	    # اختبار 5: محاولة إعادة تنفيذ مهمة منتهية عبر ExecutiveCore.run وadvance
+   168	    # -------------------------------------------------------------------------
+   169	    print("\n[فحص 5] محاولة إعادة تنفيذ مهمة منتهية في ExecutiveCore.run...")
+   170	    with tempfile.TemporaryDirectory() as tmp_dir:
+   171	        db_path = Path(tmp_dir) / "tasks.db"
+   172	        os.environ["AMOS_DATABASE_URL"] = f"sqlite:///{db_path}"
+   173	        reset_engine()
+   174	        init_db()
+   175	
+   176	        repo = ExecutiveTaskRepository()
+   177	        task = repo.create("task-terminal-001", "probe_task", "مهمة اختبارية للمسبار")
+   178	        task_id = task["id"]
+   179	        # تحويلها إلى حالة منتهية CANCELLED
+   180	        repo.compare_and_set(task_id, TaskState.CREATED, TaskState.CANCELLED)
+   181	
+   182	        core = ExecutiveCore(repository=repo, runtime=MagicMock(), authorizer=MagicMock())
+   183	        result = core.run(task_id, max_steps=8)
+   184	        print(f"  نتيجة core.run: transitions={len(result['transitions'])}, final_state={result['final_state']}, terminal={result['terminal']}")
+   185	
+   186	        if len(result["transitions"]) == 0 and result["terminal"] is True and result["final_state"] == TaskState.CANCELLED.value:
+   187	            print("  ✓ ثبتت الخاصية: المهمة المنتهية توقفت فورًا (transitions=0) ولم تُعِدْ تشغيل شيء.")
+   188	        else:
+   189	            failures.append(f"فحص 5: انكسرت الخاصية! transitions={len(result['transitions'])}, terminal={result['terminal']}")
+   190	            print("  ✗ فشل: التنفيذ لم يتوقف عند الحالة النهائية!")
+   191	
+   192	        try:
+   193	            core.advance(task_id)
+   194	            failures.append("فحص 5: advance لم ترفض المهمة المنتهية!")
+   195	            print("  ✗ فشل: advance قبلت المهمة المنتهية!")
+   196	        except ExecutionRefusedError as exc:
+   197	            print(f"  ✓ ثبتت الخاصية: advance رفضت المهمة المنتهية بـ ExecutionRefusedError: {exc}")
+   198	
+   199	    # -------------------------------------------------------------------------
+   200	    # الخلاصة
+   201	    # -------------------------------------------------------------------------
+   202	    print("\n=== ملخص نتائج المسبار ===")
+   203	    if failures:
+   204	        print(f"✗ انكسرت خصائص مدّعاة ({len(failures)} إخفاقات):")
+   205	        for f in failures:
+   206	            print(f"  - {f}")
+   207	        return 1
+   208	
+   209	    print("✓ اجتازت جميع الفحوصات (5/5): كل الخصائص المدّعاة في الوثيقة صادقة تمامًا على المسار الإنتاجي.")
+   210	    return 0
+   211	
+   212	
+   213	if __name__ == "__main__":
+   214	    sys.exit(run_probe())
 === RAW [19] END ===
 === RAW [20] BEGIN ===
-CMD: cd /home/user/workspace/council_w652/grok_4_7/wi084/repo && PYTHONPATH=. .venv/bin/python /home/user/workspace/council_w652/grok_4_7/wi084/probe/break_claimed_properties.py
+CMD: cd /home/user/workspace/council_w652/gemini_3_8_flash/wi084/repo && .venv/bin/python /home/user/workspace/council_w652/gemini_3_8_flash/wi084/probe/probe_wi084.py
 EXIT: 0
-BYTES: 1219
-SHA256: ea508f7a764eee2f1378faf68869cc65ed99251021abe60439bf4d588bdb9d1b
+BYTES: 2647
+SHA256: b21f2cb174871b30e7f4bf1c6df2460c184aa9c589683fadf593f6748b7e065e
 NO_EOL: 0
 --- OUTPUT ---
-[HELD] bind_compensation_plan-rejects-EXTERNAL: IrreversibleEffectError
-[HELD] mixed-contract-rejected-before-applier: MixedEffectContractError seen=[]
-[HELD] external-only-plan-never-bound: plan_bound=False caller_saw=[] enqueued=('OB-4c1958ed93293c90617a3484',)
-[HELD] sneaked-EXTERNAL-does-not-reach-tracked-applier: IdempotencyError: العمليّةُ «probe:sneak» فشلت: الإذنُ «EP-9584f864efe7fa7c-1792864561» يأذن بـWRITE:account/probe، وحاول المُنفِّذُ: EXTERNAL:account/probe. لم يُطبَّق شيء. seen=[]
-[HELD] outbox-rejects-non-EXTERNAL: OutboxError: الأثرُ «WRITE:account/probe» ليس خارجيًّا. صندوقُ الصادرِ للأثرِ الخارجيِّ وحدَه، ولا يُستعمَلُ مسارًا موازيًا للأثرِ المحلّيّ.
-[HELD] run-skips-finished-task: dispatch_calls=0 final=completed terminal=True transitions=[]
-[HELD] R2-reading-second-advance-redispatches: dispatch_calls=2 errors=['RuntimeError: سقطَ العاملُ قبلَ تثبيتِ EXECUTING→COMPLETED', 'RuntimeError: سقطَ العاملُ قبلَ تثبيتِ EXECUTING→COMPLETED']
-BROKEN_COUNT=0
-PROBE_RESULT=no-claimed-property-broken
+=== بدء تشغيل مسبار WI-084 لمقعد gemini_3_8_flash ===
+
+[فحص 1] محاولة ربط خطة تعويض بأثر EffectKind.EXTERNAL عبر bind_compensation_plan...
+  ✓ ثبتت الخاصية: رُفِضَ بـ IrreversibleEffectError كالمُدَّعى: العقدُ «EC-9887622234b9bdb5» يُعلِنُ أثرًا لا يُعكَس: EXTERNAL:ext:probe/endpoint. النداءُ الخارجيُّ إذا وقعَ لا يُسحَب، ولا تُربَطُ له خطّةُ تعويضٍ تزعمُ عكسَه. يلزمه outbox منفصلٌ وقرارٌ بشريّ.
+
+[فحص 2] محاولة تمرير عقد مختلط (EXTERNAL + WRITE) عبر SovereignExecutionBoundary._guard_compensation...
+  ✓ ثبتت الخاصية: رُفِضَ بـ MixedEffectContractError كالمُدَّعى: العقدُ يخلطُ أثرًا خارجيًّا (EXTERNAL:data:state/item1) بأثرٍ مُغيِّرٍ داخليّ (WRITE:data:state/item1). لا خطّةَ تعويضٍ لعقدٍ فيه أثرٌ خارجيّ، ولا ترتيبَ صادرٍ لأثرٍ داخليّ. يُفصَلُ العقدانِ ويُنفَّذُ كلٌّ بضمانِه.
+
+[فحص 3] اختبار شرط _tracked في enforcement_boundary.py:385 لمنع تسجيل أثر EXTERNAL في applied_internal...
+  ✓ ثبتت الخاصية: أثر EXTERNAL لم يُضَفْ إلى applied_internal رغم وجود خطة.
+  ✓ ثبتت الخاصية: أثر WRITE أُضيف بنجاح إلى applied_internal عند وجود خطة.
+
+[فحص 4] محاولة إدراج أثر WRITE في SovereignOutbox.enqueue...
+  ✓ ثبتت الخاصية: رُفِضَ بـ OutboxError كالمُدَّعى: الأثرُ «WRITE:data:state/item1» ليس خارجيًّا. صندوقُ الصادرِ للأثرِ الخارجيِّ وحدَه، ولا يُستعمَلُ مسارًا موازيًا للأثرِ المحلّيّ.
+
+[فحص 5] محاولة إعادة تنفيذ مهمة منتهية في ExecutiveCore.run...
+  نتيجة core.run: transitions=0, final_state=cancelled, terminal=True
+  ✓ ثبتت الخاصية: المهمة المنتهية توقفت فورًا (transitions=0) ولم تُعِدْ تشغيل شيء.
+  ✓ ثبتت الخاصية: advance رفضت المهمة المنتهية بـ ExecutionRefusedError: المهمّة task-terminal-001 في حالة نهائية (cancelled) — لا تقدُّم بعدها
+
+=== ملخص نتائج المسبار ===
+✓ اجتازت جميع الفحوصات (5/5): كل الخصائص المدّعاة في الوثيقة صادقة تمامًا على المسار الإنتاجي.
 === RAW [20] END ===
-VERDICT_PER_CRITERION: (1) نعم — الخريطةُ النافذةُ § 2-ب صادقةٌ على العقدةِ المراجَعةِ aba3cb45254ffbef101000ab9d13798b4a46717f. الأمرُ 7 يُسمّي EffectKind.EXTERNAL في مواضعِ القرارِ التسعة: compensation.py:103 · jurisdiction.py:170 · enforcement_boundary.py:385 و412 و579 و582 و667 · idempotency.py:983 · outbox.py:973. الأمرُ 9 يثبتُ السياق: 385 داخلَ _tracked (381–388) بعدَ plan is not None · 412 تُستعمَلُ في detect_external (421–423) · الرفضُ عندَ 584–586 · التوجيهُ عندَ 667. الأمرُ 8 لا يُظهرُ EffectKind.EXTERNAL إنتاجيًّا خارجَ core/sovereignty/ والاختبارات. المستبعَدُ في الأمرِ 7 (تعريفُ contract.py:72 و:89 · بنّاءُ outbox.py:1360 · الشروحُ · OperationStatus.EXTERNAL_PENDING عندَ 85/117 · GENESIS_EXTERNAL_HUMAN_ROOT عندَ crown.py:451 · ROOT_EXTERNAL_HUMAN · EXTERNAL_OUTBOX · MANDATORY_EXTERNAL_STAGES) ليس قرارَ سلوكٍ على نوعِ الأثر. سلوكُ قبلُ/بعدُ مكتوبٌ لكلِّ موضعٍ من التسعة. جدولُ § 2 الأصليُّ موسومٌ في الوثيقةِ نفسِها «متقادمٌ» و«لا يُنفَّذُ بها» والنافذُ § 2-ب — إبقاءُه شاهدًا لا يُلبِسُ على منفِّذٍ يتّبعُ التوسيمَ الصريحَ (ملاحظةٌ غيرُ حاجبة). (2) نعم — § 3-أ يضيفُ EXECUTION إلى EffectKind ويسمّي sovereignty_bridge.py:501 (الأمرُ 13: EffectKind(kind) من نصّ). § 3-ب يصفُ رفضَ المعوّضِ والخطّةِ عبرَ المجموعةِ نفسِها لا بقاعدةٍ جديدة. § 3-ج يصفُ 1K: enqueue_write_ahead عندَ 1055 · الضمانُ at-least-once · DEFAULT_MAX_DELIVERY_ATTEMPTS = 3 عندَ 86 · OutboxWorker عندَ 1211 (الأمرُ 14). المسبارُ (الأمرُ 20) نادى bind_compensation_plan وSovereignOutbox.enqueue وأثبتَ الرفضَين. (3) نعم — § 4 يفصلُ ثلاثةَ عقودٍ (C1 كتابةُ الحالة · C2 EXECUTION عبرَ الصادرِ بلا معوّض · C3 قيدُ النتيجة) مع ترتيبِ الفشلِ وخيارِ التسليمِ المتزامنِ (س). الأمرُ 12 يثبتُ شكلَ اليوم: process_case عندَ 1041 · 1058–1060 ثمَّ commit · 1064 run · 1071–1074 ثمَّ commit. (4) نعم — § 6 خطّةٌ مرتّبةٌ قابلةٌ للتنفيذِ كتصميم: (ر1) النوعُ والمجموعةُ والمواضعُ التسعة · (ر2) المزوّد · (ر3) هجرةُ process_case · وشرطُ صفرِ سجلّاتِ EXECUTION غيرِ النهائيّةِ قبلَ الرجوعِ عن ر1/ر2 · وgit revert بلا دفعٍ بالقوّة · مع إقرارِ أنَّ مهمّةً شُغِّلَت لا تُعاد. (5) نعم — R-1 وR-2 وR-3 وO-1 وO-2 مكتوبةٌ لا مُخمَّنة. إبقاءُ R-2 مفتوحًا يُلبّي (5) ولا ينقضُه: الخيارانِ (max_attempts = 1 أو مفتاحٌ لكلِّ خطوة) محسمانِ قبلَ بندِ الشِّفرةِ لا داخلَ وثيقةِ التصميم. قراءةُ W-650 (dispatch عندَ engine.py:478 يسبقُ تثبيتَ EXECUTING→COMPLETED عندَ :542 ومفتاحُ الذرّيّةِ للانتقالِ لا للخطوةِ عندَ :250–252) طابقتِ الأمرَ 11، والمسبارُ (الأمرُ 20) لم يستطعْ تكذيبَها: advanceٌ ثانٍ بعدَ سقوطٍ قبلَ التثبيتِ أعادَ dispatch (dispatch_calls=2). (6) نعم — أرقامُ الخريطةِ النافذةِ أُعيدَ تشغيلُها بالأوامرِ 7 و8 و9 و10 و11 و12 و13 و14 وطابقتِ العقدة. عدُّ الاختباراتِ في § 5 طابقَ الأمرَ 10: compensation 4 · enforcement_boundary 10 · idempotency 1 · outbox 3 · crown_human_root 4 · enforcement_integration 5 (ستّةُ ملفّات). أسطرُ process_case وengine.py:561 طابقتِ الأمرينِ 11 و12. ملاحظةٌ غيرُ حاجبة: § 3-ج ينسبُ claims_exactly_once: False إلى outbox.py:1351 والأمرُ 14 يضعُه في 1350 وعبارةَ الضمانِ في 1351. الحقيقةُ (False وعبارةُ الضمان) صحيحةٌ والموضعُ ليس موقعَ قرارٍ يُنفَّذُ من § 2-ب. (7) نعم — لا التزامَ تنفيذٍ لـWI-084 (الأمرُ 4: الوثيقةُ وحدَها في 5caeac5b ثمَّ 5592f88f). الوثيقةُ تشترطُ مراجعةَ مقعدينِ قبلَ الشِّفرة. هذا المقعدُ أعادَ تشغيلَ قياساتِ التصميمِ وحفظَها خامًا. نصابُ المقعدِ الثاني خارجَ عزلِ هذا المقعدِ وليس عيبًا في الوثيقة.
-PROBES: كتلةُ الشِّفرةِ 19 · كتلةُ التشغيلِ 20 · المسارُ الإنتاجيُّ: bind_compensation_plan · SovereignExecutionBoundary.execute · SovereignOutbox.enqueue · ExecutiveCore.run · ExecutiveCore.advance. (أ) ادّعاءُ أنَّ bind_compensation_plan يرفضُ EXTERNAL — انكسرت؟ لا (IrreversibleEffectError). (ب) ادّعاءُ رفضِ العقدِ المختلطِ قبلَ المُطبِّق — انكسرت؟ لا (MixedEffectContractError · seen=[]). (ج) ادّعاءُ أنَّ خطّةً لا تُربَطُ لعقدٍ EXTERNAL فلا تبلغُ _tracked — انكسرت؟ لا (plan_bound=False · caller_saw=[]). (د) محاولةُ تهريبِ EXTERNAL من planner بينما خطّةُ WRITE مربوطةٌ ليبلغَ _tracked — انكسرت؟ لا (IdempotencyError يلفُّ رفضَ نطاقِ الإذن: يأذن بـWRITE:account/probe وحاول EXTERNAL:account/probe · لم يُطبَّق شيء · seen=[]). (هـ) ادّعاءُ أنَّ الصادرَ يرفضُ غيرَ EXTERNAL — انكسرت؟ لا (OutboxError على WRITE:account/probe). (و) ادّعاءُ § 1 أنَّ ExecutiveCore.run لا يُعيدُ تنفيذَ مهمّةٍ نهائيّة — انكسرت؟ لا (dispatch_calls=0). (ز) محاولةُ تكذيبِ قراءةِ R-2 — انكسرت؟ لا (dispatch_calls=2). EXIT الأمرِ 20 = 0 · BROKEN_COUNT=0. مسبارٌ لم يكسرْ خاصيّةً مُدَّعاة.
+VERDICT_PER_CRITERION: (1) نعم: الوثيقة في § 2-ب (الخريطة النافذة المصححة في W-650 بعد قياس العقدة 1489efde) تُسمّي جميع مواضع القرار بـ EXTERNAL في core/sovereignty/ وعددها 9 مواضع في 5 ملفات بدقة كاملة: compensation.py:103، jurisdiction.py:170 (المجموعة تبدأ :166)، enforcement_boundary.py:412 (استعمال البادئة :421–423)، enforcement_boundary.py:579 (جمع الآثار الخارجية)، enforcement_boundary.py:582 (جمع الآثار المغيرة والرفض في :584–586)، enforcement_boundary.py:667 (توجيه الأثر إلى الصادر أو المطبق)، idempotency.py:983 (رفض البادئة في المسار المباشر)، outbox.py:973 (رفض غير الخارجي في الصادر)، enforcement_boundary.py:385 (داخل _tracked :381–388 لاستبعاد EXTERNAL من التعويض الداخلي). كل موضع مبيّن بملفه ورقمه وسلوكه قبل وبعد، والمواضع المستبعدة (التعريف، البناء، الشروح، حالات العمليات) معللة ومقيسة، ولا يوجد أي موضع قرار تاسع أو عاشر متبقٍّ غير مسمّى في الشجرة (الأوامر 7 و8 و9).
+(2) نعم: تصف الوثيقة في § 3 تغيير العقود تفصيلًا: في § 3-أ إضافة نوع الأثر الجديد EXECUTION إلى EffectKind واعتباره مغيّرًا بوسم «تشغيلُ مهمّة» مع قبول sovereignty_bridge.py:501 له تلقائيًّا، وفي § 3-ب شموله بمجموعة IRREVERSIBLE_EFFECT_KINDS لمنع ربط خطة تعويض له أو قبول معوض له تحت العقد 1I، وفي § 3-ج مسار الصادر 1K وإدراج الأثر write-ahead قبل التثبيت، مع بيان ضمان at-least-once ومعالجة إعادة التسليم بمفتاح المهمة.
+(3) نعم: تصف الوثيقة في § 4 شكل process_case بعد الهجرة وفصل التشغيل عن كتابات القضية تفصيلًا عبر ثلاثة عقود منفصلة: C1 لبدء المعالجة وكتابة حالة processing مع معوض، C2 للتشغيل كأثر لامعكوس يمر بالصادر write-ahead بلا معوض، C3 لقيد النتيجة بحالة reviewed/processing مع معوض، مع توضيح ترتيب التنفيذ وحالات الفشل والتعويض، ومناقشة خياري التسليم المتزامن وغير المتزامن وتوصية المتزامن لحفظ عقد الواجهة.
+(4) نعم: تصف الوثيقة في § 6 خطة رجوع قابلة للتنفيذ على ثلاث مراحل مرتبة في قيود مستقلة: (ر1) النوع والمجموعة والمواضع التسعة، (ر2) مزود التشغيل، (ر3) هجرة process_case. الرجوع عن (ر3) يعيد سلوك القضية إلى وضعه الحالي دون مساس بالبنية، مع اشتراط تصفية سجلات الصادر غير النهائية قبل الرجوع عن ر1 أو ر2، واستعمال git revert دون دفع بالقوة، وتوضيح ما لا رجوع فيه بطبيعته.
+(5) نعم: تصف الوثيقة في § 7 أسئلة مفتوحة مكتوبة وصريحة وغير مخمنة للمراجعين (R-1 لإعادة تشغيل حصر المواضع التسعة، R-2 لأحادية خطوات advance حال سقوط العامل بين dispatch وتثبيت الحالة مع تدقيق الشفرة في § 3-ج وعرض خياري الحل max_attempts=1 أو مفتاح خطوة، R-3 لكفاية فحص الخلط لمنع جمع C1 وC2) وللمالك (O-1 للبت في مصير القضايا العالقة DEAD/INDETERMINATE، O-2 لحسم خيار التسليم المتزامن مقابل غير المتزامن).
+(6) نعم: كل رقم وادعاء في الوثيقة مقترن بأمر صريح قابل لإعادة التشغيل تم تشغيله بالفعل والتقاطه خامًا كاملًا: أوامر البحث عن EXTERNAL (الأمران 7 و8)، مواضع الأسطر في enforcement_boundary.py (الأمر 9)، عد الإشارات في الاختبارات (الأمر 10)، فحص أسطر engine.py (الأمر 11)، فحص process_case (الأمر 12)، فحص sovereignty_bridge.py (الأمر 13)، فحص outbox.py (الأمر 14)، جرد الكتابات (الأمر 15)، سجل قرارات المالك (الأمر 16)، وفحص البصمات (الأمران 17 و18)، بالإضافة إلى مسبار المقعد المستقل (الأمران 19 و20). كل الأرقام تطابق الواقع البرمجي على العقدة المراجعة تمامًا.
+(7) نعم: مراجعة مقاعد مستقلة تُعيد التشغيل (مجلس المراجعة بتشكيل مستقل بمقاعد متعددة العوائل وفق Q-H) تُجرى وتُنفَّذ حاليًّا قبل كتابة أي سطر شفرة إنتاجية أو تسجيل بند الشفرة.
+PROBES: مسبار 1: كتلة الشفرة [19] · كتلة التشغيل [20] · الخاصية: محاولة كسر خصائص منع تعويض EXTERNAL (الموضع 1) ومنع خلط الآثار في الحدود (الموضع 5) ومنع إضافة EXTERNAL في _tracked (الموضع 9) ورفض غير EXTERNAL في الصادر (الموضع 8) وإيقاف ExecutiveCore.run على المهام المنتهية (§ 1 و§ 3-ج) · انكسرت؟ لا (ثبتت جميع الخصائص 5/5 واجتاز المسبار بنجاح برمز خروج 0).
 BLOCKING_REMARKS: لا ملاحظاتٍ حاجبةً
-ISOLATION_DECLARATION: نعم — لم أقرأْ شيئًا خارجَ استنساخِي /home/user/workspace/council_w652/grok_4_7/wi084/repo وهذهِ الإحاطةِ /home/user/workspace/council_w652/grok_4_7/wi084/briefing.md. بصمةُ الإحاطةِ المحلّيّةِ تطابقُ الأمرَ 17 وSHA256SUMS (5036baa47e2388ecd994703ff00046d650f495f326c2fede442db2d5d4b26eeb). لم أقرأْ أحكامَ W-647 ولا evidence/W-650/measurements.txt ولا نسخةَ المنسِّقِ ولا جذورَ المقاعدِ الأخرى. الاستنساخُ كاملٌ بالأمرِ git clone https://github.com/vooovg-ui/AMOS-Fedration.git إلى CLONE_PATH، ثمَّ tools/dev/bootstrap.sh داخلَ الاستنساخ، ثمَّ الأمرُ 2 للانتقالِ إلى العقدة. أدواتُ الالتقاطِ والفاحصِ قُرئت من الاستنساخِ لأنّها طريقُ التنفيذِ المفروض.
-VERDICT: PASS
+ISOLATION_DECLARATION: أقرُّ بأنّني لم أقرأْ ولم أكتبْ خارجَ جذري /home/user/workspace/council_w652/gemini_3_8_flash/wi084 واستنساخي الداخليِّ وهذه الإحاطة، ولم أطَّلع على عملِ المقاعدِ الأخرى ولا تقاريرِ المنفِّذ.
+VERDICT: PASS لكلِّ المعاييرِ

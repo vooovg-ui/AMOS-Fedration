@@ -1,4 +1,5 @@
 {
+ "$comment": "حمولةُ CI لحكمِ N+1 على دفعةِ W-652 (قيدٌ لاحق): تشغيلُ main (push) على aba3cb45254ffbef101000ab9d13798b4a46717f · مجلوبةٌ بـgh api repos/vooovg-ui/AMOS-Fedration/actions/runs/40102383087/jobs",
  "total_count": 13,
  "jobs": [
   {
@@ -1661,6 +1662,5 @@
    "runner_group_id": 0,
    "runner_group_name": "GitHub Actions"
   }
- ],
- "$comment": "حمولةُ CI لحكمِ N+1 على دفعةِ W-652 (قيدٌ لاحق): تشغيلُ main (push) على aba3cb45254ffbef101000ab9d13798b4a46717f · مجلوبةٌ بـgh api repos/vooovg-ui/AMOS-Fedration/actions/runs/40102383087/jobs"
+ ]
 }
