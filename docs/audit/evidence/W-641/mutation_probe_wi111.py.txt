@@ -1,0 +1,57 @@
+"""الهدف: مسبارُ طفراتِ WI-111 (J2+J3) الآليُّ — يُطبِّقُ كلَّ طفرةٍ منَ الخمسِ المُعلَنةِ في ملحقِ
+J2J3_JUDICIARY_DOCKET_DESIGN.md § 5 على حدةٍ، ويُشغِّلُ ملفَّي الفحوصِ، ثمَّ يُعيدُ الأصلَ ويتحقَّقُ أنّه
+مستعادٌ بايتًا ببايتٍ (sha256). نمطُ mutation_probe_wi107 (W-628). يُحفَظُ بلاحقةِ .py.txt كي لا
+يُعَدَّ شِفرةً إنتاجيّةً في الجردِ (درسُ W-639 · DISC-132) ويُشغَّلُ بـ`.venv/bin/python <المسار>`
+منْ جذرِ الاستنساخِ. القيدُ W-641.
+"""
+import hashlib
+import subprocess, sys, shutil, pathlib
+ROOT = pathlib.Path.cwd()
+assert (ROOT / "core/constitutional_engine/rules.py").is_file(), "شغِّلْه منْ جذرِ الاستنساخِ"
+J = ROOT / "federal/executive/services/src/amos_federation/services/federal_judiciary"
+MUT = {
+ "M1": (J/"service.py", "            guarded = rulings._judiciary_authorizer().guard_declared(\n                plan.action, plan.target, **plan.kwargs\n            )\n            row = docket.crossed_value(\n                guarded,\n                replay=lambda: docket.load_case(session, case.id, tenant_id=tenant),\n                what=f\"إسنادَ",
+        "            guarded = docket._Unguarded(plan.kwargs[\"applier\"](None))\n            row = docket.crossed_value(\n                guarded,\n                replay=lambda: docket.load_case(session, case.id, tenant_id=tenant),\n                what=f\"إسنادَ"),
+ "M2": (J/"docket.py", "        namespace=\"judiciary.party.add\",", "        namespace=\"judiciary.party.add\",  # M2"),
+ "M3": (ROOT/"core/constitutional_engine/rules.py", "\"assign_case\", \"record_proceeding\", \"join_party\", \"admit_claim\",", "\"assign_case\", \"record_proceeding\", \"admit_claim\","),
+ "M4": (J/"docket.py", "            for model, row_id, values in before:\n                row = restore.get(model, row_id)\n                if row is not None:\n                    for name, value in values.items():\n                        setattr(row, name, value)", "            for model, row_id, values in before:\n                row = restore.get(model, row_id)\n                if row is not None and False:\n                    for name, value in values.items():\n                        setattr(row, name, value)"),
+ "M5": (J/"rulings.py", "        proceeding = _insert_proceeding(\n            session,\n            case_id=case.id,\n            proceeding_type=\"RULING\",", "        from amos_federation.services.federal_judiciary.docket import record_proceeding as _rp\n\n        proceeding = _rp(\n            session,\n            case_id=case.id,\n            proceeding_type=\"RULING\","),
+}
+EXTRA = {"M1": ("docket.py", "\n\nclass _Unguarded:\n    is_replay = False\n\n    def __init__(self, value):\n        self.value = value\n")}
+TESTS = ["tests/test_wi111_judiciary_docket_sovereign.py"]
+FILES = sorted({p for p, _, _ in MUT.values()} | {J / "docket.py"})
+def digest():
+    return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in FILES}
+BASE = digest()
+killed = 0
+for name in sys.argv[1:] or sorted(MUT):
+    tests = TESTS
+    path, old, new = MUT[name]
+    backup = path.read_text()
+    assert backup.count(old) == 1, (name, backup.count(old))
+    mut = backup.replace(old, new)
+    extra_backup = None
+    if name == "M2":
+        # remove the guard call in docket.add_party: replace its guard line with a direct apply
+        o = "    guarded = _authorizer().guard_declared(plan.action, plan.target, **plan.kwargs)\n    return crossed_value(\n        guarded,\n        replay=lambda: session.execute(\n            select(CasePartyModel)"
+        assert mut.count(o) == 1
+        mut = mut.replace(o, "    guarded = _Unguarded(plan.kwargs[\"applier\"](None))\n    return crossed_value(\n        guarded,\n        replay=lambda: session.execute(\n            select(CasePartyModel)")
+        mut += EXTRA["M1"][1]
+    path.write_text(mut)
+    if name == "M1":
+        d = J/"docket.py"; extra_backup = d.read_text(); d.write_text(extra_backup + EXTRA["M1"][1])
+    try:
+        r = subprocess.run([str(ROOT/".venv/bin/python"), "-m", "pytest", "-q", "-p", "no:cacheprovider", *tests],
+                           cwd=ROOT/"federal/executive/services", capture_output=True, text=True, timeout=600)
+        last = r.stdout.strip().splitlines()[-1] if r.stdout.strip() else r.stderr[-300:]
+        failed = [l.split("::")[-1].split(" ")[0] for l in r.stdout.splitlines() if l.startswith("FAILED")]
+        print(f"{name}: {'KILLED' if r.returncode != 0 else 'SURVIVED'} · {last} · failed={failed}")
+    finally:
+        path.write_text(backup)
+        if extra_backup is not None:
+            (J/"docket.py").write_text(extra_backup)
+    restored = digest() == BASE
+    print(f"{name}: restored_bytes={restored}")
+    assert restored, name
+
+print("BASELINE_RESTORED:", digest() == BASE)
