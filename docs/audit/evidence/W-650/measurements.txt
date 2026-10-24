@@ -1,0 +1,226 @@
+# قياساتُ قيدِ W-650 — خريطةُ أسطرِ WI-084 مُعادةً على الشِّفرةِ نفسِها (خامٌ كما شُغِّلَ · 2026-10-24)
+# HEAD: 596fc86e4fe6eb2ff73a57b095d988323655c937 (فرعُ w-649-d23-decided فوقَ main 1489efde — لا تغييرَ شِفرةٍ بينهما)
+# آخرُ التزامٍ مسَّ core/sovereignty/:
+4247c68f 2026-10-23 W-640: WI-111 (J2+J3) — 15 سطحًا قضائيًّا تعبرُ بفاعلِ الوحدةِ وأفعالِ D17-2 · D-4 157←142 · M1�
+
+$ rg -n "EXTERNAL" core/sovereignty/*.py | rg -v "ROOT_EXTERNAL_HUMAN|MANDATORY_EXTERNAL_STAGES|EXTERNAL_OUTBOX"
+core/sovereignty/compensation.py:49:`EffectKind.EXTERNAL` **لا يُقبَلُ معوّضًا**. نداءٌ خارجيٌّ وقع لا يُسحَب،
+core/sovereignty/compensation.py:103:    {EffectKind.EXTERNAL}
+core/sovereignty/compensation.py:173:    """محاولةُ تسجيلِ معوّضٍ لأثرٍ لا يُعكَس (`EXTERNAL`).
+core/sovereignty/compensation.py:321:    1. **أثرٌ لا يُعكَس** (`EXTERNAL`) مُعلَنٌ في العقد -> `IrreversibleEffectError`.
+core/sovereignty/crown.py:451:                    "ceremony_kind": "GENESIS_EXTERNAL_HUMAN_ROOT",
+core/sovereignty/jurisdiction.py:170:        EffectKind.EXTERNAL,   # التأثيرُ الخارجيُّ شأنٌ تنفيذيّ
+core/sovereignty/jurisdiction.py:322:        وأمّا `DELETE` و`TRANSFER` و`EXTERNAL` فخارجةٌ عن السلطةِ القضائيّة:
+core/sovereignty/idempotency.py:34:- **الأثرُ الخارجيُّ لا يُلغى.** `EffectKind.EXTERNAL` لا يمكنُ التراجعُ عنه
+core/sovereignty/idempotency.py:85:    EXTERNAL_PENDING = "EXTERNAL_PENDING"
+core/sovereignty/idempotency.py:117:    OperationStatus.EXTERNAL_PENDING: "أثرٌ خارجيٌّ معلّق",
+core/sovereignty/idempotency.py:977:        لا تقبلُ آثارًا خارجيّة (`EXTERNAL`): الأثرُ الخارجيُّ يحتاجُ outbox
+core/sovereignty/idempotency.py:983:            if sig.startswith(EffectKind.EXTERNAL.value + ":"):
+core/sovereignty/outbox.py:973:    if effect.kind is not EffectKind.EXTERNAL:
+core/sovereignty/outbox.py:1360:        kind=EffectKind.EXTERNAL,
+core/sovereignty/enforcement_boundary.py:385:                and effect.kind is not EffectKind.EXTERNAL
+core/sovereignty/enforcement_boundary.py:412:        external_prefix = EffectKind.EXTERNAL.value + ":"
+core/sovereignty/enforcement_boundary.py:579:            e for e in contract.declared_effects if e.kind is EffectKind.EXTERNAL
+core/sovereignty/enforcement_boundary.py:582:            e for e in contract.mutating_effects if e.kind is not EffectKind.EXTERNAL
+core/sovereignty/enforcement_boundary.py:667:            if effect.kind is not EffectKind.EXTERNAL:
+core/sovereignty/contract.py:72:    EXTERNAL = "EXTERNAL"
+core/sovereignty/contract.py:89:    EffectKind.EXTERNAL: "نداءٌ خارجيّ",
+
+$ sed -n '100,105p' core/sovereignty/compensation.py | nl -v100
+   100	
+   101	#: أنواعُ الأثرِ التي لا يُقبَلُ لها معوّضٌ بحالٍ — لا يُدَّعى عكسُها.
+   102	IRREVERSIBLE_EFFECT_KINDS: Final[frozenset[EffectKind]] = frozenset(
+   103	    {EffectKind.EXTERNAL}
+   104	)
+   105	
+
+$ sed -n '164,172p' core/sovereignty/jurisdiction.py | nl -v164
+   164	
+   165	#: الأنواعُ الممنوعةُ على القضاءِ من الأثر (لا يملكُها القضاءُ أصلًا)
+   166	NON_JUDICIAL_EFFECT_KINDS: Final[frozenset[EffectKind]] = frozenset(
+   167	    {
+   168	        EffectKind.DELETE,     # الحذفُ شأنٌ تنفيذيّ، لا قضائيّ
+   169	        EffectKind.TRANSFER,   # التحويلُ الماليُّ شأنُ الخزانة
+   170	        EffectKind.EXTERNAL,   # التأثيرُ الخارجيُّ شأنٌ تنفيذيّ
+   171	    }
+   172	)
+
+$ sed -n '378,390p' core/sovereignty/enforcement_boundary.py | nl -v378
+   378	            enqueued=enqueued,
+   379	        )
+   380	
+   381	        def _tracked(effect: SovereignEffect) -> None:
+   382	            routed(effect)
+   383	            if (
+   384	                plan is not None
+   385	                and effect.kind is not EffectKind.EXTERNAL
+   386	                and plan.covers(effect.signature)
+   387	            ):
+   388	                applied_internal.append(effect.signature)
+   389	
+   390	        def _under_permit() -> tuple[str, ...]:
+
+$ sed -n '410,424p' core/sovereignty/enforcement_boundary.py | nl -v410
+   410	            actor=request.actor,
+   411	        )
+   412	        external_prefix = EffectKind.EXTERNAL.value + ":"
+   413	        try:
+   414	            result: OperationResult[tuple[str, ...]] = IdempotencyGuard(
+   415	                ledger=self.idempotency_ledger
+   416	            ).run_once(
+   417	                key=operation_key,
+   418	                fingerprint=fingerprint,
+   419	                execute=_under_permit,
+   420	                extract_effect_signatures=lambda sigs: tuple(sigs or ()),
+   421	                detect_external=lambda sigs: any(
+   422	                    s.startswith(external_prefix) for s in (sigs or ())
+   423	                ),
+   424	            )
+
+$ sed -n '576,587p' core/sovereignty/enforcement_boundary.py | nl -v576
+   576	        أصدقُ من ادّعاءٍ بعدَه.
+   577	        """
+   578	        external = tuple(
+   579	            e for e in contract.declared_effects if e.kind is EffectKind.EXTERNAL
+   580	        )
+   581	        reversible_mutating = tuple(
+   582	            e for e in contract.mutating_effects if e.kind is not EffectKind.EXTERNAL
+   583	        )
+   584	        if external and reversible_mutating:
+   585	            self._record_rejection(BoundaryStage.COMPENSATION_PLAN)
+   586	            raise MixedEffectContractError(
+   587	                "العقدُ يخلطُ أثرًا خارجيًّا ("
+
+$ sed -n '664,670p' core/sovereignty/enforcement_boundary.py | nl -v664
+   664	        """
+   665	
+   666	        def route(effect: SovereignEffect) -> None:
+   667	            if effect.kind is not EffectKind.EXTERNAL:
+   668	                applier(effect)
+   669	                return
+   670	            if self.outbox is None or provider is None or payload_of is None:
+
+$ sed -n '980,986p' core/sovereignty/idempotency.py | nl -v980
+   980	        from core.sovereignty.contract import EffectKind
+   981	
+   982	        for sig in declared_effects:
+   983	            if sig.startswith(EffectKind.EXTERNAL.value + ":"):
+   984	                raise IdempotencyError(
+   985	                    f"الأثرُ «{sig}» خارجيّ. الأثرُ الخارجيُّ يحتاجُ outbox منفصل — "
+   986	                    "لا يُعالَجُ في المسارِ الذرّيّ المباشر."
+
+$ sed -n '970,976p' core/sovereignty/outbox.py | nl -v970
+   970	    ولا يستهلكُ الإذن: الاستهلاكُ عملُ `PolicyEnforcementPoint` لحظةَ التنفيذ،
+   971	    وقد وقعَ قبلَ الوصولِ إلى هنا.
+   972	    """
+   973	    if effect.kind is not EffectKind.EXTERNAL:
+   974	        raise OutboxError(
+   975	            f"الأثرُ «{effect.signature}» ليس خارجيًّا. صندوقُ الصادرِ للأثرِ "
+   976	            "الخارجيِّ وحدَه، ولا يُستعمَلُ مسارًا موازيًا للأثرِ المحلّيّ."
+
+$ sed -n '330,337p' core/sovereignty/compensation.py | nl -v330
+   330	    خارجيّة = tuple(
+   331	        e for e in contract.declared_effects if e.kind in IRREVERSIBLE_EFFECT_KINDS
+   332	    )
+   333	    if خارجيّة:
+   334	        raise IrreversibleEffectError(
+   335	            f"العقدُ «{contract.contract_id}» يُعلِنُ أثرًا لا يُعكَس: "
+   336	            + " · ".join(e.signature for e in خارجيّة)
+   337	            + ". النداءُ الخارجيُّ إذا وقعَ لا يُسحَب، ولا تُربَطُ له خطّةُ تعويضٍ "
+
+$ rg -n "EffectKind\.EXTERNAL" --type py -g "!tests/**" -g "!core/sovereignty/**" .
+(rc=1)
+
+$ rg -c EXTERNAL tests/sovereignty/*.py
+tests/sovereignty/test_compensation.py:4
+tests/sovereignty/test_enforcement_boundary.py:10
+tests/sovereignty/test_crown_human_root.py:4
+tests/sovereignty/test_enforcement_integration.py:5
+tests/sovereignty/test_outbox.py:3
+tests/sovereignty/test_idempotency.py:1
+
+$ grep -n (outbox: DEFAULT_MAX_DELIVERY_ATTEMPTS · enqueue_write_ahead · OutboxWorker · guarantee · build_external)
+86:DEFAULT_MAX_DELIVERY_ATTEMPTS: Final[int] = 3
+1055:def enqueue_write_ahead(
+1211:class OutboxWorker:
+1350:            "claims_exactly_once": False,
+1351:            "guarantee": "AT_LEAST_ONCE_WITH_STABLE_IDEMPOTENCY_IDENTITY",
+1360:        kind=EffectKind.EXTERNAL,
+
+$ grep -n EXTERNAL core/sovereignty/contract.py
+72:    EXTERNAL = "EXTERNAL"
+89:    EffectKind.EXTERNAL: "نداءٌ خارجيّ",
+
+$ grep -n 'EffectKind(' federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py
+501:        kind=contract.EffectKind(kind), resource=resource, detail=detail
+
+$ sed -n '1041p;1058,1060p;1064p;1071,1074p' federal/executive/services/src/amos_federation/services/government_services/service.py
+    def process_case(
+            case.status = "processing"
+            case.updated_at = _now()
+            session.commit()
+        outcome = self._core.run(task_id, max_steps=max_steps)
+            case.review_state = final_state
+            case.status = "reviewed" if terminal else "processing"
+            case.updated_at = _now()
+            session.commit()
+
+# R-2 (قراءةُ شِفرةٍ لا تشغيلٌ):
+$ sed -n '331,347p;424,436p;477,485p;542,547p;561,567p' federal/executive/services/src/amos_federation/services/executive_core/engine.py
+    def advance(self, task_id: str) -> TransitionOutcome:
+        """خطوة واحدة حتمية في دورة حياة المهمّة، حسب حالتها الحالية."""
+        task = self._repo.require(task_id)
+        state = parse_state(task["status"])
+        if is_terminal(state):
+            raise ExecutionRefusedError(
+                f"المهمّة {task_id} في حالة نهائية ({state.value}) — لا تقدُّم بعدها"
+            )
+        if state is TaskState.CREATED:
+            return self._authorize_step(task)
+        if state is TaskState.AUTHORIZED:
+            return self._plan_step(task)
+        if state is TaskState.PLANNED:
+            return self._dispatch_step(task)
+        if state is TaskState.DISPATCHED:
+            return self._start_step(task)
+        return self._execute_step(task)
+    def _start_step(self, task: dict[str, Any]) -> TransitionOutcome:
+        """تثبيت بداية التنفيذ في القاعدة **قبل** تشغيل الوكيل.
+
+        الترتيب مقصود: مهمّة انقطع تنفيذها تُقرأ `executing` بعد إعادة التشغيل،
+        فيعرف الاسترداد أنها بدأت ولا يُعيد تشغيلها كأنها لم تبدأ.
+        """
+        return self._guarded_transition(
+            task["id"],
+            TaskState.DISPATCHED,
+            TaskState.EXECUTING,
+            "task.start",
+            detail={"agent_id": task["assigned_agent"], "started_at": _now()},
+        )
+        try:
+            outcome = self._runtime.dispatch(
+                task,
+                assignment,
+                authorization={
+                    "authorized_action": f"task.authorize.{task['type']}",
+                    "authorized_by": AUDIT_ACTOR,
+                },
+            )
+        return self._guarded_transition(
+            task_id,
+            TaskState.EXECUTING,
+            TaskState.COMPLETED,
+            "task.complete",
+            fields={"result": payload},
+    def run(self, task_id: str, max_steps: int = 8) -> dict[str, Any]:
+        """تقديم المهمّة حتى حالة نهائية أو حتى نفاد الخطوات المسموحة."""
+        outcomes: list[TransitionOutcome] = []
+        for _ in range(max_steps):
+            state = self._repo.state_of(task_id)
+            if is_terminal(state):
+                break
+
+# عدُّ الملفّاتِ على عقدةِ القياسِ الأصليّةِ 81b0071 (نقطةُ W-398) بالأمرِ نفسِه — لكلِّ ملفٍّ:
+# $ for f in compensation jurisdiction enforcement_boundary idempotency outbox contract crown; do git show 81b0071:core/sovereignty/$f.py | rg -n EXTERNAL | rg -v "ROOT_EXTERNAL_HUMAN|MANDATORY_EXTERNAL_STAGES|EXTERNAL_OUTBOX"; done
+# ⇒ مواضعُ القرارِ الثمانيةُ يومَها في 5 ملفّاتٍ (compensation · jurisdiction · enforcement_boundary ×4 · idempotency · outbox) — لا 6.
+# أدخلَ الموضعَ التاسعَ: 968e5ba4 2026-10-22 W-603: وصل التعويض الآلي في الحد (core/sovereignty/enforcement_boundary.py وحده · قرار ا�
