@@ -1,0 +1,27 @@
+قياساتُ افتتاحِ الجلسةِ — قيدُ W-658 (منفِّذٌ جديدٌ يستلمُ بالأمرِ الدائمِ · المنسِّقُ GLM-5.3)
+التاريخ: 2026-10-25 · العقدةُ المقيسةُ: main fd1a0c13e4336ee9a47206d81f7ba2871a1ac814
+
+[1] python tools/governance/check_work_governance.py --self-check
+    EXIT=0 · «✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.»
+    الإبلاغاتُ الوحيدةُ: POST_MERGE_NOT_CLOSED لأربعةِ بنودٍ (WI-103 · WI-109 · WI-110 · WI-112) — كلُّها بانتظارِ المالكِ لا بيدِ المنفِّذِ.
+
+[2] python tools/governance/check_work_governance.py --self-check --today 2026-10-29
+    EXIT=0 · لا مخالفةً ولا استحقاقًا منقضيًا ولا قادمًا داخلَ الأفقِ المقيَّسِ (نفسُ إبلاغاتِ [1]).
+
+[3] python tools/governance/truth_audit.py . --ratchet
+    الراتشيتُ ثابتٌ عند 61 مخالفةً (IN_MEMORY_STORE 59 · HARDCODED_TRUTH 2) · كُتبت TRUTH_MATRIX.md.
+
+[4] python tools/governance/state_document_drift.py
+    EXIT=0 · «✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ» — LEDGER_HEAD: W-657 (2026-10-25 · 655 صفًّا في § 8).
+
+[5] جردُ الفروعِ والطلباتِ (§ 2.8):
+    git ls-remote --heads origin ⇒ 169 رأسًا · gh pr list ⇒ 5 طلباتٍ مفتوحةٍ (73 · 71 · 70 · 69 · 55 — كلُّها تاريخٌ معروفٌ قبلَ main الحاليِ).
+    git branch -r --no-merged origin/main ⇒ 15 فرعًا غيرَ مدموجٍ (revert-72 · wi-082* · wi-085 · wi-086* · w-037 · w-038 · w-337 · w-360 · w-590 · w-591 · w-613-f1 · develop · work/w177) — أعلىُ الأرقامِ فيها (W-613/WI-086) دونَ main ومحتواها مُحسَمٌ عليه.
+    فروعُ الجلساتِ الجديدةُ منذَ جردِ W-648 (w-648-n1-session · w-649-d23-decided · w-653-wi084-verdicts · w-654-n1-d24-correction · w-657-n1-pr145) كلُّها مدموجةٌ في main.
+    ⇒ لا خطًّا موازيًا يحملُ قيدًا أو بندًا أعلى من main.
+
+[6] حكمُ CI (N+1) على رأسِ main fd1a0c13:
+    التشغيلُ 40156294731 (main · push · AMOS-Federation CI): READABLE · 13/13 وظيفةً · أخضرُ · على العقدةِ نفسِها (الخرجُ في ci_verdict_main_fd1a0c13_40156294731.txt · الحملُ في ci_jobs_main_fd1a0c13_40156294731.api.json).
+    وتشغيلُ «مصفوفةُ الحقيقةِ المولَّدة» 40156294694 على العقدةِ نفسِها: success (لا يُقرأُ حكمًا للدمجِ — توليدٌ آليٌّ).
+
+[7] bootstrap: bash tools/dev/bootstrap.sh ⇒ ✓ (البيئةُ جاهزةٌ · الخطّافُ مثبَّتٌ).
