@@ -1,0 +1,339 @@
+# قياساتُ تصميمِ WI-114 — على HEAD cb728386cfcdd59ae2c7e7a0cc3ce0f9bdde3083 (أساسُها main 4fc5dc03 + دفعةُ W-660…W-663 الورقيّةُ: لا مساسَ بالشِّفرةِ)
+# كلُّ مقطعٍ: الأمرُ ثمَّ مخرجُه خامًا (DISC-136)
+
+$ rg -n 'def |set_level|\.reset\(\)|\.create\(|save_gates' federal/executive/services/src/amos_federation/services/governance/canary.py
+31:def _system_state_store() -> Any:
+45:def get_system_status() -> dict[str, Any]:
+50:def activate_kill_switch(level: str, reason: str, activated_by: str) -> dict[str, Any]:
+54:    state = _system_state_store().set_level(level, reason, activated_by)
+71:def reset_kill_switch() -> dict[str, Any]:
+73:    return _system_state_store().reset()
+76:def is_system_halted() -> bool:
+81:def is_execution_blocked(tool: str | None = None) -> bool:
+89:def enforce_kill_switch(tool: str, role: str = "user") -> dict[str, Any]:
+137:def _promotion_store() -> Any:
+147:def create_promotion(model_id: str) -> dict[str, Any]:
+157:    _promotion_store().create(promotion)
+161:def check_gate(promotion_id: str, gate_name: str, passed: bool, notes: str = "") -> dict[str, Any]:
+182:    updated = store.save_gates(promotion_id, gates, status, datetime.now(UTC).isoformat())
+188:def get_promotion(promotion_id: str) -> dict[str, Any] | None:
+193:def list_promotions(limit: int = 50) -> list[dict[str, Any]]:
+206:def create_canary(model_id: str, traffic_percentage: int = 5) -> dict[str, Any]:
+228:def update_canary_metrics(
+249:def rollback_canary(canary_id: str) -> dict[str, Any]:
+259:def get_canary(canary_id: str) -> dict[str, Any] | None:
+267:def list_canaries(limit: int = 50) -> list[dict[str, Any]]:
+
+$ rg -n 'require_auth|reset_kill_switch\(|_activate_kill_switch_safe\(|activate_kill_switch\(|create_promotion\(|check_gate\(|activated_by|_append_audit\(' federal/executive/services/src/amos_federation/services/governance/main.py
+14:from amos_federation.common.auth import require_auth
+41:def _append_audit(action: str, actor: str, details: dict[str, Any]) -> dict[str, Any]:
+70:    activated_by: str = Field(min_length=1)
+108:    _: Annotated[dict[str, object], Depends(require_auth)],
+117:    _: Annotated[dict[str, object], Depends(require_auth)],
+121:    _append_audit("policy_check", "system", result)
+130:    _: Annotated[dict[str, object], Depends(require_auth)],
+137:async def activate_kill_switch(
+139:    _: Annotated[dict[str, object], Depends(require_auth)],
+142:    result = _activate_kill_switch_safe(request.level, request.reason, request.activated_by)
+143:    _append_audit("kill_switch_activated", request.activated_by, result)
+149:    _: Annotated[dict[str, object], Depends(require_auth)],
+152:    result = reset_kill_switch()
+153:    _append_audit("kill_switch_reset", "system", result)
+157:def _activate_kill_switch_safe(level: str, reason: str, activated_by: str) -> dict[str, Any]:
+161:    return activate_kill_switch(level, reason, activated_by)
+170:    _: Annotated[dict[str, object], Depends(require_auth)],
+173:    promo = create_promotion(request.model_id)
+174:    _append_audit("promotion_created", "system", {"model_id": request.model_id})
+180:    _: Annotated[dict[str, object], Depends(require_auth)],
+190:    _: Annotated[dict[str, object], Depends(require_auth)],
+203:    _: Annotated[dict[str, object], Depends(require_auth)],
+207:        result = check_gate(promotion_id, request.gate_name, request.passed, request.notes)
+210:    _append_audit(
+228:    _: Annotated[dict[str, object], Depends(require_auth)],
+232:    _append_audit("canary_created", "system", {"model_id": request.model_id})
+238:    _: Annotated[dict[str, object], Depends(require_auth)],
+248:    _: Annotated[dict[str, object], Depends(require_auth)],
+261:    _: Annotated[dict[str, object], Depends(require_auth)],
+274:    _append_audit(
+283:    _: Annotated[dict[str, object], Depends(require_auth)],
+290:    _append_audit("canary_rollback", "system", {"canary_id": canary_id})
+299:    _: Annotated[dict[str, object], Depends(require_auth)],
+308:    _: Annotated[dict[str, object], Depends(require_auth)],
+319:    _: Annotated[dict[str, object], Depends(require_auth)],
+331:    _: Annotated[dict[str, object], Depends(require_auth)],
+342:    _: Annotated[dict[str, object], Depends(require_auth)],
+355:    _: Annotated[dict[str, object], Depends(require_auth)],
+363:    _: Annotated[dict[str, object], Depends(require_auth)],
+374:    _append_audit("policy.evaluate", "system", result)
+380:    _: Annotated[dict[str, object], Depends(require_auth)],
+388:    _append_audit("tool.access_check", role, {"tool": tool, "result": result})
+
+$ rg -n 'require_auth|require_role|require_king|canary import|_activate\(|reset_kill_switch\(|@router' federal/executive/services/src/amos_federation/services/control_console/main.py
+15:from amos_federation.common.auth import require_auth
+25:@router.get("/dashboard", response_model=dict)
+27:    _: Annotated[dict[str, object], Depends(require_auth)],
+38:    from amos_federation.services.governance.canary import get_system_status
+102:@router.get("/agents", response_model=list[dict])
+104:    _: Annotated[dict[str, object], Depends(require_auth)],
+113:@router.get("/agents/{agent_id}", response_model=dict)
+116:    _: Annotated[dict[str, object], Depends(require_auth)],
+133:@router.post("/agents/{agent_id}/state", response_model=dict)
+137:    _: Annotated[dict[str, object], Depends(require_auth)],
+163:@router.get("/audit", response_model=list[dict])
+165:    _: Annotated[dict[str, object], Depends(require_auth)],
+174:@router.get("/audit/verify", response_model=dict)
+176:    _: Annotated[dict[str, object], Depends(require_auth)],
+195:@router.post("/kill-switch", response_model=dict)
+198:    _: Annotated[dict[str, object], Depends(require_auth)],
+202:    from amos_federation.services.governance.canary import activate_kill_switch as _activate
+204:    result = _activate(request.level, request.reason, request.activated_by)
+209:@router.post("/kill-switch/reset", response_model=dict)
+210:async def reset_kill_switch(
+211:    _: Annotated[dict[str, object], Depends(require_auth)],
+214:    from amos_federation.services.governance.canary import reset_kill_switch
+216:    return reset_kill_switch()
+231:@router.post("/approval", response_model=dict)
+234:    _: Annotated[dict[str, object], Depends(require_auth)],
+264:@router.get("/cost", response_model=dict)
+266:    _: Annotated[dict[str, object], Depends(require_auth)],
+277:@router.get("/events", response_model=list[dict])
+279:    _: Annotated[dict[str, object], Depends(require_auth)],
+292:@router.get("/health/agents/{agent_id}", response_model=dict)
+295:    _: Annotated[dict[str, object], Depends(require_auth)],
+315:@router.get("/health/all", response_model=list[dict])
+317:    _: Annotated[dict[str, object], Depends(require_auth)],
+341:@router.post("/health/check", response_model=dict)
+343:    _: Annotated[dict[str, object], Depends(require_auth)],
+355:@router.get("/health/isolations", response_model=list[dict])
+357:    _: Annotated[dict[str, object], Depends(require_auth)],
+365:@router.post("/health/isolate/{agent_id}", response_model=dict)
+368:    _: Annotated[dict[str, object], Depends(require_auth)],
+377:@router.post("/health/treat/{agent_id}", response_model=dict)
+380:    _: Annotated[dict[str, object], Depends(require_auth)],
+390:@router.post("/health/release/{isolation_id}", response_model=dict)
+393:    _: Annotated[dict[str, object], Depends(require_auth)],
+405:@router.get("/approvals", response_model=list[dict])
+407:    _: Annotated[dict[str, object], Depends(require_auth)],
+415:@router.get("/legislations", response_model=list[dict])
+417:    _: Annotated[dict[str, object], Depends(require_auth)],
+425:@router.get("/court-cases", response_model=list[dict])
+427:    _: Annotated[dict[str, object], Depends(require_auth)],
+435:@router.get("/compliance-reports", response_model=list[dict])
+437:    _: Annotated[dict[str, object], Depends(require_auth)],
+445:@router.get("/executive-roles", response_model=list[dict])
+447:    _: Annotated[dict[str, object], Depends(require_auth)],
+458:@router.get("/treasury/balance", response_model=dict)
+460:    _: Annotated[dict[str, object], Depends(require_auth)],
+469:@router.get("/treasury/transactions", response_model=list[dict])
+471:    _: Annotated[dict[str, object], Depends(require_auth)],
+480:@router.get("/treasury/verify", response_model=dict)
+482:    _: Annotated[dict[str, object], Depends(require_auth)],
+490:@router.post("/treasury/reward", response_model=dict)
+492:    _: Annotated[dict[str, object], Depends(require_auth)],
+503:@router.post("/treasury/charge", response_model=dict)
+505:    _: Annotated[dict[str, object], Depends(require_auth)],
+516:@router.get("/treasury/reports", response_model=list[dict])
+518:    _: Annotated[dict[str, object], Depends(require_auth)],
+526:@router.post("/treasury/report", response_model=dict)
+528:    _: Annotated[dict[str, object], Depends(require_auth)],
+541:@router.get("/expansion/stats", response_model=dict)
+543:    _: Annotated[dict[str, object], Depends(require_auth)],
+551:@router.post("/expansion/run", response_model=dict)
+553:    _: Annotated[dict[str, object], Depends(require_auth)],
+562:@router.get("/specialization/tracks", response_model=dict)
+564:    _: Annotated[dict[str, object], Depends(require_auth)],
+572:@router.post("/specialization/enroll", response_model=dict)
+574:    _: Annotated[dict[str, object], Depends(require_auth)],
+584:@router.post("/specialization/exam", response_model=dict)
+586:    _: Annotated[dict[str, object], Depends(require_auth)],
+597:@router.get("/university/outputs", response_model=list[dict])
+599:    _: Annotated[dict[str, object], Depends(require_auth)],
+609:@router.post("/university/produce", response_model=dict)
+611:    _: Annotated[dict[str, object], Depends(require_auth)],
+619:@router.get("/retirement/list", response_model=list[dict])
+621:    _: Annotated[dict[str, object], Depends(require_auth)],
+629:@router.post("/retirement/retire", response_model=dict)
+631:    _: Annotated[dict[str, object], Depends(require_auth)],
+644:@router.get("/ui", response_class=HTMLResponse)
+
+$ sed -n 80,130p federal/executive/services/src/amos_federation/common/auth.py
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="رمز الوصول غير صالح أو منتهي",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from error
+
+
+def require_auth(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_security)] = None,
+) -> dict[str, Any]:
+    """اعتماد FastAPI يرفض الطلبات التي لا تحمل رمز Bearer صالحاً."""
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="رمز Bearer مطلوب",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return decode_token(credentials.credentials)
+
+
+def require_role(*roles: str):
+    """اعتماد يتطلب دوراً محدداً أو أكثر. الملك له صلاحيات مطلقة."""
+
+    def checker(
+        credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_security)] = None,
+    ) -> dict[str, Any]:
+        token_data = require_auth(credentials)
+        user_role = token_data.get("role", ROLE_CITIZEN)
+        if user_role == ROLE_KING:
+            return token_data
+        if user_role not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"الدور المطلوب: {roles} — دورك الحالي: {user_role}",
+            )
+        return token_data
+
+    return checker
+
+
+def require_king(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_security)] = None,
+) -> dict[str, Any]:
+    """اعتماد يتطلب دور المالك/الملك فقط."""
+    token_data = require_auth(credentials)
+    if token_data.get("role") != ROLE_KING:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="هذا الإجراء يتطلب صلاحيات المالك/الملك",
+        )
+    return token_data
+
+$ rg -n 'ROLE_[A-Z]+ *=' federal/executive/services/src/amos_federation/common
+federal/executive/services/src/amos_federation/common/auth.py:21:ROLE_KING = "king"  # المالك المطلق — صلاحيات غير محدودة
+federal/executive/services/src/amos_federation/common/auth.py:23:ROLE_ADMIN = "admin"  # مدير — صلاحيات تنفيذية واسعة
+federal/executive/services/src/amos_federation/common/auth.py:24:ROLE_AGENT = "agent"  # وكيل — صلاحيات محدودة
+federal/executive/services/src/amos_federation/common/auth.py:25:ROLE_CITIZEN = "citizen"  # مواطن — وصول للقراءة فقط
+
+$ rg -n 'HUMAN_GATED_ACTIONS|KILL_SWITCH_TAMPER_ACTIONS|lower_kill_switch|activate_kill_switch|promote_model' core/constitutional_engine/rules.py
+131:HUMAN_GATED_ACTIONS = frozenset({
+132:    "promote_model", "replicate", "spawn_population", "launch_production",
+149:KILL_SWITCH_TAMPER_ACTIONS = frozenset({
+226:    if req.action in HUMAN_GATED_ACTIONS and not req.human_approved:
+422:    if req.action in KILL_SWITCH_TAMPER_ACTIONS:
+435:    if req.actor is Branch.HUMAN and req.action in {"restore_service", "restart", "lower_kill_switch"}:
+448:    if req.action in {"restart", "restore_service", "lower_kill_switch"} and not req.human_approved:
+
+$ sed -n 222,232p core/constitutional_engine/rules.py
+# ===========================================================================
+
+def _r001_1(req: ActionRequest) -> str | None:
+    """الإنسان هو السلطة العليا: لا ترقية، لا تكرار، لا إطلاق دون موافقة بشرية."""
+    if req.action in HUMAN_GATED_ACTIONS and not req.human_approved:
+        return (
+            f"الفعل «{req.action}» يمس الترقية أو التكاثر أو الإطلاق، "
+            "ولا يجوز تنفيذه دون موافقة بشرية صريحة (human_approved=True)."
+        )
+    return None
+
+
+$ sed -n 440,451p core/constitutional_engine/rules.py
+                f"زر التوقف عند المستوى {level}، والفعل «{req.action}» "
+                f"مُجمَّد ابتداءً من المستوى {lvl}."
+            )
+    return None
+
+
+def _r008_3(req: ActionRequest) -> str | None:
+    """إعادة التشغيل تتطلب موافقة صريحة."""
+    if req.action in {"restart", "restore_service", "lower_kill_switch"} and not req.human_approved:
+        return f"«{req.action}» بعد توقف طارئ يتطلب موافقة بشرية صريحة."
+    return None
+
+
+$ rg -n 'human_approved|human_signature' core/constitutional_engine/model.py
+79:    human_approved: bool = False
+80:    human_signature: str | None = None       # توقيع Ed25519 (المادة الخامسة)
+
+$ sed -n 298,316p federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py
+    def _request(self, action: str, target: str, metadata: dict[str, Any] | None):
+        self._ensure_core_importable()
+        from core.constitutional_engine.model import ActionRequest, Branch
+
+        try:
+            actor = Branch[self._actor] if isinstance(self._actor, str) else self._actor
+        except KeyError as exc:
+            # فاعلٌ لا وجودَ له في الدستورِ ليس خطأً يُصحَّحُ بافتراضٍ: الافتراضُ
+            # هنا يُنفِّذُ بصلاحيةِ فرعٍ لم يُقصَد. فالرفضُ صريحٌ قبلَ أيِّ طلب.
+            raise SovereigntyUnavailableError(
+                f"فاعلٌ غيرُ معروفٍ في الدستور «{self._actor}» — لا يُفترَضُ فرعٌ بديل"
+            ) from exc
+        return ActionRequest(
+            actor=actor,
+            action=action,
+            target=target,
+            channel=self._channel,
+            metadata=dict(metadata or {}),
+        )
+
+$ rg -n 'human_approved' federal --glob '*.py'; echo "(rg exit: $?)"
+(rg exit: 1)
+
+$ rg -n 'set_level|\.reset\(|PromotionStore|create_promotion|reset_kill_switch' tools/ops/pg_backup_restore.py
+16:    (`PersistentSystemStateStore` · `PersistentPromotionStore`) لا بـSQL خامٍ.
+268:    written_halt = state_store.set_level(
+271:    promo_store = persistent.PersistentPromotionStore()
+296:    promo = persistent.PersistentPromotionStore()
+
+$ rg -c 'reset_kill_switch\(' federal/executive/services/tests tests | sort
+federal/executive/services/tests/conftest.py:1
+federal/executive/services/tests/test_control_console.py:2
+federal/executive/services/tests/test_expansion.py:2
+federal/executive/services/tests/test_federation.py:2
+federal/executive/services/tests/test_governance.py:1
+federal/executive/services/tests/test_governance_phase3.py:16
+federal/executive/services/tests/test_health_system.py:2
+federal/executive/services/tests/test_phase3_governance.py:7
+federal/executive/services/tests/test_real_tools.py:2
+federal/executive/services/tests/test_step19_durable_governance_state.py:1
+federal/executive/services/tests/test_treasury.py:2
+
+$ rg -n 'canary|kill_switch|promot' tools/audit/sovereign_write_inventory.py; echo "(rg exit: $?)"
+(rg exit: 1)
+
+$ rg -n 'signed_by|signature_pending|def sign_approval' federal/executive/services/src/amos_federation/services/control_console/main.py
+226:    signed_by: str = Field(min_length=1)
+232:async def sign_approval(
+244:        "signed_by": request.signed_by,
+247:        "signature_pending": True,  # سيُوقّع بـ Ed25519 في المرحلة 9
+249:    PersistentAuditStore().append("approval.signed", request.signed_by, result)
+255:            "signed_by": request.signed_by,
+
+$ rg -n 'lower_kill_switch|activate_kill_switch|raise_kill_switch|promote_model' core --glob '*.py'
+core/constitutional_engine/rules.py:132:    "promote_model", "replicate", "spawn_population", "launch_production",
+core/constitutional_engine/rules.py:435:    if req.actor is Branch.HUMAN and req.action in {"restore_service", "restart", "lower_kill_switch"}:
+core/constitutional_engine/rules.py:448:    if req.action in {"restart", "restore_service", "lower_kill_switch"} and not req.human_approved:
+
+$ cat /tmp/probe114.py   # مسبارُ مراجعةٍ بلا تنفيذٍ عبرَ الجسرِ القائمِ (review_only)
+from amos_federation.services.executive_core.sovereignty_bridge import ConstitutionalAuthorizer
+for actor in ("EXECUTIVE","HUMAN"):
+    a=ConstitutionalAuthorizer(actor=actor)
+    for act in ("lower_kill_switch","promote_model","activate_kill_switch","downgrade_kill_switch"):
+        try:
+            ev=a.review_only(act,"governance/system_state",{})
+            print(actor,act,"->",ev.decision, ev.advisory_violations)
+        except Exception as e:
+            print(actor,act,"-> RAISED",type(e).__name__, str(e)[:160])
+
+$ (cd federal/executive/services && AMOS_EXECUTIVE_IDEMPOTENCY_LEDGER=/tmp/l.json python /tmp/probe114.py)
+EXECUTIVE lower_kill_switch -> DENY ()
+EXECUTIVE promote_model -> DENY ()
+EXECUTIVE activate_kill_switch -> ALLOW ()
+EXECUTIVE downgrade_kill_switch -> DENY ()
+HUMAN lower_kill_switch -> DENY ()
+HUMAN promote_model -> DENY ()
+HUMAN activate_kill_switch -> ALLOW ()
+HUMAN downgrade_kill_switch -> DENY ()
+
+$ rg -n 'KILL_SWITCH_BLOCKS:' core/constitutional_engine/rules.py
+155:KILL_SWITCH_BLOCKS: dict[int, frozenset[str]] = {
