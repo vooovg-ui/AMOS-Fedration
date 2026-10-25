@@ -1,0 +1,31 @@
+# قياسُ استحالةِ جمعِ أحكامِ جولةِ W-677 (إطلاقُ ستِّ جلساتِ مقاعدٍ على WI-113/WI-115) — قيدُ W-678 · 2026-10-25
+
+## 1) جردُ دليلِ W-677 على رأسِ الفرعِ (dae5725f) — لا أحكامَ مقاعدٍ
+
+$ ls -la docs/audit/evidence/W-677/
+total 140
+drwxr-xr-x    2 user user  4096 Oct 25 22:57 .
+drwxr-xr-x  143 user user  4096 Oct 25 23:00 ..
+-rw-r--r--    1 user user  4328 Oct 25 22:57 README.md
+-rw-r--r--    1 user user 53973 Oct 25 22:57 ci_jobs_main_40188083808.api.json
+-rw-r--r--    1 user user 54143 Oct 25 22:57 ci_jobs_pr153_40186927986.api.json
+-rw-r--r--    1 user user   671 Oct 25 22:57 ci_verdict_main.txt
+-rw-r--r--    1 user user   671 Oct 25 22:57 ci_verdict_pr153.txt
+-rw-r--r--    1 user user  3286 Oct 25 22:57 session_measurements.txt
+
+$ find docs/audit/evidence/W-677 -name 'VERDICT*' -o -name 'verdicts' | wc -l
+0
+
+## 2) جذورُ مقاعدِ الجولةِ (council_w673) غيرُ موجودةٍ في بيئةِ العملِ (البيئةُ مؤقتةٌ — الأمرُ الدائمُ § 5)
+
+$ ls -la /home/user/workspace/council_w673 2>&1
+ls: cannot access '/home/user/workspace/council_w673': No such file or directory
+
+$ find /home/user/workspace -maxdepth 4 -name 'VERDICT.md' 2>/dev/null | wc -l
+0
+
+## 3) قائمةُ الجلساتِ المتاحةِ للمنسِّقِ الحاضرِ لا تشملُ جلسةَ الإطلاقِ (لا استعادةَ لمخرجاتِها عبرَها)
+
+قياسٌ بأداةِ الجلساتِ (session_list): sessions: [] — فارغةٌ (النصُّ الخامُّ للقياسِ في هذا الملفِّ أعلاه)
+
+## الحدُّ المُعلَنُ (لا يُطوى): عدمُ الوجودِ هنا لا يُثبِتُ قطعًا أنَّ الجولةَ لم تكتملْ في جلستِها — لكنَّهُ يُثبِتُ أنَّها غيرُ قابلةٍ للجمعِ في هذهِ الجلسةِ، والجمعُ في جلسةِ الإطلاقِ نفسِها شرطُ الاحتسابِ (Q-72 · § 8 البندُ 4) فلم يُودَعْ حكمٌ واحدٌ في المستودعِ ⇒ لا حكمَ يُعتمَدُ ولا انتقالَ حالةٍ بأحكامِها ⇒ إعادةُ الإطلاقِ واجبةٌ بالإحاطاتِ المبصومةِ نفسِها (لا تُعدَّلُ بعدَ الختمِ — سابقةُ W-644) وبالترتيبِ الجديدِ الذي فرضَهُ المالكُ (جولةٌ واحدةٌ تاليةً).
