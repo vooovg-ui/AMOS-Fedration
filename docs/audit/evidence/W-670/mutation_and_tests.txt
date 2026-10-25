@@ -1,0 +1,22 @@
+# WI-115 · إصلاحُ § 3.5 — فحصُه وطفرتُه
+
+## الفحصُ بعدَ الإصلاح
+$ cd federal/executive/services && python -m pytest -q -p no:cacheprovider tests/test_wi115_reversed_replay.py tests/test_r7b_state_treasury.py tests/test_treasury.py
+======================== 70 passed, 1 warning in 10.39s ========================
+
+## M3 — شرطُ الحالةِ يُستبدَلُ بـ`if False:` في `_existing_idempotent`
+$ python -m pytest -q tests/test_wi115_reversed_replay.py
+E   Failed: DID NOT RAISE EntityStateError
+=========================== short test summary info ============================
+FAILED tests/test_wi115_reversed_replay.py::test_replay_of_reversed_disbursement_is_refused
+========================= 1 failed, 1 passed in 1.12s ==========================
+
+$ cmp /tmp/mut/svc.py src/amos_federation/services/state_treasury/service.py && echo restored
+restored
+
+## الحزمةُ الكاملةُ للخدماتِ بعدَ الإصلاح (لقياسِ رقمِ الحزمةِ المكتوبِ في PROJECT_HANDBOOK)
+$ cd federal/executive/services && python -m pytest tests -q -p no:cacheprovider
+=========== 1525 passed, 53 skipped, 1 warning in 233.64s (0:03:53) ============
+
+$ python -m pytest tests/ --collect-only -q -p no:cacheprovider   # من الجذر
+2727 tests collected

@@ -835,9 +835,15 @@ class StateTreasury:
     def _existing_idempotent(
         self, session, context: AuthorizationContext, idempotency_key: str | None
     ) -> TransactionModel | None:
+        """الحركةُ السابقةُ بالمفتاحِ نفسِه — أو لا شيء.
+
+        WI-115 (Q-9 § 3.5): حركةٌ معكوسةٌ لا تُعادُ «نجاحًا متطابقًا». كانت تُعادُ بـ
+        `idempotent=True` وحالتُها `reversed`، فيحسبُ المُنادي مالًا صُرِفَ وهو مردود.
+        والصرفُ الجديدُ يلزمُه مفتاحٌ جديد — فلا تُنشأُ هنا حركةٌ ولا تُبتلَعُ الإعادة.
+        """
         if not idempotency_key:
             return None
-        return (
+        existing = (
             session.query(TransactionModel)
             .filter(
                 TransactionModel.tenant_id == self._tenant_of(context),
@@ -845,6 +851,12 @@ class StateTreasury:
             )
             .first()
         )
+        if existing is not None and existing.status == "reversed":
+            raise EntityStateError(
+                f"الحركةُ بالمفتاحِ '{idempotency_key}' معكوسةٌ — لا تُعادُ نجاحًا ولا صرفًا؛"
+                " صرفٌ جديدٌ يلزمُه مفتاحٌ جديد"
+            )
+        return existing
 
     # ── 1. تأسيس خزانة ────────────────────────────────────────────────────
 
