@@ -1,0 +1,8 @@
+E             والإصلاحُ توليدٌ لا تحريرٌ بيدٍ: `python tools/governance/in_memory_inventory.py .`
+E       assert False
+
+tests/governance/test_step17_in_memory_stores.py:361: AssertionError
+=========================== short test summary info ============================
+FAILED tests/governance/test_q3_branch_declaration_surface.py::test_production_authorizer_sites_split_eight_declared_four_defaulted
+FAILED tests/governance/test_step17_in_memory_stores.py::test_published_measurement_is_not_stale
+2 failed in 0.61s

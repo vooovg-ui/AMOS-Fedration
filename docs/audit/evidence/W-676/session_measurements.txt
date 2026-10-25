@@ -1,0 +1,10 @@
+قياساتُ جلسةِ W-676 (منفِّذٌ جديدٌ يستلمُ بالأمرِ الدائمِ · GLM-5.3 — Perplexity Computer)
+
+1) إعادةُ إنتاجِ الحمرةِ محليًا قبلَ الإصلاحِ: local_repro_before.txt — الفحصانِ الأحمرانِ (test_q3 · test_step17)
+2) الفحوصُ بعدَ الإصلاحِ: tests_after.txt — 37 ناجحًا (ملفا الفحصِ كاملَينِ)
+3) truth_audit.py: 12 إقليمًا · 0 مُثبَتة · 61 مخالفةً (IN_MEMORY_STORE 59 · HARDCODED_TRUTH 2) — الراتشيتُ ثابتٌ
+4) check_repository_identity.py .: نجح — كلُّ مجلدٍ يحملُ بطاقةَ هويةٍ
+5) check_work_governance.py --self-check و--today 2026-10-29: 0 مخالفةً (إبلاغاتُ POST_MERGE_NOT_CLOSED فقط)
+6) state_document_drift.py: ✓ لا انحرافَ (LEDGER_HEAD W-675 قبلَ قيدِ هذه الدفعة)
+7) in_memory_inventory.py: أُعيدَ التوليدُ — فرقٌ وحيدٌ: سطرُ _canary_deployments في canary.py 203←396
+8) open_record_accountability.py: لا سجلًّا مفتوحًا بلا مرسًى (خروجٌ 0)

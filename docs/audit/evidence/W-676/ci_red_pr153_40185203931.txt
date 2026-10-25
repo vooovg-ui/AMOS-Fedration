@@ -1,0 +1,30 @@
+حكمُ CI على رأسِ فرعِ PR #153 (الالتزامُ 06d9884b) — التشغيلُ 40185203931 (pull_request):
+READABLE · 13/13 وظيفةً نُفِّذَت · أحمرُ في ثلاثِ وظائفِ (جذرٌ واحدٌ):
+
+- Identity Law (job 121144425157):
+  FAILED test_q3_branch_declaration_surface.py::test_production_authorizer_sites_split_eight_declared_four_defaulted
+    assert len(sites["declared"]) == 8
+    E  assert 9 == 8
+    ...     "canary.py:59  ..."   (المصرِّحُ التاسعُ المُعلَنُ — شِفرةُ W-675)
+  FAILED test_step17_in_memory_stores.py::test_published_measurement_is_not_stale
+    القياسُ المنشورُ متقادمٌ (in_memory_inventory.json): لا يُطابِقُ قياسًا طازجًا من المصدر
+
+- Truth Audit (job 121144425249):
+  [IN-MEMORY INVENTORY --check] failure
+  assert ok, message  →  القياسُ المنشورُ متقادمٌ — والإصلاحُ توليدٌ لا تحريرٌ بيدٍ
+
+- Cross-System Suites / root-core (job 121145436288):
+  FAILED test_q3_branch_declaration_surface.py::test_production_authorizer_sites_split_eight_declared_four_defaulted
+  FAILED test_step17_in_memory_stores.py::test_published_measurement_is_not_stale
+
+التشخيصُ (جذرٌ واحدٌ): شِفرةُ W-675 (WI-114) أضافتْ في canary.py مُصرِّحًا مُعلَنًا
+تاسعًا (المفوِّضُ الكسولُ _canary_authorizer عند السطرِ 59) ونقلتْ موضعَ
+_canary_deployments من السطرِ 203 إلى 396 — فسقطَ مُثبَّتُ test_q3 (8 المكتوبُ
+مقابلَ 9 المقيسِ) وتقادمتْ لقطةُ in_memory_inventory.json — تعليلُ لقطاتِ قياسٍ
+وجّهها حرقُ D-4 نفسُه في W-675 لا عيبًا في شِفرتِها (نمطُ W-626/W-645).
+
+الإصلاحُ (بالآليةِ المقيَّدةِ · سابقةُ W-402/W-535/W-626 — تحديثُ المُثبَّتِ بالمقيسِ
+لا تخفيفُ فحصٍ):
+(1) مُثبَّتُ test_q3: 8 ← 9 بإضافةٍ مؤرَّخةٍ (canary.py في قائمةِ الملفاتِ المعلنةِ)
+(2) in_memory_inventory.json: أُعيدَ توليدُها بأمرِها (python tools/governance/in_memory_inventory.py .)
+لا force-push: التزامٌ فوقَ 06d9884b في الفرعِ نفسِه (w-675-wi114-code).

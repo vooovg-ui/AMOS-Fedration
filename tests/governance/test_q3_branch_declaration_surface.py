@@ -272,9 +272,12 @@ def test_bridge_actor_is_declared_parameter_defaulting_to_executive() -> None:
     assert isinstance(default, ast.Name) and default.id == "DEFAULT_ACTOR"
 
 
-# ── 4. مواضعُ بناءِ المُصرِّحِ: ثمانيةٌ تُعلِنُ فاعلَها وأربعةٌ تتَّكِلُ على الافتراض ──
+# ── 4. مواضعُ بناءِ المُصرِّحِ: تسعةٌ تُعلِنُ فاعلَها وأربعةٌ تتَّكِلُ على الافتراض ──
 def test_production_authorizer_sites_split_eight_declared_four_defaulted() -> None:
-    """(محدّثة في W-625 · WI-107/R1): المُصرِّحُ الثامنُ المُعلِنُ فاعلَهُ — المُفوِّضُ
+    """(محدّثة في W-676 · تصحيحُ حمرةِ CI على PR #153): المُصرِّحُ التاسعُ المُعلِنُ فاعلَهُ —
+    المُفوِّضُ الكسولُ في governance/canary.py (CANARY_ACTOR · بالفعلِ activate_kill_switch ·
+    شِفرةُ W-675 · WI-114 السطحانِ 1 و3) — تحديثُ المُثبَّتِ بالمقيسِ لا تخفيفُ فحصٍ
+    (سابقةُ W-402/W-535/W-626). (محدّثة في W-625 · WI-107/R1): المُصرِّحُ الثامنُ المُعلِنُ فاعلَهُ — المُفوِّضُ
     الوطنيُّ الكسولُ في national_registry/service.py (REGISTRY_ACTOR="EXECUTIVE" · بالفعلِ
     register · ملحقُ التصميمِ docs/audit/R1_NATIONAL_REGISTRY_REGISTER_DESIGN.md الملتزَمُ في
     W-623 قبلَ الشِّفرةِ · بقرارِ المالكِ D17-3 خيارِ 1) على سابقةِ federation.py نفسِها.
@@ -287,10 +290,11 @@ def test_production_authorizer_sites_split_eight_declared_four_defaulted() -> No
     Q-69/D17-6) — على سابقةِ factories.py نفسِها، لا هروبًا من الإعلانِ. والافتراضيّةُ
     الأربعُ كما هي. (وكانت خمسةً بعدَ WI-082 · W-402.)"""
     sites = _authorizer_construction_sites()
-    assert len(sites["declared"]) == 8, sites["declared"]
+    assert len(sites["declared"]) == 9, sites["declared"]
     assert len(sites["defaulted"]) == 4, sites["defaulted"]
     assert sorted(Path(p.split(":")[0]).name for p in sites["declared"]) == [
         "agent_identity.py",
+        "canary.py",
         "factories.py",
         "factories.py",
         "federation.py",
