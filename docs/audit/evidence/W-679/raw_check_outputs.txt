@@ -1,0 +1,60 @@
+# مخرجاتُ الفاحصِ council_verdict_raw_check.py على أحكامِ جولةِ WI-113 — قيدُ W-679 · 2026-10-25 · رموزُ الخروجِ الحقيقيةُ مقيسةً (لا حالةَ tail)
+
+## التشغيلُ بـ--repo وحدَها (على استنساخِ كلِّ مقعدٍ)
+
+$ (في استنساخِ gemini) council_verdict_raw_check.py --repo . .../gemini_3_8_flash/wi113/VERDICT.md
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/council_w673/gemini_3_8_flash/wi113/VERDICT.md · أوامرُ 17 · كتلُ RAW 17
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+$ (في استنساخِ grok) council_verdict_raw_check.py --repo . .../grok_4_7/wi113/VERDICT.md
+[RAW CHECK] ✗ مرفوضٌ: /home/user/workspace/council_w673/grok_4_7/wi113/VERDICT.md · أوامرُ 20 · كتلُ RAW 20
+  - R5 [10] SHA256 لا يطابقُ المخرجَ المكتوبَ — مخرجٌ مُقتطَعٌ أو مُحرَّر
+[RAW CHECK] ✗ 1 حكمًا مرفوضًا — لا يُحتسَبُ في النصاب (البروتوكولُ § 4.7)
+EXIT=1
+
+$ (في استنساخِ kimi) council_verdict_raw_check.py --repo . .../kimi_k3/wi113/VERDICT.md
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/council_w673/kimi_k3/wi113/VERDICT.md · أوامرُ 20 · كتلُ RAW 20
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+## التشغيلُ بـ--brief و--repo معًا (نصُّ § 4.7 · الإحاطةُ المبصومةُ W-673)
+
+$ council_verdict_raw_check.py --brief briefing_gemini_3_8_flash.md --repo . .../gemini_3_8_flash/wi113/VERDICT.md
+[RAW CHECK] ✗ مرفوضٌ: /home/user/workspace/council_w673/gemini_3_8_flash/wi113/VERDICT.md · أوامرُ 17 · كتلُ RAW 17
+  - R7 لم يُعثَرْ على أوامرَ في القسمِ «ج» منَ الإحاطة
+[RAW CHECK] ✗ 1 حكمًا مرفوضًا — لا يُحتسَبُ في النصاب (البروتوكولُ § 4.7)
+EXIT=1
+
+$ council_verdict_raw_check.py --brief briefing_grok_4_7.md --repo . .../grok_4_7/wi113/VERDICT.md
+[RAW CHECK] ✗ مرفوضٌ: /home/user/workspace/council_w673/grok_4_7/wi113/VERDICT.md · أوامرُ 20 · كتلُ RAW 20
+  - R5 [10] SHA256 لا يطابقُ المخرجَ المكتوبَ — مخرجٌ مُقتطَعٌ أو مُحرَّر
+  - R7 لم يُعثَرْ على أوامرَ في القسمِ «ج» منَ الإحاطة
+[RAW CHECK] ✗ 1 حكمًا مرفوضًا — لا يُحتسَبُ في النصاب (البروتوكولُ § 4.7)
+EXIT=1
+
+$ council_verdict_raw_check.py --brief briefing_kimi_k3.md --repo . .../kimi_k3/wi113/VERDICT.md
+[RAW CHECK] ✗ مرفوضٌ: /home/user/workspace/council_w673/kimi_k3/wi113/VERDICT.md · أوامرُ 20 · كتلُ RAW 20
+  - R7 لم يُعثَرْ على أوامرَ في القسمِ «ج» منَ الإحاطة
+[RAW CHECK] ✗ 1 حكمًا مرفوضًا — لا يُحتسَبُ في النصاب (البروتوكولُ § 4.7)
+EXIT=1
+
+## إعادةُ التشغيلِ على الملفاتِ المودعةِ نفسِها (بنمطِ الغلافِ — بطاقةُ هويةٍ + فاصلٌ + الحكمُ بايتًا ببايتٍ · بعدَ إيداعِ W-679)
+
+$ (استنساخُ gemini) council_verdict_raw_check.py --repo . .../W-679/verdicts/wi113/gemini_3_8_flash/VERDICT.md
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/amos/docs/audit/evidence/W-679/verdicts/wi113/gemini_3_8_flash/VERDICT.md · أوامرُ 17 · كتلُ RAW 17
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+$ (استنساخُ kimi) council_verdict_raw_check.py --repo . .../W-679/verdicts/wi113/kimi_k3/VERDICT.md
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/amos/docs/audit/evidence/W-679/verdicts/wi113/kimi_k3/VERDICT.md · أوامرُ 20 · كتلُ RAW 20
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+$ (استنساخُ grok) council_verdict_raw_check.py --repo . .../W-679/verdicts/wi113/grok_4_7/VERDICT.md
+[RAW CHECK] ✗ مرفوضٌ: /home/user/workspace/amos/docs/audit/evidence/W-679/verdicts/wi113/grok_4_7/VERDICT.md · أوامرُ 20 · كتلُ RAW 20
+  - R5 [10] SHA256 لا يطابقُ المخرجَ المكتوبَ — مخرجٌ مُقتطَعٌ أو مُحرَّر
+[RAW CHECK] ✗ 1 حكمًا مرفوضًا — لا يُحتسَبُ في النصاب (البروتوكولُ § 4.7)
+EXIT=1
+
+(الغلافُ لا يُغيِّرُ حكمَ الفاحصِ — نفسُ نتائجِ الأصولِ: R5 على grok فقط · و--brief يرفضُ الثلاثةَ بـR7 — قياسُ العيبينِ في checker_defect_measurement.txt)

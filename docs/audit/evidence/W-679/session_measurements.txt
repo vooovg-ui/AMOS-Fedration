@@ -1,0 +1,8 @@
+# قياساتُ افتتاحِ قيدِ W-679 (دفعُ تقريرِ جولةِ WI-113 الخامِّ) — 2026-10-25 (UTC) · المنسِّقُ GLM-5.3
+$ python tools/governance/check_work_governance.py --self-check   ⇒ ✓ 0 مخالفةً (إبلاغاتُ POST_MERGE_NOT_CLOSED فقط)
+$ python tools/governance/check_work_governance.py --today 2026-10-30   ⇒ ✓ 0 مخالفةً
+$ python tools/governance/truth_audit.py --ratchet   ⇒ ثابتٌ 61 (IN_MEMORY_STORE 59 · HARDCODED_TRUTH 2)
+$ python tools/governance/state_document_drift.py   ⇒ 0 انحرافًا (LEDGER_HEAD W-678 · صفوفُ § 8: 676)
+$ git ls-remote origin main   ⇒ 341c1223 (W-678 مدموجٌ — التقديمُ السريعُ تمَّ ودُفعَتِ الجولةُ بعده)
+$ gh pr list --limit 30   ⇒ 5 طلباتٍ قديمةً (#73 #71 #70 #69 #55 · أعلى قيودِها W-428 دونَ main) — لا خطًّا موازيًا
+$ ls /home/user/workspace/council_w673/*/wi113/VERDICT.md   ⇒ ثلاثةُ أحكامٍ في جذورِ المقاعدِ (الجمعُ تمَّ في الجلسةِ — Q-72)
