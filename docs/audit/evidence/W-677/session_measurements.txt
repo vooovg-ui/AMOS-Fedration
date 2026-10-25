@@ -1,0 +1,31 @@
+# قياساتُ افتتاحِ الجلسةِ — قيدُ W-677 (2026-10-25 · المنسِّقُ GLM-5.3 · Perplexity Computer · منفِّذٌ جديدٌ بالأمرِ الدائمِ)
+
+## 1 · بيئةُ الجلسة
+- bash tools/dev/bootstrap.sh --verify ⇒ EXIT 0 (نظافةُ الشجرةِ بعدَ حزمةٍ كاملةٍ ✓)
+- python tools/governance/check_work_governance.py --self-check ⇒ لا مخالفةَ (إبلاغاتُ POST_MERGE_NOT_CLOSED فقط)
+- python tools/governance/check_work_governance.py --self-check --today 2026-10-30 ⇒ لا مخالفةَ (الاستحقاقُ الباكرُ خالٍ)
+- python tools/governance/truth_audit.py --ratchet ⇒ ثابتٌ عند 61 (IN_MEMORY_STORE 59 · HARDCODED_TRUTH 2)
+- python tools/governance/state_document_drift.py ⇒ لا انحرافَ (LEDGER_HEAD W-676 · صفوفُ § 8: 674)
+- python tools/governance/check_repository_identity.py . ⇒ نجح
+
+## 2 · جردُ الفروعِ والطلباتِ (الأمرُ الدائمُ § 2.8)
+- git ls-remote --heads origin | wc -l ⇒ 176 رأسًا
+- أعلى رقمِ قيدٍ في أسماءِ الفروعِ ⇒ W-675 (w-675-wi114-code · مدموجٌ في main)
+- gh pr list ⇒ 5 طلباتٍ مفتوحةٍ قديمةٍ: #73 · #71 · #70 · #69 · #55 (كلُّها دونَ main)
+- لا خطًّا موازيًا يحملُ قيدًا أعلى من main (رأسُ السجلِّ W-676)
+
+## 3 · واجبُ N+1 لدفعةِ W-676 — عقدةُ الدمجِ 97f87c77
+- origin/main = 97f87c7718140092cbdd66ad7d538e4fe3cdf671 (مقيسًا بـgit ls-remote · PR #153 MERGED)
+- حِملُ الوظائفِ مُجلبٌ بـgh api (لا توكنَ CI في البيئةِ — سابقةُ W-574/W-658):
+  - gh api repos/vooovg-ui/AMOS-Fedration/actions/runs/40186927986/jobs ⇒ ci_jobs_pr153_40186927986.api.json (pull_request)
+  - gh api repos/vooovg-ui/AMOS-Fedration/actions/runs/40188083808/jobs ⇒ ci_jobs_main_40188083808.api.json (push)
+- الفاحصُ (EXIT 0 مقيسًا):
+  - python tools/governance/ci_verdict_readability.py --from-json ci_jobs_pr153_40186927986.api.json --require-readable --expect-sha 97f87c77… ⇒ READABLE · 13/13 · أخضرُ · على العقدةِ نفسِها
+  - python tools/governance/ci_verdict_readability.py --from-json ci_jobs_main_40188083808.api.json --require-readable --expect-sha 97f87c77… ⇒ READABLE · 13/13 · أخضرُ · على العقدةِ نفسِها
+  - المخرجانِ في ci_verdict_pr153.txt وci_verdict_main.txt
+
+## 4 · إطلاقُ جولتَي المجلسِ على WI-113/WI-115
+- الإحاطاتُ المبصومةُ (W-673) نُسختْ إلى council_w673/<مقعد>/<بند>/briefing.md وطُوبِقت بصماتُها (SHA256SUMS ✓ ×6)
+- عقدةُ الجولةِ كما تُثبِتُها الإحاطاتُ (الأمرُ 1): git log -1 --format=%H origin/main -- docs/audit/evidence/W-673/briefs_wi113/ ⇒ 79abc6a206000e162689d642d1ebc42af36f445a (قيدُ W-673 · على main)
+- أداةُ الإطلاقِ: run_subagent بمعاملِ model (مقيسةٌ في W-622/W-631) — 6 جلساتٍ: 3 مقاعدَ × بندانِ
+- النصوصُ حرفيًّا من evidence/W-673/TASKS_SENT.md · الجمعُ في الجلسةِ نفسِها (Q-72)
