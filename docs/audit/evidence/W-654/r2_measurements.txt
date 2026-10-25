@@ -1,0 +1,17 @@
+# قياساتُ W-654 (2026-10-25) · العقدة 5e7b598be84e10780de75a1ff372c67a7e341766
+
+$ wc -l engine.py
+  696 federal/executive/services/src/amos_federation/services/executive_core/engine.py
+  203 core/constitutional_engine/engine.py
+  899 total
+
+$ rg -n max_attempts (خارجَ الاختبارات)
+./core/sovereignty/outbox.py:817:        max_attempts: int = DEFAULT_MAX_DELIVERY_ATTEMPTS,
+./core/sovereignty/outbox.py:876:                exhausted = record.attempt_count >= max_attempts
+./core/sovereignty/outbox.py:882:                        f"استُنفِدَت المحاولاتُ ({record.attempt_count}/{max_attempts})"
+./core/sovereignty/outbox.py:1225:    max_attempts: int = DEFAULT_MAX_DELIVERY_ATTEMPTS
+./core/sovereignty/outbox.py:1232:        if self.max_attempts < 1:
+./core/sovereignty/outbox.py:1310:            max_attempts=self.max_attempts,
+
+$ rg -n "engine.py:1155" docs/
+docs/governance/work/HANDOFFS/OWNER-DECISIONS-D24.md:22:- **التوصية:** خيار 1 — خندقٌ واحدٌ؛ لأنَّ قيمةَ «منعِ التكرار» موجودةٌ أصلًا في `engine.py:1155` للعقدِ المحروسة، والخندقُ الواحدُ يكفي بندَ الشِّفرةِ الأولَ ويمكنُ ترقيتهُ ببندٍ لاحقٍ إن قِيسَ عيبٌ.
