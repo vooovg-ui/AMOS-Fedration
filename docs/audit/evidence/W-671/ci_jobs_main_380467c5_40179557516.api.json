@@ -1,0 +1,130 @@
+{
+ "$comment": "حِملُ وظائفِ تشغيلِ CI 40179557516 على 380467c5 (main (دفعٌ بعدَ الدمج)) خامًا بـ`gh api repos/vooovg-ui/AMOS-Fedration/actions/runs/40179557516/jobs` — W-671 (N+1)",
+ "total_count": 1,
+ "jobs": [
+  {
+   "id": 121127473860,
+   "run_id": 40179557516,
+   "workflow_name": "قياسُ الحوكمةِ المولَّد",
+   "head_branch": "main",
+   "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40179557516",
+   "run_attempt": 1,
+   "node_id": "CR_kwDOURQm-88AAAAcM8KSxA",
+   "head_sha": "380467c5deb5189b632004a4d1193b7aa66fbb15",
+   "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/121127473860",
+   "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40179557516/job/121127473860",
+   "status": "completed",
+   "conclusion": "success",
+   "created_at": "2026-10-25T09:10:35Z",
+   "started_at": "2026-10-25T09:10:38Z",
+   "completed_at": "2026-10-25T09:18:32Z",
+   "name": "Restart Survival Measurement",
+   "steps": [
+    {
+     "name": "Set up job",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 1,
+     "started_at": "2026-10-25T09:10:39Z",
+     "completed_at": "2026-10-25T09:10:40Z"
+    },
+    {
+     "name": "Run actions/checkout@v4",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 2,
+     "started_at": "2026-10-25T09:10:40Z",
+     "completed_at": "2026-10-25T09:10:44Z"
+    },
+    {
+     "name": "Run actions/setup-python@v5",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 3,
+     "started_at": "2026-10-25T09:10:44Z",
+     "completed_at": "2026-10-25T09:10:44Z"
+    },
+    {
+     "name": "تثبيت التبعيّات",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 4,
+     "started_at": "2026-10-25T09:10:44Z",
+     "completed_at": "2026-10-25T09:11:17Z"
+    },
+    {
+     "name": "تشغيلُ المِسبارِ وتوليدُ القياس",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 5,
+     "started_at": "2026-10-25T09:11:17Z",
+     "completed_at": "2026-10-25T09:14:16Z"
+    },
+    {
+     "name": "حكمُ المِسبارِ على الأسطحِ — مُلزِمٌ لا عرضٌ",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 6,
+     "started_at": "2026-10-25T09:14:16Z",
+     "completed_at": "2026-10-25T09:17:19Z"
+    },
+    {
+     "name": "حرسُ القياسِ الحيِّ (الخطوةُ 18)",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 7,
+     "started_at": "2026-10-25T09:17:19Z",
+     "completed_at": "2026-10-25T09:18:25Z"
+    },
+    {
+     "name": "تسجيلُ لقطةِ انحرافِ الدَّينِ (آخرُ قيدٍ مسجَّلٍ)",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 8,
+     "started_at": "2026-10-25T09:18:25Z",
+     "completed_at": "2026-10-25T09:18:29Z"
+    },
+    {
+     "name": "دفعُ الخرجِ المولَّدِ إن تغيَّر",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 9,
+     "started_at": "2026-10-25T09:18:29Z",
+     "completed_at": "2026-10-25T09:18:29Z"
+    },
+    {
+     "name": "Post Run actions/setup-python@v5",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 17,
+     "started_at": "2026-10-25T09:18:29Z",
+     "completed_at": "2026-10-25T09:18:29Z"
+    },
+    {
+     "name": "Post Run actions/checkout@v4",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 18,
+     "started_at": "2026-10-25T09:18:29Z",
+     "completed_at": "2026-10-25T09:18:29Z"
+    },
+    {
+     "name": "Complete job",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 19,
+     "started_at": "2026-10-25T09:18:29Z",
+     "completed_at": "2026-10-25T09:18:29Z"
+    }
+   ],
+   "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/121127473860",
+   "labels": [
+    "ubuntu-latest"
+   ],
+   "runner_id": 1000006996,
+   "runner_name": "GitHub Actions 1000006996",
+   "runner_group_id": 0,
+   "runner_group_name": "GitHub Actions"
+  }
+ ]
+}
