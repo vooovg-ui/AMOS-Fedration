@@ -791,6 +791,8 @@ T5 (‏الرصد) لا دَينُ هذه الخطوة. **وأخطرُ ما يج
 
 10ثغ-5. 2026-10-25 (W-664 — WI-114 READY→RESERVED + وثيقةُ تصميمِ A1(أ) · لا شِفرةَ · المنسِّقُ Claude Opus 5.5): أُودِعَت `docs/audit/A1A_CANARY_CROSSING_DESIGN.md` وقياساتُها خامًا (`evidence/W-664/`). **قِيسَ `require_auth` كما أمرَ المالكُ**: يقبلُ أيَّ رمزٍ صالحٍ أيًّا كانَ دورُه (`auth.py:87–97`) ومنه المواطنُ، والمساراتُ البالغةُ للأسطحِ الأربعةِ ستّةٌ (governance/main.py أربعةٌ · control_console/main.py اثنانِ) بـ`require_auth` وحدَه، والفاعلُ من جسمِ الطلبِ لا من الرمزِ. **وعائقٌ مقيسٌ**: الجسرُ لا يحملُ `human_approved` (`sovereignty_bridge.py:310–316`) فمسبارُ `review_only` يُعيدُ DENY لـ`lower_kill_switch` و`promote_model` بأيِّ فاعلٍ — فمصدرُ دليلِ الموافقةِ البشريّةِ سؤالٌ للمالكِ (§ 5 من الوثيقةِ) ولا شِفرةَ للخفضِ والترقيةِ قبلَه. وتصحيحُ نقلٍ: R008 اليومَ عندَ `rules.py:435/:448` لا 421–434 كما في A1، و`activate_kill_switch` غيرُ مسمًّى في `core/`.
 
+10ثغ-6. 2026-10-25 (W-665 — WI-115 READY→RESERVED + وثيقةُ تصميمِ Q-9 · لا شِفرةَ · المنسِّقُ Claude Opus 5.5): أُودِعَت `docs/audit/Q9_NESTING_DETECTOR_DESIGN.md` وقياساتُها خامًا (`evidence/W-665/`). **مقيسٌ يُغيِّرُ الترتيبَ**: لا `guard_declared` في `state_treasury` ولا `national_economy` ولا `federal_state` — فمركَّباتُ المالِ الثلاثةُ غيرُ محروسةٍ اليومَ ولا تعشيشَ ماليٌّ قائمٌ؛ والتعشيشُ الوحيدُ `open_case` (`gov.case.open` ← `task.submit`/`task.cancel`). **و§ 3.5 مقيسٌ**: `_existing_idempotent` (`state_treasury/service.py:835–847`) بلا شرطِ حالةٍ ويُناديه 3 عمليّاتٍ، و`reverse_transaction` يُعلِّمُ `reversed` (`:1603`). والتصميمُ: إصلاحُ § 3.5 أوّلًا · كاشفٌ بـ`ContextVar` قبلَ `decide` (`enforcement_boundary.py:357`) باستثناءِ زوجَينِ مسمّيَينِ · واستخراجُ `_disburse_core` الآنَ وإعلانُ الآثارِ مع M1 — تفسيرٌ للترتيبِ يُعرَضُ على المستشارِ.
+
 ---
 
 ## 8 · سجلُّ العملِ المنفَّذ
@@ -1462,6 +1464,7 @@ T5 (‏الرصد) لا دَينُ هذه الخطوة. **وأخطرُ ما يج
 | W-662 | 2026-10-25 | T0 (بندُ [`WI-100`](../governance/work/ACTIVE_WORK.md) · قرارُ المالكِ Q-72 · لا شِفرةَ) | `COUNCIL_PROTOCOL.md` § 8 البندُ 4 بنصِّ المالكِ حرفيًّا: لا إطلاقَ لجولةٍ إلا بقدرةِ المنسِّقِ على جمعِ أحكامِها في جلستِه نفسِها | تطبيقُه على كلِّ جولةٍ قادمةٍ | [`evidence/W-660/`](evidence/W-660/README.md) |
 | W-663 | 2026-10-25 | T0 (تسجيلُ بنودٍ بقراراتِ المالكِ · لا شِفرةَ) | WI-113/WI-114/WI-115 READY وWI-116 PROPOSED بمعاييرِ قبولٍ مأخوذةٍ من نصِّ القراراتِ · وتحديثُ وثائقِ الحالةِ | حجزُ WI-113/114/115 ووثيقتا تصميمِ canary وQ-9 في الدفعةِ التاليةِ | [`evidence/W-660/`](evidence/W-660/README.md) |
 | W-664 | 2026-10-25 | T1 (بندُ [`WI-114`](../governance/work/ACTIVE_WORK.md) · READY→RESERVED · لا شِفرةَ) | وثيقةُ تصميمِ A1(أ) canary بقياسِ `require_auth` ومسبارِ مراجعةٍ: الخفضُ والترقيةُ DENY عبرَ الجسرِ لغيابِ قناةِ `human_approved` | سؤالُ المالكِ في § 5 · وشِفرةُ السطحينِ 1 و3 بعدَ IN_PROGRESS | [`evidence/W-664/`](evidence/W-664/README.md) |
+| W-665 | 2026-10-25 | T1 (بندُ [`WI-115`](../governance/work/ACTIVE_WORK.md) · READY→RESERVED · لا شِفرةَ) | وثيقةُ تصميمِ Q-9: إصلاحُ § 3.5 · كاشفُ التعشيشِ باستثناءِ `open_case` زوجَينِ · `_disburse_core` | الشِّفرةُ بعدَ IN_PROGRESS | [`evidence/W-665/`](evidence/W-665/README.md) |
 ---
 
 ## 9 · المتبقّي بالأرقام

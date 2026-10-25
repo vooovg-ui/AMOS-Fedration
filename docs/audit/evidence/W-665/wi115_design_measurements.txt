@@ -1,0 +1,142 @@
+# قياساتُ تصميمِ WI-115 — على HEAD cb728386cfcdd59ae2c7e7a0cc3ce0f9bdde3083
+# كلُّ مقطعٍ: الأمرُ ثمَّ مخرجُه خامًا (DISC-136)
+
+$ rg -n 'def _existing_idempotent' -A14 federal/executive/services/src/amos_federation/services/state_treasury/service.py
+835:    def _existing_idempotent(
+836-        self, session, context: AuthorizationContext, idempotency_key: str | None
+837-    ) -> TransactionModel | None:
+838-        if not idempotency_key:
+839-            return None
+840-        return (
+841-            session.query(TransactionModel)
+842-            .filter(
+843-                TransactionModel.tenant_id == self._tenant_of(context),
+844-                TransactionModel.idempotency_key == idempotency_key,
+845-            )
+846-            .first()
+847-        )
+848-
+849-    # ── 1. تأسيس خزانة ────────────────────────────────────────────────────
+
+$ rg -n 'def disburse\b|def reverse_transaction|def _post\b|def execute_decision_disbursement|_existing_idempotent\(|"reversed"|status=.reversed' federal/executive/services/src/amos_federation/services/state_treasury/service.py
+722:    def _post(
+835:    def _existing_idempotent(
+1233:            existing = self._existing_idempotent(session, context, idempotency_key)
+1309:    def disburse(
+1337:            existing = self._existing_idempotent(session, context, idempotency_key)
+1448:    def execute_decision_disbursement(
+1479:            existing = self._existing_idempotent(session, context, idempotency_key)
+1517:    def reverse_transaction(
+1603:            original.status = "reversed"
+
+$ rg -n 'def execute_expenditure|def execute_transfer|guard_declared\(|\.disburse\(' federal/executive/services/src/amos_federation/services/national_economy/service.py
+1382:    def execute_expenditure(
+1442:        transaction = treasury.disburse(
+1710:    def execute_transfer(
+1759:        transaction = treasury.disburse(
+
+$ rg -n 'def execute_scoped_disbursement|guard_declared\(|\.disburse\(' federal/executive/services/src/amos_federation/services/federal_state/service.py
+1053:    def execute_scoped_disbursement(
+1099:        result = treasury.disburse(
+
+$ rg -n 'def open_case|guard_declared\(|\.submit\(' federal/executive/services/src/amos_federation/services/government_services/service.py
+595:        guarded = self.authorizer.guard_declared(
+698:        guarded = self.authorizer.guard_declared(
+735:    def open_case(
+834:            task = self._core.submit(
+901:        guarded = self.authorizer.guard_declared(
+1008:        guarded = self.authorizer.guard_declared(
+1277:        guarded = self.authorizer.guard_declared(
+1437:        guarded = self.authorizer.guard_declared(
+
+$ rg -n 'def enforce_ruling_via_treasury|\.disburse\(' federal/executive/services/src/amos_federation/services/federal_judiciary/service.py
+1012:    def enforce_ruling_via_treasury(
+1046:            transaction = treasury.disburse(
+
+$ rg -n 'class SovereignExecutionBoundary|def execute\b|contextvars|ContextVar|Nested' core/sovereignty/enforcement_boundary.py
+245:class SovereignExecutionBoundary:
+311:    def execute(
+
+$ rg -n 'import' core/sovereignty/enforcement_boundary.py | head -30
+62:from __future__ import annotations
+64:import ast
+65:from collections.abc import Callable, Iterable, Mapping, Sequence
+66:from dataclasses import dataclass, field
+67:from enum import Enum
+68:from pathlib import Path
+69:from typing import Any, Final
+71:from cryptography.hazmat.primitives.asymmetric import ed25519
+73:from core.constitutional_engine.model import ActionRequest
+74:from core.sovereignty.compensation import (
+82:from core.sovereignty.contract import (
+88:from core.sovereignty.enforcement import (
+93:from core.sovereignty.gateway import FORBIDDEN_BYPASS_PARAMS, SovereignGateway
+94:from core.sovereignty.idempotency import (
+102:from core.sovereignty.jurisdiction import (
+108:from core.sovereignty.outbox import (
+709:    import inspect
+
+$ rg -c 'guard_declared\(' federal/executive/services/src --glob '*.py' | sort
+federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py:1
+federal/executive/services/src/amos_federation/services/executive_core/engine.py:2
+federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py:2
+federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py:4
+federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py:1
+federal/executive/services/src/amos_federation/services/federal_judiciary/service.py:7
+federal/executive/services/src/amos_federation/services/governance/factories.py:3
+federal/executive/services/src/amos_federation/services/governance/federation.py:15
+federal/executive/services/src/amos_federation/services/governance/state_runtime.py:1
+federal/executive/services/src/amos_federation/services/government_services/service.py:6
+federal/executive/services/src/amos_federation/services/national_registry/service.py:9
+federal/executive/services/src/amos_federation/services/state_registry/service.py:5
+
+$ rg -n 'ACTION_CASE_OPEN =|def open_case|self._core.submit\(|self._core.cancel\(|def _cancel_case_task|ACTION_CASE_OPEN,$' federal/executive/services/src/amos_federation/services/government_services/service.py
+118:ACTION_CASE_OPEN = "gov.case.open"
+309:    def _cancel_case_task(self, task_id: str, reference: str) -> None:
+316:        self._core.cancel(task_id, f"تعويضُ فتحِ القضيّةِ '{reference}'")
+735:    def open_case(
+834:            task = self._core.submit(
+881:                ACTION_CASE_OPEN,
+902:            ACTION_CASE_OPEN,
+
+$ rg -n '"task\.(submit|cancel)"|def submit|def cancel' federal/executive/services/src/amos_federation/services/executive_core/engine.py
+274:    def submit(
+307:            "task.submit",
+600:    def submit_and_run(self, task_type: str, description: str, **kwargs: Any) -> dict[str, Any]:
+608:    def cancel(self, task_id: str, reason: str) -> TransitionOutcome:
+619:            "task.cancel",
+
+$ rg -n 'boundary\.execute\(|self\._boundary' federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py
+206:        self._boundary = boundary
+283:        if self._boundary is None:
+284:            self._boundary = self._build_boundary()
+285:        return self._boundary
+386:        outcome = self.boundary.execute(
+
+$ rg -n 'def execute\(|def _execute|decide\(' core/sovereignty/enforcement_boundary.py
+16:- **1F** الإذنُ الموقَّع: يُصدَر بـ`decide()` في مسارٍ **موازٍ** لا يلزمُ `execute()`.
+311:    def execute(
+357:        permit = self.gateway.decide(request, declared_effects=declared_effects)
+
+$ rg -n 'class TransactionModel' -A30 federal/executive/services/src/amos_federation/services/state_treasury/models.py | rg -n 'status|idempotency_key'
+12:285-    status = Column(String, nullable=False, default="posted")
+
+$ sed -n 1595,1606p federal/executive/services/src/amos_federation/services/state_treasury/service.py
+                official=official,
+                authority=authority,
+                budget_id=original.budget_id,
+                allocation_id=original.allocation_id,
+                institution_id=institution_id,
+                decision_id=original.decision_id,
+                reverses_transaction_id=original.id,
+            )
+            original.status = "reversed"
+            session.commit()
+            entity = self._transaction_dict(reversal)
+            entity["entries"] = [self._entry_dict(e) for e in reversal_entries]
+
+$ awk 'NR<=1233 && /    def /{l=NR": "$0} END{print l}' federal/executive/services/src/amos_federation/services/state_treasury/service.py
+1206:     def post_funding(
+
+$ rg -n 'ContextVar|contextvars|Nested' core/sovereignty/enforcement_boundary.py; echo "(rg exit: $?)"
+(rg exit: 1)
