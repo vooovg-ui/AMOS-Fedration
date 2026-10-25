@@ -1,0 +1,30 @@
+$ bash docs/audit/evidence/W-675/mutations.sh   # سطورُ تصديرِ OTLP (localhost:4317) محذوفةٌ: ضجيجُ بيئةٍ لا صلةَ له
+## M1 · الخفضُ عبرَ التفعيلِ لا يُوجَّهُ إلى lower_kill_switch
+FAILED tests/test_wi114_canary_sovereign.py::test_kill_switch_verb_routes_lowering[halt-normal-lower_kill_switch]
+FAILED tests/test_wi114_canary_sovereign.py::test_kill_switch_verb_routes_lowering[halt-alert-lower_kill_switch]
+FAILED tests/test_wi114_canary_sovereign.py::test_kill_switch_verb_routes_lowering[degraded-alert-lower_kill_switch]
+FAILED tests/test_wi114_canary_sovereign.py::test_lowering_via_activate_is_refused_and_writes_nothing
+FAILED tests/test_wi114_canary_sovereign.py::test_http_citizen_cannot_lower_via_activate
+==================== 5 failed, 9 passed, 1 warning in 1.82s ====================
+## M2 · رفعُ الزرِّ يتجاوزُ الحدَّ (كتابةٌ مباشرة)
+FAILED tests/test_wi114_canary_sovereign.py::test_raise_crosses_gateway_with_activate_verb
+FAILED tests/test_wi114_canary_sovereign.py::test_lowering_via_activate_is_refused_and_writes_nothing
+FAILED tests/test_wi114_canary_sovereign.py::test_http_citizen_cannot_lower_via_activate
+FAILED tests/test_wi114_canary_sovereign.py::test_kill_switch_compensator_restores_previous_snapshot
+=================== 4 failed, 10 passed, 1 warning in 1.51s ====================
+## M3 · طلبُ الترقيةِ يتجاوزُ الحدَّ (كتابةٌ مباشرة)
+FAILED tests/test_wi114_canary_sovereign.py::test_create_promotion_crosses_with_request_verb_not_promote
+FAILED tests/test_wi114_canary_sovereign.py::test_create_promotion_denied_verb_writes_no_row
+FAILED tests/test_wi114_canary_sovereign.py::test_create_promotion_compensator_cancels
+=================== 3 failed, 11 passed, 1 warning in 1.71s ====================
+## M4 · مُعوِّضُ الزرِّ لا يستعيدُ شيئًا
+FAILED tests/test_wi114_canary_sovereign.py::test_kill_switch_compensator_restores_previous_snapshot
+=================== 1 failed, 13 passed, 1 warning in 1.77s ====================
+## M5 · مُعوِّضُ الترقيةِ لا يُبطِل
+FAILED tests/test_wi114_canary_sovereign.py::test_create_promotion_compensator_cancels
+=================== 1 failed, 13 passed, 1 warning in 1.62s ====================
+## M6 · بلا مُعرِّفٍ في الهدف (تصادمُ رفعَينِ في ثانية)
+FAILED tests/test_wi114_canary_sovereign.py::test_two_raises_in_the_same_second_both_cross
+FAILED tests/test_wi114_canary_sovereign.py::test_kill_switch_compensator_restores_previous_snapshot
+=================== 2 failed, 12 passed, 1 warning in 1.73s ====================
+## الأصلُ مُستعادٌ (cmp: مطابق)

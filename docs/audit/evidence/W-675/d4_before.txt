@@ -1,0 +1,14 @@
+$ python tools/audit/decision_gate.py --measure   # قبلَ الشِّفرةِ · الشجرةُ على 984a6d9f
+{
+ "debt": 135,
+ "sovereign": 46,
+ "closed_legacy": 7,
+ "write_sites_total": 232,
+ "git_head": "984a6d9f",
+ "waves": {
+  "W1": 11,
+  "W2": 34,
+  "W3": 90
+ }
+}
+EXIT 0

@@ -1,0 +1,25 @@
+$ (cd federal/executive/services && python /tmp/b/review.py)   # المسبارُ منسوخٌ أدناه
+```python
+import os, tempfile
+os.environ.setdefault("AMOS_EXECUTIVE_IDEMPOTENCY_LEDGER", tempfile.mktemp())
+from amos_federation.services.executive_core.sovereignty_bridge import ConstitutionalAuthorizer
+for actor in ("EXECUTIVE",):
+    a = ConstitutionalAuthorizer(actor=actor)
+    for verb in ("activate_kill_switch","lower_kill_switch","request_promotion","create_promotion","register","promote_model"):
+        for tgt in ("governance/system_state","governance/promotions/x"):
+            e = a.review_only(verb, tgt, {"requested_by":"citizen-probe"})
+            print(actor, verb, tgt, e.decision, e.advisory_violations)
+```
+EXECUTIVE activate_kill_switch governance/system_state ALLOW ()
+EXECUTIVE activate_kill_switch governance/promotions/x ALLOW ()
+EXECUTIVE lower_kill_switch governance/system_state DENY ()
+EXECUTIVE lower_kill_switch governance/promotions/x DENY ()
+EXECUTIVE request_promotion governance/system_state ALLOW ()
+EXECUTIVE request_promotion governance/promotions/x ALLOW ()
+EXECUTIVE create_promotion governance/system_state ALLOW ()
+EXECUTIVE create_promotion governance/promotions/x ALLOW ()
+EXECUTIVE register governance/system_state ALLOW ()
+EXECUTIVE register governance/promotions/x ALLOW ()
+EXECUTIVE promote_model governance/system_state DENY ()
+EXECUTIVE promote_model governance/promotions/x DENY ()
+EXIT 0

@@ -1,0 +1,3 @@
+# W-675 · الحزمةُ الكاملةُ لخدماتِ الفدراليّة بعدَ الشِّفرة (تشغيلٌ نظيفٌ في شجرةِ عملٍ مستقلّة · بلا PostgreSQL · بلا --cov)
+# الأمر: cd federal/executive/services && PYTHONPATH=src python -m pytest -q -p no:cacheprovider
+119:=========== 1539 passed, 53 skipped, 1 warning in 224.29s (0:03:44) ============

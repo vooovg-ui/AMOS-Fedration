@@ -1,0 +1,38 @@
+# قياسُ تقاطعِ الملكيّةِ (DISC-139) — بوّابةُ العملِ على الشجرةِ العاملةِ بعدَ تعديلِ ملفَّي المسارِ (قبلَ استرجاعِهما)
+# العقدة: 984a6d9f + تعديلُ canary.py وgovernance/main.py وcontrol_console/main.py (الفاعلُ من `sub` الرمزِ و403 في المسار)
+$ git add -A && python tools/governance/check_work_governance.py --staged 2>&1 | rg -v POST_MERGE | tail -8
+[WORK GATE] ✗ مخالفات: 2
+  PATH_UNCLAIMED: «federal/executive/services/src/amos_federation/services/control_console/main.py» تغيَّرَ ولا بندَ نشِطٌ يُعلِنُه في مساراتِه — سجِّلْ بندَك في docs/governance/work/ACTIVE_WORK.md قبلَ العمل (THE_ROADMAP § 2 قاعدة 1)
+  PATH_UNCLAIMED: «federal/executive/services/src/amos_federation/services/governance/main.py» تغيَّرَ ولا بندَ نشِطٌ يُعلِنُه في مساراتِه — سجِّلْ بندَك في docs/governance/work/ACTIVE_WORK.md قبلَ العمل (THE_ROADMAP § 2 قاعدة 1)
+
+  القانونُ الملزم: docs/governance/work/THE_ROADMAP.md § 2 · § 6 · § 7
+
+# فاستُرجِعَ الملفّانِ (git checkout) وبقيَت الشِّفرةُ في canary.py وحدَه.
+# (استنتاجٌ أوّلُ — «READY يحجزُ» — قيسَ خطأً أدناه؛ يبقى نصُّه ولا يُمحى.)
+
+# ── تصحيحٌ للسطرِ أعلاه بقياسٍ (لا استنتاج): قاعدةُ التقاطعِ تقيسُ الحالاتِ الحاجزةَ وحدَها ──
+$ sed -n 584,591p tools/governance/check_work_governance.py
+def check_claim_conflicts(items: list[dict[str, object]]) -> list[dict[str, str]]:
+    """تقاطعُ مسارٍ بينَ بندَينِ نشِطَينِ — البابُ الأوّلُ لتكرارِ العمل."""
+    violations: list[dict[str, str]] = []
+    claiming = [
+        it
+        for it in items
+        if str(it["status"]) in CLAIMING_STATUSES and str(it["status"]) != "CLOSED"
+    ]
+# فـREADY لا يحجز. القياسُ (أ): ملفّا المسارِ مُضافانِ إلى مساراتِ WI-114 وWI-117 READY (تعديلٌ مؤقّتٌ لـACTIVE_WORK.md ثمَّ استُعيدَ من نسخةٍ):
+$ python tools/governance/check_work_governance.py --self-check 2>&1 | rg -v POST_MERGE | tail -6
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+# القياسُ (ب): الإضافةُ نفسُها + خليّةُ حالةِ WI-117 RESERVED (مؤقّتًا ثمَّ استُعيدَ):
+$ python tools/governance/check_work_governance.py --self-check 2>&1 | rg -v POST_MERGE | tail -6
+  CLAIM_CONFLICT: WI-097 وWI-117 يتقاطعانِ في «federal/executive/services/tests/test_control_console.py» ↔ «federal/executive/services/tests/test_control_console.py» — يُقسَمُ البندُ أو يُستلَم (THE_ROADMAP § 6.1)
+  CLAIM_CONFLICT: WI-097 وWI-117 يتقاطعانِ في «federal/executive/services/tests/test_governance.py» ↔ «federal/executive/services/tests/test_governance.py» — يُقسَمُ البندُ أو يُستلَم (THE_ROADMAP § 6.1)
+  CLAIM_CONFLICT: WI-114 وWI-117 يتقاطعانِ في «federal/executive/services/src/amos_federation/services/governance/main.py» ↔ «federal/executive/services/src/amos_federation/services/governance/main.py» — يُقسَمُ البندُ أو يُستلَم (THE_ROADMAP § 6.1)
+  CLAIM_CONFLICT: WI-114 وWI-117 يتقاطعانِ في «federal/executive/services/src/amos_federation/services/control_console/main.py» ↔ «federal/executive/services/src/amos_federation/services/control_console/main.py» — يُقسَمُ البندُ أو يُستلَم (THE_ROADMAP § 6.1)
+
+  القانونُ الملزم: docs/governance/work/THE_ROADMAP.md § 2 · § 6 · § 7
+
+# الخلاصةُ المقيسة:
+# 1) إضافةُ ملفَّي المسارِ إلى WI-114 جائزةٌ اليومَ (WI-117 READY) لكنَّها تمنعُ حجزَ WI-117 ما دامَ WI-114 نشِطًا.
+# 2) **WI-117 لا يُحجَزُ أصلًا اليوم** بمعزلٍ عن WI-114: WI-097 (IN_REVIEW) يحجزُ test_governance.py وtest_control_console.py
+#    وهما ملفّا الفحوصِ الستّةِ التي يجبُ تحويلُها إلى رمزِ ملكٍ (evidence/W-672/sim_require_king.txt).

@@ -1,0 +1,7 @@
+$ git show 984a6d9f:<canary.py> > <canary.py> && (cd federal/executive/services && python -m pytest tests/test_wi114_canary_sovereign.py -q -p no:cacheprovider)   # ثمَّ استُعيدَت الشِّفرةُ الجديدة
+collected 0 items / 1 error
+E   AttributeError: module 'amos_federation.services.governance.canary' has no attribute 'ACTION_ACTIVATE_KILL_SWITCH'
+ERROR tests/test_wi114_canary_sovereign.py - AttributeError: module 'amos_fed...
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+========================= 1 warning, 1 error in 0.80s ==========================
+# السقوطُ هنا بخطأِ الواجهةِ (لا ثوابتَ العبورِ في الشِّفرةِ القديمة) لا بالتأكيد — والسقوطُ الدلاليُّ تُثبِتُه الطفراتُ M1–M6 (mutations.txt) ومسبارُ HTTP قبلُ/بعدُ (W-672/http_probe_before.txt ↔ W-675/http_probe_after.txt).

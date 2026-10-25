@@ -1,0 +1,62 @@
+$ (cd federal/executive/services && python ../../../docs/audit/evidence/W-672/http_probe.py)   # بعدَ شِفرةِ WI-114 (W-675) على الشجرةِ العاملةِ فوقَ 984a6d9f — uvicorn + urllib برمزِ مواطن
+### king raises halt (governance)
+$ POST <governance>/v1/system/kill-switch {"level": "halt", "reason": "probe", "activated_by": "king"}
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-25T10:00:49.992168+00:00","activated_by":"king"}
+
+### citizen reads status
+$ GET <governance>/v1/system/status
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-25T10:00:49.992168+00:00","activated_by":"king"}
+
+### CITIZEN reset (governance main.py:147 · guard :149)
+$ POST <governance>/v1/system/kill-switch/reset
+-> 200 {"level":"normal","reason":"","activated_at":null,"activated_by":""}
+
+### status after citizen reset
+$ GET <governance>/v1/system/status
+-> 200 {"level":"normal","reason":"","activated_at":null,"activated_by":""}
+
+### king raises halt again (console)
+$ POST <console>/v1/kill-switch {"level": "halt", "reason": "probe", "activated_by": "king"}
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-25T10:00:50.795413+00:00","activated_by":"king"}
+
+### CITIZEN reset (control_console main.py:209 · guard :211)
+$ POST <console>/v1/kill-switch/reset
+-> 200 {"level":"normal","reason":"","activated_at":null,"activated_by":""}
+
+### status after console reset
+$ GET <governance>/v1/system/status
+-> 200 {"level":"normal","reason":"","activated_at":null,"activated_by":""}
+
+### king raises halt (third)
+$ POST <governance>/v1/system/kill-switch {"level": "halt", "reason": "probe", "activated_by": "king"}
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-25T10:00:50.838842+00:00","activated_by":"king"}
+
+### CITIZEN lowers via activate level=normal (governance main.py:136 · guard :139)
+$ POST <governance>/v1/system/kill-switch {"level": "normal", "reason": "probe-lower", "activated_by": "king"}
+-> 403 {"detail":{"error":"sovereign_refusal","action":"lower_kill_switch","message":"«lower_kill_switch» مرفوضٌ عندَ الحدِّ السياديّ: DENY — 1 مخالفة دستورية:\n  [HIGH] A008 (المادة الثامنة — زر التوقف الطارئ) · البند: مبادئ Kill Switch · 4 · القاعدة R-008-3\n      السبب: «lower_kill_switch» بعد توقف طارئ يتطلب موافقة بشرية صريحة."}}
+
+### status after citizen activate-normal
+$ GET <governance>/v1/system/status
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-25T10:00:50.838842+00:00","activated_by":"king"}
+
+### king raises halt (fourth)
+$ POST <governance>/v1/system/kill-switch {"level": "halt", "reason": "probe", "activated_by": "king"}
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-25T10:00:50.884929+00:00","activated_by":"king"}
+
+### CITIZEN lowers via activate level=normal (control_console main.py:195 · guard :198)
+$ POST <console>/v1/kill-switch {"level": "normal", "reason": "probe-lower", "activated_by": "king"}
+-> 403 {"detail":{"error":"sovereign_refusal","action":"lower_kill_switch","message":"«lower_kill_switch» مرفوضٌ عندَ الحدِّ السياديّ: DENY — 1 مخالفة دستورية:\n  [HIGH] A008 (المادة الثامنة — زر التوقف الطارئ) · البند: مبادئ Kill Switch · 4 · القاعدة R-008-3\n      السبب: «lower_kill_switch» بعد توقف طارئ يتطلب موافقة بشرية صريحة."}}
+
+### status after citizen console activate-normal
+$ GET <governance>/v1/system/status
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-25T10:00:50.884929+00:00","activated_by":"king"}
+
+### CITIZEN creates promotion (governance main.py:167 · guard :170)
+$ POST <governance>/v1/promotions {"model_id": "probe-model"}
+-> 201 {"promotion_id":"promo-440a23dc-c2aa-4bff-a8e6-1e63a3a48c9b","model_id":"probe-model","gates":{"evaluation":{"status":"pending","checked_at":null},"shadow":{"status":"pending","checked_at":null},"canary":{"status":"pending","checked_at":null},"human_approval":{"status":"pending","checked_at":null},"activation":{"status":"pending","checked_at":null}},"status":"in_progress","created_at":"2026-10-25T10:00:50.918889+00:00","updated_at":"2026-10-25T10:00:50.918889+00:00"}
+
+### CITIZEN passes human_approval gate (governance main.py:199 · guard :203)
+$ POST <governance>/v1/promotions/promo-440a23dc-c2aa-4bff-a8e6-1e63a3a48c9b/gates {"gate_name": "human_approval", "passed": true, "notes": "citizen self-approves"}
+-> 200 {"promotion_id":"promo-440a23dc-c2aa-4bff-a8e6-1e63a3a48c9b","model_id":"probe-model","gates":{"evaluation":{"status":"pending","checked_at":null},"shadow":{"status":"pending","checked_at":null},"canary":{"status":"pending","checked_at":null},"human_approval":{"status":"passed","checked_at":"2026-10-25T10:00:50.945786+00:00","notes":"citizen self-approves"},"activation":{"status":"pending","checked_at":null}},"status":"in_progress","created_at":"2026-10-25T10:00:50.918889+00:00","updated_at":"2026-10-25T10:00:50.945797+00:00"}
+
+EXIT 0
