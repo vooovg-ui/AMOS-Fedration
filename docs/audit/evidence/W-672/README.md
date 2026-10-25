@@ -26,4 +26,5 @@ Perplexity Computer (المنسِّقُ الحاضرُ Claude Opus 5.5).
 - `README.md` — بطاقةُ هويّةِ هذا المجلد
 - `routes_read.txt` — قراءةُ المساراتِ والحرّاسِ (أوامرُ ومخرجٌ ورمزُ خروج)
 - `http_probe.py` · `http_probe_before.txt` — مسبارُ HTTP ومخرجُه حرفيًّا
+- `http_probe_before_rerun.txt` — إعادةُ تشغيلِ المسبارِ بعدَ أن رصدَ `truth_audit` فيه سرًّا مكتوبًا (`HARDCODED_SECRET` · السطر 19) و`except` صامتًا (`SILENT_FALLBACK` · السطر 93) وغيابَ ترويسةِ الهوية: صارَ مفتاحُ التوقيعِ `secrets.token_urlsafe(48)` لكلِّ تشغيل، وفشلُ الصحّةِ يرفعُ `RuntimeError`، وأُضيفتِ الترويسة. النتائجُ مطابقةٌ للأصلِ سطرًا بسطرٍ عدا مُعرِّفِ الترقيةِ والطوابعِ الزمنيّة (فرقُ `diff` الوحيدُ: سطرُ `/v1/promotions/<id>/gates`). والأصلُ باقٍ كما أُنتجَ.
 - `sim_require_king.sh` · `sim_require_king.txt` — عدُّ الفحوصِ التي تمرُّ برمزٍ غيرِ ملكٍ

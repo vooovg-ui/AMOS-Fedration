@@ -1,0 +1,62 @@
+$ (cd federal/executive/services && python ../../../docs/audit/evidence/W-672/http_probe.py)  # إعادةُ تشغيلٍ بعدَ تنظيفِ المسبار (مفتاحٌ عشوائيٌّ · خطأُ صحّةٍ صريح) على العقدة 79abc6a2 + المسبار المُعدَّل · الشِّفرةُ الإنتاجيّةُ كما في 380467c5
+### king raises halt (governance)
+$ POST <governance>/v1/system/kill-switch {"level": "halt", "reason": "probe", "activated_by": "king"}
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-25T09:44:10.065521+00:00","activated_by":"king"}
+
+### citizen reads status
+$ GET <governance>/v1/system/status
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-25T09:44:10.065521+00:00","activated_by":"king"}
+
+### CITIZEN reset (governance main.py:147 · guard :149)
+$ POST <governance>/v1/system/kill-switch/reset
+-> 200 {"level":"normal","reason":"","activated_at":null,"activated_by":""}
+
+### status after citizen reset
+$ GET <governance>/v1/system/status
+-> 200 {"level":"normal","reason":"","activated_at":null,"activated_by":""}
+
+### king raises halt again (console)
+$ POST <console>/v1/kill-switch {"level": "halt", "reason": "probe", "activated_by": "king"}
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-25T09:44:10.357637+00:00","activated_by":"king"}
+
+### CITIZEN reset (control_console main.py:209 · guard :211)
+$ POST <console>/v1/kill-switch/reset
+-> 200 {"level":"normal","reason":"","activated_at":null,"activated_by":""}
+
+### status after console reset
+$ GET <governance>/v1/system/status
+-> 200 {"level":"normal","reason":"","activated_at":null,"activated_by":""}
+
+### king raises halt (third)
+$ POST <governance>/v1/system/kill-switch {"level": "halt", "reason": "probe", "activated_by": "king"}
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-25T09:44:10.376357+00:00","activated_by":"king"}
+
+### CITIZEN lowers via activate level=normal (governance main.py:136 · guard :139)
+$ POST <governance>/v1/system/kill-switch {"level": "normal", "reason": "probe-lower", "activated_by": "king"}
+-> 200 {"level":"normal","reason":"probe-lower","activated_at":"2026-10-25T09:44:10.381256+00:00","activated_by":"king"}
+
+### status after citizen activate-normal
+$ GET <governance>/v1/system/status
+-> 200 {"level":"normal","reason":"probe-lower","activated_at":"2026-10-25T09:44:10.381256+00:00","activated_by":"king"}
+
+### king raises halt (fourth)
+$ POST <governance>/v1/system/kill-switch {"level": "halt", "reason": "probe", "activated_by": "king"}
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-25T09:44:10.387568+00:00","activated_by":"king"}
+
+### CITIZEN lowers via activate level=normal (control_console main.py:195 · guard :198)
+$ POST <console>/v1/kill-switch {"level": "normal", "reason": "probe-lower", "activated_by": "king"}
+-> 200 {"level":"normal","reason":"probe-lower","activated_at":"2026-10-25T09:44:10.392720+00:00","activated_by":"king"}
+
+### status after citizen console activate-normal
+$ GET <governance>/v1/system/status
+-> 200 {"level":"normal","reason":"probe-lower","activated_at":"2026-10-25T09:44:10.392720+00:00","activated_by":"king"}
+
+### CITIZEN creates promotion (governance main.py:167 · guard :170)
+$ POST <governance>/v1/promotions {"model_id": "probe-model"}
+-> 201 {"promotion_id":"promo-9743dd4e-72fd-4a06-ad21-981954a90294","model_id":"probe-model","gates":{"evaluation":{"status":"pending","checked_at":null},"shadow":{"status":"pending","checked_at":null},"canary":{"status":"pending","checked_at":null},"human_approval":{"status":"pending","checked_at":null},"activation":{"status":"pending","checked_at":null}},"status":"in_progress","created_at":"2026-10-25T09:44:10.399829+00:00","updated_at":"2026-10-25T09:44:10.399836+00:00"}
+
+### CITIZEN passes human_approval gate (governance main.py:199 · guard :203)
+$ POST <governance>/v1/promotions/promo-9743dd4e-72fd-4a06-ad21-981954a90294/gates {"gate_name": "human_approval", "passed": true, "notes": "citizen self-approves"}
+-> 200 {"promotion_id":"promo-9743dd4e-72fd-4a06-ad21-981954a90294","model_id":"probe-model","gates":{"evaluation":{"status":"pending","checked_at":null},"shadow":{"status":"pending","checked_at":null},"canary":{"status":"pending","checked_at":null},"human_approval":{"status":"passed","checked_at":"2026-10-25T09:44:10.406359+00:00","notes":"citizen self-approves"},"activation":{"status":"pending","checked_at":null}},"status":"in_progress","created_at":"2026-10-25T09:44:10.399829+00:00","updated_at":"2026-10-25T09:44:10.406391+00:00"}
+
+EXIT 0

@@ -1,13 +1,22 @@
 """مسبارُ HTTP حقيقيٌّ لأسطحِ زرِّ التوقّفِ والترقية — برمزِ مواطن (قياسُ ما قبلَ التحصين).
 
-يُشغِّلُ خدمتَي governance وcontrol_console بـuvicorn في عمليّتَينِ منفصلتَين على منفذَينِ
-محلّيَّين، ويُرسلُ طلباتِ HTTP حقيقيّةً بـurllib (لا TestClient)، ويطبعُ رمزَ الحالةِ والجسمَ حرفيًّا.
+الهدف:
+    يُشغِّلُ خدمتَي governance وcontrol_console بـuvicorn في عمليّتَينِ منفصلتَين على منفذَينِ
+    محلّيَّين، ويُرسلُ طلباتِ HTTP حقيقيّةً بـurllib (لا TestClient)، ويطبعُ رمزَ الحالةِ والجسمَ حرفيًّا.
+
+النطاق:
+    دليلٌ لا شفرةٌ إنتاجيّة. سرُّ التوقيعِ يُولَّدُ عشوائيًّا لكلِّ تشغيلٍ (لا سرَّ مكتوبًا)،
+    وقاعدةُ البياناتِ SQLite مؤقّتة.
+
+المالك: WI-114 (دليلُ W-672) · يُعادُ استعمالُه مسبارًا لـWI-117 (توجيهُ المستشارِ 23 § 1 قرار 2)
+تاريخ الإنشاء: 2026-10-25
 """
 
 from __future__ import annotations
 
 import json
 import os
+import secrets
 import socket
 import subprocess
 import sys
@@ -16,7 +25,7 @@ import time
 import urllib.error
 import urllib.request
 
-SECRET = "probe_secret_at_least_32_characters_long_xx"
+_JWT_KEY = secrets.token_urlsafe(48)
 
 
 def _port() -> int:
@@ -46,7 +55,7 @@ def main() -> int:
     db = tempfile.mktemp(suffix=".db", prefix="amos_probe_")
     env = {
         **os.environ,
-        "AMOS_JWT_SECRET": SECRET,
+        "AMOS_JWT_SECRET": _JWT_KEY,
         "AMOS_DATABASE_URL": f"sqlite:///{db}",
         "AMOS_ENVIRONMENT": "test",
         "OTEL_SDK_DISABLED": "true",
@@ -86,12 +95,17 @@ def main() -> int:
         base[name] = f"http://127.0.0.1:{port}"
     try:
         for b in base.values():
+            last_err: Exception | None = None
             for _ in range(100):
                 try:
                     urllib.request.urlopen(b + "/health", timeout=1)
+                    last_err = None
                     break
-                except Exception:
+                except OSError as exc:
+                    last_err = exc
                     time.sleep(0.2)
+            if last_err is not None:
+                raise RuntimeError(f"service at {b} never became healthy: {last_err!r}")
         g, c = base["governance"], base["console"]
         steps = [
             (
