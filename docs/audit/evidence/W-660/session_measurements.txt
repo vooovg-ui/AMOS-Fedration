@@ -1,0 +1,33 @@
+$ git rev-parse HEAD
+4fc5dc0365e9b27bf49106e8156251fdf6d0ab5a
+
+$ python tools/audit/decision_gate.py --measure
+{
+ "debt": 142,
+ "sovereign": 46,
+ "closed_legacy": 7,
+ "write_sites_total": 239,
+ "git_head": "4fc5dc03",
+ "waves": {
+  "W1": 11,
+  "W2": 34,
+  "W3": 97
+ }
+}
+
+$ python tools/audit/sovereign_write_inventory.py --json /tmp/inv.json | head -12
+== جردُ الكتاباتِ الإنتاجيّة ==
+  جذرُ القياس            : .
+  مواضعُ كتابةٍ (كلُّها)   : 239
+  عمليّاتٌ عامّةٌ مُغيِّرة   : 190
+  منها تعبرُ الحدَّ        : 46
+  مساراتٌ قديمةٌ مُغلَقة    : 7
+  **لا تعبرُ الحدَّ**       : 142
+  التوزيعُ على المناطق (عامّة / سياديّة / متجاوزة):
+    core                1 /   0 /    0
+    service_common     28 /   0 /   28
+    services          160 /  46 /  113
+    tools               1 /   0 /    1
+
+$ ls ~/.perplexity/secrets/  (WI-112: وجودُ السرِّ باسمِه لا بقيمتِه)
+ls: cannot access '/home/user/.perplexity/secrets/': No such file or directory
