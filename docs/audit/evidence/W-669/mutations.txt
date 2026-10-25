@@ -1,0 +1,33 @@
+# طفراتُ WI-113 — كلُّ طفرةٍ تُطبَّقُ على tools/audit/sovereign_write_inventory.py ثمَّ يُعادُ الملفُّ ويُتحقَّقُ بـcmp
+
+## M1 — qualify() تُعيدُ الاسمَ المجرَّدَ (عودةٌ إلى الفهرسةِ بالاسم)
+$ python -m pytest -q tests/governance/test_wi113_inventory_qualified_index.py
+
+tests/governance/test_wi113_inventory_qualified_index.py:110: AssertionError
+=========================== short test summary info ============================
+FAILED tests/governance/test_wi113_inventory_qualified_index.py::test_reader_sharing_a_name_with_a_writer_is_not_a_write_site
+FAILED tests/governance/test_wi113_inventory_qualified_index.py::test_persistent_py_has_one_synthesized_get_owned_by_system_state
+2 failed, 2 passed in 0.14s
+
+## M2 — إسقاطُ الرجوعِ إلى كلِّ تعريفٍ بالاسمِ للمُستقبِلِ المجهول (إسكات)
+$ python -m pytest -q tests/governance/test_wi113_inventory_qualified_index.py
+tests/governance/test_wi113_inventory_qualified_index.py:101: AssertionError
+=========================== short test summary info ============================
+FAILED tests/governance/test_wi113_inventory_qualified_index.py::test_unknown_receiver_keeps_the_declared_conservative_limit
+1 failed, 3 passed in 0.09s
+
+## بعدَ الإعادة
+$ cmp /tmp/mut/orig.py tools/audit/sovereign_write_inventory.py && echo restored
+restored
+$ python -m pytest -q tests/governance/test_wi113_inventory_qualified_index.py tests/governance/test_w083_measurement_site_key.py
+15 passed in 2.32s
+
+## الفحصُ على شِفرةِ الجردِ قبلَ الإصلاحِ (git show HEAD:tools/audit/sovereign_write_inventory.py — HEAD 7d3d5b6f)
+حدُّ الصدق: الأداةُ القديمةُ لا تملكُ qcalls/qnodes فيسقطُ الفحصُ بخطأِ الواجهةِ لا بالتأكيدِ — والسقوطُ الدلاليُّ تُثبِتُه الطفرةُ M1 أعلاه.
+$ python -m pytest -q tests/governance/test_wi113_inventory_qualified_index.py
+=========================== short test summary info ============================
+FAILED tests/governance/test_wi113_inventory_qualified_index.py::test_reader_sharing_a_name_with_a_writer_is_not_a_write_site
+FAILED tests/governance/test_wi113_inventory_qualified_index.py::test_real_writer_through_helper_is_still_counted
+FAILED tests/governance/test_wi113_inventory_qualified_index.py::test_unknown_receiver_keeps_the_declared_conservative_limit
+FAILED tests/governance/test_wi113_inventory_qualified_index.py::test_persistent_py_has_one_synthesized_get_owned_by_system_state
+4 failed in 0.10s

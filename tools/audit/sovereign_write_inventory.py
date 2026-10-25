@@ -163,6 +163,14 @@ class _WriteVisitor(ast.NodeVisitor):
         self.sites: list[WriteSite] = []
         #: خريطةُ الاستدعاءِ داخلَ الوحدة: دالّةٌ ← أسماءُ ما تُناديه.
         self.calls: dict[str, set[str]] = {}
+        #: الخريطةُ نفسُها **بالاسمِ المؤهَّلِ** (`Class.method` أو اسمُ دالّةِ الوحدة)
+        #: ومعها نوعُ كلِّ نداءٍ — `self` (على `self`/`cls`) · `name` (اسمٌ مجرَّد) ·
+        #: `attr` (صفةٌ على مُستقبِلٍ آخر). سببُها مقيسٌ (WI-113 · A1 § 1.3): الفهرسةُ
+        #: بالاسمِ المجرَّدِ تدمجُ كلَّ `get` في الوحدةِ في مدخلٍ واحدٍ، فتُنسَبُ كتابةُ
+        #: معاونِ صنفٍ إلى قراءاتِ أصنافٍ أخرى (7 قراءاتٍ في `common/persistent.py`).
+        self.qcalls: dict[str, set[tuple[str, str]]] = {}
+        #: العُقَدُ بالاسمِ المؤهَّلِ وصنفِها — لتركيبِ المواقعِ العامّةِ بمالكِها الحقّ.
+        self.qnodes: list[tuple[str, str, ast.FunctionDef | ast.AsyncFunctionDef]] = []
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:  # noqa: N802
         self._classes.append(node.name)
@@ -173,13 +181,23 @@ class _WriteVisitor(ast.NodeVisitor):
         segment = ast.get_source_segment(self._source, node) or ""
         writes: set[str] = set()
         called: set[str] = self.calls.setdefault(node.name, set())
+        owner = self._classes[-1] if self._classes else "-"
+        qualified = qualify(owner, node.name)
+        qcalled = self.qcalls.setdefault(qualified, set())
+        self.qnodes.append((qualified, owner, node))
         for sub in ast.walk(node):
             if isinstance(sub, ast.Call):
                 target = sub.func
                 if isinstance(target, ast.Name):
                     called.add(target.id)
+                    qcalled.add(("name", target.id))
                 elif isinstance(target, ast.Attribute):
                     called.add(target.attr)
+                    on_self = isinstance(target.value, ast.Name) and target.value.id in {
+                        "self",
+                        "cls",
+                    }
+                    qcalled.add(("self" if on_self else "attr", target.attr))
             if (
                 isinstance(sub, ast.Call)
                 and isinstance(sub.func, ast.Attribute)
@@ -268,6 +286,42 @@ def iter_source_files(base: Path) -> Iterator[Path]:
     return iter(sorted(collected))
 
 
+def qualify(owner: str, function: str) -> str:
+    """الاسمُ المؤهَّلُ لدالّة: `Class.method` في صنف، واسمُها وحدَه في الوحدة."""
+    return f"{owner}.{function}" if owner and owner != "-" else function
+
+
+def _bare(qualified: str) -> str:
+    """الاسمُ المجرَّدُ من الاسمِ المؤهَّل."""
+    return qualified.rsplit(".", 1)[-1]
+
+
+def resolve_callees(
+    caller: str, qcalls: dict[str, set[tuple[str, str]]]
+) -> set[str]:
+    """حُلَّ نداءاتِ `caller` إلى أسماءٍ مؤهَّلةٍ معرَّفةٍ في الوحدة.
+
+    - `self.x()`/`cls.x()` ← `Owner.x` إن عُرِّفَ في الصنفِ نفسِه؛ وإلّا (موروثٌ أو
+      غيرُ معروف) فكلُّ تعريفٍ بالاسم — تحفُّظٌ مُعلَنٌ: الإسقاطُ أخطرُ من الزيادة.
+    - `x()` ← دالّةُ الوحدةِ `x` إن وُجدَت؛ وإلّا فكلُّ تعريفٍ بالاسم (دالّةٌ متداخلة).
+    - `obj.x()` على مُستقبِلٍ آخر ← كلُّ تعريفٍ بالاسم: أداةٌ ساكنةٌ لا تعرفُ النوع،
+      وهذا هو الحدُّ القديمُ نفسُه باقيًا حيثُ لا يُعرَفُ المُستقبِلُ — لا يُخفَّف.
+    """
+    by_bare: dict[str, set[str]] = {}
+    for name in qcalls:
+        by_bare.setdefault(_bare(name), set()).add(name)
+    owner = caller.rsplit(".", 1)[0] if "." in caller else ""
+    resolved: set[str] = set()
+    for kind, name in qcalls.get(caller, ()):
+        if kind == "self" and owner and f"{owner}.{name}" in qcalls:
+            resolved.add(f"{owner}.{name}")
+        elif kind == "name" and name in qcalls:
+            resolved.add(name)
+        else:
+            resolved.update(by_bare.get(name, ()))
+    return resolved
+
+
 def attribute_helper_writes(
     sites: list[WriteSite], calls: dict[str, set[str]]
 ) -> list[WriteSite]:
@@ -317,48 +371,46 @@ def attribute_helper_writes(
 
 def synthesize_public_sites(
     sites: list[WriteSite],
-    calls: dict[str, set[str]],
+    qcalls: dict[str, set[tuple[str, str]]],
+    qnodes: list[tuple[str, str, ast.FunctionDef | ast.AsyncFunctionDef]],
     path: str,
     source: str,
-    tree: ast.AST,
 ) -> list[WriteSite]:
     """أضِفْ عمليّاتٍ عامّةً تكتبُ **بمعاونِها** ولا كتابةَ في جسدِها.
 
     هذه بعينُها الحالةُ التي كان المقياسُ يُسقِطها: `set_institution_status` بعدَ
     هجرتِها في P1أ.
+
+    **والتتبُّعُ بالاسمِ المؤهَّلِ** (WI-113 · تصحيحُ قياسٍ A1(هـ)): كانَ الفهرسُ
+    بالاسمِ المجرَّدِ فتصلُ `PromotionStore.get` إلى `_row` الكاتبِ في صنفٍ آخر،
+    ويُنسَبُ المالكُ إلى آخرِ صنفٍ يُعرِّفُ الاسم — فتُحسَبُ 7 قراءاتٍ كتاباتٍ.
     """
-    writer_helpers = {s.function for s in sites if s.writes and not s.public}
-    known = {s.function for s in sites}
+    writer_helpers = {
+        qualify(s.owner, s.function) for s in sites if s.writes and not s.public
+    }
+    known = {qualify(s.owner, s.function) for s in sites}
     added: list[WriteSite] = []
-    classes: dict[str, str] = {}
-    for node in ast.walk(tree):
-        if isinstance(node, ast.ClassDef):
-            for child in node.body:
-                if isinstance(child, ast.FunctionDef | ast.AsyncFunctionDef):
-                    classes[child.name] = node.name
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
-            continue
-        if node.name.startswith("_") or node.name in known:
+    for qualified, owner, node in qnodes:
+        if node.name.startswith("_") or qualified in known:
             continue
         seen: set[str] = set()
-        stack = list(calls.get(node.name, ()))
+        stack = list(resolve_callees(qualified, qcalls))
         via: set[str] = set()
         while stack:
             name = stack.pop()
-            if name in seen or not name.startswith("_"):
+            if name in seen or not _bare(name).startswith("_"):
                 continue
             seen.add(name)
             if name in writer_helpers:
-                via.add(name)
-            stack.extend(calls.get(name, ()))
+                via.add(_bare(name))
+            stack.extend(resolve_callees(name, qcalls))
         if not via:
             continue
         segment = ast.get_source_segment(source, node) or ""
         added.append(
             WriteSite(
                 path=path,
-                owner=classes.get(node.name, "-"),
+                owner=owner,
                 function=node.name,
                 line=node.lineno,
                 public=True,
@@ -391,7 +443,7 @@ def collect(root: Path, subtree: Path | None = None) -> list[WriteSite]:
         visitor = _WriteVisitor(str(relative), source)
         visitor.visit(tree)
         module_sites = visitor.sites + synthesize_public_sites(
-            visitor.sites, visitor.calls, str(relative), source, tree
+            visitor.sites, visitor.qcalls, visitor.qnodes, str(relative), source
         )
         sites.extend(attribute_helper_writes(module_sites, visitor.calls))
     return sites

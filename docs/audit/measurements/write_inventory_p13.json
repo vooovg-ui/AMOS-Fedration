@@ -1,7 +1,7 @@
 {
  "$comment": "الهدف: جردُ مواضعِ الكتابةِ في المستودعِ وتصنيفُ ما عبرَ الحدَّ السّياديَّ وما لم يعبُر— مُخرَجُ tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039).",
  "summary": {
-  "write_sites_total": 239,
+  "write_sites_total": 232,
   "by_area": {
    "core": {
     "public": 1,
@@ -9,9 +9,9 @@
     "non_sovereign": 0
    },
    "service_common": {
-    "public": 28,
+    "public": 21,
     "sovereign": 0,
-    "non_sovereign": 28
+    "non_sovereign": 21
    },
    "services": {
     "public": 160,
@@ -24,13 +24,13 @@
     "non_sovereign": 1
    }
   },
-  "public_write_operations": 190,
+  "public_write_operations": 183,
   "sovereign_write_operations": 46,
   "closed_legacy_paths": 7,
-  "non_sovereign_write_operations": 142,
+  "non_sovereign_write_operations": 135,
   "non_sovereign_by_file": {
-   "federal/executive/services/src/amos_federation/common/persistent.py": 20,
    "federal/executive/services/src/amos_federation/services/national_economy/service.py": 16,
+   "federal/executive/services/src/amos_federation/common/persistent.py": 13,
    "federal/executive/services/src/amos_federation/services/federal_state/service.py": 10,
    "federal/executive/services/src/amos_federation/services/governance/treasury.py": 9,
    "federal/executive/services/src/amos_federation/services/royal/main.py": 9,
@@ -267,110 +267,6 @@
   {
    "path": "federal/executive/services/src/amos_federation/common/persistent.py",
    "owner": "PersistentPromotionStore",
-   "function": "get",
-   "ordinal": 0,
-   "public": true,
-   "writes": [],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": [
-    "_row"
-   ]
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
-   "owner": "PersistentPromotionStore",
-   "function": "get",
-   "ordinal": 1,
-   "public": true,
-   "writes": [],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": [
-    "_row"
-   ]
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
-   "owner": "PersistentPromotionStore",
-   "function": "get",
-   "ordinal": 2,
-   "public": true,
-   "writes": [],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": [
-    "_row"
-   ]
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
-   "owner": "PersistentPromotionStore",
-   "function": "get",
-   "ordinal": 3,
-   "public": true,
-   "writes": [],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": [
-    "_row"
-   ]
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
-   "owner": "PersistentPromotionStore",
-   "function": "get",
-   "ordinal": 4,
-   "public": true,
-   "writes": [],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": [
-    "_row"
-   ]
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
-   "owner": "PersistentPromotionStore",
-   "function": "get",
-   "ordinal": 5,
-   "public": true,
-   "writes": [],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": [
-    "_row"
-   ]
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
-   "owner": "PersistentPromotionStore",
-   "function": "get",
-   "ordinal": 6,
-   "public": true,
-   "writes": [],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": [
-    "_row"
-   ]
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
-   "owner": "PersistentPromotionStore",
-   "function": "get",
-   "ordinal": 7,
-   "public": true,
-   "writes": [],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": [
-    "_row"
-   ]
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
-   "owner": "PersistentPromotionStore",
    "function": "save_gates",
    "ordinal": 0,
    "public": true,
@@ -380,6 +276,19 @@
    "guarded": false,
    "closed_legacy": false,
    "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentSystemStateStore",
+   "function": "get",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_row"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/common/persistent.py",
