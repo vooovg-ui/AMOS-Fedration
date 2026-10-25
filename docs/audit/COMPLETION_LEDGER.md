@@ -793,6 +793,8 @@ T5 (‏الرصد) لا دَينُ هذه الخطوة. **وأخطرُ ما يج
 
 10ثغ-6. 2026-10-25 (W-665 — WI-115 READY→RESERVED + وثيقةُ تصميمِ Q-9 · لا شِفرةَ · المنسِّقُ Claude Opus 5.5): أُودِعَت `docs/audit/Q9_NESTING_DETECTOR_DESIGN.md` وقياساتُها خامًا (`evidence/W-665/`). **مقيسٌ يُغيِّرُ الترتيبَ**: لا `guard_declared` في `state_treasury` ولا `national_economy` ولا `federal_state` — فمركَّباتُ المالِ الثلاثةُ غيرُ محروسةٍ اليومَ ولا تعشيشَ ماليٌّ قائمٌ؛ والتعشيشُ الوحيدُ `open_case` (`gov.case.open` ← `task.submit`/`task.cancel`). **و§ 3.5 مقيسٌ**: `_existing_idempotent` (`state_treasury/service.py:835–847`) بلا شرطِ حالةٍ ويُناديه 3 عمليّاتٍ، و`reverse_transaction` يُعلِّمُ `reversed` (`:1603`). والتصميمُ: إصلاحُ § 3.5 أوّلًا · كاشفٌ بـ`ContextVar` قبلَ `decide` (`enforcement_boundary.py:357`) باستثناءِ زوجَينِ مسمّيَينِ · واستخراجُ `_disburse_core` الآنَ وإعلانُ الآثارِ مع M1 — تفسيرٌ للترتيبِ يُعرَضُ على المستشارِ.
 
+10ثغ-7. 2026-10-25 (W-666 — WI-113 READY→RESERVED · **تصحيحُ قياسٍ** · لا شِفرةَ · المنسِّقُ Claude Opus 5.5): قِيسَ ما قبلُ خامًا (`evidence/W-666/d4_before.txt`): D-4 = 142 (سياديٌّ 46 · مُغلَقٌ قديمٌ 7 · مواقعُ الكتابةِ 239 · الموجاتُ 11/34/97)، و`synthesize_public_sites` يُركِّبُ في `common/persistent.py` 8 مواقعَ كلُّها بهويّةِ `PersistentPromotionStore.get` — شاهدُ الفهرسةِ بالاسمِ المجرَّدِ ونسبةِ المالكِ إلى آخرِ صنفٍ. والفرقُ بعدَ الإصلاحِ يُسجَّلُ «تصحيحَ قياسٍ» تحتَ عنوانٍ منفصلٍ لا حرقًا.
+
 ---
 
 ## 8 · سجلُّ العملِ المنفَّذ
@@ -1465,6 +1467,7 @@ T5 (‏الرصد) لا دَينُ هذه الخطوة. **وأخطرُ ما يج
 | W-663 | 2026-10-25 | T0 (تسجيلُ بنودٍ بقراراتِ المالكِ · لا شِفرةَ) | WI-113/WI-114/WI-115 READY وWI-116 PROPOSED بمعاييرِ قبولٍ مأخوذةٍ من نصِّ القراراتِ · وتحديثُ وثائقِ الحالةِ | حجزُ WI-113/114/115 ووثيقتا تصميمِ canary وQ-9 في الدفعةِ التاليةِ | [`evidence/W-660/`](evidence/W-660/README.md) |
 | W-664 | 2026-10-25 | T1 (بندُ [`WI-114`](../governance/work/ACTIVE_WORK.md) · READY→RESERVED · لا شِفرةَ) | وثيقةُ تصميمِ A1(أ) canary بقياسِ `require_auth` ومسبارِ مراجعةٍ: الخفضُ والترقيةُ DENY عبرَ الجسرِ لغيابِ قناةِ `human_approved` | سؤالُ المالكِ في § 5 · وشِفرةُ السطحينِ 1 و3 بعدَ IN_PROGRESS | [`evidence/W-664/`](evidence/W-664/README.md) |
 | W-665 | 2026-10-25 | T1 (بندُ [`WI-115`](../governance/work/ACTIVE_WORK.md) · READY→RESERVED · لا شِفرةَ) | وثيقةُ تصميمِ Q-9: إصلاحُ § 3.5 · كاشفُ التعشيشِ باستثناءِ `open_case` زوجَينِ · `_disburse_core` | الشِّفرةُ بعدَ IN_PROGRESS | [`evidence/W-665/`](evidence/W-665/README.md) |
+| W-666 | 2026-10-25 | T0 (بندُ [`WI-113`](../governance/work/ACTIVE_WORK.md) · READY→RESERVED · تصحيحُ قياسٍ · لا شِفرةَ) | قياسُ ما قبلُ: D-4 = 142 و8 مواقعَ مُركَّبةٍ بهويّةٍ واحدةٍ خاطئةٍ في persistent.py | الإصلاحُ وفحصُه وطفرتُه بعدَ IN_PROGRESS | [`evidence/W-666/`](evidence/W-666/README.md) |
 ---
 
 ## 9 · المتبقّي بالأرقام

@@ -1,0 +1,42 @@
+# قياسُ ما قبلَ WI-113 على HEAD 5086fb4e9a31fcff7ed9b8429bf3da6c29377e17 (شِفرةُ الجردِ كما في main cb728386)
+
+$ python tools/audit/decision_gate.py --measure
+{
+ "debt": 142,
+ "sovereign": 46,
+ "closed_legacy": 7,
+ "write_sites_total": 239,
+ "git_head": "5086fb4e",
+ "waves": {
+  "W1": 11,
+  "W2": 34,
+  "W3": 97
+ }
+}
+
+$ python tools/audit/sovereign_write_inventory.py --json /tmp/inv.json
+       1  federal/executive/services/src/amos_federation/common/events.py
+       1  federal/executive/services/src/amos_federation/services/api_gateway/store.py
+       1  federal/executive/services/src/amos_federation/services/executive_core/dispatcher.py
+       1  federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py
+       1  federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py
+       1  federal/executive/services/src/amos_federation/services/government_services/service.py
+       1  tools/migrations/r4_unify_agent_identity.py
+  التفصيلُ محفوظٌ في: /tmp/inv.json
+
+$ rg -n "def synthesize_public_sites|calls.get\(|calls\[" tools/audit/sovereign_write_inventory.py
+287:        stack = list(calls.get(entry, ()))
+296:            stack.extend(calls.get(name, ()))
+318:def synthesize_public_sites(
+345:        stack = list(calls.get(node.name, ()))
+354:            stack.extend(calls.get(name, ()))
+
+$ python - # مواقعُ common/persistent.py المُركَّبةُ (writes=[] و writes_via≠[]) من /tmp/inv.json — ما يُركِّبُه synthesize_public_sites
+PersistentPromotionStore.get	via=['_row']	guarded=False
+PersistentPromotionStore.get	via=['_row']	guarded=False
+PersistentPromotionStore.get	via=['_row']	guarded=False
+PersistentPromotionStore.get	via=['_row']	guarded=False
+PersistentPromotionStore.get	via=['_row']	guarded=False
+PersistentPromotionStore.get	via=['_row']	guarded=False
+PersistentPromotionStore.get	via=['_row']	guarded=False
+PersistentPromotionStore.get	via=['_row']	guarded=False
