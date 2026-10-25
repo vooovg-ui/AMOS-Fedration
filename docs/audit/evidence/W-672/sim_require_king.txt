@@ -1,0 +1,46 @@
+$ bash docs/audit/evidence/W-672/sim_require_king.sh  # العقدة f89183195e621bd6c3a9333df7c01f0616535e80
+== (0) خطُّ الأساسِ (العقدةُ كما هي)
+======================== 77 passed, 1 warning in 11.62s ========================
+== (1) نطاقُ D25-2 حرفيًّا: reset ×2 · إنشاءُ الترقية · فحصُ البوابة
+-    _: Annotated[dict[str, object], Depends(require_auth)],
++    _: Annotated[dict[str, object], Depends(require_king)],
+-    _: Annotated[dict[str, object], Depends(require_auth)],
++    _: Annotated[dict[str, object], Depends(require_king)],
+-    _: Annotated[dict[str, object], Depends(require_auth)],
++    _: Annotated[dict[str, object], Depends(require_king)],
+-    _: Annotated[dict[str, object], Depends(require_auth)],
++    _: Annotated[dict[str, object], Depends(require_king)],
+____________________________ test_check_gate_passed ____________________________
+tests/test_governance.py:168: in test_check_gate_passed
+____________________ test_check_gate_failed_stops_promotion ____________________
+tests/test_governance.py:181: in test_check_gate_failed_stops_promotion
+________________________ test_all_gates_passed_promotes ________________________
+tests/test_governance.py:193: in test_all_gates_passed_promotes
+FAILED tests/test_governance.py::test_reset_kill_switch
+FAILED tests/test_governance.py::test_create_promotion
+FAILED tests/test_governance.py::test_check_gate_passed
+FAILED tests/test_governance.py::test_check_gate_failed_stops_promotion
+FAILED tests/test_governance.py::test_all_gates_passed_promotes
+FAILED tests/test_control_console.py::test_kill_switch_reset
+=================== 6 failed, 71 passed, 1 warning in 12.05s ===================
+== (2) ومعَها activate ×2 (للقياسِ فقط — خارجَ نصِّ D25-2 · DISC-138)
+____________________________ test_check_gate_passed ____________________________
+tests/test_governance.py:168: in test_check_gate_passed
+____________________ test_check_gate_failed_stops_promotion ____________________
+tests/test_governance.py:181: in test_check_gate_failed_stops_promotion
+________________________ test_all_gates_passed_promotes ________________________
+tests/test_governance.py:193: in test_all_gates_passed_promotes
+FAILED tests/test_governance.py::test_activate_kill_switch
+FAILED tests/test_governance.py::test_reset_kill_switch
+FAILED tests/test_governance.py::test_kill_switch_rejects_invalid_level
+FAILED tests/test_governance.py::test_create_promotion
+FAILED tests/test_governance.py::test_check_gate_passed
+FAILED tests/test_governance.py::test_check_gate_failed_stops_promotion
+FAILED tests/test_governance.py::test_all_gates_passed_promotes
+FAILED tests/test_governance_phase3.py::test_kill_switch_via_api
+FAILED tests/test_control_console.py::test_kill_switch_activate
+FAILED tests/test_control_console.py::test_kill_switch_reset
+FAILED tests/test_control_console.py::test_kill_switch_writes_audit
+================== 11 failed, 66 passed, 1 warning in 11.51s ===================
+== أُعيدَ: 0 ملفٌّ معدَّلٌ
+EXIT 0

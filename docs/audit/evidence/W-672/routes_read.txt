@@ -1,0 +1,327 @@
+$ rg -n 'Depends\(require_(auth|king)\)|@router\.(post|get)' federal/executive/services/src/amos_federation/services/governance/main.py
+106:@router.get("/policies", response_model=dict)
+108:    _: Annotated[dict[str, object], Depends(require_auth)],
+114:@router.post("/policies/check", response_model=dict)
+117:    _: Annotated[dict[str, object], Depends(require_auth)],
+128:@router.get("/system/status", response_model=dict)
+130:    _: Annotated[dict[str, object], Depends(require_auth)],
+136:@router.post("/system/kill-switch", response_model=dict)
+139:    _: Annotated[dict[str, object], Depends(require_auth)],
+147:@router.post("/system/kill-switch/reset", response_model=dict)
+149:    _: Annotated[dict[str, object], Depends(require_auth)],
+167:@router.post("/promotions", response_model=dict, status_code=status.HTTP_201_CREATED)
+170:    _: Annotated[dict[str, object], Depends(require_auth)],
+178:@router.get("/promotions", response_model=list[dict])
+180:    _: Annotated[dict[str, object], Depends(require_auth)],
+187:@router.get("/promotions/{promotion_id}", response_model=dict)
+190:    _: Annotated[dict[str, object], Depends(require_auth)],
+199:@router.post("/promotions/{promotion_id}/gates", response_model=dict)
+203:    _: Annotated[dict[str, object], Depends(require_auth)],
+225:@router.post("/canary", response_model=dict, status_code=status.HTTP_201_CREATED)
+228:    _: Annotated[dict[str, object], Depends(require_auth)],
+236:@router.get("/canary", response_model=list[dict])
+238:    _: Annotated[dict[str, object], Depends(require_auth)],
+245:@router.get("/canary/{canary_id}", response_model=dict)
+248:    _: Annotated[dict[str, object], Depends(require_auth)],
+261:    _: Annotated[dict[str, object], Depends(require_auth)],
+280:@router.post("/canary/{canary_id}/rollback", response_model=dict)
+283:    _: Annotated[dict[str, object], Depends(require_auth)],
+297:@router.get("/audit", response_model=list[dict])
+299:    _: Annotated[dict[str, object], Depends(require_auth)],
+306:@router.get("/audit/verify", response_model=dict)
+308:    _: Annotated[dict[str, object], Depends(require_auth)],
+317:@router.get("/events", response_model=list[dict])
+319:    _: Annotated[dict[str, object], Depends(require_auth)],
+329:@router.get("/events/count", response_model=dict)
+331:    _: Annotated[dict[str, object], Depends(require_auth)],
+340:@router.get("/events/contracts", response_model=dict)
+342:    _: Annotated[dict[str, object], Depends(require_auth)],
+353:@router.get("/policy/rules", response_model=list[dict])
+355:    _: Annotated[dict[str, object], Depends(require_auth)],
+361:@router.post("/policy/evaluate", response_model=dict)
+363:    _: Annotated[dict[str, object], Depends(require_auth)],
+378:@router.post("/policy/check-tool", response_model=dict)
+380:    _: Annotated[dict[str, object], Depends(require_auth)],
+EXIT 0
+
+$ rg -n 'Depends\(require_(auth|king)\)|@router\.(post|get)' federal/executive/services/src/amos_federation/services/control_console/main.py
+25:@router.get("/dashboard", response_model=dict)
+27:    _: Annotated[dict[str, object], Depends(require_auth)],
+102:@router.get("/agents", response_model=list[dict])
+104:    _: Annotated[dict[str, object], Depends(require_auth)],
+113:@router.get("/agents/{agent_id}", response_model=dict)
+116:    _: Annotated[dict[str, object], Depends(require_auth)],
+133:@router.post("/agents/{agent_id}/state", response_model=dict)
+137:    _: Annotated[dict[str, object], Depends(require_auth)],
+163:@router.get("/audit", response_model=list[dict])
+165:    _: Annotated[dict[str, object], Depends(require_auth)],
+174:@router.get("/audit/verify", response_model=dict)
+176:    _: Annotated[dict[str, object], Depends(require_auth)],
+195:@router.post("/kill-switch", response_model=dict)
+198:    _: Annotated[dict[str, object], Depends(require_auth)],
+209:@router.post("/kill-switch/reset", response_model=dict)
+211:    _: Annotated[dict[str, object], Depends(require_auth)],
+231:@router.post("/approval", response_model=dict)
+234:    _: Annotated[dict[str, object], Depends(require_auth)],
+264:@router.get("/cost", response_model=dict)
+266:    _: Annotated[dict[str, object], Depends(require_auth)],
+277:@router.get("/events", response_model=list[dict])
+279:    _: Annotated[dict[str, object], Depends(require_auth)],
+292:@router.get("/health/agents/{agent_id}", response_model=dict)
+295:    _: Annotated[dict[str, object], Depends(require_auth)],
+315:@router.get("/health/all", response_model=list[dict])
+317:    _: Annotated[dict[str, object], Depends(require_auth)],
+341:@router.post("/health/check", response_model=dict)
+343:    _: Annotated[dict[str, object], Depends(require_auth)],
+355:@router.get("/health/isolations", response_model=list[dict])
+357:    _: Annotated[dict[str, object], Depends(require_auth)],
+365:@router.post("/health/isolate/{agent_id}", response_model=dict)
+368:    _: Annotated[dict[str, object], Depends(require_auth)],
+377:@router.post("/health/treat/{agent_id}", response_model=dict)
+380:    _: Annotated[dict[str, object], Depends(require_auth)],
+390:@router.post("/health/release/{isolation_id}", response_model=dict)
+393:    _: Annotated[dict[str, object], Depends(require_auth)],
+405:@router.get("/approvals", response_model=list[dict])
+407:    _: Annotated[dict[str, object], Depends(require_auth)],
+415:@router.get("/legislations", response_model=list[dict])
+417:    _: Annotated[dict[str, object], Depends(require_auth)],
+425:@router.get("/court-cases", response_model=list[dict])
+427:    _: Annotated[dict[str, object], Depends(require_auth)],
+435:@router.get("/compliance-reports", response_model=list[dict])
+437:    _: Annotated[dict[str, object], Depends(require_auth)],
+445:@router.get("/executive-roles", response_model=list[dict])
+447:    _: Annotated[dict[str, object], Depends(require_auth)],
+458:@router.get("/treasury/balance", response_model=dict)
+460:    _: Annotated[dict[str, object], Depends(require_auth)],
+469:@router.get("/treasury/transactions", response_model=list[dict])
+471:    _: Annotated[dict[str, object], Depends(require_auth)],
+480:@router.get("/treasury/verify", response_model=dict)
+482:    _: Annotated[dict[str, object], Depends(require_auth)],
+490:@router.post("/treasury/reward", response_model=dict)
+492:    _: Annotated[dict[str, object], Depends(require_auth)],
+503:@router.post("/treasury/charge", response_model=dict)
+505:    _: Annotated[dict[str, object], Depends(require_auth)],
+516:@router.get("/treasury/reports", response_model=list[dict])
+518:    _: Annotated[dict[str, object], Depends(require_auth)],
+526:@router.post("/treasury/report", response_model=dict)
+528:    _: Annotated[dict[str, object], Depends(require_auth)],
+541:@router.get("/expansion/stats", response_model=dict)
+543:    _: Annotated[dict[str, object], Depends(require_auth)],
+551:@router.post("/expansion/run", response_model=dict)
+553:    _: Annotated[dict[str, object], Depends(require_auth)],
+562:@router.get("/specialization/tracks", response_model=dict)
+564:    _: Annotated[dict[str, object], Depends(require_auth)],
+572:@router.post("/specialization/enroll", response_model=dict)
+574:    _: Annotated[dict[str, object], Depends(require_auth)],
+584:@router.post("/specialization/exam", response_model=dict)
+586:    _: Annotated[dict[str, object], Depends(require_auth)],
+597:@router.get("/university/outputs", response_model=list[dict])
+599:    _: Annotated[dict[str, object], Depends(require_auth)],
+609:@router.post("/university/produce", response_model=dict)
+611:    _: Annotated[dict[str, object], Depends(require_auth)],
+619:@router.get("/retirement/list", response_model=list[dict])
+621:    _: Annotated[dict[str, object], Depends(require_auth)],
+629:@router.post("/retirement/retire", response_model=dict)
+631:    _: Annotated[dict[str, object], Depends(require_auth)],
+644:@router.get("/ui", response_class=HTMLResponse)
+EXIT 0
+
+$ nl -ba federal/executive/services/src/amos_federation/common/auth.py | sed -n 87,128p
+    87	def require_auth(
+    88	    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_security)] = None,
+    89	) -> dict[str, Any]:
+    90	    """اعتماد FastAPI يرفض الطلبات التي لا تحمل رمز Bearer صالحاً."""
+    91	    if credentials is None:
+    92	        raise HTTPException(
+    93	            status_code=status.HTTP_401_UNAUTHORIZED,
+    94	            detail="رمز Bearer مطلوب",
+    95	            headers={"WWW-Authenticate": "Bearer"},
+    96	        )
+    97	    return decode_token(credentials.credentials)
+    98	
+    99	
+   100	def require_role(*roles: str):
+   101	    """اعتماد يتطلب دوراً محدداً أو أكثر. الملك له صلاحيات مطلقة."""
+   102	
+   103	    def checker(
+   104	        credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_security)] = None,
+   105	    ) -> dict[str, Any]:
+   106	        token_data = require_auth(credentials)
+   107	        user_role = token_data.get("role", ROLE_CITIZEN)
+   108	        if user_role == ROLE_KING:
+   109	            return token_data
+   110	        if user_role not in roles:
+   111	            raise HTTPException(
+   112	                status_code=status.HTTP_403_FORBIDDEN,
+   113	                detail=f"الدور المطلوب: {roles} — دورك الحالي: {user_role}",
+   114	            )
+   115	        return token_data
+   116	
+   117	    return checker
+   118	
+   119	
+   120	def require_king(
+   121	    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_security)] = None,
+   122	) -> dict[str, Any]:
+   123	    """اعتماد يتطلب دور المالك/الملك فقط."""
+   124	    token_data = require_auth(credentials)
+   125	    if token_data.get("role") != ROLE_KING:
+   126	        raise HTTPException(
+   127	            status_code=status.HTTP_403_FORBIDDEN,
+   128	            detail="هذا الإجراء يتطلب صلاحيات المالك/الملك",
+EXIT 0
+
+$ nl -ba federal/executive/services/src/amos_federation/services/governance/main.py | sed -n 62,72p
+    62	    system_state: str | None = None
+    63	
+    64	
+    65	class KillSwitchRequest(BaseModel):
+    66	    """طلب تفعيل مفتاح الإيقاف."""
+    67	
+    68	    level: str = Field(pattern="^(normal|alert|degraded|halt)$")
+    69	    reason: str = Field(min_length=1)
+    70	    activated_by: str = Field(min_length=1)
+    71	
+    72	
+EXIT 0
+
+$ nl -ba federal/executive/services/src/amos_federation/services/governance/main.py | sed -n 134,215p
+   134	
+   135	
+   136	@router.post("/system/kill-switch", response_model=dict)
+   137	async def activate_kill_switch(
+   138	    request: KillSwitchRequest,
+   139	    _: Annotated[dict[str, object], Depends(require_auth)],
+   140	) -> dict[str, Any]:
+   141	    """تفعيل مفتاح الإيقاف متعدد المستويات."""
+   142	    result = _activate_kill_switch_safe(request.level, request.reason, request.activated_by)
+   143	    _append_audit("kill_switch_activated", request.activated_by, result)
+   144	    return result
+   145	
+   146	
+   147	@router.post("/system/kill-switch/reset", response_model=dict)
+   148	async def reset_kill_switch_endpoint(
+   149	    _: Annotated[dict[str, object], Depends(require_auth)],
+   150	) -> dict[str, Any]:
+   151	    """إعادة ضبط مفتاح الإيقاف."""
+   152	    result = reset_kill_switch()
+   153	    _append_audit("kill_switch_reset", "system", result)
+   154	    return result
+   155	
+   156	
+   157	def _activate_kill_switch_safe(level: str, reason: str, activated_by: str) -> dict[str, Any]:
+   158	    """Wrapper آمن لتفعيل مفتاح الإيقاف."""
+   159	    from amos_federation.services.governance.canary import activate_kill_switch
+   160	
+   161	    return activate_kill_switch(level, reason, activated_by)
+   162	
+   163	
+   164	# === Promotion Gate Endpoints ===
+   165	
+   166	
+   167	@router.post("/promotions", response_model=dict, status_code=status.HTTP_201_CREATED)
+   168	async def create_promotion_endpoint(
+   169	    request: PromotionCreateRequest,
+   170	    _: Annotated[dict[str, object], Depends(require_auth)],
+   171	) -> dict[str, Any]:
+   172	    """إنشاء طلب ترقية نموذج بـ 5 بوابات."""
+   173	    promo = create_promotion(request.model_id)
+   174	    _append_audit("promotion_created", "system", {"model_id": request.model_id})
+   175	    return promo
+   176	
+   177	
+   178	@router.get("/promotions", response_model=list[dict])
+   179	async def list_promotions_endpoint(
+   180	    _: Annotated[dict[str, object], Depends(require_auth)],
+   181	    limit: int = Query(default=50, ge=1, le=200),
+   182	) -> list[dict[str, Any]]:
+   183	    """عرض طلبات الترقية."""
+   184	    return list_promotions(limit=limit)
+   185	
+   186	
+   187	@router.get("/promotions/{promotion_id}", response_model=dict)
+   188	async def get_promotion_endpoint(
+   189	    promotion_id: str,
+   190	    _: Annotated[dict[str, object], Depends(require_auth)],
+   191	) -> dict[str, Any]:
+   192	    """إرجاع طلب ترقية."""
+   193	    promo = get_promotion(promotion_id)
+   194	    if promo is None:
+   195	        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="طلب الترقية غير موجود")
+   196	    return promo
+   197	
+   198	
+   199	@router.post("/promotions/{promotion_id}/gates", response_model=dict)
+   200	async def check_gate_endpoint(
+   201	    promotion_id: str,
+   202	    request: GateCheckRequest,
+   203	    _: Annotated[dict[str, object], Depends(require_auth)],
+   204	) -> dict[str, Any]:
+   205	    """فحص بوابة ترقية."""
+   206	    try:
+   207	        result = check_gate(promotion_id, request.gate_name, request.passed, request.notes)
+   208	    except ValueError as e:
+   209	        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+   210	    _append_audit(
+   211	        "gate_checked",
+   212	        "system",
+   213	        {
+   214	            "promotion_id": promotion_id,
+   215	            "gate": request.gate_name,
+EXIT 0
+
+$ nl -ba federal/executive/services/src/amos_federation/services/control_console/main.py | sed -n 193,217p
+   193	
+   194	
+   195	@router.post("/kill-switch", response_model=dict)
+   196	async def activate_kill_switch(
+   197	    request: KillSwitchRequest,
+   198	    _: Annotated[dict[str, object], Depends(require_auth)],
+   199	) -> dict[str, Any]:
+   200	    """تفعيل Kill Switch من الواجهة."""
+   201	    from amos_federation.common.persistent import PersistentAuditStore
+   202	    from amos_federation.services.governance.canary import activate_kill_switch as _activate
+   203	
+   204	    result = _activate(request.level, request.reason, request.activated_by)
+   205	    PersistentAuditStore().append("kill_switch_activated", request.activated_by, result)
+   206	    return result
+   207	
+   208	
+   209	@router.post("/kill-switch/reset", response_model=dict)
+   210	async def reset_kill_switch(
+   211	    _: Annotated[dict[str, object], Depends(require_auth)],
+   212	) -> dict[str, Any]:
+   213	    """إعادة ضبط Kill Switch."""
+   214	    from amos_federation.services.governance.canary import reset_kill_switch
+   215	
+   216	    return reset_kill_switch()
+   217	
+EXIT 0
+
+$ nl -ba federal/executive/services/src/amos_federation/services/governance/canary.py | sed -n 50,73p
+    50	def activate_kill_switch(level: str, reason: str, activated_by: str) -> dict[str, Any]:
+    51	    """تفعيل مفتاح الإيقاف."""
+    52	    if level not in KILL_SWITCH_LEVELS:
+    53	        raise ValueError(f"مستوى غير صالح: {level}")
+    54	    state = _system_state_store().set_level(level, reason, activated_by)
+    55	    # نشر حدث
+    56	    from amos_federation.common.event_bus import get_event_bus
+    57	
+    58	    get_event_bus().publish(
+    59	        "amos_federation.policy.checked",
+    60	        {
+    61	            "policy_name": "kill_switch",
+    62	            "allowed": level == "normal",
+    63	            "violations": [reason] if level != "normal" else [],
+    64	            "level": level,
+    65	            "activated_by": activated_by,
+    66	        },
+    67	    )
+    68	    return state
+    69	
+    70	
+    71	def reset_kill_switch() -> dict[str, Any]:
+    72	    """إعادة ضبط مفتاح الإيقاف — الرفعُ فعلٌ صريحٌ لا نتيجةُ إقلاع."""
+    73	    return _system_state_store().reset()
+EXIT 0
+
