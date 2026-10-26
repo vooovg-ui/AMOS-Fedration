@@ -116,9 +116,7 @@ def register_agent(
     """
     actor_authorizer = authorizer if authorizer is not None else _default_authorizer()
     target = f"agent:{agent_id}"
-    effect = declared_effect(
-        "CREATE", target, f"صفُّ وكيلٍ «{name}» في السجلِّ الكانونيِّ للموزِّعِ"
-    )
+    effect = declared_effect("CREATE", target, f"صفُّ وكيلٍ «{name}» في السجلِّ الكانونيِّ للموزِّعِ")
 
     def _apply(_effect: Any) -> None:
         session = get_session_factory()()

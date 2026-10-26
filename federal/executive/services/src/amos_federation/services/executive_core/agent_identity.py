@@ -457,9 +457,7 @@ def update_identity(
         # النطاقُ يحملُ بصمةَ الحمولةِ (مفتاحُ التصميمِ § 2.2: هويةُ التحديثِ +
         # المعرِّفُ + بصمةُ التغييراتِ) — فالبصمةُ السياديّةُ (الطلبُ) تتغيّرُ معَ
         # كلِّ تحديثٍ مختلفٍ ولا يُرفَض التحديثُ الثاني كإعادةِ إذنٍ في الثانيةِ نفسِها.
-        operation_key=operation_key(
-            f"{IDENTITY_UPDATE_SCOPE}.{fingerprint[:16]}", agent_id
-        ),
+        operation_key=operation_key(f"{IDENTITY_UPDATE_SCOPE}.{fingerprint[:16]}", agent_id),
         compensators=(
             compensator(
                 effect.signature,
@@ -498,7 +496,9 @@ def _update_identity_core(agent_id: str, changes: dict[str, Any]) -> None:
         session.close()
 
 
-def set_lifecycle_state(agent_id: str, lifecycle_state: str, authorizer: ConstitutionalAuthorizer | None = None) -> bool:
+def set_lifecycle_state(
+    agent_id: str, lifecycle_state: str, authorizer: ConstitutionalAuthorizer | None = None
+) -> bool:
     """تغيير دورة الحياة في الحقل الكانوني الوحيد — عبر الحد السيادي (E1 · WI-119).
 
     الفعلُ بالوجهةِ (تصميمُ W-694 § 2.2): الانتقالُ إلى حالةِ احتواءٍ

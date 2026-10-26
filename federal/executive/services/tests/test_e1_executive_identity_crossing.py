@@ -122,7 +122,9 @@ def _evidence(recorder: RecordingAuthorizer) -> dict[str, Any]:
 def test_e1_1_level3_blocks_update_agent_identity_without_write() -> None:
     authorizer = KillSwitchLevelAuthorizer(level=3, actor=AGENT_IDENTITY_ACTOR)
     _spawn("e1-l3-update")
-    before = update_identity("e1-l3-update", authorizer=RecordingAuthorizer(actor=AGENT_IDENTITY_ACTOR))
+    before = update_identity(
+        "e1-l3-update", authorizer=RecordingAuthorizer(actor=AGENT_IDENTITY_ACTOR)
+    )
 
     from core.sovereignty.gateway import SovereigntyViolation
 
@@ -161,9 +163,7 @@ def test_e1_3_level4_blocks_task_surfaces_without_write() -> None:
     from core.sovereignty.gateway import SovereigntyViolation
 
     original = ExecutiveTaskRepository._authorizer
-    ExecutiveTaskRepository._authorizer = lambda self: KillSwitchLevelAuthorizer(
-        level=4
-    )
+    ExecutiveTaskRepository._authorizer = lambda self: KillSwitchLevelAuthorizer(level=4)
     try:
         with pytest.raises(SovereigntyViolation) as excinfo:
             repo.create("e1-l4-task", "analysis", "مهمة تحت المستوى الرابع")
@@ -236,9 +236,7 @@ def test_e1_8_task_surfaces_cross_with_literal_evidence() -> None:
         assert task["id"] == "e1-task"
         assert _evidence(recorder)["action"] == "create_task"
 
-        assert repo.compare_and_set(
-            "e1-task", TaskState.CREATED, TaskState.AUTHORIZED
-        )
+        assert repo.compare_and_set("e1-task", TaskState.CREATED, TaskState.AUTHORIZED)
         assert _evidence(recorder)["action"] == "transition_task_state"
 
         assert repo.delete("e1-task") is True
@@ -308,23 +306,18 @@ def test_e1_12_task_transition_replay_refused_not_reapplied() -> None:
     ExecutiveTaskRepository._authorizer = lambda self: recorder
     try:
         repo.create("e1-replay-task", "analysis", "مهمة إعادة")
-        assert repo.compare_and_set(
-            "e1-replay-task", TaskState.CREATED, TaskState.AUTHORIZED
-        )
+        assert repo.compare_and_set("e1-replay-task", TaskState.CREATED, TaskState.AUTHORIZED)
 
         # إعادةُ الانتقالِ المُثبَّتِ: شرطُ المقارنةِ فشلَ (الحالةُ لم تعدْ
         # متوقَّعةً) فيُرجَعُ False لا replay — «compare_and_set حارسُ التزامنِ
         # الحقيقيُّ» (حرفُّ التصميمِ § 2.4) — ولا يُطبَّقُ الأثرُ مرتينِ.
         assert (
-            repo.compare_and_set("e1-replay-task", TaskState.CREATED, TaskState.AUTHORIZED)
-            is False
+            repo.compare_and_set("e1-replay-task", TaskState.CREATED, TaskState.AUTHORIZED) is False
         )
         assert repo.state_of("e1-replay-task") is TaskState.AUTHORIZED
 
         # والعمليّةُ المشروعةُ اللاحقةُ (اتجاهٌ مختلفٌ) مقبولةٌ.
-        assert repo.compare_and_set(
-            "e1-replay-task", TaskState.AUTHORIZED, TaskState.PLANNED
-        )
+        assert repo.compare_and_set("e1-replay-task", TaskState.AUTHORIZED, TaskState.PLANNED)
         assert len(recorder.results) == 4
         assert recorder.results[-1].is_replay is False
     finally:

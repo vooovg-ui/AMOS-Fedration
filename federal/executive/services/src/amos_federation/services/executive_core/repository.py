@@ -118,9 +118,7 @@ class ExecutiveTaskRepository:
         والمعوّضُ يحذفُ الصفَّ المُنشَأ (معكوسُ الإنشاءِ الحقيقيِّ لا وعظٌ).
         """
         target = f"task:{task_id}"
-        effect = declared_effect(
-            "CREATE", target, f"صفُّ مهمّةٍ «{task_type}» في مصدرِ الحقيقةِ الواحدِ"
-        )
+        effect = declared_effect("CREATE", target, f"صفُّ مهمّةٍ «{task_type}» في مصدرِ الحقيقةِ الواحدِ")
 
         def _apply(_effect: Any) -> None:
             self._create_core(
@@ -136,9 +134,7 @@ class ExecutiveTaskRepository:
         def _delete_row() -> bool:
             session = get_session_factory()()
             try:
-                result = session.execute(
-                    delete(TaskModel).where(TaskModel.id == task_id)
-                )
+                result = session.execute(delete(TaskModel).where(TaskModel.id == task_id))
                 session.commit()
                 return bool(result.rowcount)
             finally:
@@ -373,9 +369,7 @@ class ExecutiveTaskRepository:
             target,
             declared_effects=(effect,),
             applier=_apply,
-            operation_key=operation_key(
-                TASK_DELETE_SCOPE, f"{task_id}:{snapshot['status']}"
-            ),
+            operation_key=operation_key(TASK_DELETE_SCOPE, f"{task_id}:{snapshot['status']}"),
             compensators=(
                 compensator(
                     effect.signature,
@@ -390,8 +384,7 @@ class ExecutiveTaskRepository:
             # يُشغَّلْ عندَ الإعادةِ) بل منَ السجلِّ المُثبِتِ.
             if self.get(task_id) is not None:
                 raise TaskLedgerDivergenceError(
-                    f"السجلُّ يُثبِتُ حذفَ «{task_id}» والصفُّ موجودٌ — تباعدٌ "
-                    "لا يُسكَتُ عنهُ (1H)"
+                    f"السجلُّ يُثبِتُ حذفَ «{task_id}» والصفُّ موجودٌ — تباعدٌ " "لا يُسكَتُ عنهُ (1H)"
                 )
             return True
         return bool(guarded.value)
