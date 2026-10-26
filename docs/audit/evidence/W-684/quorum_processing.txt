@@ -1,0 +1,26 @@
+نصابُ أحكامِ جولةِ WI-115 — قيدُ W-684 · 2026-10-26 (UTC)
+الأمرُ: grep -E '^(MODEL|FAMILY|RUN_DATE|NODE|BLOCKING_REMARKS|VERDICT):' council_w673/<مقعد>/wi115/VERDICT.md لكلِّ مقعدٍ
+
+=== المقعدُ gemini_3_8_flash ===
+MODEL: gemini_3_8_flash
+FAMILY: Google · Gemini
+RUN_DATE: 2026-10-26 04:05 +00:00
+NODE: 79abc6a206000e162689d642d1ebc42af36f445a
+BLOCKING_REMARKS: لا ملاحظاتٍ حاجبةً
+VERDICT: PASS
+
+=== المقعدُ grok_4_7 ===
+MODEL: grok_4_7
+FAMILY: xAI
+RUN_DATE: 2026-10-26 04:10 +00:00
+NODE: 79abc6a206000e162689d642d1ebc42af36f445a
+BLOCKING_REMARKS: لا ملاحظاتٍ حاجبةً
+VERDICT: PASS — النطاقُ المنفَّذُ (§ 3.5: المعيارانِ 1 و2 وشقُّ § 3.5 من 5 والمسبارُ 6) صادقٌ لا البندُ كلُّه. المعيارانِ 3 و4 وشقُّ الكاشفِ من 5 لم يُنفَّذا وليسا ملاحظتينِ حاجبتينِ لهذهِ الجولةِ، فلا VERIFIED للبندِ كلِّه.
+
+=== المقعدُ kimi_k3 ===
+MODEL: Kimi K3
+FAMILY: Moonshot AI (Kimi)
+RUN_DATE: 2026-10-26 04:03 +00:00
+NODE: 79abc6a206000e162689d642d1ebc42af36f445a
+BLOCKING_REMARKS: لا ملاحظاتٍ حاجبةً
+VERDICT: PASS — للنطاقِ المنفَّذِ في هذه الجولةِ وحدَه (§ 3.5: المعيارانِ (1) و(2) وشقُّ § 3.5 من (5) ومسبارُ المقعدِ (6) صادقةٌ مُعادَةُ التشغيلِ بيدي)؛ والمعاييرُ (3) و(4) وشقُّ الكاشفِ من (5) محكومٌ عليها «لا · لم يُنفَّذْ» — فلا VERIFIED للبندِ كلِّه بهذه الجولةِ ويعودُ IN_PROGRESS للكاشفِ.
