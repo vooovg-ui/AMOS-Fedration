@@ -1,0 +1,8 @@
+date: 2026-10-26T03:59Z
+ebffbff8383f5217c1aef463e4bcc14f232c0e8efbb6bd99b80a51b9225c69f0  /home/user/workspace/council_w673/gemini_3_8_flash/wi115/briefing.md
+d1f550231cf27baa0f6a85de3a6eb664dc587dc7c6623a6f9dc5755848046c0c  /home/user/workspace/council_w673/grok_4_7/wi115/briefing.md
+efc856e68db9cc688d8980209976c6ea478ffdc52be66625447f38c97fc75eb0  /home/user/workspace/council_w673/kimi_k3/wi115/briefing.md
+--- SHA256SUMS من W-673 ---
+ebffbff8383f5217c1aef463e4bcc14f232c0e8efbb6bd99b80a51b9225c69f0  briefing_gemini_3_8_flash.md
+d1f550231cf27baa0f6a85de3a6eb664dc587dc7c6623a6f9dc5755848046c0c  briefing_grok_4_7.md
+efc856e68db9cc688d8980209976c6ea478ffdc52be66625447f38c97fc75eb0  briefing_kimi_k3.md
