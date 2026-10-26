@@ -1,0 +1,44 @@
+# قياسُ إصلاحِ فاحصِ أحكامِ المجلسِ (DISC-140) — قيدُ W-680 · 2026-10-25 · المنسِّقُ GLM-5.3
+
+## 1) الحالةُ قبلَ الإصلاحِ (مقيَّدةٌ حرفيًّا في W-679 — تُعادُ هنا للقياسِ المزدوجِ)
+
+بتشغيلٍ كاملٍ (--brief و--repo معًا · نصُّ § 4.7) رُفِضَ الأحكامُ الثلاثةُ لجولةِ WI-113:
+- gemini: R7 (لا أوامرَ في القسمِ «ج») — EXIT 1
+- grok: R5 (بصمةُ الكتلةِ [10]) + R7 — EXIT 1
+- kimi: R7 — EXIT 1
+
+## 2) الإصلاحُ (لا تغييرَ في الأحكامِ ولا الإحاطاتِ المبصومةِ)
+
+في `tools/governance/council_verdict_raw_check.py`:
+- check_file: قراءةٌ أمينةٌ للبايتاتِ (`read_bytes().decode()` بدلَ `read_text()` التي تُترجمُ الأغصامَ العامةَ وتكسرُ البصمةَ أمامَ `\r` خامٍّ) — علاجُ R5.
+- brief_commands: قراءةُ أوامرِ القسمِ «ج» منَ القوائمِ المرقّمةِ (`N. `أمر``) إضافةً إلى كتلِ ```bash — علاجُ R7 (صيغةُ الإحاطاتِ المبصومةِ W-628/W-673 فعلًا).
+
+في `tests/governance/test_council_verdict_raw.py`:
+- فحصُ قبولِ مخرجٍ يحملُ `\r` بقراءةٍ أمينةٍ (يفشلُ قبلَ الإصلاحِ) · وفحصُ رفضِ المحرَّرِ (\r→\n) بعدَ الالتقاطِ — الحمايةُ لا تُضعَفُ.
+- فحصُ قراءةِ القوائمِ المرقّمةِ في الإحاطةِ.
+- توسيعُ جردِ `_round_verdicts` إلى `verdicts/**/*.md` (36 حكمًا محفوظًا يفحصُها CI بعدَ أن كانَ 18).
+
+## 3) الحالةُ بعدَ الإصلاحِ (مقيسةً)
+
+$ python -m pytest tests/governance/test_council_verdict_raw.py -q
+64 passed in 0.99s
+
+التشغيلُ الكاملُ على الأحكامِ الثلاثةِ المودعةِ (--brief و--repo معًا):
+
+$ council_verdict_raw_check.py --brief briefing_gemini_3_8_flash.md --repo . .../W-679/verdicts/wi113/gemini_3_8_flash/VERDICT.md
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-679/verdicts/wi113/gemini_3_8_flash/VERDICT.md · أوامرُ 17 · كتلُ RAW 17
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+$ council_verdict_raw_check.py --brief briefing_grok_4_7.md --repo . .../W-679/verdicts/wi113/grok_4_7/VERDICT.md
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-679/verdicts/wi113/grok_4_7/VERDICT.md · أوامرُ 20 · كتلُ RAW 20
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+$ council_verdict_raw_check.py --brief briefing_kimi_k3.md --repo . .../W-679/verdicts/wi113/kimi_k3/VERDICT.md
+[RAW CHECK] ✓ مقبولٌ: docs/audit/evidence/W-679/verdicts/wi113/kimi_k3/VERDICT.md · أوامرُ 20 · كتلُ RAW 20
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+$ python -m pytest tests/ --collect-only -q | tail -1 (رقمُ الحزمةِ الحيُّ)
+2748 tests collected in 0.80s

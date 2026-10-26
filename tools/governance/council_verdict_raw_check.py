@@ -118,7 +118,12 @@ def _section(text: str, start: str, end: str) -> str:
 
 
 def brief_commands(brief_text: str) -> list[str]:
-    """أوامرُ القسمِ «ج» في الإحاطةِ: كلُّ سطرٍ غيرِ فارغٍ داخلَ كتلِ ```bash."""
+    """أوامرُ القسمِ «ج» في الإحاطةِ: كلُّ سطرٍ غيرِ فارغٍ داخلَ كتلِ ```bash
+    **ومنَ القوائمِ المرقّمةِ** (سطرٌ رقمُه ثمّ أمرٌ بينَ علامتَي اقتباسٍ خلفيتين) —
+    وهيَ الصيغةُ الموجودةُ فعلًا في الإحاطاتِ المبصومةِ (W-628 · W-673) — وإلا
+    عميَ الفاحصُ عنها ورفضَ كلَّ حكمٍ بـR7 (انحرافٌ معلَنٌ من W-647/W-653 · قيسَ
+    عيبُه وإصلاحُه في W-679).
+    """
     m = re.search(r"^#{2,3} ج[^\n]*\n(?P<sec>.*?)(?=^#{2,3} (?!ج)|\Z)", brief_text, re.S | re.M)
     if not m:
         return []
@@ -129,6 +134,11 @@ def brief_commands(brief_text: str) -> list[str]:
             if not line or line.startswith("#"):
                 continue
             cmds.append(_EXIT_SUFFIX.sub("", line).strip())
+    _CITE = re.compile(r"^\s*\d+\.\s+`([^`]*)`\s*$")
+    for line in m.group("sec").splitlines():
+        cm = _CITE.match(line)
+        if cm:
+            cmds.append(_EXIT_SUFFIX.sub("", cm.group(1)).strip())
     return cmds
 
 
@@ -269,11 +279,13 @@ def check_text(
 
 
 def check_file(path: Path, *, brief: Path | None = None, repo: Path | None = None) -> Report:
-    text = path.read_text(encoding="utf-8")
+    # قراءةٌ أمينةٌ للبايتاتِ: لا ترجمةَ للأغصامِ (قراءةُ `read_text` العامةَ تُحوّلُ \r إلى \n
+    # فتكسرُ بصمةَ SHA256 أمامَ مخرجٍ خامٍّ يحملُ \r — إنذارٌ كاذبٌ قيسَ في W-679 (R5)
+    text = path.read_bytes().decode("utf-8")
     # تُتجاوَزُ ترويسةُ الهويّةِ التي يضيفُها المنسِّقُ عندَ الحفظِ: النصُّ بعدَ أوّلِ «---» منفردٍ إن سبقَه عنوانُ ملف
     if text.startswith("# ") and "\n---\n" in text:
         text = text.split("\n---\n", 1)[1]
-    brief_text = brief.read_text(encoding="utf-8") if brief else None
+    brief_text = brief.read_bytes().decode("utf-8") if brief else None
     return check_text(text, path=str(path), brief_text=brief_text, repo=repo)
 
 

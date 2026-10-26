@@ -165,13 +165,55 @@ def test_capture_cli_writes_block(tmp_path: Path) -> None:
     assert out.read_text(encoding="utf-8").startswith("=== RAW [1] BEGIN ===\nCMD: echo hi\nEXIT: 0\n")
 
 
+def test_cr_in_raw_output_is_accepted_byte_faithfully(tmp_path: Path) -> None:
+    # W-679 (R5): مخرجٌ خامٌّ يحملُ \r (تقدُّمُ عملٍ) بصمةُهُ سليمةٌ — القراءةُ العامةَ
+    # كانت تُترجمُهُ فتكسرُ البصمةَ؛ الإصلاحُ: قراءةٌ أمينةٌ للبايتاتِ (W-680).
+    cmds = ["printf 'a\\rb'"]
+    text = _verdict(cmds, [cap.capture(1, cmds[0])])
+    assert "\r" in text  # الحملُ الخامُّ موجودٌ فعلًا في النصِّ
+    f = tmp_path / "cr_verdict.md"
+    f.write_bytes(text.encode("utf-8"))
+    rep = chk.check_file(f)
+    assert rep.ok, rep.problems
+
+
+def test_tampered_cr_verdict_is_still_rejected(tmp_path: Path) -> None:
+    # الإصلاحُ لا يُضعفُ الحمايةَ: تحريرُ \r إلى \n بعدَ الالتقاطِ يُبقي البصمةَ المصرَّحَةَ
+    # قديمةً فيرفضُ الفاحصُ (R5) — الاقتطاعُ والتحريرُ مرفوضانِ كما هما.
+    cmds = ["printf 'a\\rb'"]
+    text = _verdict(cmds, [cap.capture(1, cmds[0])])
+    tampered = text.replace("\r", "\n")
+    f = tmp_path / "cr_tampered.md"
+    f.write_bytes(tampered.encode("utf-8"))
+    rep = chk.check_file(f)
+    assert not rep.ok
+    assert any(p.startswith("R5") for p in rep.problems)
+
+
+def test_brief_numbered_list_commands_are_read() -> None:
+    # W-679 (R7): الإحاطاتُ المبصومةُ (W-628 · W-673) تعدُّ أوامرَ القسمِ «ج» قوائمَ
+    # مرقّمةً (رقمٌ ثمّ أمرٌ بينَ اقتباسٍ خلفيٍّ) لا كتلَ ```bash — الفاحصُ عميَ عنها
+    # فرفضَ كلَّ حكمٍ بـR7 (انحرافُ W-647/W-653)؛ الإصلاحُ: قراءتُها (W-680).
+    brief = (
+        "# إحاطة\n\n## ج · أوامرُ المعايير\n\n"
+        "1. `printf 'x'`\n2. `printf 'y'`\n\n## د · خاتمة\n"
+    )
+    assert chk.brief_commands(brief) == ["printf 'x'", "printf 'y'"]
+    cmds = ["printf 'x'", "printf 'y'"]
+    text = _verdict(cmds, [cap.capture(i, c) for i, c in enumerate(cmds, 1)])
+    rep = chk.check_text(text, brief_text=brief)
+    assert rep.ok, rep.problems
+
+
 def _round_verdicts() -> list[Path]:
     found = []
     for d in sorted((REPO_ROOT / "docs" / "audit" / "evidence").glob("W-*")):
         m = re.fullmatch(r"W-(\d+)", d.name)
         if not m or int(m.group(1)) <= RAW_RULE_AFTER:
             continue
-        for f in sorted(d.glob("*.md")):
+        # W-680: فجوةُ تغطيةٍ مقيسةٌ في W-679 — الجردُ غيرُ عوديٍّ فعميَ عن ودائعِ
+        # verdicts/<بند>/<مقعد>/ · توسّعَ ليشملَها (لا نمطَ قبولٍ يُفلتُ منَ الفحصِ).
+        for f in sorted(d.glob("*.md")) + sorted(d.glob("verdicts/**/*.md")):
             t = f.read_text(encoding="utf-8")
             if re.search(r"^MODEL:", t, re.M) and re.search(r"^VERDICT:", t, re.M):
                 found.append(f)
