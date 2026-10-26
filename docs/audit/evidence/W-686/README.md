@@ -38,7 +38,7 @@ W-665 (`federal/executive/services/tests/test_wi115_nesting_compensator_frame.py
 
 ## النطاق
 
-البندُ: [`WI-115`](../../governance/work/ACTIVE_WORK.md) — IN_PROGRESS (تصحيحُ
+البندُ: [`WI-115`](../../../governance/work/ACTIVE_WORK.md) — IN_PROGRESS (تصحيحُ
 إصلاحٍ لبوّابةِ CI على مسبارِ § 4 · لا مساسًا بمضمونِ الكاشفِ ولا انتقالَ حالةٍ).
 
 ## المالك

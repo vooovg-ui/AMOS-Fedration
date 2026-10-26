@@ -77,7 +77,7 @@ VERIFIED ولا CLOSED.
 
 ## النطاق
 
-البندُ: [`WI-115`](../../governance/work/ACTIVE_WORK.md) — IN_PROGRESS (الكاشفُ ·
+البندُ: [`WI-115`](../../../governance/work/ACTIVE_WORK.md) — IN_PROGRESS (الكاشفُ ·
 باقي البندِ: (4) بقرارِ المالكِ/المجلسِ ثمَّ جولةُ مجلسٍ على النطاقِ الجديدِ).
 
 ## المالك
