@@ -1,0 +1,1666 @@
+{
+  "$comment": "حمولةُ وظائفِ CI الحمراءِ الثانيةِ على رأسِ PR #162 (تشغيلٌ 40308427851 · العقدةُ e15e5b82): ثلاثُ بواباتٍ حمراءِ (Identity Law · Truth Audit · Cross-System) وسببُها واحدٌ مقيسٌ: تقادُمُ مصفوفةِ الحقيقةِ بعدَ ملفّاتِ W-690 الجديدةِ (md_files) — لم تُولَّد في دفعةِ W-690 · فولَّدَها CI نفسُه ودفعَها عقدةً 3edc2c73 («مصفوفةُ الحقيقةِ: خرجٌ مولَّدٌ بأداتِه بعدَ تغيُّرِ الشجرة») · أُحمِلَت بـgh api وقُرِئَت خامًا.",
+  "total_count": 13,
+  "jobs": [
+    {
+      "id": 121523240528,
+      "run_id": 40308427851,
+      "workflow_name": "AMOS-Federation CI",
+      "head_branch": "w-689-wi117-code",
+      "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40308427851",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOURQm-88AAAAcS1l-UA",
+      "head_sha": "e15e5b822443654eb512d80184fc865f9e88fec1",
+      "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/121523240528",
+      "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40308427851/job/121523240528",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-26T10:34:11Z",
+      "started_at": "2026-10-26T10:34:14Z",
+      "completed_at": "2026-10-26T10:35:05Z",
+      "name": "Sovereignty Kernel (E2 — بوابات السيادة الملكية)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T10:34:15Z",
+          "completed_at": "2026-10-26T10:34:15Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T10:34:15Z",
+          "completed_at": "2026-10-26T10:34:17Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T10:34:17Z",
+          "completed_at": "2026-10-26T10:34:18Z"
+        },
+        {
+          "name": "تثبيت التبعيات",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T10:34:18Z",
+          "completed_at": "2026-10-26T10:34:51Z"
+        },
+        {
+          "name": "بوابة 1 — السيادة الملكية محروسة بنيويًا",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-26T10:34:51Z",
+          "completed_at": "2026-10-26T10:34:51Z"
+        },
+        {
+          "name": "بوابة 2 — لا مؤسسة تعدّل الدستور (المادة العاشرة · 2)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-26T10:34:51Z",
+          "completed_at": "2026-10-26T10:34:51Z"
+        },
+        {
+          "name": "بوابة 3 — لا وكيل يعدّل سلطة الملك (المادة العاشرة · 3)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-26T10:34:51Z",
+          "completed_at": "2026-10-26T10:34:51Z"
+        },
+        {
+          "name": "بوابة 4 — لا نظام يتجاوز الفدرالية (المادة العاشرة · 4)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-26T10:34:51Z",
+          "completed_at": "2026-10-26T10:34:51Z"
+        },
+        {
+          "name": "بوابة 5 — لا انتحال لصفة الملك بلا مرسوم (المادة العاشرة · 3 · 2)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-26T10:34:51Z",
+          "completed_at": "2026-10-26T10:34:52Z"
+        },
+        {
+          "name": "بوابة 6 — لا مفتاح خاص للملك في المستودع (المادة العاشرة · 6 · 3)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-26T10:34:52Z",
+          "completed_at": "2026-10-26T10:34:52Z"
+        },
+        {
+          "name": "بوابة 6ب — لا راية تجاوز في توقيع البوابة السيادية",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-26T10:34:52Z",
+          "completed_at": "2026-10-26T10:34:52Z"
+        },
+        {
+          "name": "بوابة 6ج — لا نقض للسلطة العليا (E2.1 · AMD-002)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-26T10:34:52Z",
+          "completed_at": "2026-10-26T10:34:52Z"
+        },
+        {
+          "name": "بوابة 6د — إثبات تشغيلي للسلطة الملكية العليا",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-26T10:34:52Z",
+          "completed_at": "2026-10-26T10:34:52Z"
+        },
+        {
+          "name": "بوابة 6هـ — اختبارات معايير السلطة العليا الخمسة والعشرين",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-26T10:34:52Z",
+          "completed_at": "2026-10-26T10:34:54Z"
+        },
+        {
+          "name": "بوابة 7 — اختبارات السيادة بتغطية فروع لا تقل عن 90%",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-26T10:34:54Z",
+          "completed_at": "2026-10-26T10:35:03Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 29,
+          "started_at": "2026-10-26T10:35:03Z",
+          "completed_at": "2026-10-26T10:35:03Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 30,
+          "started_at": "2026-10-26T10:35:03Z",
+          "completed_at": "2026-10-26T10:35:03Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 31,
+          "started_at": "2026-10-26T10:35:03Z",
+          "completed_at": "2026-10-26T10:35:03Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/121523240528",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007353,
+      "runner_name": "GitHub Actions 1000007353",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121523240722,
+      "run_id": 40308427851,
+      "workflow_name": "AMOS-Federation CI",
+      "head_branch": "w-689-wi117-code",
+      "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40308427851",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOURQm-88AAAAcS1l_Eg",
+      "head_sha": "e15e5b822443654eb512d80184fc865f9e88fec1",
+      "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/121523240722",
+      "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40308427851/job/121523240722",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-26T10:34:11Z",
+      "started_at": "2026-10-26T10:34:14Z",
+      "completed_at": "2026-10-26T10:34:21Z",
+      "name": "Lint (ruff)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T10:34:14Z",
+          "completed_at": "2026-10-26T10:34:15Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T10:34:15Z",
+          "completed_at": "2026-10-26T10:34:17Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T10:34:17Z",
+          "completed_at": "2026-10-26T10:34:17Z"
+        },
+        {
+          "name": "Run pip install ruff==0.6.9",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T10:34:17Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        },
+        {
+          "name": "Run ruff check src/ tests/",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-26T10:34:19Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        },
+        {
+          "name": "Run ruff format --check src/ tests/",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-26T10:34:19Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        },
+        {
+          "name": "ruff على المستودع كله (E3)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-26T10:34:19Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-26T10:34:19Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-26T10:34:19Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-26T10:34:19Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/121523240722",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007352,
+      "runner_name": "GitHub Actions 1000007352",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121523240760,
+      "run_id": 40308427851,
+      "workflow_name": "AMOS-Federation CI",
+      "head_branch": "w-689-wi117-code",
+      "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40308427851",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOURQm-88AAAAcS1l_OA",
+      "head_sha": "e15e5b822443654eb512d80184fc865f9e88fec1",
+      "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/121523240760",
+      "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40308427851/job/121523240760",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-26T10:34:11Z",
+      "started_at": "2026-10-26T10:34:14Z",
+      "completed_at": "2026-10-26T10:34:30Z",
+      "name": "Constitutional Kernel (E1 — بوابات الدستور)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T10:34:15Z",
+          "completed_at": "2026-10-26T10:34:16Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T10:34:16Z",
+          "completed_at": "2026-10-26T10:34:18Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T10:34:18Z",
+          "completed_at": "2026-10-26T10:34:18Z"
+        },
+        {
+          "name": "تثبيت التبعيات",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T10:34:18Z",
+          "completed_at": "2026-10-26T10:34:22Z"
+        },
+        {
+          "name": "بوابة 1 — نص الدستور غير مُعدَّل (المادة الخامسة)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-26T10:34:22Z",
+          "completed_at": "2026-10-26T10:34:22Z"
+        },
+        {
+          "name": "بوابة 2 — لا مادة سارية بلا قاعدة تنفيذية",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-26T10:34:22Z",
+          "completed_at": "2026-10-26T10:34:22Z"
+        },
+        {
+          "name": "بوابة 3 — الدستور يرفض فعلاً مخالفًا فعليًا",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-26T10:34:22Z",
+          "completed_at": "2026-10-26T10:34:22Z"
+        },
+        {
+          "name": "بوابة 4 — سلسلة السجل سليمة",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-26T10:34:22Z",
+          "completed_at": "2026-10-26T10:34:23Z"
+        },
+        {
+          "name": "بوابة 5ب — طزاجة مصفوفتي القضاء والمال المنشورتين (W-038)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-26T10:34:23Z",
+          "completed_at": "2026-10-26T10:34:23Z"
+        },
+        {
+          "name": "بوابة 5 — اختبارات النواة بتغطية فروع لا تقل عن 90%",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-26T10:34:23Z",
+          "completed_at": "2026-10-26T10:34:28Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-26T10:34:28Z",
+          "completed_at": "2026-10-26T10:34:28Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20,
+          "started_at": "2026-10-26T10:34:28Z",
+          "completed_at": "2026-10-26T10:34:28Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-10-26T10:34:28Z",
+          "completed_at": "2026-10-26T10:34:28Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/121523240760",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007356,
+      "runner_name": "GitHub Actions 1000007356",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121523240832,
+      "run_id": 40308427851,
+      "workflow_name": "AMOS-Federation CI",
+      "head_branch": "w-689-wi117-code",
+      "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40308427851",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOURQm-88AAAAcS1l_gA",
+      "head_sha": "e15e5b822443654eb512d80184fc865f9e88fec1",
+      "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/121523240832",
+      "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40308427851/job/121523240832",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-26T10:34:11Z",
+      "started_at": "2026-10-26T10:34:14Z",
+      "completed_at": "2026-10-26T10:34:33Z",
+      "name": "Work Governance (الخارطةُ الحاكمة — لا عملَ غيرُ مُسجَّل)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T10:34:15Z",
+          "completed_at": "2026-10-26T10:34:16Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T10:34:16Z",
+          "completed_at": "2026-10-26T10:34:21Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T10:34:21Z",
+          "completed_at": "2026-10-26T10:34:21Z"
+        },
+        {
+          "name": "بوابة 1 — سجلّاتُ الطبقةِ قائمةٌ سليمةُ الشكلِ ولا تقاطعَ فيها",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T10:34:21Z",
+          "completed_at": "2026-10-26T10:34:22Z"
+        },
+        {
+          "name": "بوابة 2 — كلُّ مسارٍ في هذا الطلبِ محجوزٌ ببندٍ نشِط (إسقاط)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-26T10:34:22Z",
+          "completed_at": "2026-10-26T10:34:23Z"
+        },
+        {
+          "name": "بوابة 2 — الالتزامُ المدفوعُ يستندُ إلى بندٍ نشِط (إسقاط)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 6,
+          "started_at": "2026-10-26T10:34:23Z",
+          "completed_at": "2026-10-26T10:34:23Z"
+        },
+        {
+          "name": "بوابة 3 — البوّابةُ نفسُها مُراقَبةٌ باختباراتها",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-26T10:34:23Z",
+          "completed_at": "2026-10-26T10:34:28Z"
+        },
+        {
+          "name": "بوابة 4 — دعوى «يُشغَّلُ في كلِّ دفعةٍ» لا تُقبَلُ بلا طريقِ إنفاذٍ",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-26T10:34:28Z",
+          "completed_at": "2026-10-26T10:34:28Z"
+        },
+        {
+          "name": "بوابة 5 — وثائقُ الحالةِ لا تتخلّفُ عن أحدثِ قيدٍ في السِّجلِّ",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-26T10:34:28Z",
+          "completed_at": "2026-10-26T10:34:28Z"
+        },
+        {
+          "name": "بوابة 6 — كلُّ سجلٍّ مفتوحٍ له مرسًى ومالِكٌ",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-26T10:34:28Z",
+          "completed_at": "2026-10-26T10:34:28Z"
+        },
+        {
+          "name": "بوابة 7 — حرسُ إزاحةِ التزامِ الدمجِ قبلَ الدفعِ (Q-E · WI-074 · W-336)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-26T10:34:28Z",
+          "completed_at": "2026-10-26T10:34:28Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-10-26T10:34:28Z",
+          "completed_at": "2026-10-26T10:34:28Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-10-26T10:34:28Z",
+          "completed_at": "2026-10-26T10:34:28Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-10-26T10:34:28Z",
+          "completed_at": "2026-10-26T10:34:28Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/121523240832",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007354,
+      "runner_name": "GitHub Actions 1000007354",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121523240922,
+      "run_id": 40308427851,
+      "workflow_name": "AMOS-Federation CI",
+      "head_branch": "w-689-wi117-code",
+      "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40308427851",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOURQm-88AAAAcS1l_2g",
+      "head_sha": "e15e5b822443654eb512d80184fc865f9e88fec1",
+      "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/121523240922",
+      "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40308427851/job/121523240922",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-26T10:34:11Z",
+      "started_at": "2026-10-26T10:34:14Z",
+      "completed_at": "2026-10-26T10:34:49Z",
+      "name": "Lockfile Consistency",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T10:34:15Z",
+          "completed_at": "2026-10-26T10:34:16Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T10:34:16Z",
+          "completed_at": "2026-10-26T10:34:18Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T10:34:18Z",
+          "completed_at": "2026-10-26T10:34:18Z"
+        },
+        {
+          "name": "Run pip install -e \".[dev]\"",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T10:34:18Z",
+          "completed_at": "2026-10-26T10:34:47Z"
+        },
+        {
+          "name": "Run # Verify critical packages are in lock file",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-26T10:34:47Z",
+          "completed_at": "2026-10-26T10:34:47Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-26T10:34:47Z",
+          "completed_at": "2026-10-26T10:34:47Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-26T10:34:47Z",
+          "completed_at": "2026-10-26T10:34:47Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-26T10:34:47Z",
+          "completed_at": "2026-10-26T10:34:47Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/121523240922",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007358,
+      "runner_name": "GitHub Actions 1000007358",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121523240959,
+      "run_id": 40308427851,
+      "workflow_name": "AMOS-Federation CI",
+      "head_branch": "w-689-wi117-code",
+      "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40308427851",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOURQm-88AAAAcS1l__w",
+      "head_sha": "e15e5b822443654eb512d80184fc865f9e88fec1",
+      "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/121523240959",
+      "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40308427851/job/121523240959",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-26T10:34:11Z",
+      "started_at": "2026-10-26T10:34:14Z",
+      "completed_at": "2026-10-26T10:36:34Z",
+      "name": "Crown Root of Trust (E2.2 — بوابات جذر ثقة التاج)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T10:34:15Z",
+          "completed_at": "2026-10-26T10:34:16Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T10:34:16Z",
+          "completed_at": "2026-10-26T10:34:21Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T10:34:21Z",
+          "completed_at": "2026-10-26T10:34:21Z"
+        },
+        {
+          "name": "تثبيت التبعيات",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T10:34:21Z",
+          "completed_at": "2026-10-26T10:34:50Z"
+        },
+        {
+          "name": "بوابة 1 — الحدود المطلقة لنطاق التاج (البند 52)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-26T10:34:50Z",
+          "completed_at": "2026-10-26T10:34:50Z"
+        },
+        {
+          "name": "بوابة 2 — سلامة جذر الثقة (11 فحصًا تنفيذيًّا)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-26T10:34:50Z",
+          "completed_at": "2026-10-26T10:34:50Z"
+        },
+        {
+          "name": "بوابة 2ب — حدود الأسرار والثقة (11 فحصًا تنفيذيًّا)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-26T10:34:50Z",
+          "completed_at": "2026-10-26T10:34:56Z"
+        },
+        {
+          "name": "بوابة 2ج — اختبارات حدّ سرّ الملك",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-26T10:34:56Z",
+          "completed_at": "2026-10-26T10:35:08Z"
+        },
+        {
+          "name": "بوابة 3 — اختبارات التاج بتغطية فروع لا تقل عن 90%",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-26T10:35:08Z",
+          "completed_at": "2026-10-26T10:35:49Z"
+        },
+        {
+          "name": "بوابة 4 — وثيقة نموذج التهديد مولَّدة من التنفيذ لا مكتوبة بيد",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-26T10:35:49Z",
+          "completed_at": "2026-10-26T10:35:49Z"
+        },
+        {
+          "name": "بوابة 4ب — مصفوفة حقيقة التاج مطابقة للدليل المقيس",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-26T10:35:49Z",
+          "completed_at": "2026-10-26T10:36:29Z"
+        },
+        {
+          "name": "بوابة 5 — لا مادة مفتاح خاص ولا حصة استرداد في المستودع",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-26T10:36:29Z",
+          "completed_at": "2026-10-26T10:36:29Z"
+        },
+        {
+          "name": "بوابة 6 — الاختبارات الكبرى الخمسة تعمل فعلًا",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-26T10:36:29Z",
+          "completed_at": "2026-10-26T10:36:29Z"
+        },
+        {
+          "name": "بوابة 6ب — إثبات تنفيذي للاستمرارية السيادية من الطرف إلى الطرف",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-26T10:36:29Z",
+          "completed_at": "2026-10-26T10:36:29Z"
+        },
+        {
+          "name": "بوابة 7 — الحارس لا يملك سلطة سيادية ولا نقضًا",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-26T10:36:29Z",
+          "completed_at": "2026-10-26T10:36:30Z"
+        },
+        {
+          "name": "بوابة 8 — حدّ البرمجية والبشر معلَن بالأرقام",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16,
+          "started_at": "2026-10-26T10:36:30Z",
+          "completed_at": "2026-10-26T10:36:30Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 31,
+          "started_at": "2026-10-26T10:36:30Z",
+          "completed_at": "2026-10-26T10:36:30Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 32,
+          "started_at": "2026-10-26T10:36:30Z",
+          "completed_at": "2026-10-26T10:36:30Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 33,
+          "started_at": "2026-10-26T10:36:30Z",
+          "completed_at": "2026-10-26T10:36:30Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/121523240959",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007359,
+      "runner_name": "GitHub Actions 1000007359",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121523240980,
+      "run_id": 40308427851,
+      "workflow_name": "AMOS-Federation CI",
+      "head_branch": "w-689-wi117-code",
+      "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40308427851",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOURQm-88AAAAcS1mAFA",
+      "head_sha": "e15e5b822443654eb512d80184fc865f9e88fec1",
+      "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/121523240980",
+      "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40308427851/job/121523240980",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-26T10:34:11Z",
+      "started_at": "2026-10-26T10:34:15Z",
+      "completed_at": "2026-10-26T10:38:36Z",
+      "name": "Identity Law (E3 — بوابات المادة التاسعة)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T10:34:16Z",
+          "completed_at": "2026-10-26T10:34:16Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T10:34:16Z",
+          "completed_at": "2026-10-26T10:34:21Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T10:34:21Z",
+          "completed_at": "2026-10-26T10:34:21Z"
+        },
+        {
+          "name": "تثبيت التبعيات",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T10:34:21Z",
+          "completed_at": "2026-10-26T10:34:25Z"
+        },
+        {
+          "name": "مرجعٌ محليٌّ لفرعِ الحالةِ «main» — حرسُ ما بعدَ الدمجِ يُقاسُ (DISC-025)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-26T10:34:25Z",
+          "completed_at": "2026-10-26T10:34:26Z"
+        },
+        {
+          "name": "بوابة 1 — كل مجلد يحمل بطاقة هوية كاملة وكل ملف يُعلن هدفه",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-26T10:34:26Z",
+          "completed_at": "2026-10-26T10:34:26Z"
+        },
+        {
+          "name": "بوابة 2 — بطاقات المواطنين المستوردين مولَّدة ومطابقة لبياناتهم",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-26T10:34:26Z",
+          "completed_at": "2026-10-26T10:34:27Z"
+        },
+        {
+          "name": "بوابة 3 — كل إقليم مسجَّل له بطاقة",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-26T10:34:27Z",
+          "completed_at": "2026-10-26T10:34:27Z"
+        },
+        {
+          "name": "بوابة 4 — الحقول المشتقّة مختومة (تاريخ git + جرد فعلي)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-26T10:34:27Z",
+          "completed_at": "2026-10-26T10:34:33Z"
+        },
+        {
+          "name": "بوابة 5 — الحارس مُراقَب (اختبارات قانون الهوية)",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 10,
+          "started_at": "2026-10-26T10:34:33Z",
+          "completed_at": "2026-10-26T10:38:34Z"
+        },
+        {
+          "name": "بوابة 6 — لا إعفاء يُوسَّع بلا تفسير دستوري مكتوب",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 11,
+          "started_at": "2026-10-26T10:38:34Z",
+          "completed_at": "2026-10-26T10:38:34Z"
+        },
+        {
+          "name": "بوابة 7 — الخاتم لا يختلق حقول الحكم",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 12,
+          "started_at": "2026-10-26T10:38:34Z",
+          "completed_at": "2026-10-26T10:38:34Z"
+        },
+        {
+          "name": "بوابة 8 — لا اسم غريب في جذر المستودع (القاعدة 14 · W-042)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 13,
+          "started_at": "2026-10-26T10:38:34Z",
+          "completed_at": "2026-10-26T10:38:34Z"
+        },
+        {
+          "name": "بوابة 9 — الحرسُ مُجرَّبٌ بإعادةِ العَطبِ (مِسبارُ الوَثبِ · W-077)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 14,
+          "started_at": "2026-10-26T10:38:34Z",
+          "completed_at": "2026-10-26T10:38:34Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 27,
+          "started_at": "2026-10-26T10:38:34Z",
+          "completed_at": "2026-10-26T10:38:34Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 28,
+          "started_at": "2026-10-26T10:38:34Z",
+          "completed_at": "2026-10-26T10:38:34Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 29,
+          "started_at": "2026-10-26T10:38:34Z",
+          "completed_at": "2026-10-26T10:38:34Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/121523240980",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007357,
+      "runner_name": "GitHub Actions 1000007357",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121523240982,
+      "run_id": 40308427851,
+      "workflow_name": "AMOS-Federation CI",
+      "head_branch": "w-689-wi117-code",
+      "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40308427851",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOURQm-88AAAAcS1mAFg",
+      "head_sha": "e15e5b822443654eb512d80184fc865f9e88fec1",
+      "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/121523240982",
+      "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40308427851/job/121523240982",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-26T10:34:11Z",
+      "started_at": "2026-10-26T10:34:14Z",
+      "completed_at": "2026-10-26T10:34:22Z",
+      "name": "Smoke Tests (12 domains)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T10:34:15Z",
+          "completed_at": "2026-10-26T10:34:16Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T10:34:16Z",
+          "completed_at": "2026-10-26T10:34:18Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T10:34:18Z",
+          "completed_at": "2026-10-26T10:34:18Z"
+        },
+        {
+          "name": "Run repo-wide smoke tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T10:34:18Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-26T10:34:19Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-26T10:34:19Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-26T10:34:19Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/121523240982",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007355,
+      "runner_name": "GitHub Actions 1000007355",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121523241032,
+      "run_id": 40308427851,
+      "workflow_name": "AMOS-Federation CI",
+      "head_branch": "w-689-wi117-code",
+      "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40308427851",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOURQm-88AAAAcS1mASA",
+      "head_sha": "e15e5b822443654eb512d80184fc865f9e88fec1",
+      "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/121523241032",
+      "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40308427851/job/121523241032",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-26T10:34:11Z",
+      "started_at": "2026-10-26T10:34:14Z",
+      "completed_at": "2026-10-26T10:34:33Z",
+      "name": "Truth Audit (E0 — Ratchet Gate)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T10:34:15Z",
+          "completed_at": "2026-10-26T10:34:16Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T10:34:16Z",
+          "completed_at": "2026-10-26T10:34:21Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T10:34:21Z",
+          "completed_at": "2026-10-26T10:34:21Z"
+        },
+        {
+          "name": "تدقيق الحقيقة — بوابة عدم التراجع",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T10:34:21Z",
+          "completed_at": "2026-10-26T10:34:27Z"
+        },
+        {
+          "name": "التحقق من أن المصفوفة المدفوعة محدّثة",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 5,
+          "started_at": "2026-10-26T10:34:27Z",
+          "completed_at": "2026-10-26T10:34:27Z"
+        },
+        {
+          "name": "التحقق من أن جرد مخازن الذاكرة المنشور ليس متقادمًا (W-035)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 6,
+          "started_at": "2026-10-26T10:34:27Z",
+          "completed_at": "2026-10-26T10:34:27Z"
+        },
+        {
+          "name": "التحقق من أن قياس افتراق التسعير المنشور ليس متقادمًا (W-036 · Q-42)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 7,
+          "started_at": "2026-10-26T10:34:27Z",
+          "completed_at": "2026-10-26T10:34:27Z"
+        },
+        {
+          "name": "التحقق من نسب القياسات المنشورة وطزاجتها — ما لا يحتاج حزما (W-037 · W-038)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-26T10:34:27Z",
+          "completed_at": "2026-10-26T10:34:27Z"
+        },
+        {
+          "name": "رفع مصفوفة الحقيقة",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-26T10:34:27Z",
+          "completed_at": "2026-10-26T10:34:30Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 17,
+          "started_at": "2026-10-26T10:34:30Z",
+          "completed_at": "2026-10-26T10:34:30Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-26T10:34:30Z",
+          "completed_at": "2026-10-26T10:34:31Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-26T10:34:31Z",
+          "completed_at": "2026-10-26T10:34:31Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/121523241032",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007360,
+      "runner_name": "GitHub Actions 1000007360",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121523241210,
+      "run_id": 40308427851,
+      "workflow_name": "AMOS-Federation CI",
+      "head_branch": "w-689-wi117-code",
+      "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40308427851",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOURQm-88AAAAcS1mA-g",
+      "head_sha": "e15e5b822443654eb512d80184fc865f9e88fec1",
+      "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/121523241210",
+      "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40308427851/job/121523241210",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-26T10:34:11Z",
+      "started_at": "2026-10-26T10:34:14Z",
+      "completed_at": "2026-10-26T10:34:28Z",
+      "name": "Completion Ledger (القاعدة الملزمة — التوثيقُ قبلَ الدفع)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T10:34:14Z",
+          "completed_at": "2026-10-26T10:34:15Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T10:34:15Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T10:34:19Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        },
+        {
+          "name": "بوابة 1 — سجلُّ الإكمالِ قائمٌ وسليمُ الشكل",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T10:34:19Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        },
+        {
+          "name": "بوابة 2 — كلُّ عملٍ في هذا الطلبِ مُقيَّدٌ في السجلّ",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-26T10:34:19Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        },
+        {
+          "name": "بوابة 2 — الالتزامُ المدفوعُ يحملُ قيدَه",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 6,
+          "started_at": "2026-10-26T10:34:19Z",
+          "completed_at": "2026-10-26T10:34:19Z"
+        },
+        {
+          "name": "بوابة 3 — البوّابةُ نفسُها مُراقَبةٌ باختباراتها",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-26T10:34:19Z",
+          "completed_at": "2026-10-26T10:34:25Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-26T10:34:25Z",
+          "completed_at": "2026-10-26T10:34:25Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-26T10:34:25Z",
+          "completed_at": "2026-10-26T10:34:25Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-26T10:34:25Z",
+          "completed_at": "2026-10-26T10:34:25Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/121523241210",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007361,
+      "runner_name": "GitHub Actions 1000007361",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121523311230,
+      "run_id": 40308427851,
+      "workflow_name": "AMOS-Federation CI",
+      "head_branch": "w-689-wi117-code",
+      "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40308427851",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOURQm-88AAAAcS1qSfg",
+      "head_sha": "e15e5b822443654eb512d80184fc865f9e88fec1",
+      "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/121523311230",
+      "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40308427851/job/121523311230",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-26T10:34:21Z",
+      "started_at": "2026-10-26T10:34:24Z",
+      "completed_at": "2026-10-26T10:38:27Z",
+      "name": "Tests",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T10:34:25Z",
+          "completed_at": "2026-10-26T10:34:25Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T10:34:25Z",
+          "completed_at": "2026-10-26T10:34:27Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T10:34:27Z",
+          "completed_at": "2026-10-26T10:34:27Z"
+        },
+        {
+          "name": "Run pip install -r requirements.lock",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T10:34:27Z",
+          "completed_at": "2026-10-26T10:34:48Z"
+        },
+        {
+          "name": "Run pip install -e . --no-deps",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-26T10:34:48Z",
+          "completed_at": "2026-10-26T10:34:50Z"
+        },
+        {
+          "name": "Run pytest tests/ -v --tb=short",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-26T10:34:50Z",
+          "completed_at": "2026-10-26T10:38:23Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-26T10:38:23Z",
+          "completed_at": "2026-10-26T10:38:23Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-26T10:38:23Z",
+          "completed_at": "2026-10-26T10:38:24Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-26T10:38:24Z",
+          "completed_at": "2026-10-26T10:38:24Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/121523311230",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007362,
+      "runner_name": "GitHub Actions 1000007362",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121523324357,
+      "run_id": 40308427851,
+      "workflow_name": "AMOS-Federation CI",
+      "head_branch": "w-689-wi117-code",
+      "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40308427851",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOURQm-88AAAAcS1rFxQ",
+      "head_sha": "e15e5b822443654eb512d80184fc865f9e88fec1",
+      "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/121523324357",
+      "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40308427851/job/121523324357",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-26T10:34:23Z",
+      "started_at": "2026-10-26T10:34:25Z",
+      "completed_at": "2026-10-26T10:40:07Z",
+      "name": "Coverage (≥80%, L5)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T10:34:26Z",
+          "completed_at": "2026-10-26T10:34:28Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T10:34:28Z",
+          "completed_at": "2026-10-26T10:34:30Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T10:34:30Z",
+          "completed_at": "2026-10-26T10:34:30Z"
+        },
+        {
+          "name": "Run pip install -e \".[dev]\"",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T10:34:30Z",
+          "completed_at": "2026-10-26T10:35:02Z"
+        },
+        {
+          "name": "Run tests with coverage gate (fail_under=80)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-26T10:35:02Z",
+          "completed_at": "2026-10-26T10:40:04Z"
+        },
+        {
+          "name": "Enforce branch coverage >= 80%",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-26T10:40:04Z",
+          "completed_at": "2026-10-26T10:40:04Z"
+        },
+        {
+          "name": "Upload coverage report",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-26T10:40:04Z",
+          "completed_at": "2026-10-26T10:40:05Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-26T10:40:05Z",
+          "completed_at": "2026-10-26T10:40:05Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-26T10:40:05Z",
+          "completed_at": "2026-10-26T10:40:05Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-26T10:40:05Z",
+          "completed_at": "2026-10-26T10:40:05Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/121523324357",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007363,
+      "runner_name": "GitHub Actions 1000007363",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121525095340,
+      "run_id": 40308427851,
+      "workflow_name": "AMOS-Federation CI",
+      "head_branch": "w-689-wi117-code",
+      "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40308427851",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOURQm-88AAAAcS3XLrA",
+      "head_sha": "e15e5b822443654eb512d80184fc865f9e88fec1",
+      "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/121525095340",
+      "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40308427851/job/121525095340",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-26T10:38:27Z",
+      "started_at": "2026-10-26T10:38:29Z",
+      "completed_at": "2026-10-26T10:52:03Z",
+      "name": "Cross-System Suites (E2.2-G — SQLite + PostgreSQL)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-26T10:38:30Z",
+          "completed_at": "2026-10-26T10:38:31Z"
+        },
+        {
+          "name": "Initialize containers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-26T10:38:31Z",
+          "completed_at": "2026-10-26T10:38:53Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-26T10:38:53Z",
+          "completed_at": "2026-10-26T10:38:57Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-26T10:38:57Z",
+          "completed_at": "2026-10-26T10:38:57Z"
+        },
+        {
+          "name": "Run pip install -e \"federal/executive/services[dev]\"",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-26T10:38:57Z",
+          "completed_at": "2026-10-26T10:39:30Z"
+        },
+        {
+          "name": "Run pip install -r requirements-dev.txt",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-26T10:39:30Z",
+          "completed_at": "2026-10-26T10:39:31Z"
+        },
+        {
+          "name": "مرجعٌ محليٌّ لفرعِ الحالةِ «main» — حرسُ ما بعدَ الدمجِ يُقاسُ (DISC-025)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-26T10:39:31Z",
+          "completed_at": "2026-10-26T10:39:32Z"
+        },
+        {
+          "name": "تثبيتُ عميلِ PostgreSQL 17 المطابِقِ للخادمِ (WI-076)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-26T10:39:32Z",
+          "completed_at": "2026-10-26T10:39:50Z"
+        },
+        {
+          "name": "تشغيل الحزم الثلاث وتوليد المصفوفة",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 9,
+          "started_at": "2026-10-26T10:39:50Z",
+          "completed_at": "2026-10-26T10:52:00Z"
+        },
+        {
+          "name": "فحص انحراف المصفوفة المدفوعة عن المصفوفة المُعلنة",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10,
+          "started_at": "2026-10-26T10:52:00Z",
+          "completed_at": "2026-10-26T10:52:00Z"
+        },
+        {
+          "name": "رفع مصفوفة الحزم",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-26T10:52:00Z",
+          "completed_at": "2026-10-26T10:52:01Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 20,
+          "started_at": "2026-10-26T10:52:01Z",
+          "completed_at": "2026-10-26T10:52:01Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-10-26T10:52:01Z",
+          "completed_at": "2026-10-26T10:52:01Z"
+        },
+        {
+          "name": "Stop containers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-10-26T10:52:01Z",
+          "completed_at": "2026-10-26T10:52:01Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-10-26T10:52:01Z",
+          "completed_at": "2026-10-26T10:52:02Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/121525095340",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000007364,
+      "runner_name": "GitHub Actions 1000007364",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}
