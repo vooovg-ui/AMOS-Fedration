@@ -15,9 +15,7 @@ from .per_test_auth import PerTestAuthHeaders
 client = TestClient(app)
 AUTH_HEADERS = PerTestAuthHeaders("tester", ["governance:read", "governance:write"])
 # رمزُ ملكٍ للمساراتِ الحارسةِ (WI-117): reset/promotions/gates لا يعبُرُها مواطنٌ.
-KING_HEADERS = PerTestAuthHeaders(
-    "king", ["governance:read", "governance:write"], role="king"
-)
+KING_HEADERS = PerTestAuthHeaders("king", ["governance:read", "governance:write"], role="king")
 
 
 # === Policy Engine Tests ===
@@ -157,9 +155,7 @@ def test_kill_switch_rejects_invalid_level() -> None:
 
 def test_create_promotion() -> None:
     """إنشاء طلب ترقية (حارسٌ ملكيٌّ — WI-117)."""
-    resp = client.post(
-        "/v1/promotions", headers=KING_HEADERS, json={"model_id": "model-123"}
-    )
+    resp = client.post("/v1/promotions", headers=KING_HEADERS, json={"model_id": "model-123"})
     assert resp.status_code == 201
     data = resp.json()
     assert "promotion_id" in data
@@ -170,9 +166,7 @@ def test_create_promotion() -> None:
 
 def test_check_gate_passed() -> None:
     """فحص بوابة ناجحة (حارسٌ ملكيٌّ — WI-117)."""
-    create = client.post(
-        "/v1/promotions", headers=KING_HEADERS, json={"model_id": "model-1"}
-    )
+    create = client.post("/v1/promotions", headers=KING_HEADERS, json={"model_id": "model-1"})
     promo_id = create.json()["promotion_id"]
     resp = client.post(
         f"/v1/promotions/{promo_id}/gates",
@@ -185,9 +179,7 @@ def test_check_gate_passed() -> None:
 
 def test_check_gate_failed_stops_promotion() -> None:
     """فشل بوابة يوقف الترقية (حارسٌ ملكيٌّ — WI-117)."""
-    create = client.post(
-        "/v1/promotions", headers=KING_HEADERS, json={"model_id": "model-2"}
-    )
+    create = client.post("/v1/promotions", headers=KING_HEADERS, json={"model_id": "model-2"})
     promo_id = create.json()["promotion_id"]
     resp = client.post(
         f"/v1/promotions/{promo_id}/gates",
@@ -199,9 +191,7 @@ def test_check_gate_failed_stops_promotion() -> None:
 
 def test_all_gates_passed_promotes() -> None:
     """اجتياز كل البوابات يرقى النموذج (حارسٌ ملكيٌّ — WI-117)."""
-    create = client.post(
-        "/v1/promotions", headers=KING_HEADERS, json={"model_id": "model-3"}
-    )
+    create = client.post("/v1/promotions", headers=KING_HEADERS, json={"model_id": "model-3"})
     promo_id = create.json()["promotion_id"]
     for gate in ["evaluation", "shadow", "canary", "human_approval", "activation"]:
         client.post(

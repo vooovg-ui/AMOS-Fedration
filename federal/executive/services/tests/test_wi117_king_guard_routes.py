@@ -53,9 +53,7 @@ def test_governance_promotions_citizen_forbidden() -> None:
 
 def test_governance_promotions_king_allowed() -> None:
     """الملكُ يطلبُ ترقيةً (WI-117)."""
-    resp = governance_client.post(
-        "/v1/promotions", headers=KING, json={"model_id": "wi117-model"}
-    )
+    resp = governance_client.post("/v1/promotions", headers=KING, json={"model_id": "wi117-model"})
     assert resp.status_code == 201
     assert resp.json()["status"] == "in_progress"
 
@@ -109,9 +107,7 @@ def test_console_reset_king_allowed() -> None:
 
 def test_console_approval_citizen_forbidden() -> None:
     """مواطنٌ لا يوقِّعُ موافقةً من وحدةِ التحكّمِ (WI-117)."""
-    resp = console_client.post(
-        "/v1/approval", headers=CITIZEN, json={"decision": "approve"}
-    )
+    resp = console_client.post("/v1/approval", headers=CITIZEN, json={"decision": "approve"})
     assert resp.status_code == 403
 
 

@@ -237,9 +237,7 @@ def test_approval_sign() -> None:
 
 def test_approval_reject() -> None:
     """زر الرفض يعمل (حارسٌ ملكيٌّ — WI-117)."""
-    resp = client.post(
-        "/v1/approval", headers=KING_HEADERS, json={"decision": "reject"}
-    )
+    resp = client.post("/v1/approval", headers=KING_HEADERS, json={"decision": "reject"})
     assert resp.status_code == 200
     assert resp.json()["decision"] == "reject"
     assert resp.json()["signed_by"] == "king"
@@ -251,17 +249,13 @@ def test_approval_publishes_event() -> None:
 
     bus = get_event_bus()
     initial = bus.count("amos_federation.approval.signed")
-    client.post(
-        "/v1/approval", headers=KING_HEADERS, json={"decision": "approve"}
-    )
+    client.post("/v1/approval", headers=KING_HEADERS, json={"decision": "approve"})
     assert bus.count("amos_federation.approval.signed") > initial
 
 
 def test_approval_citizen_forbidden() -> None:
     """مواطنٌ لا يوقِّعُ موافقةً — الحارسُ يصدّه (WI-117)."""
-    resp = client.post(
-        "/v1/approval", headers=AUTH_HEADERS, json={"decision": "approve"}
-    )
+    resp = client.post("/v1/approval", headers=AUTH_HEADERS, json={"decision": "approve"})
     assert resp.status_code == 403
 
 
