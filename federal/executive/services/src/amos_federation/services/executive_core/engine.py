@@ -235,11 +235,14 @@ class ExecutiveCore:
         payload = dict(fields or {})
         resource = f"task:{task_id}"
 
+        # نواةٌ خاصةٌ (تصميمُ E1 § 2.3): هذا الإطارُ هو العابرُ السياديُّ
+        # بمفعولِهِ المُعلَنِ — فالكتابةُ الخامُ داخلَهُ لا تُعيدُ العبورَ (لا
+        # تعشيشَ سياديَّ: WI-115 · Q-9).
         def _write(_effect: Any) -> bool:
-            return self._repo.compare_and_set(task_id, expected, target, **payload)
+            return self._repo._transition_core(task_id, expected, target, dict(payload))
 
         def _revert() -> None:
-            self._repo.compare_and_set(task_id, target, expected)
+            self._repo._transition_core(task_id, target, expected)
 
         effect = declared_effect("WRITE", resource, f"{expected.value} → {target.value}")
         guarded: GuardedResult = self._authorizer.guard_declared(
@@ -289,8 +292,10 @@ class ExecutiveCore:
         new_id = task_id or f"task-{uuid.uuid4()}"
         resource = f"task:{new_id}"
 
+        # نواةٌ خاصةٌ (تصميمُ E1 § 2.3): هذا الإطارُ هو العابرُ السياديُّ
+        # بمفعولِهِ المُعلَنِ — فالكتابةُ الخامُ داخلَهُ لا تُعيدُ العبورَ.
         def _create(_effect: Any) -> dict[str, Any]:
-            return self._repo.create(
+            self._repo._create_core(
                 new_id,
                 task_type,
                 description,
@@ -298,9 +303,10 @@ class ExecutiveCore:
                 domain=domain,
                 tenant_id=tenant_id,
             )
+            return self._repo.require(new_id)
 
         def _erase() -> None:
-            self._repo.delete(new_id)
+            self._repo._delete_core(new_id)
 
         effect = declared_effect("CREATE", resource, task_type)
         guarded: GuardedResult = self._authorizer.guard_declared(

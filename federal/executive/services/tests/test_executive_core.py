@@ -387,11 +387,17 @@ def test_run_respects_max_steps_without_claiming_completion(
 
 
 def test_concurrent_transition_is_refused_not_faked(worker: dict[str, Any]) -> None:
-    """إذا سبقنا مُنفِّذ آخر، يُرفَع رفض صريح بدل ادّعاء نجاح الانتقال."""
+    """إذا سبقنا مُنفِّذ آخر، يُرفَع رفض صريح بدل ادّعاء نجاح الانتقال.
+
+    الوصلةُ انتقلت معَ المعمارِ: بعدَ E1 (تصميمُ W-694 § 2.3) صارَ محرّكُ
+    الانتقالِ يكتبُ عبرَ النواةِ الخاصةِ `_transition_core` داخلَ عبورِهِ
+    السياديِّ (لا عبورَ متعشِّقَ — WI-115)، فمحاكاةُ "مُنفِّذٍ سابقٍ" تُزرَعُ
+    على النواةِ نفسِها — والقصدُ (رفضٌ صريحٌ لا نجاحٌ مزيّفٌ) محفوظٌ.
+    """
 
     class LosingRepository(ExecutiveTaskRepository):
-        def compare_and_set(self, task_id, expected, target, **fields):  # type: ignore[no-untyped-def]
-            super().compare_and_set(task_id, expected, target, **fields)
+        def _transition_core(self, task_id, expected, target, fields=None):  # type: ignore[no-untyped-def]
+            super()._transition_core(task_id, expected, target, fields)
             return False
 
     core = ExecutiveCore(repository=LosingRepository())

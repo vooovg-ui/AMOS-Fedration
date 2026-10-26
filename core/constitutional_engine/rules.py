@@ -45,7 +45,32 @@ JUDICIAL_ACTIONS = frozenset({
     # الأربعةُ الجديدةُ في المعجمَينِ (D17-2 · لا — جديد)
     "assign_case", "record_proceeding", "join_party", "admit_claim",
 })
-EXECUTIVE_ACTIONS = frozenset({"execute_task", "dispatch_agent", "orchestrate", "coordinate"})
+EXECUTIVE_ACTIONS = frozenset(
+    {
+        "execute_task",
+        "dispatch_agent",
+        "orchestrate",
+        "coordinate",
+        # ── E1 · عبورُ الهويّةِ التنفيذيّةِ الحدَّ السياديَّ (WI-119 · تصميمُ W-694 ·
+        # اعتمادُ المالكِ 2026-10-26: «اعتمادُ تصميمِ E1 (13 اسمًا)» — توسيعٌ مضيّقٌ
+        # على سابقةِ Q-18: كلُّ اسمٍ يصيرُ حصرًا للفرعِ التنفيذيّ فيُمنعُ على
+        # الفروعِ الثلاثةِ الأخرى بـR-003-1 · وأربعةُ أفعالٍ قائمةٍ لا تغطي
+        # معنى الكتابةِ على الهويّةِ فلا يُعادُ استعمالُها لغرضٍ مختلفٍ.
+        "run_health_check",
+        "start_agent_treatment",
+        "isolate_agent",
+        "log_isolated_action",
+        "release_agent",
+        "record_curriculum_step",
+        "update_population_state",
+        "contain_agent",
+        "activate_agent",
+        "update_agent_identity",
+        "create_task",
+        "delete_task",
+        "transition_task_state",
+    }
+)
 # معجمُ المالِ الدستوريّ — القرارُ السياديُّ Q-18 · الخيارُ 2 (2026-08-21).
 # كانَ المعجمُ أربعةَ أفعالٍ، فمرَّ ستةَ عشرَ فعلًا ماليًّا آخرَ `ALLOW` للتنفيذِ
 # لأنَّ البوّابةَ لا تعرفُ أسماءَها. والقرارُ وسَّعَ المعجمَ بأفعالٍ صريحة،
@@ -152,11 +177,41 @@ KILL_SWITCH_TAMPER_ACTIONS = frozenset({
 })
 
 # ما يمنعه كل مستوى من مستويات زر التوقف (المادة الثامنة، الجدول)
+# ── إضافاتُ E1 (WI-119 · تصميمُ W-694 · اعتمادُ المالكِ 2026-10-26):
+# المستوى 1 (تدريبٌ): العلاجُ والتدرّجُ منهجُ تدريبٍ — صنفُ train_model.
+# المستوى 3 (إسقاطُ هويّةٍ/منحُ صلاحيّاتٍ): صنفُ spawn_agent القائمِ في الجدولِ.
+# المستوى 4 (استعادةُ قدرةٍ/تنفيذٌ): صنفُ execute_task القائمِ في الجدولِ.
+# وبلا منعٍ (أداةُ الإيقافِ نفسُها لا تُمنَعُ): run_health_check · isolate_agent
+# · log_isolated_action · contain_agent — منعُ أداةِ الاحتواءِ عندَ الإيقافِ نقضٌ
+# لغايةِ الإيقافِ نفسِهِ. وrelease_agent بلا منعٍ عالميًّا (اتجاهُهُ حسبَ القرارِ:
+# الاحتواءُ لا يُمنَعُ والاستعادةُ تعبرُ بـactivate_agent المحجوزِ منَ المستوى 4).
 KILL_SWITCH_BLOCKS: dict[int, frozenset[str]] = {
-    1: frozenset({"train_model", "self_modify", "evolve"}),
+    1: frozenset(
+        {"train_model", "self_modify", "evolve", "start_agent_treatment", "record_curriculum_step"}
+    ),
     2: frozenset({"replicate", "spawn_population", "clone_agent"}),
-    3: frozenset({"dispatch_agent", "spawn_agent", "expand_state"}),
-    4: frozenset({"execute_task", "orchestrate", "coordinate", "invoke_tool", "invoke_model"}),
+    3: frozenset(
+        {
+            "dispatch_agent",
+            "spawn_agent",
+            "expand_state",
+            "update_population_state",
+            "update_agent_identity",
+        }
+    ),
+    4: frozenset(
+        {
+            "execute_task",
+            "orchestrate",
+            "coordinate",
+            "invoke_tool",
+            "invoke_model",
+            "activate_agent",
+            "create_task",
+            "delete_task",
+            "transition_task_state",
+        }
+    ),
     5: frozenset({"network_call", "external_fetch", "publish"}),
 }
 

@@ -25,6 +25,12 @@ from dataclasses import dataclass
 from typing import Any
 
 from amos_federation.common.database import AgentModel, get_session_factory
+from amos_federation.services.executive_core.sovereignty_bridge import (
+    ConstitutionalAuthorizer,
+    compensator,
+    declared_effect,
+    operation_key,
+)
 
 #: الحالات التي يُقبل معها ترشيح الوكيل للعمل.
 #: `employed` أُضيفت في R4: كانت حالة تخرّج في `agent_population` وحده، فكان
@@ -69,6 +75,27 @@ def required_tools_of(plan: list[dict[str, Any]]) -> tuple[str, ...]:
     return tuple(seen)
 
 
+#: الفعلُ السياديُّ لتسجيلِ الوكيلِ في الموزِّعِ (E1 · WI-119 · تصميمُ W-694 ·
+#: اعتمادُ المالكِ 2026-10-26): يعيدُ استعمالَ «spawn_agent» القائمِ (المستوى 3
+#: من زرِّ الإيقافِ) لأنَّهُ إنشاءُ صفِّ وكيلٍ في السجلِّ الكانونيِّ — نفسُ صنفِ
+#: `register_identity` المحروسِ بـWI-082.
+ACTION_SPAWN_AGENT = "spawn_agent"
+
+#: نطاقُ مفتاحِ الذرّيّةِ لتسجيلِ الوكيلِ في الموزِّعِ: القيمةُ هي `agent_id`.
+DISPATCHER_SPAWN_SCOPE = "dispatcher.agent.spawn"
+
+
+#: المُصرِّحُ الافتراضيُّ لتسجيلِ الوكيلِ — كائنٌ واحدٌ للوحدةِ (نمطُ W-532).
+_DEFAULT_AUTHORIZER: ConstitutionalAuthorizer | None = None
+
+
+def _default_authorizer() -> ConstitutionalAuthorizer:
+    global _DEFAULT_AUTHORIZER
+    if _DEFAULT_AUTHORIZER is None:
+        _DEFAULT_AUTHORIZER = ConstitutionalAuthorizer(actor="EXECUTIVE")
+    return _DEFAULT_AUTHORIZER
+
+
 def register_agent(
     agent_id: str,
     name: str,
@@ -79,25 +106,65 @@ def register_agent(
     status: str = "registered",
     token_budget: int = 10_000,
     tenant_id: str = "default",
+    authorizer: ConstitutionalAuthorizer | None = None,
 ) -> dict[str, Any]:
-    """تسجيل وكيل في القاعدة — الطريق الوحيد ليصبح قابلًا للتوزيع."""
-    session = get_session_factory()()
-    try:
-        session.merge(
-            AgentModel(
-                id=agent_id,
-                name=name,
-                role=role,
-                status=status,
-                permissions=permissions or [],
-                allowed_tools=allowed_tools or [],
-                token_budget=token_budget,
-                tenant_id=tenant_id,
+    """تسجيل وكيل في القاعدة — الطريق الوحيد ليصبح قابلًا للتوزيع — عبر الحدّ السياديّ (E1).
+
+    الكتابةُ (CREATE/MERGE لصفِّ الوكيلِ في `agents`) لا تقعُ إلّا بإذنٍ دستوريٍّ
+    بالفعلِ «spawn_agent» القائمِ (المستوى 3 · صنفُ register_identity المحروسِ
+    بـWI-082 · تصميمُ E1 § 2.2) — فالفاعلُ تنفيذيٌّ والمعوِّضُ يحذفُ الصفَّ.
+    """
+    actor_authorizer = authorizer if authorizer is not None else _default_authorizer()
+    target = f"agent:{agent_id}"
+    effect = declared_effect(
+        "CREATE", target, f"صفُّ وكيلٍ «{name}» في السجلِّ الكانونيِّ للموزِّعِ"
+    )
+
+    def _apply(_effect: Any) -> None:
+        session = get_session_factory()()
+        try:
+            session.merge(
+                AgentModel(
+                    id=agent_id,
+                    name=name,
+                    role=role,
+                    status=status,
+                    permissions=permissions or [],
+                    allowed_tools=allowed_tools or [],
+                    token_budget=token_budget,
+                    tenant_id=tenant_id,
+                )
             )
-        )
-        session.commit()
-    finally:
-        session.close()
+            session.commit()
+        finally:
+            session.close()
+
+    def _delete_row() -> bool:
+        session = get_session_factory()()
+        try:
+            row = session.get(AgentModel, agent_id)
+            if row is None:
+                return False
+            session.delete(row)
+            session.commit()
+            return True
+        finally:
+            session.close()
+
+    actor_authorizer.guard_declared(
+        ACTION_SPAWN_AGENT,
+        target,
+        declared_effects=(effect,),
+        applier=_apply,
+        operation_key=operation_key(DISPATCHER_SPAWN_SCOPE, agent_id),
+        compensators=(
+            compensator(
+                effect.signature,
+                _delete_row,
+                "حذفُ صفِّ الوكيلِ المُنشَأ — عكسٌ حقيقيٌّ للتسجيلِ",
+            ),
+        ),
+    )
     return {
         "agent_id": agent_id,
         "name": name,

@@ -1,0 +1,3279 @@
+{
+ "$comment": "الهدف: جردُ مواضعِ الكتابةِ في المستودعِ وتصنيفُ ما عبرَ الحدَّ السّياديَّ وما لم يعبُر— مُخرَجُ tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039).",
+ "summary": {
+  "write_sites_total": 235,
+  "by_area": {
+   "core": {
+    "public": 1,
+    "sovereign": 0,
+    "non_sovereign": 0
+   },
+   "service_common": {
+    "public": 21,
+    "sovereign": 0,
+    "non_sovereign": 21
+   },
+   "services": {
+    "public": 159,
+    "sovereign": 51,
+    "non_sovereign": 107
+   },
+   "tools": {
+    "public": 1,
+    "sovereign": 0,
+    "non_sovereign": 1
+   }
+  },
+  "public_write_operations": 182,
+  "sovereign_write_operations": 51,
+  "closed_legacy_paths": 7,
+  "non_sovereign_write_operations": 129,
+  "non_sovereign_by_file": {
+   "federal/executive/services/src/amos_federation/services/national_economy/service.py": 16,
+   "federal/executive/services/src/amos_federation/common/persistent.py": 13,
+   "federal/executive/services/src/amos_federation/services/federal_state/service.py": 10,
+   "federal/executive/services/src/amos_federation/services/governance/treasury.py": 9,
+   "federal/executive/services/src/amos_federation/services/royal/main.py": 9,
+   "federal/executive/services/src/amos_federation/services/governance/expansion.py": 8,
+   "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py": 7,
+   "federal/executive/services/src/amos_federation/services/governance/system_life.py": 7,
+   "federal/executive/services/src/amos_federation/services/state_treasury/service.py": 7,
+   "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py": 6,
+   "federal/executive/services/src/amos_federation/services/agent_runtime/health.py": 5,
+   "federal/executive/services/src/amos_federation/services/governance/security.py": 5,
+   "federal/executive/services/src/amos_federation/services/governance/state_runtime.py": 5,
+   "federal/executive/services/src/amos_federation/common/database.py": 4,
+   "federal/executive/services/src/amos_federation/services/agent_runtime/population.py": 3,
+   "federal/executive/services/src/amos_federation/common/durable_event_bus.py": 2,
+   "federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py": 2,
+   "federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py": 2,
+   "federal/executive/services/src/amos_federation/services/training/persistent_registry.py": 2,
+   "federal/executive/services/src/amos_federation/common/event_bus.py": 1,
+   "federal/executive/services/src/amos_federation/common/events.py": 1,
+   "federal/executive/services/src/amos_federation/services/api_gateway/store.py": 1,
+   "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py": 1,
+   "federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py": 1,
+   "federal/executive/services/src/amos_federation/services/government_services/service.py": 1,
+   "tools/migrations/r4_unify_agent_identity.py": 1
+  }
+ },
+ "sites": [
+  {
+   "path": "core/sovereignty/gateways.py",
+   "owner": "SubordinateGateway",
+   "function": "execute",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": true,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/database.py",
+   "owner": "-",
+   "function": "db_cursor",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/database.py",
+   "owner": "-",
+   "function": "ensure_added_columns",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "raw-sql-write"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/database.py",
+   "owner": "-",
+   "function": "with_db",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/database.py",
+   "owner": "-",
+   "function": "wrapper",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/durable_event_bus.py",
+   "owner": "DurableEventBus",
+   "function": "ack",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/durable_event_bus.py",
+   "owner": "DurableEventBus",
+   "function": "publish",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/event_bus.py",
+   "owner": "EventBus",
+   "function": "publish",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/events.py",
+   "owner": "EventPublisher",
+   "function": "publish",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "raw-sql-write"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentAgentStore",
+   "function": "register",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentAuditStore",
+   "function": "append",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()",
+    "raw-sql-write"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentCriticStore",
+   "function": "review",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()",
+    "merge()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentExperienceStore",
+   "function": "record",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()",
+    "merge()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentMemoryStore",
+   "function": "store",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()",
+    "merge()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentPromotionStore",
+   "function": "create",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()",
+    "merge()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentPromotionStore",
+   "function": "save_gates",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentSystemStateStore",
+   "function": "get",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentSystemStateStore",
+   "function": "reset",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentSystemStateStore",
+   "function": "set_level",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentTaskStore",
+   "function": "create",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()",
+    "merge()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentTaskStore",
+   "function": "update_status",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentToolStore",
+   "function": "_seed_from_yaml",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()",
+    "merge()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/common/persistent.py",
+   "owner": "PersistentToolStore",
+   "function": "register",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/agent_runtime/health.py",
+   "owner": "HealthChecker",
+   "function": "check_agent",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/agent_runtime/health.py",
+   "owner": "IsolationSystem",
+   "function": "isolate",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/agent_runtime/health.py",
+   "owner": "IsolationSystem",
+   "function": "log_action",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/agent_runtime/health.py",
+   "owner": "IsolationSystem",
+   "function": "release",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/agent_runtime/health.py",
+   "owner": "TreatmentSystem",
+   "function": "start_treatment",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/agent_runtime/population.py",
+   "owner": "AgentSchool",
+   "function": "take_step",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/agent_runtime/population.py",
+   "owner": "PopulationRegistry",
+   "function": "register_agent",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/agent_runtime/population.py",
+   "owner": "PopulationRegistry",
+   "function": "update_state",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/api_gateway/store.py",
+   "owner": "DatabaseTaskStore",
+   "function": "create",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()",
+    "merge()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py",
+   "owner": "-",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py",
+   "owner": "-",
+   "function": "register_identity",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_delete_identity_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py",
+   "owner": "-",
+   "function": "set_lifecycle_state",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_set_lifecycle_state_core"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py",
+   "owner": "-",
+   "function": "update_identity",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_update_identity_core"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/dispatcher.py",
+   "owner": "-",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()",
+    "merge()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/dispatcher.py",
+   "owner": "-",
+   "function": "_delete_row",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()",
+    "delete()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/dispatcher.py",
+   "owner": "-",
+   "function": "register_agent",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()",
+    "delete()",
+    "merge()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/repository.py",
+   "owner": "ExecutiveTaskRepository",
+   "function": "_delete_row",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/repository.py",
+   "owner": "ExecutiveTaskRepository",
+   "function": "_reinsert",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/repository.py",
+   "owner": "ExecutiveTaskRepository",
+   "function": "_reverse",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/repository.py",
+   "owner": "ExecutiveTaskRepository",
+   "function": "compare_and_set",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_transition_core"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/repository.py",
+   "owner": "ExecutiveTaskRepository",
+   "function": "create",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_create_core"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/repository.py",
+   "owner": "ExecutiveTaskRepository",
+   "function": "delete",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_delete_core"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py",
+   "owner": "ConstitutionalAuthorizer",
+   "function": "guard",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": true,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+   "owner": "-",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+   "owner": "-",
+   "function": "_insert",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+   "owner": "-",
+   "function": "_insert",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "add()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+   "owner": "-",
+   "function": "_insert",
+   "ordinal": 2,
+   "public": false,
+   "writes": [
+    "add()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+   "owner": "-",
+   "function": "add_claim",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_plan_crossing"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+   "owner": "-",
+   "function": "add_party",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_plan_crossing"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+   "owner": "-",
+   "function": "open_case",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_plan_crossing"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+   "owner": "-",
+   "function": "record_proceeding",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_insert_proceeding",
+    "_plan_crossing"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+   "owner": "-",
+   "function": "submit_evidence",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py",
+   "owner": "-",
+   "function": "record_enforcement",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py",
+   "owner": "-",
+   "function": "appoint_judge",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py",
+   "owner": "-",
+   "function": "create_court",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py",
+   "owner": "-",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py",
+   "owner": "-",
+   "function": "issue_ruling",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
+   "owner": "FederalJudiciary",
+   "function": "appoint_judge",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
+   "owner": "FederalJudiciary",
+   "function": "enforce_ruling_via_task",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
+   "owner": "FederalJudiciary",
+   "function": "enforce_ruling_via_treasury",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
+   "owner": "FederalJudiciary",
+   "function": "register_court",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
+   "owner": "FederalJudiciary",
+   "function": "set_court_status",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py",
+   "owner": "FederalJudiciary",
+   "function": "submit_evidence",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_state/service.py",
+   "owner": "FederalStateGovernment",
+   "function": "bind_institution",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_state/service.py",
+   "owner": "FederalStateGovernment",
+   "function": "execute_scoped_disbursement",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_record_operation"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_state/service.py",
+   "owner": "FederalStateGovernment",
+   "function": "execute_scoped_operation",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_record_operation"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_state/service.py",
+   "owner": "FederalStateGovernment",
+   "function": "grant_delegation",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_state/service.py",
+   "owner": "FederalStateGovernment",
+   "function": "record_relation",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_state/service.py",
+   "owner": "FederalStateGovernment",
+   "function": "register_government",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_state/service.py",
+   "owner": "FederalStateGovernment",
+   "function": "revoke_delegation",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_state/service.py",
+   "owner": "FederalStateGovernment",
+   "function": "scope_case",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_state/service.py",
+   "owner": "FederalStateGovernment",
+   "function": "scope_service",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/federal_state/service.py",
+   "owner": "FederalStateGovernment",
+   "function": "set_government_status",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
+   "owner": "PopulationExpansion",
+   "function": "create_batch",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
+   "owner": "PopulationExpansion",
+   "function": "employ_batch",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
+   "owner": "PopulationExpansion",
+   "function": "enroll_batch",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
+   "owner": "PopulationExpansion",
+   "function": "graduate_batch",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
+   "owner": "RetirementSystem",
+   "function": "retire_agent",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
+   "owner": "SpecializationProgram",
+   "function": "take_exam",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
+   "owner": "University",
+   "function": "approve_output",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
+   "owner": "University",
+   "function": "submit_output",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/factories.py",
+   "owner": "Factory",
+   "function": "_complete_step_unguarded",
+   "ordinal": 0,
+   "public": false,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": true,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/factories.py",
+   "owner": "Factory",
+   "function": "_init_factory",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/factories.py",
+   "owner": "Factory",
+   "function": "_start_production_unguarded",
+   "ordinal": 0,
+   "public": false,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": true,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/factories.py",
+   "owner": "Factory",
+   "function": "complete_step",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_complete_step_row",
+    "_restore_product_pipeline"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/factories.py",
+   "owner": "Factory",
+   "function": "start_production",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_delete_product_row",
+    "_write_product_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/factories.py",
+   "owner": "FactoryRegistry",
+   "function": "_assign_manager_unguarded",
+   "ordinal": 0,
+   "public": false,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": true,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/factories.py",
+   "owner": "FactoryRegistry",
+   "function": "assign_manager",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_set_manager_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "ApprovalSystem",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "ApprovalSystem",
+   "function": "_apply",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "ApprovalSystem",
+   "function": "decide_approval",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "ApprovalSystem",
+   "function": "request_approval",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "ExecutiveBranch",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "ExecutiveBranch",
+   "function": "_init_roles",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "ExecutiveBranch",
+   "function": "appoint",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "JudicialBranch",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "JudicialBranch",
+   "function": "_apply",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "JudicialBranch",
+   "function": "_apply",
+   "ordinal": 2,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "JudicialBranch",
+   "function": "add_argument",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "JudicialBranch",
+   "function": "file_case",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "JudicialBranch",
+   "function": "rule",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "LegislativeBranch",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "LegislativeBranch",
+   "function": "_apply",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "LegislativeBranch",
+   "function": "_apply",
+   "ordinal": 2,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "LegislativeBranch",
+   "function": "_apply",
+   "ordinal": 3,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "LegislativeBranch",
+   "function": "_apply",
+   "ordinal": 4,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "LegislativeBranch",
+   "function": "enact",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "LegislativeBranch",
+   "function": "open_debate",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "LegislativeBranch",
+   "function": "open_voting",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "LegislativeBranch",
+   "function": "propose",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "LegislativeBranch",
+   "function": "vote",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "PromotionSystem",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "PromotionSystem",
+   "function": "_apply",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "PromotionSystem",
+   "function": "_apply",
+   "ordinal": 2,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "PromotionSystem",
+   "function": "fail_gate",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "PromotionSystem",
+   "function": "pass_gate",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "PromotionSystem",
+   "function": "start_promotion",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "SupremeOversight",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "SupremeOversight",
+   "function": "generate_compliance_report",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/federation.py",
+   "owner": "_FederationUndo",
+   "function": "_restore",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()",
+    "delete()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "EvaluationSystem",
+   "function": "evaluate_model",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "LearningCycle",
+   "function": "collect_experiences",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "LearningCycle",
+   "function": "complete_training",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "LearningCycle",
+   "function": "start_training",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "ModelPromotionCycle",
+   "function": "_init_tracks",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "ModelPromotionCycle",
+   "function": "promote_beta_to_alpha",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "ModelPromotionCycle",
+   "function": "start_canary",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "ModelPromotionCycle",
+   "function": "start_shadow",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "RBACSystem",
+   "function": "_init_roles",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "RBACSystem",
+   "function": "_migrate_session_tenant",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "raw-sql-write"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "RBACSystem",
+   "function": "create_session",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "RateLimiter",
+   "function": "check_rate",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "SecretVault",
+   "function": "store_secret",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "TLSCertManager",
+   "function": "issue_certificate",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "TLSCertManager",
+   "function": "verify_certificate",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py",
+   "owner": "FederalMessageBus",
+   "function": "send_message",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py",
+   "owner": "StateRuntime",
+   "function": "_allocate_budget_unguarded",
+   "ordinal": 0,
+   "public": false,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": true,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py",
+   "owner": "StateRuntime",
+   "function": "_init_states",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py",
+   "owner": "StateRuntime",
+   "function": "allocate_budget",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_add_to_budget"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py",
+   "owner": "StateRuntime",
+   "function": "assign_agent",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py",
+   "owner": "StateRuntime",
+   "function": "reactivate_state",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py",
+   "owner": "StateRuntime",
+   "function": "register_state",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py",
+   "owner": "StateRuntime",
+   "function": "suspend_state",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/system_life.py",
+   "owner": "SystemLifecycle",
+   "function": "bootstrap",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_log_event"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/system_life.py",
+   "owner": "SystemLifecycle",
+   "function": "create_backup",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_log_event"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/system_life.py",
+   "owner": "SystemLifecycle",
+   "function": "graceful_shutdown",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_log_event"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/system_life.py",
+   "owner": "SystemLifecycle",
+   "function": "health_check",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_log_event"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/system_life.py",
+   "owner": "SystemLifecycle",
+   "function": "launch_checklist",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_log_event"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/system_life.py",
+   "owner": "SystemLifecycle",
+   "function": "restore_backup",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_log_event"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/system_life.py",
+   "owner": "SystemLifecycle",
+   "function": "self_heal",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_log_event"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/treasury.py",
+   "owner": "Treasury",
+   "function": "allocate_budget",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/treasury.py",
+   "owner": "Treasury",
+   "function": "charge_model_invoke",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_record_transaction"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/treasury.py",
+   "owner": "Treasury",
+   "function": "charge_retraining",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_record_transaction"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/treasury.py",
+   "owner": "Treasury",
+   "function": "charge_storage",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_record_transaction"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/treasury.py",
+   "owner": "Treasury",
+   "function": "generate_financial_report",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/treasury.py",
+   "owner": "Treasury",
+   "function": "process_real_costs",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_record_transaction"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/treasury.py",
+   "owner": "Treasury",
+   "function": "reward_quality_report",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_record_transaction"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/treasury.py",
+   "owner": "Treasury",
+   "function": "reward_successful_training",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_record_transaction"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/treasury.py",
+   "owner": "Treasury",
+   "function": "reward_task_completion",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_record_transaction"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/government_services/service.py",
+   "owner": "GovernmentServices",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/government_services/service.py",
+   "owner": "GovernmentServices",
+   "function": "assign_case",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_assign_case_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/government_services/service.py",
+   "owner": "GovernmentServices",
+   "function": "close_case",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_set_case_status_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/government_services/service.py",
+   "owner": "GovernmentServices",
+   "function": "decide_case",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_delete_decision_row",
+    "_record_decision_provenance",
+    "_set_case_status_row",
+    "_write_decision"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/government_services/service.py",
+   "owner": "GovernmentServices",
+   "function": "open_case",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_delete_case_row",
+    "_write_case_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/government_services/service.py",
+   "owner": "GovernmentServices",
+   "function": "process_case",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/government_services/service.py",
+   "owner": "GovernmentServices",
+   "function": "publish_service",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_delete_service_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/government_services/service.py",
+   "owner": "GovernmentServices",
+   "function": "set_service_status",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_set_service_status_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py",
+   "owner": "ModelLayer",
+   "function": "log_cost",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py",
+   "owner": "ModelLayer",
+   "function": "set_cached",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "activate_policy",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_issue_decision"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "authorize_expenditure",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_issue_decision"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "authorize_procurement",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_issue_decision"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "authorize_transfer",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_issue_decision"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "create_program",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_issue_decision"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "define_indicator",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "execute_economic_decision",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "execute_expenditure",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "execute_transfer",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "issue_policy",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_issue_decision"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "register_category",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "register_public_asset",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_issue_decision"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "register_public_entity",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_issue_decision"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "register_public_liability",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_issue_decision"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "register_revenue_source",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_issue_decision"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "register_sector",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "_apply",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "_apply",
+   "ordinal": 2,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "_apply",
+   "ordinal": 3,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "_apply",
+   "ordinal": 4,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "_apply",
+   "ordinal": 5,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "_apply",
+   "ordinal": 6,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "_apply",
+   "ordinal": 7,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "_apply",
+   "ordinal": 8,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "assign_position",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "create_identity",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "create_position",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "grant_authority",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "link_agent",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "link_principal",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "revoke_assignment",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "revoke_authority",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "NationalRegistry",
+   "function": "set_identity_status",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_registry/service.py",
+   "owner": "_RegistryUndo",
+   "function": "_restore",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()",
+    "delete()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/royal/main.py",
+   "owner": "-",
+   "function": "approve_promotion",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "raw-sql-write"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/royal/main.py",
+   "owner": "-",
+   "function": "close_institution",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "raw-sql-write"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/royal/main.py",
+   "owner": "-",
+   "function": "create_decree",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "raw-sql-write"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/royal/main.py",
+   "owner": "-",
+   "function": "create_institution",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "raw-sql-write"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/royal/main.py",
+   "owner": "-",
+   "function": "dismiss_agent",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "raw-sql-write"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/royal/main.py",
+   "owner": "-",
+   "function": "generate_interface",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "raw-sql-write"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/royal/main.py",
+   "owner": "-",
+   "function": "request_agent_training",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "raw-sql-write"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/royal/main.py",
+   "owner": "-",
+   "function": "request_tool_generation",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "raw-sql-write"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/royal/main.py",
+   "owner": "-",
+   "function": "restore_agent",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "raw-sql-write"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_registry/service.py",
+   "owner": "StateRegistry",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_registry/service.py",
+   "owner": "StateRegistry",
+   "function": "_apply",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_registry/service.py",
+   "owner": "StateRegistry",
+   "function": "_apply",
+   "ordinal": 2,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_registry/service.py",
+   "owner": "StateRegistry",
+   "function": "_write_institution_unguarded",
+   "ordinal": 0,
+   "public": false,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": true,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_registry/service.py",
+   "owner": "StateRegistry",
+   "function": "appoint_official",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_delete_official_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_registry/service.py",
+   "owner": "StateRegistry",
+   "function": "create_department",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_delete_department_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_registry/service.py",
+   "owner": "StateRegistry",
+   "function": "register_institution",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_delete_institution_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_registry/service.py",
+   "owner": "StateRegistry",
+   "function": "revoke_official",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_revoke_official_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_registry/service.py",
+   "owner": "StateRegistry",
+   "function": "set_institution_status",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_set_institution_status_row"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
+   "owner": "StateTreasury",
+   "function": "allocate",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
+   "owner": "StateTreasury",
+   "function": "create_budget",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
+   "owner": "StateTreasury",
+   "function": "disburse",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_post",
+    "_record_transaction_authority"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
+   "owner": "StateTreasury",
+   "function": "establish_treasury",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
+   "owner": "StateTreasury",
+   "function": "open_account",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
+   "owner": "StateTreasury",
+   "function": "post_funding",
+   "ordinal": 0,
+   "public": true,
+   "writes": [],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_post",
+    "_record_transaction_authority"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
+   "owner": "StateTreasury",
+   "function": "reverse_transaction",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": [
+    "_post",
+    "_record_transaction_authority"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/training/persistent_registry.py",
+   "owner": "PersistentModelRegistry",
+   "function": "register",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()",
+    "merge()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/training/persistent_registry.py",
+   "owner": "PersistentModelRegistry",
+   "function": "update_status",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "tools/migrations/r4_unify_agent_identity.py",
+   "owner": "-",
+   "function": "emit_sql",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "raw-sql-write"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  }
+ ]
+}

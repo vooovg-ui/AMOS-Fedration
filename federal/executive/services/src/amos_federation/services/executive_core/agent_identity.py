@@ -43,6 +43,8 @@ permissions، allowed_tools، state) تبقى مكتوبة كـ **مرآة تو�
 
 from __future__ import annotations
 
+import hashlib
+import json
 import uuid
 from dataclasses import dataclass
 from enum import StrEnum
@@ -85,6 +87,28 @@ ACTION_SPAWN_AGENT = "spawn_agent"
 #: نطاقُ مفتاحِ الذرّيّةِ لإنشاءِ الهويّةِ (1H): القيمةُ هي `agent_id` الكانونيُّ —
 #: الهويةُ الواحدةُ لا تُنشأُ مرتَينِ لمفتاحٍ واحد.
 IDENTITY_SPAWN_SCOPE = "agents.identity.spawn"
+
+
+# ── E1 · أفعالُ عبورِ الأسطحِ المباشرةِ تحتَ D-4 (WI-119 · تصميمُ W-694 ·
+# اعتمادُ المالكِ 2026-10-26: «اعتمادُ تصميمِ E1 (13 اسمًا)») ──────────────────────
+
+#: تحديثُ الهويّةِ (الحقولُ المصرَّحَةُ) — المستوى 3 (صنفُ spawn_agent).
+ACTION_UPDATE_AGENT_IDENTITY = "update_agent_identity"
+
+#: نطاقُ مفتاحِ الذرّيّةِ لتحديثِ الهويّةِ: القيمةُ بصمةُ الحقولِ المطلوبةِ —
+#: فإعادةُ الإرسالِ إعادةٌ واحدةٌ والتحديثُ المختلفُ عمليّةٌ لاحقةٌ مشروعةٌ.
+IDENTITY_UPDATE_SCOPE = "agents.identity.update"
+
+#: احتواءُ الوكيلِ (PAUSED/RETIRED/TRAINING وبقيّةُ الحالاتِ غيرِ الاستعاديّةِ) —
+#: أداةُ الإيقافِ نفسُها لا تُمنَعُ عندَ أيِّ مستوىً (التصميمُ § 2.2 قاعدةٌ 3).
+ACTION_CONTAIN_AGENT = "contain_agent"
+
+#: استعادةُ قدرةٍ أوقفها النظامُ (الانتقالُ إلى ACTIVE) — المحجوزُ منَ المستوى 4
+#: (صنفُ execute_task · التصميمُ § 2.2 قاعدةٌ 2).
+ACTION_ACTIVATE_AGENT = "activate_agent"
+
+#: نطاقُ مفتاحِ الذرّيّةِ لانتقالِ دورةِ الحياةِ: القيمةُ (الوكيلِ، الحالةِ الهدفِ).
+LIFECYCLE_SCOPE = "agents.lifecycle"
 
 
 class AgentLifecycleState(StrEnum):
@@ -362,34 +386,206 @@ def update_identity(
     permissions: list[str] | None = None,
     allowed_tools: list[str] | None = None,
     token_budget: int | None = None,
+    authorizer: ConstitutionalAuthorizer | None = None,
 ) -> AgentIdentity:
-    """تعديل صريح لهوية قائمة — لا يُنشئ هوية جديدة."""
+    """تعديل صريح لهوية قائمة — لا يُنشئ هوية جديدة — عبر الحد السيادي (E1 · WI-119).
+
+    كتابةُ `agents` (الحقولُ المصرَّحَةُ: name/role/permissions/allowed_tools/
+    token_budget) لا تقعُ إلّا بإذنٍ دستوريٍّ بالفعلِ «update_agent_identity»
+    (تصميمُ W-694 § 2.2 · اعتمادُ المالكِ 2026-10-26) فيقفُ عندَ المستوىِ الثالثِ
+    من زرِّ الإيقافِ (صنفُ spawn_agent — منحُ صلاحيّاتٍ) ويُعلنُ أثرَهُ ويحملُ
+    معوّضًا يُرجِعُ لقطةَ الحقولِ السابقةِ ومفتاحَ ذرّيّةٍ من بصمةِ الحقولِ المطلوبةِ.
+    فبصمةُ الحقولِ في المفتاحِ تجعلُ إعادةَ الإرسالِ إعادةً واحدةً والتحديثَ
+    المختلفَ عمليّةً لاحقةً مشروعةً (تصميمُ E1 § 3 الصنفُ 4).
+
+    Raises:
+        UnknownAgentIdentityError: لا هوية كانونية بهذا المعرّف.
+    """
+    actor_authorizer = authorizer if authorizer is not None else _default_authorizer()
+    # قاعدةُ نطاقٍ **قبلَ** الحدِّ (قراءةٌ لا كتابةٌ): رفضٌ مبكّرٌ لما لا وجودَ له.
+    existing = get_identity(agent_id)
+    if existing is None:
+        raise UnknownAgentIdentityError(f"لا هوية كانونية بهذا المعرّف: {agent_id}")
+
+    changes: dict[str, Any] = {}
+    if name is not None:
+        changes["name"] = name
+    if role is not None:
+        changes["role"] = role
+    if permissions is not None:
+        changes["permissions"] = list(permissions)
+    if allowed_tools is not None:
+        changes["allowed_tools"] = list(allowed_tools)
+    if token_budget is not None:
+        changes["token_budget"] = int(token_budget)
+    if not changes:
+        # لا حقولُ مطلوبةٌ: لا عبورَ ولا كتابةً — العمليّةُ فارغةٌ فلا تُقاس.
+        return require_identity(agent_id)
+
+    target = f"agent:{agent_id}"
+    fingerprint = hashlib.sha256(
+        json.dumps(changes, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    ).hexdigest()
+    # موردُ الأثرِ يحملُ بصمةَ التغييراتِ (موردٌ فرعيٌّ داخلَ نطاقِ الهدفِ —
+    # `in_scope`): به تتميّزُ العقودُ بينَ تحديثينِ مختلفينِ للوكيلِ نفسِهِ
+    # فلا يُرفَض تحديثٌ مشروعٌ كإعادةِ إذنٍ في الثانيةِ نفسِها.
+    effect = declared_effect(
+        "WRITE",
+        f"{target}/fields.{fingerprint[:16]}",
+        f"تحديثُ الحقولِ المصرَّحَةِ {sorted(changes)} للهويّةِ الكانونيّةِ",
+    )
+
+    def _apply(_effect: Any) -> None:
+        _update_identity_core(agent_id, changes)
+
+    # المعوّضُ الحقيقيّ: لقطةُ الحقولِ السابقةِ (تصميمُ E1 § 2.2 — إرجاعُ لقطةِ
+    # الحقولِ السابقةِ) — يُبنى **قبلَ** التنفيذِ من الهويّةِ المقروءةِ فوقَ لا من
+    # قراءةٍ لاحقةٍ تسبقُ الكتابةَ المتزامنةَ.
+    previous = {
+        "name": existing.name,
+        "role": existing.role,
+        "permissions": list(existing.permissions),
+        "allowed_tools": list(existing.allowed_tools),
+        "token_budget": existing.token_budget,
+    }
+
+    actor_authorizer.guard_declared(
+        ACTION_UPDATE_AGENT_IDENTITY,
+        target,
+        declared_effects=(effect,),
+        applier=_apply,
+        # النطاقُ يحملُ بصمةَ الحمولةِ (مفتاحُ التصميمِ § 2.2: هويةُ التحديثِ +
+        # المعرِّفُ + بصمةُ التغييراتِ) — فالبصمةُ السياديّةُ (الطلبُ) تتغيّرُ معَ
+        # كلِّ تحديثٍ مختلفٍ ولا يُرفَض التحديثُ الثاني كإعادةِ إذنٍ في الثانيةِ نفسِها.
+        operation_key=operation_key(
+            f"{IDENTITY_UPDATE_SCOPE}.{fingerprint[:16]}", agent_id
+        ),
+        compensators=(
+            compensator(
+                effect.signature,
+                lambda: _update_identity_core(agent_id, previous),
+                "إرجاعُ لقطةِ الحقولِ السابقةِ للهويّةِ — عكسٌ حقيقيٌّ للتحديثِ",
+            ),
+        ),
+    )
+    return require_identity(agent_id)
+
+
+def _update_identity_core(agent_id: str, changes: dict[str, Any]) -> None:
+    """نواةُ كتابةِ تحديثِ الهويّةِ — كاتبٌ صافٍ بلا عبورٍ (Q-9 § 2.3 · تصميمُ E1).
+
+    تستعملُها العباراتُ العلنيّةُ المحروسةُ (كتحديثِ الهويّةِ هذا) وكلُّ سطحٍ
+    أعلنَ أثرَ تحديثِ الهويّةِ في عبورِهِ الأعلى (فلا تعشيشَ) — ولا تُستعملُ
+    مباشرةً من خارجِ الوحدةِ: المرجعُ العلنيُّ هو `update_identity` المحروس.
+    """
     session = get_session_factory()()
     try:
         row = session.query(AgentModel).filter(AgentModel.id == agent_id).first()
         if row is None:
             raise UnknownAgentIdentityError(f"لا هوية كانونية بهذا المعرّف: {agent_id}")
-        if name is not None:
-            row.name = name
-        if role is not None:
-            row.role = role
-        if permissions is not None:
-            row.permissions = permissions
-        if allowed_tools is not None:
-            row.allowed_tools = allowed_tools
-        if token_budget is not None:
-            row.token_budget = token_budget
+        if "name" in changes:
+            row.name = changes["name"]
+        if "role" in changes:
+            row.role = changes["role"]
+        if "permissions" in changes:
+            row.permissions = changes["permissions"]
+        if "allowed_tools" in changes:
+            row.allowed_tools = changes["allowed_tools"]
+        if "token_budget" in changes:
+            row.token_budget = changes["token_budget"]
         session.commit()
     finally:
         session.close()
-    return require_identity(agent_id)
 
 
-def set_lifecycle_state(agent_id: str, lifecycle_state: str) -> bool:
-    """تغيير دورة الحياة في الحقل الكانوني الوحيد.
+def set_lifecycle_state(agent_id: str, lifecycle_state: str, authorizer: ConstitutionalAuthorizer | None = None) -> bool:
+    """تغيير دورة الحياة في الحقل الكانوني الوحيد — عبر الحد السيادي (E1 · WI-119).
+
+    الفعلُ بالوجهةِ (تصميمُ W-694 § 2.2): الانتقالُ إلى حالةِ احتواءٍ
+    (PAUSED/RETIRED/TRAINING) يعبرُ بالفعلِ «contain_agent» بلا منعٍ — أداةُ
+    الاحتواءِ نفسُها لا تُمنَعُ عندَ الإيقافِ — والانتقالُ إلى ACTIVE يعبرُ
+    بالفعلِ «activate_agent» المحجوزِ منَ المستوىِ الرابعِ (استعادةُ قدرةٍ
+    أوقفها النظامُ · صنفُ execute_task) · وبقيّةُ الحالاتِ (تسجيلٌ وإدارةٌ لا
+    احتواءَ ولا استعادةَ) تعبرُ بـcontain_agent أيضًا لأنَّ أعمالَ التسجيلِ تبقى
+    ممكنةً في كلِّ المستوياتِ (التصميمُ § 2.2 قاعدةٌ 3).
+
+    مفتاحُ الذرّيّةِ من (الوكيلِ، الحالةِ السابقةِ، الحالةِ الهدفِ) وموردُ الأثرِ
+    يحملُ الاتجاهَ (تصميمُ E1 § 2.2): فالانتقالانِ المتعاقبانِ (ACTIVE→PAUSED→ACTIVE)
+    عمليّتانِ (تصميمُ E1 § 3 الصنفُ 4) وإعادةُ الإرسالِ بعدَ النجاحِ عمليةٌ فارغةٌ
+    تعودُ بلا أثرٍ. والمعوّضُ يُرجِعُ الحالةَ السابقةَ.
 
     Returns:
         False إن لم تكن هناك هوية كانونية بهذا المعرّف — بلا إنشاء ضمني.
+    """
+    actor_authorizer = authorizer if authorizer is not None else _default_authorizer()
+    # قاعدةُ نطاقٍ **قبلَ** الحدِّ (قراءةٌ لا كتابةٌ): لا إنشاءً ضمنيًّا.
+    existing = get_identity(agent_id)
+    if existing is None:
+        return False
+
+    previous_state = existing.lifecycle_state
+    if previous_state == lifecycle_state:
+        # العمليّةُ الفارغةُ لا تُقاسُ (سابقةُ `update_identity` بلا حقولٍ): الحالةُ
+        # الهدفُ هي الواقعةُ فعلًا — فلا عبورَ ولا كتابةً ولا مفتاحُ ذرّيّةٍ
+        # لما لم يقعْ. وبه لا تبتلعُ «إعادةُ الإرسالِ» انتقالًا جديدًا (active→active)
+        # بل تعودُ بلا أثرٍ — «عدمُ تكرارِ الأثرِ عندَ الإعادةِ» (تصميمُ E1 § 3 · 4).
+        return True
+    action = (
+        ACTION_ACTIVATE_AGENT
+        if lifecycle_state == AgentLifecycleState.ACTIVE.value
+        else ACTION_CONTAIN_AGENT
+    )
+    target = f"agent:{agent_id}"
+    # موردُ الأثرِ يحملُ الاتجاهَ (موردٌ فرعيٌّ داخلَ نطاقِ الهدفِ — `in_scope`):
+    # به تتميّزُ العقودُ بينَ انتقالينِ مختلفينِ للوكيلِ نفسِهِ فلا يُرفَض انتقالٌ
+    # مشروعٌ كإعادةِ إذنٍ في الثانيةِ نفسِها.
+    effect = declared_effect(
+        "WRITE",
+        f"{target}/lifecycle.{previous_state}->{lifecycle_state}",
+        f"انتقالُ دورةِ الحياةِ {previous_state} → {lifecycle_state} في الحقلِ الكانونيِّ الوحيدِ",
+    )
+
+    def _apply(_effect: Any) -> None:
+        _set_lifecycle_state_core(agent_id, lifecycle_state)
+
+    guarded = actor_authorizer.guard_declared(
+        action,
+        target,
+        declared_effects=(effect,),
+        applier=_apply,
+        # النطاقُ يحملُ الاتجاهَ (مفتاحُ التصميمِ § 2.2: دورةُ الحياةِ + المعرِّفُ +
+        # الحالةُ السابقةُ + الحالةُ الهدفُ) — فالبصمةُ السياديّةُ تفرّقُ بينَ
+        # اتجاهاتٍ مختلفةٍ ولا يُرفَض عبورٌ مشروعٌ كإعادةِ إذنٍ في الثانيةِ نفسِها.
+        operation_key=operation_key(
+            f"{LIFECYCLE_SCOPE}.{previous_state}->{lifecycle_state}", agent_id
+        ),
+        compensators=(
+            compensator(
+                effect.signature,
+                lambda: _set_lifecycle_state_core(agent_id, previous_state),
+                "إرجاعُ حالةِ دورةِ الحياةِ السابقةِ — عكسٌ حقيقيٌّ للانتقالِ",
+            ),
+        ),
+    )
+    if guarded.is_replay:
+        # العمليّةُ مُثبَتةٌ لهذا المفتاحِ: أثرُها إمّا واقعٌ فعلًا (الحالةُ الهدفُ) أو
+        # متفرّقٌ فتُرفَعُ صريحةً ولا يُعادُ التنفيذُ خارجَ الحدّ (نمطُ register_identity).
+        current = get_identity(agent_id)
+        if current is None or current.lifecycle_state != lifecycle_state:
+            raise IdentityLedgerDivergenceError(
+                f"سجلُّ الذرّيّةِ يُثبِتُ انتقالَ «{agent_id}» إلى «{lifecycle_state}» "
+                "والحقلُ الكانونيُّ مخالفٌ — استعادةٌ مطلوبةٌ (1H) لا تنفيذٌ يُزعَم"
+            )
+    return True
+
+
+def _set_lifecycle_state_core(agent_id: str, lifecycle_state: str) -> bool:
+    """نواةُ كتابةِ دورةِ الحياةِ — كاتبٌ صافٍ بلا عبورٍ (Q-9 § 2.3 · تصميمُ E1).
+
+    تستعملُها الأسطحُ التي أعلنت أثرَ انتقالِ دورةِ الحياةِ في عبورِها الأعلى
+    (health.isolate · health.start_treatment · health.release …) فلا تعشيشَ،
+    ويستعملُها العبورُ العلنيُّ `set_lifecycle_state` نفسُه. ولا تُستعملُ مباشرةً
+    من خارجِ الوحدةِ: المرجعُ العلنيُّ هو `set_lifecycle_state` المحروس.
     """
     session = get_session_factory()()
     try:
