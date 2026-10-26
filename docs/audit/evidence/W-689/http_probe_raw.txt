@@ -1,0 +1,56 @@
+### king raises halt (governance)
+$ POST <governance>/v1/system/kill-switch {"level": "halt", "reason": "probe", "activated_by": "king"}
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-26T09:34:04.141012+00:00","activated_by":"king"}
+
+### CITIZEN reset (governance main.py:147 · guard require_king)
+$ POST <governance>/v1/system/kill-switch/reset
+-> 403 {"detail":"هذا الإجراء يتطلب صلاحيات المالك/الملك"}
+
+### status after citizen governance reset
+$ GET <governance>/v1/system/status
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-26T09:34:04.141012+00:00","activated_by":"king"}
+
+### CITIZEN reset (control_console main.py:209 · guard require_king)
+$ POST <console>/v1/kill-switch/reset
+-> 403 {"detail":"هذا الإجراء يتطلب صلاحيات المالك/الملك"}
+
+### status after citizen console reset
+$ GET <governance>/v1/system/status
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-26T09:34:04.141012+00:00","activated_by":"king"}
+
+### CITIZEN creates promotion (governance main.py:167 · guard require_king)
+$ POST <governance>/v1/promotions {"model_id": "probe-model"}
+-> 403 {"detail":"هذا الإجراء يتطلب صلاحيات المالك/الملك"}
+
+### CITIZEN passes gate (governance main.py:199 · guard require_king)
+$ POST <governance>/v1/promotions/probe-promo/gates {"gate_name": "human_approval", "passed": true, "notes": "citizen probe"}
+-> 403 {"detail":"هذا الإجراء يتطلب صلاحيات المالك/الملك"}
+
+### CITIZEN signs approval (control_console main.py:230 · guard require_king · signed_by منَ الرمزِ لا منَ الجسمِ)
+$ POST <console>/v1/approval {"decision": "approve", "signed_by": "spoofed-king", "model_id": "probe-model"}
+-> 403 {"detail":"هذا الإجراء يتطلب صلاحيات المالك/الملك"}
+
+### KING reset (governance)
+$ POST <governance>/v1/system/kill-switch/reset
+-> 200 {"level":"normal","reason":"","activated_at":null,"activated_by":""}
+
+### KING raises halt again (governance)
+$ POST <governance>/v1/system/kill-switch {"level": "halt", "reason": "probe", "activated_by": "king"}
+-> 200 {"level":"halt","reason":"probe","activated_at":"2026-10-26T09:34:04.238829+00:00","activated_by":"king"}
+
+### KING reset (control_console)
+$ POST <console>/v1/kill-switch/reset
+-> 200 {"level":"normal","reason":"","activated_at":null,"activated_by":""}
+
+### KING creates promotion (governance)
+$ POST <governance>/v1/promotions {"model_id": "probe-model"}
+-> 201 {"promotion_id":"promo-54e11f90-7695-4419-b435-f5a2e1369e9a","model_id":"probe-model","gates":{"evaluation":{"status":"pending","checked_at":null},"shadow":{"status":"pending","checked_at":null},"canary":{"status":"pending","checked_at":null},"human_approval":{"status":"pending","checked_at":null},"activation":{"status":"pending","checked_at":null}},"status":"in_progress","created_at":"2026-10-26T09:34:04.492859+00:00","updated_at":"2026-10-26T09:34:04.492859+00:00"}
+
+### KING passes gate (governance)
+$ POST <governance>/v1/promotions/promo-54e11f90-7695-4419-b435-f5a2e1369e9a/gates {"gate_name": "evaluation", "passed": true}
+-> 200 {"promotion_id":"promo-54e11f90-7695-4419-b435-f5a2e1369e9a","model_id":"probe-model","gates":{"evaluation":{"status":"passed","checked_at":"2026-10-26T09:34:04.537178+00:00","notes":""},"shadow":{"status":"pending","checked_at":null},"canary":{"status":"pending","checked_at":null},"human_approval":{"status":"pending","checked_at":null},"activation":{"status":"pending","checked_at":null}},"status":"in_progress","created_at":"2026-10-26T09:34:04.492859+00:00","updated_at":"2026-10-26T09:34:04.537189+00:00"}
+
+### KING signs approval (console · signed_by هويةُ الرمزِ)
+$ POST <console>/v1/approval {"decision": "approve", "signed_by": "spoofed-king"}
+-> 200 {"approval_id":"approval-09111a3c","decision":"approve","signed_by":"king","model_id":null,"notes":"","signature_pending":true}
+

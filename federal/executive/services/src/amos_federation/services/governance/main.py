@@ -11,7 +11,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
-from amos_federation.common.auth import require_auth
+from amos_federation.common.auth import require_auth, require_king
 from amos_federation.common.persistent import PersistentAuditStore
 from amos_federation.common.registry import SERVICES
 from amos_federation.common.service import create_service_app
@@ -146,7 +146,7 @@ async def activate_kill_switch(
 
 @router.post("/system/kill-switch/reset", response_model=dict)
 async def reset_kill_switch_endpoint(
-    _: Annotated[dict[str, object], Depends(require_auth)],
+    _: Annotated[dict[str, object], Depends(require_king)],
 ) -> dict[str, Any]:
     """إعادة ضبط مفتاح الإيقاف."""
     result = reset_kill_switch()
@@ -167,7 +167,7 @@ def _activate_kill_switch_safe(level: str, reason: str, activated_by: str) -> di
 @router.post("/promotions", response_model=dict, status_code=status.HTTP_201_CREATED)
 async def create_promotion_endpoint(
     request: PromotionCreateRequest,
-    _: Annotated[dict[str, object], Depends(require_auth)],
+    _: Annotated[dict[str, object], Depends(require_king)],
 ) -> dict[str, Any]:
     """إنشاء طلب ترقية نموذج بـ 5 بوابات."""
     promo = create_promotion(request.model_id)
@@ -200,7 +200,7 @@ async def get_promotion_endpoint(
 async def check_gate_endpoint(
     promotion_id: str,
     request: GateCheckRequest,
-    _: Annotated[dict[str, object], Depends(require_auth)],
+    _: Annotated[dict[str, object], Depends(require_king)],
 ) -> dict[str, Any]:
     """فحص بوابة ترقية."""
     try:

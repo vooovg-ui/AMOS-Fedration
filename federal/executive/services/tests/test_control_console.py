@@ -21,6 +21,15 @@ AUTH_HEADERS = PerTestAuthHeaders(
         "governance:write",
     ],
 )
+# رمزُ ملكٍ للمساراتِ الحارسةِ (WI-117): reset/approval لا يعبُرُها مواطنٌ.
+KING_HEADERS = PerTestAuthHeaders(
+    "king",
+    [
+        "governance:read",
+        "governance:write",
+    ],
+    role="king",
+)
 client = TestClient(app)
 
 
@@ -185,13 +194,13 @@ def test_kill_switch_activate() -> None:
 
 
 def test_kill_switch_reset() -> None:
-    """إعادة ضبط Kill Switch."""
+    """إعادة ضبط Kill Switch (حارسٌ ملكيٌّ — WI-117)."""
     client.post(
         "/v1/kill-switch",
         headers=AUTH_HEADERS,
         json={"level": "alert", "reason": "اختبار", "activated_by": "tester"},
     )
-    resp = client.post("/v1/kill-switch/reset", headers=AUTH_HEADERS)
+    resp = client.post("/v1/kill-switch/reset", headers=KING_HEADERS)
     assert resp.status_code == 200
     assert resp.json()["level"] == "normal"
 
@@ -210,40 +219,72 @@ def test_kill_switch_writes_audit() -> None:
     assert audit_after > audit_before
 
 
-# === 7.5: Approval ===
+# === 7.5: Approval (حارسٌ ملكيٌّ — WI-117: الموقِّعُ هويةُ الرمزِ لا جسمَ الطلبِ) ===
 
 
 def test_approval_sign() -> None:
-    """زر الموافقة/الرفض يعمل."""
+    """زر الموافقة/الرفض يعمل (حارسٌ ملكيٌّ — WI-117)."""
     resp = client.post(
         "/v1/approval",
-        headers=AUTH_HEADERS,
-        json={"decision": "approve", "signed_by": "tester", "model_id": "test-model"},
+        headers=KING_HEADERS,
+        json={"decision": "approve", "model_id": "test-model"},
     )
     assert resp.status_code == 200
     assert resp.json()["decision"] == "approve"
+    assert resp.json()["signed_by"] == "king"
     assert resp.json()["signature_pending"] is True
 
 
 def test_approval_reject() -> None:
-    """زر الرفض يعمل."""
+    """زر الرفض يعمل (حارسٌ ملكيٌّ — WI-117)."""
     resp = client.post(
-        "/v1/approval", headers=AUTH_HEADERS, json={"decision": "reject", "signed_by": "tester"}
+        "/v1/approval", headers=KING_HEADERS, json={"decision": "reject"}
     )
     assert resp.status_code == 200
     assert resp.json()["decision"] == "reject"
+    assert resp.json()["signed_by"] == "king"
 
 
 def test_approval_publishes_event() -> None:
-    """الموافقة تنشر حدثًا."""
+    """الموافقة تنشر حدثًا (حارسٌ ملكيٌّ — WI-117)."""
     from amos_federation.common.event_bus import get_event_bus
 
     bus = get_event_bus()
     initial = bus.count("amos_federation.approval.signed")
     client.post(
-        "/v1/approval", headers=AUTH_HEADERS, json={"decision": "approve", "signed_by": "tester"}
+        "/v1/approval", headers=KING_HEADERS, json={"decision": "approve"}
     )
     assert bus.count("amos_federation.approval.signed") > initial
+
+
+def test_approval_citizen_forbidden() -> None:
+    """مواطنٌ لا يوقِّعُ موافقةً — الحارسُ يصدّه (WI-117)."""
+    resp = client.post(
+        "/v1/approval", headers=AUTH_HEADERS, json={"decision": "approve"}
+    )
+    assert resp.status_code == 403
+
+
+def test_approval_ignores_spoofed_signer() -> None:
+    """جسمُ الطلبِ لا يوقِّعُ — الهويّةُ منَ الرمزِ الملكيِّ وحدَهُ (WI-117)."""
+    resp = client.post(
+        "/v1/approval",
+        headers=KING_HEADERS,
+        json={"decision": "approve", "signed_by": "spoofed-user"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["signed_by"] == "king"
+
+
+def test_kill_switch_reset_citizen_forbidden() -> None:
+    """مواطنٌ لا يرفعُ زرَّ التوقّفِ منَ الخدمةِ — الحارسُ يصدّه (WI-117)."""
+    client.post(
+        "/v1/kill-switch",
+        headers=AUTH_HEADERS,
+        json={"level": "alert", "reason": "اختبار", "activated_by": "tester"},
+    )
+    resp = client.post("/v1/kill-switch/reset", headers=AUTH_HEADERS)
+    assert resp.status_code == 403
 
 
 # === 7.7: Cost ===

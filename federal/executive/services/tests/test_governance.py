@@ -14,6 +14,10 @@ from .per_test_auth import PerTestAuthHeaders
 
 client = TestClient(app)
 AUTH_HEADERS = PerTestAuthHeaders("tester", ["governance:read", "governance:write"])
+# رمزُ ملكٍ للمساراتِ الحارسةِ (WI-117): reset/promotions/gates لا يعبُرُها مواطنٌ.
+KING_HEADERS = PerTestAuthHeaders(
+    "king", ["governance:read", "governance:write"], role="king"
+)
 
 
 # === Policy Engine Tests ===
@@ -127,13 +131,13 @@ def test_activate_kill_switch() -> None:
 
 
 def test_reset_kill_switch() -> None:
-    """إعادة ضبط مفتاح الإيقاف."""
+    """إعادة ضبط مفتاح الإيقاف (حارسٌ ملكيٌّ — WI-117)."""
     client.post(
         "/v1/system/kill-switch",
         headers=AUTH_HEADERS,
         json={"level": "alert", "reason": "test", "activated_by": "admin"},
     )
-    resp = client.post("/v1/system/kill-switch/reset", headers=AUTH_HEADERS)
+    resp = client.post("/v1/system/kill-switch/reset", headers=KING_HEADERS)
     assert resp.status_code == 200
     assert resp.json()["level"] == "normal"
 
@@ -152,8 +156,10 @@ def test_kill_switch_rejects_invalid_level() -> None:
 
 
 def test_create_promotion() -> None:
-    """إنشاء طلب ترقية."""
-    resp = client.post("/v1/promotions", headers=AUTH_HEADERS, json={"model_id": "model-123"})
+    """إنشاء طلب ترقية (حارسٌ ملكيٌّ — WI-117)."""
+    resp = client.post(
+        "/v1/promotions", headers=KING_HEADERS, json={"model_id": "model-123"}
+    )
     assert resp.status_code == 201
     data = resp.json()
     assert "promotion_id" in data
@@ -163,12 +169,14 @@ def test_create_promotion() -> None:
 
 
 def test_check_gate_passed() -> None:
-    """فحص بوابة ناجحة."""
-    create = client.post("/v1/promotions", headers=AUTH_HEADERS, json={"model_id": "model-1"})
+    """فحص بوابة ناجحة (حارسٌ ملكيٌّ — WI-117)."""
+    create = client.post(
+        "/v1/promotions", headers=KING_HEADERS, json={"model_id": "model-1"}
+    )
     promo_id = create.json()["promotion_id"]
     resp = client.post(
         f"/v1/promotions/{promo_id}/gates",
-        headers=AUTH_HEADERS,
+        headers=KING_HEADERS,
         json={"gate_name": "evaluation", "passed": True},
     )
     assert resp.status_code == 200
@@ -176,25 +184,29 @@ def test_check_gate_passed() -> None:
 
 
 def test_check_gate_failed_stops_promotion() -> None:
-    """فشل بوابة يوقف الترقية."""
-    create = client.post("/v1/promotions", headers=AUTH_HEADERS, json={"model_id": "model-2"})
+    """فشل بوابة يوقف الترقية (حارسٌ ملكيٌّ — WI-117)."""
+    create = client.post(
+        "/v1/promotions", headers=KING_HEADERS, json={"model_id": "model-2"}
+    )
     promo_id = create.json()["promotion_id"]
     resp = client.post(
         f"/v1/promotions/{promo_id}/gates",
-        headers=AUTH_HEADERS,
+        headers=KING_HEADERS,
         json={"gate_name": "evaluation", "passed": False},
     )
     assert resp.json()["status"] == "failed"
 
 
 def test_all_gates_passed_promotes() -> None:
-    """اجتياز كل البوابات يرقى النموذج."""
-    create = client.post("/v1/promotions", headers=AUTH_HEADERS, json={"model_id": "model-3"})
+    """اجتياز كل البوابات يرقى النموذج (حارسٌ ملكيٌّ — WI-117)."""
+    create = client.post(
+        "/v1/promotions", headers=KING_HEADERS, json={"model_id": "model-3"}
+    )
     promo_id = create.json()["promotion_id"]
     for gate in ["evaluation", "shadow", "canary", "human_approval", "activation"]:
         client.post(
             f"/v1/promotions/{promo_id}/gates",
-            headers=AUTH_HEADERS,
+            headers=KING_HEADERS,
             json={"gate_name": gate, "passed": True},
         )
     resp = client.get(f"/v1/promotions/{promo_id}", headers=AUTH_HEADERS)
@@ -202,8 +214,8 @@ def test_all_gates_passed_promotes() -> None:
 
 
 def test_list_promotions() -> None:
-    """عرض طلبات الترقية."""
-    client.post("/v1/promotions", headers=AUTH_HEADERS, json={"model_id": "model-x"})
+    """عرض طلبات الترقية (الإنشاءُ حارسٌ ملكيٌّ — WI-117)."""
+    client.post("/v1/promotions", headers=KING_HEADERS, json={"model_id": "model-x"})
     resp = client.get("/v1/promotions", headers=AUTH_HEADERS)
     assert resp.status_code == 200
     assert isinstance(resp.json(), list)

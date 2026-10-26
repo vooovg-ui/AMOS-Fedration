@@ -1,0 +1,11 @@
+=== طفرةُ WI-117 (W-689): إعادةُ حارسِ reset إلى require_auth على الخدمتين ===
+التوقيت: 2026-10-26 09:34:09 UTC
+الخطوة 1: رفعُ حارسِ reset (governance main.py:149 وcontrol_console main.py:211) من require_king إلى require_auth
+
+النتيجة المقيسة بعد الطفرة (فحوصُ الملفَّينِ: test_wi117_king_guard_routes.py + test_control_console.py):
+FAILED tests/test_wi117_king_guard_routes.py::test_console_reset_citizen_forbidden
+FAILED tests/test_control_console.py::test_kill_switch_reset_citizen_forbidden
+=================== 2 failed, 36 passed, 1 warning in 22.31s
+
+الخطوة 2: إعادةُ الحارسِ (require_king) إلى موضعه — والتحققُ بأنَّ الفحوصَ تعودُ خضراءَ (لا يُشغَّلُ إثباتُ العودةِ هنا: الفحصُ الكاملُ في الحزمِ النهائيّةِ).
+الخلاصة: الحارسُ مثبتٌ بالطفرةِ — إسقاطُهُ يُسقِطُ فحصَي المواطنِ المحظورَينِ على reset.

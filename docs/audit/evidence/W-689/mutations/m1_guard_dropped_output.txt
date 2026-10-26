@@ -1,0 +1,6 @@
+FAILED tests/test_wi117_king_guard_routes.py::test_console_reset_citizen_forbidden
+FAILED tests/test_control_console.py::test_kill_switch_reset_citizen_forbidden
+=================== 2 failed, 36 passed, 1 warning in 22.31s ===================
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.86s. Error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused

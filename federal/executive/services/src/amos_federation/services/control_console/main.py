@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
-from amos_federation.common.auth import require_auth
+from amos_federation.common.auth import require_auth, require_king
 from amos_federation.common.registry import SERVICES
 from amos_federation.common.service import create_service_app
 
@@ -208,9 +208,9 @@ async def activate_kill_switch(
 
 @router.post("/kill-switch/reset", response_model=dict)
 async def reset_kill_switch(
-    _: Annotated[dict[str, object], Depends(require_auth)],
+    _: Annotated[dict[str, object], Depends(require_king)],
 ) -> dict[str, Any]:
-    """إعادة ضبط Kill Switch."""
+    """إعادة ضبط Kill Switch (حارسٌ ملكيٌّ — WI-117)."""
     from amos_federation.services.governance.canary import reset_kill_switch
 
     return reset_kill_switch()
@@ -220,10 +220,9 @@ async def reset_kill_switch(
 
 
 class ApprovalRequest(BaseModel):
-    """طلب موافقة/رفض."""
+    """طلب موافقة/رفض — الموقِّعُ هويةُ الرمزِ الملكيِّ لا جسمَ الطلبِ (WI-117)."""
 
     decision: str = Field(pattern="^(approve|reject)$")
-    signed_by: str = Field(min_length=1)
     model_id: str | None = None
     notes: str = ""
 
@@ -231,28 +230,29 @@ class ApprovalRequest(BaseModel):
 @router.post("/approval", response_model=dict)
 async def sign_approval(
     request: ApprovalRequest,
-    _: Annotated[dict[str, object], Depends(require_auth)],
+    token_data: Annotated[dict[str, object], Depends(require_king)],
 ) -> dict[str, Any]:
-    """7.5: زر الموافقة/الرفض — يُفعّل فعليًا في المرحلة 9 مع توقيع Ed25519."""
+    """7.5: زر الموافقة/الرفض — يُفعّل فعليًا في المرحلة 9 مع توقيع Ed25519 (حارسٌ ملكيٌّ — WI-117)."""
     from amos_federation.common.event_bus import get_event_bus
     from amos_federation.common.persistent import PersistentAuditStore
 
+    signer = str(token_data["sub"])
     approval_id = f"approval-{__import__('uuid').uuid4().hex[:8]}"
     result = {
         "approval_id": approval_id,
         "decision": request.decision,
-        "signed_by": request.signed_by,
+        "signed_by": signer,
         "model_id": request.model_id,
         "notes": request.notes,
         "signature_pending": True,  # سيُوقّع بـ Ed25519 في المرحلة 9
     }
-    PersistentAuditStore().append("approval.signed", request.signed_by, result)
+    PersistentAuditStore().append("approval.signed", signer, result)
     get_event_bus().publish(
         "amos_federation.approval.signed",
         {
             "approval_id": approval_id,
             "decision": request.decision,
-            "signed_by": request.signed_by,
+            "signed_by": signer,
         },
     )
     return result

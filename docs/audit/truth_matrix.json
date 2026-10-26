@@ -91,9 +91,9 @@
     "federal": {
       "domain": "federal",
       "md_files": 60,
-      "py_files": 250,
+      "py_files": 251,
       "yaml_files": 3,
-      "code_lines": 71181,
+      "code_lines": 71330,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -391,10 +391,10 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 480,
-      "py_files": 19,
+      "md_files": 482,
+      "py_files": 20,
       "yaml_files": 0,
-      "code_lines": 1456,
+      "code_lines": 1681,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7

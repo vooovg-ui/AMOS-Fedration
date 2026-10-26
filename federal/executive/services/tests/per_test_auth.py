@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 
-from amos_federation.common.auth import create_access_token
+from amos_federation.common.auth import ROLE_CITIZEN, create_access_token
 
 
 class PerTestAuthHeaders(dict):
@@ -21,22 +21,26 @@ class PerTestAuthHeaders(dict):
     رمزًا فتيًّا.
     """
 
-    __slots__ = ("_subject", "_scopes", "_tenant_id")
+    __slots__ = ("_subject", "_scopes", "_tenant_id", "_role")
 
     def __init__(
         self,
         subject: str,
         scopes: list[str],
         tenant_id: str | None = None,
+        role: str = ROLE_CITIZEN,
     ) -> None:
         super().__init__()
         self._subject = subject
         self._scopes = list(scopes)
         self._tenant_id = tenant_id
+        self._role = role
 
     def _authorization(self) -> str:
         """اسكِ رمزًا جديدًا الآن — لا تعتمدْ على رمزِ لحظةِ الاستيرادِ."""
-        return "Bearer " + create_access_token(self._subject, self._scopes, self._tenant_id)
+        return "Bearer " + create_access_token(
+            self._subject, self._scopes, self._tenant_id, role=self._role
+        )
 
     def __getitem__(self, key: str) -> str:
         if key == "Authorization":
