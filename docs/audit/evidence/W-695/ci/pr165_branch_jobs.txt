@@ -1,0 +1,13 @@
+Completion Ledger (القاعدة الملزمة — التوثيقُ قبلَ الدفع) · success
+Lint (ruff) · success
+Work Governance (الخارطةُ الحاكمة — لا عملَ غيرُ مُسجَّل) · success
+Sovereignty Kernel (E2 — بوابات السيادة الملكية) · success
+Truth Audit (E0 — Ratchet Gate) · success
+Crown Root of Trust (E2.2 — بوابات جذر ثقة التاج) · success
+Constitutional Kernel (E1 — بوابات الدستور) · success
+Smoke Tests (12 domains) · success
+Identity Law (E3 — بوابات المادة التاسعة) · success
+Lockfile Consistency · success
+Coverage (≥80%, L5) · success
+Tests · success
+Cross-System Suites (E2.2-G — SQLite + PostgreSQL) · success
