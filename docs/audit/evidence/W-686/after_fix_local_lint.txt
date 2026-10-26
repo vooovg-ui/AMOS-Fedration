@@ -1,0 +1,9 @@
+== تسلسلُ lint بترتيبِ CI نفسِهِ (2026-10-26 · W-686) ==
+-- (1) ruff check src/ tests/ من شجرةِ الخدماتِ:
+All checks passed!
+-- (2) ruff format --check src/ tests/:
+245 files already formatted
+-- (3) ruff check . (المستودعُ كلُّهُ):
+All checks passed!
+-- (4) المسبارُ بعدَ الإصلاحِ:
+============================== 1 passed in 1.72s ===============================

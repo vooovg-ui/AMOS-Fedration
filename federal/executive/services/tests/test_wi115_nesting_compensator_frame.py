@@ -35,7 +35,6 @@ from amos_federation.services.government_services.service import (
     reset_government_services,
 )
 from amos_federation.services.state_registry.service import StateRegistry, reset_state_registry
-
 from tests.conftest import purge_agents, purge_tasks
 from tests.test_2b_government_services_sovereign import (  # noqa: F401 — تجهيزاتٌ قائمةٌ
     RecordingAuthorizer,
@@ -50,8 +49,8 @@ from tests.test_2b_government_services_sovereign import (  # noqa: F401 — تج
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
-from core.sovereignty.compensation import CompensationRequired
-from core.sovereignty.enforcement_boundary import _active_crossing
+from core.sovereignty.compensation import CompensationRequired  # noqa: E402
+from core.sovereignty.enforcement_boundary import _active_crossing  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
@@ -112,7 +111,7 @@ def applicant() -> str:
     return agent_id
 
 
-def test_معوض_فتح_القضية_يعبر_داخل_الإطار_النشط(
+def test_case_open_compensator_crosses_inside_active_frame(
     gov: GovernmentServices,
     crown: AuthorizationContext,
     published: dict,
@@ -203,15 +202,15 @@ def test_معوض_فتح_القضية_يعبر_داخل_الإطار_النشط(
 
     # (أ) القياسُ نفسُه: الإلغاءُ عبَرَ والإطارُ النشطُ إطارُ فتحِ القضيّةِ
     assert frames, "لم يُستدعَ الإلغاءُ أصلًا — القياسُ لم يجرِ."
-    assert frames[-1] is not None, (
-        "الإلغاءُ عبَرَ خارجَ الإطارِ النشطِ — يُعلَن سقوطُ الزوجِ من الاستثناءِ."
-    )
+    assert frames[-1] is not None, "الإلغاءُ عبَرَ خارجَ الإطارِ النشطِ — يُعلَن سقوطُ الزوجِ من الاستثناءِ."
     assert frames[-1][0] == ACTION_CASE_OPEN, frames[-1]
 
     # (ب) الإلغاءُ أصابَ المهمّةَ الجديدةَ التي أنشأها الفتحُ (لا الاحتياطيّةَ)
     assert cancelled_task_ids, "الإلغاءُ مرَّ دونَ معرِّفِ مهمّةٍ — القياسُ ناقصٌ."
     cancelled_id = cancelled_task_ids[-1]
-    assert cancelled_id != reserve_task["id"], "الإلغاءُ أصابَ المهمّةَ الاحتياطيّةَ — الفحصُ يقيسُ غيرَ المقصودِ."
+    assert (
+        cancelled_id != reserve_task["id"]
+    ), "الإلغاءُ أصابَ المهمّةَ الاحتياطيّةَ — الفحصُ يقيسُ غيرَ المقصودِ."
     session = get_session_factory()()
     try:
         rows = session.query(CaseModel).count()
@@ -219,9 +218,7 @@ def test_معوض_فتح_القضية_يعبر_داخل_الإطار_النشط(
     finally:
         session.close()
     assert task_row is not None, f"المهمّةُ المُلغاةُ {cancelled_id} ليست صفًّا حقيقيًّا في `tasks`."
-    assert task_row.status == "cancelled", (
-        f"المهمّةُ الجديدةُ لم تُلغَ بعدَ التعويضِ: {task_row.status}"
-    )
+    assert task_row.status == "cancelled", f"المهمّةُ الجديدةُ لم تُلغَ بعدَ التعويضِ: {task_row.status}"
     assert rows == 1, f"صفوفُ القضايا {rows} — القضيّةُ الجديدةُ كُتِبَت رغمَ فشلِها."
 
     # (جـ) سببُ الفشلِ المقصودُ: تصادمُ صفِّ القضيّةِ (لا خللُ تدقيقٍ ولا غيرُه)
@@ -232,6 +229,4 @@ def test_معوض_فتح_القضية_يعبر_داخل_الإطار_النشط(
     while node is not None:
         chain.append(type(node).__name__)
         node = getattr(node, "__cause__", None)
-    assert "DuplicateReferenceError" in chain, (
-        f"سببُ الفشلِ ليسَ تصادمَ صفِّ القضيّةِ: {chain}"
-    )
+    assert "DuplicateReferenceError" in chain, f"سببُ الفشلِ ليسَ تصادمَ صفِّ القضيّةِ: {chain}"

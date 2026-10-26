@@ -1,0 +1,81 @@
+Lint (ruff)	Run ruff check src/ tests/	﻿2026-10-26T06:43:35.2431649Z ##[group]Run ruff check src/ tests/
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2431911Z ^[[36;1mruff check src/ tests/^[[0m
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2489781Z shell: /usr/bin/bash -e {0}
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2489956Z env:
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2490149Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2490423Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2490723Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2490970Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2491216Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2491468Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2491686Z ##[endgroup]
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2966183Z tests/test_wi115_nesting_compensator_frame.py:16:1: I001 [*] Import block is un-sorted or un-formatted
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2967007Z    |
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2967145Z 14 |   """
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2967289Z 15 |   
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2967565Z 16 | / from __future__ import annotations
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2967830Z 17 | | 
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2968028Z 18 | | import sys
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2968294Z 19 | | import uuid
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2968719Z 20 | | from pathlib import Path
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2969023Z 21 | | from types import SimpleNamespace
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2969467Z 22 | | 
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2969668Z 23 | | import pytest
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2969817Z 24 | | 
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2970451Z 25 | | import amos_federation.services.state_treasury.models  # noqa: F401 — مفتاحٌ أجنبيٌّ يفرضُ الاستيرادَ
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2970843Z 26 | | from amos_federation.common.database import TaskModel, get_session_factory, init_db
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2971197Z 27 | | from amos_federation.common.principal import DEFAULT_TENANT, AuthorizationContext
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2971551Z 28 | | from amos_federation.services.executive_core.agent_identity import register_identity
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2971917Z 29 | | from amos_federation.services.executive_core.engine import reset_executive_core
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2972281Z 30 | | from amos_federation.services.government_services.models import CaseModel, ServiceModel
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2972610Z 31 | | from amos_federation.services.government_services.service import (
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2972909Z 32 | |     ACTION_CASE_OPEN,
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2973082Z 33 | |     CASE_TASK_TYPE,
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2973255Z 34 | |     GovernmentServices,
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2973429Z 35 | |     reset_government_services,
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2973599Z 36 | | )
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2973882Z 37 | | from amos_federation.services.state_registry.service import StateRegistry, reset_state_registry
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2974160Z 38 | | 
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2974331Z 39 | | from tests.conftest import purge_agents, purge_tasks
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2974678Z 40 | | from tests.test_2b_government_services_sovereign import (  # noqa: F401 — تجهيزاتٌ قائمةٌ
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2974954Z 41 | |     RecordingAuthorizer,
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2975132Z 42 | |     _code,
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2975275Z 43 | |     _context,
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2975419Z 44 | |     _open,
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2975554Z 45 | | )
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2975683Z 46 | | 
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2975945Z 47 | | # الاستيرادُ من `core` على نمطِ الجسرِ نفسِه (`_ensure_core_importable` —
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2976199Z    | |_^ I001
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2976466Z 48 |   # sovereignty_bridge.py:210): جذرُ المستودعِ في sys.path ثمَّ استيرادٌ معتادٌ،
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2976864Z 49 |   # فالوحدةُ المحمَّلةُ هي نفسُها التي تحملُها الحدودُ العاملةُ (لا نسختان).
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2977130Z    |
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2977275Z    = help: Organize imports
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2977384Z 
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2977555Z tests/test_wi115_nesting_compensator_frame.py:53:1: E402 Module level import not at top of file
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2977821Z    |
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2977967Z 51 | if str(_REPO_ROOT) not in sys.path:
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2978193Z 52 |     sys.path.insert(0, str(_REPO_ROOT))
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2978436Z 53 | from core.sovereignty.compensation import CompensationRequired
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2978870Z    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E402
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2979130Z 54 | from core.sovereignty.enforcement_boundary import _active_crossing
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2979489Z    |
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2979567Z 
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2979730Z tests/test_wi115_nesting_compensator_frame.py:54:1: E402 Module level import not at top of file
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2980009Z    |
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2980196Z 52 |     sys.path.insert(0, str(_REPO_ROOT))
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2980432Z 53 | from core.sovereignty.compensation import CompensationRequired
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2980711Z 54 | from core.sovereignty.enforcement_boundary import _active_crossing
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2980964Z    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E402
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2981157Z    |
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2981324Z 
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2981663Z tests/test_wi115_nesting_compensator_frame.py:115:5: N802 Function name `test_معوض_فتح_القضية_يعبر_داخل_الإطار_النشط` should be lowercase
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2982020Z     |
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2982217Z 115 | def test_معوض_فتح_القضية_يعبر_داخل_الإطار_النشط(
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2982436Z     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ N802
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2982632Z 116 |     gov: GovernmentServices,
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2982813Z 117 |     crown: AuthorizationContext,
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2982984Z     |
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2983060Z 
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2983122Z Found 4 errors.
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.2983280Z [*] 1 fixable with the `--fix` option.
+Lint (ruff)	Run ruff check src/ tests/	2026-10-26T06:43:35.3003543Z ##[error]Process completed with exit code 1.
