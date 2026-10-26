@@ -88,8 +88,7 @@ class KillSwitchLevelAuthorizer(ConstitutionalAuthorizer):
 @pytest.fixture(autouse=True)
 def _fresh_tables() -> None:
     """قاعدة نظيفة — القياس على سجل حقيقي لا على بقايا (نمط test_r4 · WI-082)."""
-    from amos_federation.common.database import get_session_factory, init_db
-    from amos_federation.common.database import TaskModel
+    from amos_federation.common.database import TaskModel, get_session_factory, init_db
     from amos_federation.services.executive_core.agent_identity import AgentModel
     from tests.conftest import purge_tasks
 

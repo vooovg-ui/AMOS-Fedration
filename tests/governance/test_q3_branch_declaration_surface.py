@@ -274,7 +274,13 @@ def test_bridge_actor_is_declared_parameter_defaulting_to_executive() -> None:
 
 # ── 4. مواضعُ بناءِ المُصرِّحِ: تسعةٌ تُعلِنُ فاعلَها وأربعةٌ تتَّكِلُ على الافتراض ──
 def test_production_authorizer_sites_split_eight_declared_four_defaulted() -> None:
-    """(محدّثة في W-676 · تصحيحُ حمرةِ CI على PR #153): المُصرِّحُ التاسعُ المُعلِنُ فاعلَهُ —
+    """(محدّثة في W-696 · تصحيحُ حمرةِ CI على PR #167 · شِفرةُ E1/WI-119 بقرارِ Q-73):
+    المُصرِّحُ العاشرُ والحاديَ عشرَ المُعلِنَانِ فاعلَهُ — المُفوِّضانِ الكسولانِ في
+    executive_core/repository.py (actor="EXECUTIVE" · بسطوحِ create/delete/
+    compare_and_set) وexecutive_core/dispatcher.py (actor="EXECUTIVE" · بسطحِ
+    register_agent) على نمطِ W-532 — تحديثُ المُثبَّتِ بالمقيسِ لا تخفيفُ فحصٍ
+    (سابقةُ W-676/W-640/W-625/W-617/W-593/W-402). والافتراضيّةُ الأربعُ كما هي.
+    (محدّثة في W-676 · تصحيحُ حمرةِ CI على PR #153): المُصرِّحُ التاسعُ المُعلِنُ فاعلَهُ —
     المُفوِّضُ الكسولُ في governance/canary.py (CANARY_ACTOR · بالفعلِ activate_kill_switch ·
     شِفرةُ W-675 · WI-114 السطحانِ 1 و3) — تحديثُ المُثبَّتِ بالمقيسِ لا تخفيفُ فحصٍ
     (سابقةُ W-402/W-535/W-626). (محدّثة في W-625 · WI-107/R1): المُصرِّحُ الثامنُ المُعلِنُ فاعلَهُ — المُفوِّضُ
@@ -290,16 +296,18 @@ def test_production_authorizer_sites_split_eight_declared_four_defaulted() -> No
     Q-69/D17-6) — على سابقةِ factories.py نفسِها، لا هروبًا من الإعلانِ. والافتراضيّةُ
     الأربعُ كما هي. (وكانت خمسةً بعدَ WI-082 · W-402.)"""
     sites = _authorizer_construction_sites()
-    assert len(sites["declared"]) == 9, sites["declared"]
+    assert len(sites["declared"]) == 11, sites["declared"]
     assert len(sites["defaulted"]) == 4, sites["defaulted"]
     assert sorted(Path(p.split(":")[0]).name for p in sites["declared"]) == [
         "agent_identity.py",
         "canary.py",
+        "dispatcher.py",
         "factories.py",
         "factories.py",
         "federation.py",
         "money_authority.py",
         "money_authority.py",
+        "repository.py",
         "rulings.py",
         "service.py",
     ], sites["declared"]

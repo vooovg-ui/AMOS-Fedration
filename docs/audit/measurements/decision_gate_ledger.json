@@ -237,6 +237,22 @@
    "kind": "work_drift",
    "reason": "تصحيحُ قياسٍ لا حرقٌ (W-669 · WI-113 · التوجيهُ 22 § 2): أداةُ الجردِ تفهرسُ بالاسمِ المؤهَّلِ فتسقطُ 8 مواقعَ مُركَّبةٍ خاطئةِ الهويّةِ في persistent.py ويبقى واحدٌ حقٌّ — الدَّينُ 142 ← 135 والموجةُ W3: 97 ← 90 · المواضعُ 239 ← 232 · لا سطحَ عبرَ الحدَّ ولا يُحتسَبُ في منحنى الحرق (evidence/W-669/d4_after.txt)",
    "recorded_at": "2026-10-25T08:40:07+00:00"
+  },
+  {
+   "debt": 129,
+   "sovereign": 51,
+   "closed_legacy": 7,
+   "write_sites_total": 235,
+   "git_head": "153109cf",
+   "waves": {
+    "W1": 11,
+    "W2": 34,
+    "W3": 84
+   },
+   "decision": "W-696",
+   "kind": "work_drift",
+   "reason": "حرقُ E1 (W-696 · WI-119 · بقرارِ المالكِ Q-73 «اعتماد تصميم E1 (13 اسمًا)»): أسطحُ executive_core الستةُ (agent_identity: update_identity وset_lifecycle_state · dispatcher: register_agent · repository: create/delete/compare_and_set) عبرتِ الحدَّ بنوى خاصّةٍ ومعوّضاتٍ — الدَّينُ 135 ← 129 · السياديّةُ 46 ← 51 · والقياسُ مودوعٌ في evidence/W-696/inventory_after_w696.json",
+   "recorded_at": "2026-10-26T21:43:41+00:00"
   }
  ]
 }

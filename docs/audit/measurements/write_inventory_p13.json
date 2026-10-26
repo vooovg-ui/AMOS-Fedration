@@ -1,7 +1,7 @@
 {
  "$comment": "الهدف: جردُ مواضعِ الكتابةِ في المستودعِ وتصنيفُ ما عبرَ الحدَّ السّياديَّ وما لم يعبُر— مُخرَجُ tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039).",
  "summary": {
-  "write_sites_total": 232,
+  "write_sites_total": 235,
   "by_area": {
    "core": {
     "public": 1,
@@ -14,9 +14,9 @@
     "non_sovereign": 21
    },
    "services": {
-    "public": 160,
-    "sovereign": 46,
-    "non_sovereign": 113
+    "public": 159,
+    "sovereign": 51,
+    "non_sovereign": 107
    },
    "tools": {
     "public": 1,
@@ -24,10 +24,10 @@
     "non_sovereign": 1
    }
   },
-  "public_write_operations": 183,
-  "sovereign_write_operations": 46,
+  "public_write_operations": 182,
+  "sovereign_write_operations": 51,
   "closed_legacy_paths": 7,
-  "non_sovereign_write_operations": 135,
+  "non_sovereign_write_operations": 129,
   "non_sovereign_by_file": {
    "federal/executive/services/src/amos_federation/services/national_economy/service.py": 16,
    "federal/executive/services/src/amos_federation/common/persistent.py": 13,
@@ -44,16 +44,13 @@
    "federal/executive/services/src/amos_federation/services/governance/state_runtime.py": 5,
    "federal/executive/services/src/amos_federation/common/database.py": 4,
    "federal/executive/services/src/amos_federation/services/agent_runtime/population.py": 3,
-   "federal/executive/services/src/amos_federation/services/executive_core/repository.py": 3,
    "federal/executive/services/src/amos_federation/common/durable_event_bus.py": 2,
-   "federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py": 2,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py": 2,
    "federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py": 2,
    "federal/executive/services/src/amos_federation/services/training/persistent_registry.py": 2,
    "federal/executive/services/src/amos_federation/common/event_bus.py": 1,
    "federal/executive/services/src/amos_federation/common/events.py": 1,
    "federal/executive/services/src/amos_federation/services/api_gateway/store.py": 1,
-   "federal/executive/services/src/amos_federation/services/executive_core/dispatcher.py": 1,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py": 1,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py": 1,
    "federal/executive/services/src/amos_federation/services/government_services/service.py": 1,
@@ -534,12 +531,12 @@
    "function": "set_lifecycle_state",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_set_lifecycle_state_core"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py",
@@ -547,8 +544,36 @@
    "function": "update_identity",
    "ordinal": 0,
    "public": true,
+   "writes": [],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_update_identity_core"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/dispatcher.py",
+   "owner": "-",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
    "writes": [
-    "commit()"
+    "commit()",
+    "merge()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/dispatcher.py",
+   "owner": "-",
+   "function": "_delete_row",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()",
+    "delete()"
    ],
    "guarded": false,
    "closed_legacy": false,
@@ -562,35 +587,50 @@
    "public": true,
    "writes": [
     "commit()",
+    "delete()",
     "merge()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": []
   },
   {
-   "path": "federal/executive/services/src/amos_federation/services/executive_core/engine.py",
-   "owner": "ExecutiveCore",
-   "function": "_erase",
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/repository.py",
+   "owner": "ExecutiveTaskRepository",
+   "function": "_delete_row",
    "ordinal": 0,
    "public": false,
    "writes": [
-    "delete()"
+    "commit()"
    ],
    "guarded": false,
    "closed_legacy": false,
    "writes_via": []
   },
   {
-   "path": "federal/executive/services/src/amos_federation/services/executive_core/engine.py",
-   "owner": "ExecutiveCore",
-   "function": "submit",
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/repository.py",
+   "owner": "ExecutiveTaskRepository",
+   "function": "_reinsert",
    "ordinal": 0,
-   "public": true,
+   "public": false,
    "writes": [
-    "delete()"
+    "add()",
+    "commit()"
    ],
-   "guarded": true,
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/executive_core/repository.py",
+   "owner": "ExecutiveTaskRepository",
+   "function": "_reverse",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
    "closed_legacy": false,
    "writes_via": []
   },
@@ -603,9 +643,11 @@
    "writes": [
     "commit()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_transition_core"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/executive_core/repository.py",
@@ -614,12 +656,13 @@
    "ordinal": 0,
    "public": true,
    "writes": [
-    "add()",
     "commit()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_create_core"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/executive_core/repository.py",
@@ -628,11 +671,14 @@
    "ordinal": 0,
    "public": true,
    "writes": [
+    "add()",
     "commit()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_delete_core"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py",
