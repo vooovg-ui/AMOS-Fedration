@@ -1,0 +1,532 @@
+.FFFFFF                                                                  [100%]
+=================================== FAILURES ===================================
+________________________ test_الزوجالمسجليعبركاملالمسار ________________________
+
+حدّ = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7f471ec8ae70>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-31/test_الزوجالمسجليعبركاملالمسار0/IDEMPOTENCY.compensation.json')))
+بوابة = <core.sovereignty.gateway.SovereignGateway object at 0x7f471ec8ae70>
+سجلُّ_الذرّيّة = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-31/test_الزوجالمسجليعبركاملالمسار0/IDEMPOTENCY.json'))
+حالةُ_الدولة = {'treasury/account-A': '1000', 'gov/case-A/row': 'NONE', 'tasks/task-A/row': 'NONE'}
+
+    def test_الزوجالمسجليعبركاملالمسار(
+        حدّ: SovereignExecutionBoundary,
+        بوابة: SovereignGateway,
+        سجلُّ_الذرّيّة: IdempotencyLedger,
+        حالةُ_الدولة: dict[str, str],
+    ) -> None:
+        """`gov.case.open` → `task.submit`: الزوجُ المسجَّلُ يعبرُ كاملَ المسارِ — إذنانِ وقيدانِ."""
+        مفتاح_الخارجي = _مفتاح("outer-2")
+        مفتاح_الداخل = _مفتاح("inner-2")
+        أثر_الخارجي = _أثر("gov/case-A/row")
+        أثر_الداخل = _أثر("tasks/task-A/row")
+    
+        def مطبِّقٌ_مستثنًى(effect: SovereignEffect) -> None:
+            حصيلة_الداخل = حدّ.execute(
+                _طلب(action="task.submit", target="tasks/task-A"),
+                declared_effects=(أثر_الداخل,),
+                planner=lambda _: (أثر_الداخل,),
+                applier=lambda e: حالةُ_الدولة.__setitem__(e.resource, "MUTATED"),
+                operation_key=مفتاح_الداخل,
+                compensators=(_معوّض(حالةُ_الدولة, أثر_الداخل),),
+            )
+            assert حصيلة_الداخل.is_replay is False
+            حالةُ_الدولة[effect.resource] = "MUTATED"
+    
+>       حدّ.execute(
+            _طلب(action="gov.case.open", target="gov/case-A"),
+            declared_effects=(أثر_الخارجي,),
+            planner=lambda _: (أثر_الخارجي,),
+            applier=مطبِّقٌ_مستثنًى,
+            operation_key=مفتاح_الخارجي,
+            compensators=(_معوّض(حالةُ_الدولة, أثر_الخارجي),),
+        )
+
+tests/sovereignty/test_wi115_nesting_detector.py:227: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7f471ec8ae70>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-31/test_الزوجالمسجليعبركاملالمسار0/IDEMPOTENCY.compensation.json')))
+request = ActionRequest(actor=<Branch.EXECUTIVE: 'executive'>, action='gov.case.open', target='gov/case-A', human_approved=False...kill_switch_level=0, review_days=0, council_approval_pct=0.0, has_identity_header=True, royal_decree=None, metadata={})
+declared_effects = (SovereignEffect(kind=<EffectKind.WRITE: 'WRITE'>, resource='gov/case-A/row', detail='قياس', payload_digest=None),)
+planner = <function test_الزوجالمسجليعبركاملالمسار.<locals>.<lambda> at 0x7f471df9ce00>
+applier = <function test_الزوجالمسجليعبركاملالمسار.<locals>.مطبِّقٌ_مستثنًى at 0x7f471df8bc40>
+operation_key = IdempotencyKey(scope='treasury', value='outer-2')
+compensators = (Compensator(effect_signature='WRITE:gov/case-A/row', apply=<function _معوّض.<locals>.<lambda> at 0x7f471df9cea0>, description='إرجاعُ القيمةِ الأصليّة'),)
+judicial_action = None, provider = None, payload_of = None, correlation_id = ''
+
+    def execute(
+        self,
+        request: ActionRequest,
+        *,
+        declared_effects: tuple[SovereignEffect, ...],
+        planner: Callable[[EnforcementPermit], tuple[SovereignEffect, ...]],
+        applier: Callable[[SovereignEffect], None],
+        operation_key: IdempotencyKey,
+        compensators: tuple[Compensator, ...] = (),
+        judicial_action: JudicialAction | None = None,
+        provider: ProviderAdapter | None = None,
+        payload_of: Callable[[SovereignEffect], EffectPayload] | None = None,
+        correlation_id: str = "",
+    ) -> BoundaryOutcome:
+        """اعبُرْ الحدَّ — أو لا تنفُذ. ولا معامَلَ ثالثًا بينَ الاثنين.
+    
+        المُنادي لا يُسلِّمُ `Callable[[], T]` حُرّةً كما في `gateway.execute`، بل
+        يُسلِّمُ خطّةً مُعلَنة. والفرقُ ليس شكليًّا: الحدُّ يعرفُ ما سيُطبَّقُ قبلَ
+        أن يُطبَّق، فيقدرُ أن يمنعَ، وأن يُوجّهَ الأثرَ الخارجيَّ إلى الصادرِ بلا
+        أن يمسَّه مُطبِّقُ المُنادي.
+    
+        وترتيبُ الرفعِ مقصود: كلُّ فحصٍ يفشلُ يرفعُ استثناءَ مرحلتِه، ولا يُلتقَطُ
+        هنا استثناءُ حرسٍ قطُّ — الابتلاعُ هو التجاوزُ بعينِه.
+        """
+        # ⓪ كاشفُ التعشيشِ (WI-115 · Q-9): قبلَ أيِّ حارسٍ وأيِّ decide وأيِّ قيدٍ —
+        # فلا إذنَ ولا حجزَ ولا أثرَ للرفضِ. وعندَ الرفضِ لا يُضبَطُ السياقُ ولا
+        # يُمحى: إطارُ الأبِ يبقى قائمًا.
+        outer_crossing = _active_crossing.get()
+        if outer_crossing is not None and (outer_crossing[0], request.action) not in NESTED_SOVEREIGN_EXEMPTIONS:
+>           raise NestedSovereignCallError(
+                f"عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ: الفعلُ '{request.action}' داخلَ إطارِ "
+                f"'{outer_crossing[0]}' — التعشيشُ السياديُّ ممنوعٌ (WI-115 · Q-9) "
+                "والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه)."
+            )
+E           core.sovereignty.enforcement_boundary.NestedSovereignCallError: عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ: الفعلُ 'gov.case.open' داخلَ إطارِ 'gov.case.open' — التعشيشُ السياديُّ ممنوعٌ (WI-115 · Q-9) والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه).
+
+core/sovereignty/enforcement_boundary.py:378: NestedSovereignCallError
+____________________ test_فتحالقضيةليسبابالكلعبورغيرالمستثن ____________________
+
+حدّ = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7f471df3b5f0>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-31/test_فتحالقضيةليسبابالكلعبورغي0/IDEMPOTENCY.compensation.json')))
+حالةُ_الدولة = {'treasury/account-A': '1000', 'gov/case-A/row': 'NONE', 'tasks/task-A/row': 'NONE'}
+
+    def test_فتحالقضيةليسبابالكلعبورغيرالمستثن(
+        حدّ: SovereignExecutionBoundary,
+        حالةُ_الدولة: dict[str, str],
+    ) -> None:
+        """طاردُ طفرةِ توسيعِ الاستثناءِ إلى اسمٍ مفردٍ: `gov.case.open` خارجيٌّ لا يعفي غيرَ زوجِه.
+    
+        لو اتُّسِعَ الاستثناءُ إلى اسمِ الفعلِ الخارجيِّ وحدَه لَعبرَ `credit_account`
+        داخلَ إطارِ `open_case` — وهذا الفحصُ يقتلُ تلك الطفرةَ.
+        """
+        أثر_الخارجي = _أثر("gov/case-A/row")
+        أثر_الداخل = _أثر("treasury/account-A")
+        أخطاء: list[BaseException] = []
+    
+        def مطبِّقٌ_غيرُ_مستثنًى(effect: SovereignEffect) -> None:
+            try:
+                حدّ.execute(
+                    _طلب(action="credit_account", target="treasury/account-A"),
+                    declared_effects=(أثر_الداخل,),
+                    planner=lambda _: (أثر_الداخل,),
+                    applier=lambda e: حالةُ_الدولة.__setitem__(e.resource, "MUTATED"),
+                    operation_key=_مفتاح("inner-3"),
+                    compensators=(_معوّض(حالةُ_الدولة, أثر_الداخل),),
+                )
+            except BaseException as exc:  # noqa: BLE001
+                أخطاء.append(exc)
+            حالةُ_الدولة[effect.resource] = "MUTATED"
+    
+>       حدّ.execute(
+            _طلب(action="gov.case.open", target="gov/case-A"),
+            declared_effects=(أثر_الخارجي,),
+            planner=lambda _: (أثر_الخارجي,),
+            applier=مطبِّقٌ_غيرُ_مستثنًى,
+            operation_key=_مفتاح("outer-3"),
+            compensators=(_معوّض(حالةُ_الدولة, أثر_الخارجي),),
+        )
+
+tests/sovereignty/test_wi115_nesting_detector.py:268: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7f471df3b5f0>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-31/test_فتحالقضيةليسبابالكلعبورغي0/IDEMPOTENCY.compensation.json')))
+request = ActionRequest(actor=<Branch.EXECUTIVE: 'executive'>, action='gov.case.open', target='gov/case-A', human_approved=False...kill_switch_level=0, review_days=0, council_approval_pct=0.0, has_identity_header=True, royal_decree=None, metadata={})
+declared_effects = (SovereignEffect(kind=<EffectKind.WRITE: 'WRITE'>, resource='gov/case-A/row', detail='قياس', payload_digest=None),)
+planner = <function test_فتحالقضيةليسبابالكلعبورغيرالمستثن.<locals>.<lambda> at 0x7f471dfc0ea0>
+applier = <function test_فتحالقضيةليسبابالكلعبورغيرالمستثن.<locals>.مطبِّقٌ_غيرُ_مستثنًى at 0x7f471df9cc20>
+operation_key = IdempotencyKey(scope='treasury', value='outer-3')
+compensators = (Compensator(effect_signature='WRITE:gov/case-A/row', apply=<function _معوّض.<locals>.<lambda> at 0x7f471dfc09a0>, description='إرجاعُ القيمةِ الأصليّة'),)
+judicial_action = None, provider = None, payload_of = None, correlation_id = ''
+
+    def execute(
+        self,
+        request: ActionRequest,
+        *,
+        declared_effects: tuple[SovereignEffect, ...],
+        planner: Callable[[EnforcementPermit], tuple[SovereignEffect, ...]],
+        applier: Callable[[SovereignEffect], None],
+        operation_key: IdempotencyKey,
+        compensators: tuple[Compensator, ...] = (),
+        judicial_action: JudicialAction | None = None,
+        provider: ProviderAdapter | None = None,
+        payload_of: Callable[[SovereignEffect], EffectPayload] | None = None,
+        correlation_id: str = "",
+    ) -> BoundaryOutcome:
+        """اعبُرْ الحدَّ — أو لا تنفُذ. ولا معامَلَ ثالثًا بينَ الاثنين.
+    
+        المُنادي لا يُسلِّمُ `Callable[[], T]` حُرّةً كما في `gateway.execute`، بل
+        يُسلِّمُ خطّةً مُعلَنة. والفرقُ ليس شكليًّا: الحدُّ يعرفُ ما سيُطبَّقُ قبلَ
+        أن يُطبَّق، فيقدرُ أن يمنعَ، وأن يُوجّهَ الأثرَ الخارجيَّ إلى الصادرِ بلا
+        أن يمسَّه مُطبِّقُ المُنادي.
+    
+        وترتيبُ الرفعِ مقصود: كلُّ فحصٍ يفشلُ يرفعُ استثناءَ مرحلتِه، ولا يُلتقَطُ
+        هنا استثناءُ حرسٍ قطُّ — الابتلاعُ هو التجاوزُ بعينِه.
+        """
+        # ⓪ كاشفُ التعشيشِ (WI-115 · Q-9): قبلَ أيِّ حارسٍ وأيِّ decide وأيِّ قيدٍ —
+        # فلا إذنَ ولا حجزَ ولا أثرَ للرفضِ. وعندَ الرفضِ لا يُضبَطُ السياقُ ولا
+        # يُمحى: إطارُ الأبِ يبقى قائمًا.
+        outer_crossing = _active_crossing.get()
+        if outer_crossing is not None and (outer_crossing[0], request.action) not in NESTED_SOVEREIGN_EXEMPTIONS:
+>           raise NestedSovereignCallError(
+                f"عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ: الفعلُ '{request.action}' داخلَ إطارِ "
+                f"'{outer_crossing[0]}' — التعشيشُ السياديُّ ممنوعٌ (WI-115 · Q-9) "
+                "والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه)."
+            )
+E           core.sovereignty.enforcement_boundary.NestedSovereignCallError: عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ: الفعلُ 'gov.case.open' داخلَ إطارِ 'gov.case.open' — التعشيشُ السياديُّ ممنوعٌ (WI-115 · Q-9) والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه).
+
+core/sovereignty/enforcement_boundary.py:378: NestedSovereignCallError
+_________________ test_إطارالأبالباقيبعدالرفضوبعدالعبورالمستثن _________________
+
+حدّ = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7f471df3cd70>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-31/test_إطارالأبالباقيبعدالرفضوبع0/IDEMPOTENCY.compensation.json')))
+حالةُ_الدولة = {'treasury/account-A': '1000', 'gov/case-A/row': 'NONE', 'tasks/task-A/row': 'NONE'}
+
+    def test_إطارالأبالباقيبعدالرفضوبعدالعبورالمستثن(
+        حدّ: SovereignExecutionBoundary,
+        حالةُ_الدولة: dict[str, str],
+    ) -> None:
+        """إطارُ الأبِ لا يُمحى برفضِ ولدٍ ولا بعودةِ ولدٍ مستثنًى — والحمايةُ باقيةٌ حتى النهاية.
+    
+        (يقتلُ طفرةَ الضبطِ إلى None بدلَ الاستعادةِ بالرمزِ: لو مُحِيَ إطارُ الأبِ
+        بعدَ ولدٍ مستثنًى لَما رُفِضَ الثاني.)
+        """
+        أثر_الداخل = _أثر("tasks/task-A/row")
+        أثر_الداخل_المرفوض = _أثر("treasury/account-A")
+        رفضٌ: list[int] = []
+    
+        def مطبِّقٌ_مُوالٍ(effect: SovereignEffect) -> None:
+            # (1) ولدٌ غيرُ مستثنًى: يُرفَضُ
+            with pytest.raises(NestedSovereignCallError):
+                حدّ.execute(
+                    _طلب(action="credit_account", target="treasury/account-A"),
+                    declared_effects=(أثر_الداخل_المرفوض,),
+                    planner=lambda _: (أثر_الداخل_المرفوض,),
+                    applier=lambda e: حالةُ_الدولة.__setitem__(e.resource, "MUTATED"),
+                    operation_key=_مفتاح("inner-4a"),
+                    compensators=(_معوّض(حالةُ_الدولة, أثر_الداخل_المرفوض),),
+                )
+            رفضٌ.append(1)
+            # (2) ولدٌ مستثنًى: يعبرُ ويَعودُ
+            حصيلة_مستثنًى = حدّ.execute(
+                _طلب(action="task.submit", target="tasks/task-A"),
+                declared_effects=(أثر_الداخل,),
+                planner=lambda _: (أثر_الداخل,),
+                applier=lambda e: None,
+                operation_key=_مفتاح("inner-4b"),
+                compensators=(_معوّض(حالةُ_الدولة, أثر_الداخل),),
+            )
+            assert حصيلة_مستثنًى.is_replay is False
+            # (3) بعدَ الولدِ المستثنَّى: الحمايةُ باقيةٌ — ولدٌ غيرُ مستثنًى يُرفَضُ من جديدٍ
+            with pytest.raises(NestedSovereignCallError):
+                حدّ.execute(
+                    _طلب(action="credit_account", target="treasury/account-A"),
+                    declared_effects=(أثر_الداخل_المرفوض,),
+                    planner=lambda _: (أثر_الداخل_المرفوض,),
+                    applier=lambda e: حالةُ_الدولة.__setitem__(e.resource, "MUTATED"),
+                    operation_key=_مفتاح("inner-4c"),
+                    compensators=(_معوّض(حالةُ_الدولة, أثر_الداخل_المرفوض),),
+                )
+            رفضٌ.append(2)
+            حالةُ_الدولة[effect.resource] = "MUTATED"
+    
+>       حدّ.execute(
+            _طلب(action="gov.case.open", target="gov/case-A"),
+            declared_effects=(_أثر("gov/case-A/row"),),
+            planner=lambda _: (_أثر("gov/case-A/row"),),
+            applier=مطبِّقٌ_مُوالٍ,
+            operation_key=_مفتاح("outer-4"),
+            compensators=(_معوّض(حالةُ_الدولة, _أثر("gov/case-A/row")),),
+        )
+
+tests/sovereignty/test_wi115_nesting_detector.py:328: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7f471df3cd70>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-31/test_إطارالأبالباقيبعدالرفضوبع0/IDEMPOTENCY.compensation.json')))
+request = ActionRequest(actor=<Branch.EXECUTIVE: 'executive'>, action='gov.case.open', target='gov/case-A', human_approved=False...kill_switch_level=0, review_days=0, council_approval_pct=0.0, has_identity_header=True, royal_decree=None, metadata={})
+declared_effects = (SovereignEffect(kind=<EffectKind.WRITE: 'WRITE'>, resource='gov/case-A/row', detail='قياس', payload_digest=None),)
+planner = <function test_إطارالأبالباقيبعدالرفضوبعدالعبورالمستثن.<locals>.<lambda> at 0x7f471dfc16c0>
+applier = <function test_إطارالأبالباقيبعدالرفضوبعدالعبورالمستثن.<locals>.مطبِّقٌ_مُوالٍ at 0x7f471dfc1a80>
+operation_key = IdempotencyKey(scope='treasury', value='outer-4')
+compensators = (Compensator(effect_signature='WRITE:gov/case-A/row', apply=<function _معوّض.<locals>.<lambda> at 0x7f471dfc1620>, description='إرجاعُ القيمةِ الأصليّة'),)
+judicial_action = None, provider = None, payload_of = None, correlation_id = ''
+
+    def execute(
+        self,
+        request: ActionRequest,
+        *,
+        declared_effects: tuple[SovereignEffect, ...],
+        planner: Callable[[EnforcementPermit], tuple[SovereignEffect, ...]],
+        applier: Callable[[SovereignEffect], None],
+        operation_key: IdempotencyKey,
+        compensators: tuple[Compensator, ...] = (),
+        judicial_action: JudicialAction | None = None,
+        provider: ProviderAdapter | None = None,
+        payload_of: Callable[[SovereignEffect], EffectPayload] | None = None,
+        correlation_id: str = "",
+    ) -> BoundaryOutcome:
+        """اعبُرْ الحدَّ — أو لا تنفُذ. ولا معامَلَ ثالثًا بينَ الاثنين.
+    
+        المُنادي لا يُسلِّمُ `Callable[[], T]` حُرّةً كما في `gateway.execute`، بل
+        يُسلِّمُ خطّةً مُعلَنة. والفرقُ ليس شكليًّا: الحدُّ يعرفُ ما سيُطبَّقُ قبلَ
+        أن يُطبَّق، فيقدرُ أن يمنعَ، وأن يُوجّهَ الأثرَ الخارجيَّ إلى الصادرِ بلا
+        أن يمسَّه مُطبِّقُ المُنادي.
+    
+        وترتيبُ الرفعِ مقصود: كلُّ فحصٍ يفشلُ يرفعُ استثناءَ مرحلتِه، ولا يُلتقَطُ
+        هنا استثناءُ حرسٍ قطُّ — الابتلاعُ هو التجاوزُ بعينِه.
+        """
+        # ⓪ كاشفُ التعشيشِ (WI-115 · Q-9): قبلَ أيِّ حارسٍ وأيِّ decide وأيِّ قيدٍ —
+        # فلا إذنَ ولا حجزَ ولا أثرَ للرفضِ. وعندَ الرفضِ لا يُضبَطُ السياقُ ولا
+        # يُمحى: إطارُ الأبِ يبقى قائمًا.
+        outer_crossing = _active_crossing.get()
+        if outer_crossing is not None and (outer_crossing[0], request.action) not in NESTED_SOVEREIGN_EXEMPTIONS:
+>           raise NestedSovereignCallError(
+                f"عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ: الفعلُ '{request.action}' داخلَ إطارِ "
+                f"'{outer_crossing[0]}' — التعشيشُ السياديُّ ممنوعٌ (WI-115 · Q-9) "
+                "والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه)."
+            )
+E           core.sovereignty.enforcement_boundary.NestedSovereignCallError: عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ: الفعلُ 'gov.case.open' داخلَ إطارِ 'gov.case.open' — التعشيشُ السياديُّ ممنوعٌ (WI-115 · Q-9) والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه).
+
+core/sovereignty/enforcement_boundary.py:378: NestedSovereignCallError
+_______________ test_السياقيستعادبعدنجاحالعبوروالعبورالتالييعمل ________________
+
+حدّ = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7f471df0d580>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-31/test_السياقيستعادبعدنجاحالعبور0/IDEMPOTENCY.compensation.json')))
+حالةُ_الدولة = {'treasury/account-A': '1000', 'gov/case-A/row': 'NONE', 'tasks/task-A/row': 'NONE'}
+
+    def test_السياقيستعادبعدنجاحالعبوروالعبورالتالييعمل(
+        حدّ: SovereignExecutionBoundary,
+        حالةُ_الدولة: dict[str, str],
+    ) -> None:
+        """عبورٌ متتابعٌ (لا متعشِّشٌ) بعدَ اكتمالِ سابقِهِ يعملُ — والإطارُ نظيفٌ بينَهما.
+    
+        (يقتلُ طفرةَ حذفِ الاستعادةِ في `finally`: لو بقِيَ الإطارُ معلَّقًا
+        لَرُفِظَ التالي كمتعشِّشٍ وهو ليسَ متعشِّشًا.)
+        """
+>       _تنفيذٌ_كامل(حدّ, "credit_account", "seq-1", حالةُ_الدولة)
+
+tests/sovereignty/test_wi115_nesting_detector.py:355: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/sovereignty/test_wi115_nesting_detector.py:126: in _تنفيذٌ_كامل
+    حدّ.execute(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7f471df0d580>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-31/test_السياقيستعادبعدنجاحالعبور0/IDEMPOTENCY.compensation.json')))
+request = ActionRequest(actor=<Branch.EXECUTIVE: 'executive'>, action='credit_account', target='gov/case-seq-1', human_approved=...kill_switch_level=0, review_days=0, council_approval_pct=0.0, has_identity_header=True, royal_decree=None, metadata={})
+declared_effects = (SovereignEffect(kind=<EffectKind.WRITE: 'WRITE'>, resource='gov/case-seq-1', detail='قياس', payload_digest=None),)
+planner = <function _تنفيذٌ_كامل.<locals>.<lambda> at 0x7f471df9c5e0>
+applier = <function _تنفيذٌ_كامل.<locals>.<lambda> at 0x7f471df9c900>
+operation_key = IdempotencyKey(scope='treasury', value='seq-1')
+compensators = (Compensator(effect_signature='WRITE:gov/case-seq-1', apply=<function _معوّض.<locals>.<lambda> at 0x7f471df9cb80>, description='إرجاعُ القيمةِ الأصليّة'),)
+judicial_action = None, provider = None, payload_of = None, correlation_id = ''
+
+    def execute(
+        self,
+        request: ActionRequest,
+        *,
+        declared_effects: tuple[SovereignEffect, ...],
+        planner: Callable[[EnforcementPermit], tuple[SovereignEffect, ...]],
+        applier: Callable[[SovereignEffect], None],
+        operation_key: IdempotencyKey,
+        compensators: tuple[Compensator, ...] = (),
+        judicial_action: JudicialAction | None = None,
+        provider: ProviderAdapter | None = None,
+        payload_of: Callable[[SovereignEffect], EffectPayload] | None = None,
+        correlation_id: str = "",
+    ) -> BoundaryOutcome:
+        """اعبُرْ الحدَّ — أو لا تنفُذ. ولا معامَلَ ثالثًا بينَ الاثنين.
+    
+        المُنادي لا يُسلِّمُ `Callable[[], T]` حُرّةً كما في `gateway.execute`، بل
+        يُسلِّمُ خطّةً مُعلَنة. والفرقُ ليس شكليًّا: الحدُّ يعرفُ ما سيُطبَّقُ قبلَ
+        أن يُطبَّق، فيقدرُ أن يمنعَ، وأن يُوجّهَ الأثرَ الخارجيَّ إلى الصادرِ بلا
+        أن يمسَّه مُطبِّقُ المُنادي.
+    
+        وترتيبُ الرفعِ مقصود: كلُّ فحصٍ يفشلُ يرفعُ استثناءَ مرحلتِه، ولا يُلتقَطُ
+        هنا استثناءُ حرسٍ قطُّ — الابتلاعُ هو التجاوزُ بعينِه.
+        """
+        # ⓪ كاشفُ التعشيشِ (WI-115 · Q-9): قبلَ أيِّ حارسٍ وأيِّ decide وأيِّ قيدٍ —
+        # فلا إذنَ ولا حجزَ ولا أثرَ للرفضِ. وعندَ الرفضِ لا يُضبَطُ السياقُ ولا
+        # يُمحى: إطارُ الأبِ يبقى قائمًا.
+        outer_crossing = _active_crossing.get()
+        if outer_crossing is not None and (outer_crossing[0], request.action) not in NESTED_SOVEREIGN_EXEMPTIONS:
+>           raise NestedSovereignCallError(
+                f"عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ: الفعلُ '{request.action}' داخلَ إطارِ "
+                f"'{outer_crossing[0]}' — التعشيشُ السياديُّ ممنوعٌ (WI-115 · Q-9) "
+                "والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه)."
+            )
+E           core.sovereignty.enforcement_boundary.NestedSovereignCallError: عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ: الفعلُ 'credit_account' داخلَ إطارِ 'gov.case.open' — التعشيشُ السياديُّ ممنوعٌ (WI-115 · Q-9) والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه).
+
+core/sovereignty/enforcement_boundary.py:378: NestedSovereignCallError
+________________ test_السياقيستعادبعدرفضمتعششوالعبورالتالييعمل _________________
+
+حدّ = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7f471df39eb0>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-31/test_السياقيستعادبعدرفضمتعششوا0/IDEMPOTENCY.compensation.json')))
+حالةُ_الدولة = {'treasury/account-A': '1000', 'gov/case-A/row': 'NONE', 'tasks/task-A/row': 'NONE'}
+
+    def test_السياقيستعادبعدرفضمتعششوالعبورالتالييعمل(
+        حدّ: SovereignExecutionBoundary,
+        حالةُ_الدولة: dict[str, str],
+    ) -> None:
+        """بعدَ عبورٍ رُفِضَ تعشيشُهُ (ورُدَّ أثرُهُ)، السياقُ نظيفٌ والعبورُ التاليُ يعملُ."""
+        أثر_الخارجي = _أثر("gov/case-A/row")
+        أثر_الداخل = _أثر("treasury/account-A")
+        رُفِظَ = False
+    
+        def مطبِّقٌ_يرفض(effect: SovereignEffect) -> None:
+            nonlocal رُفِظَ
+            try:
+                حدّ.execute(
+                    _طلب(action="credit_account", target="treasury/account-A"),
+                    declared_effects=(أثر_الداخل,),
+                    planner=lambda _: (أثر_الداخل,),
+                    applier=lambda e: حالةُ_الدولة.__setitem__(e.resource, "MUTATED"),
+                    operation_key=_مفتاح("inner-5"),
+                    compensators=(_معوّض(حالةُ_الدولة, أثر_الداخل),),
+                )
+            except NestedSovereignCallError:
+                رُفِظَ = True
+            حالةُ_الدولة[effect.resource] = "MUTATED"
+    
+>       حدّ.execute(
+            _طلب(action="gov.case.open", target="gov/case-A"),
+            declared_effects=(أثر_الخارجي,),
+            planner=lambda _: (أثر_الخارجي,),
+            applier=مطبِّقٌ_يرفض,
+            operation_key=_مفتاح("outer-5"),
+            compensators=(_معوّض(حالةُ_الدولة, أثر_الخارجي),),
+        )
+
+tests/sovereignty/test_wi115_nesting_detector.py:385: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7f471df39eb0>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-31/test_السياقيستعادبعدرفضمتعششوا0/IDEMPOTENCY.compensation.json')))
+request = ActionRequest(actor=<Branch.EXECUTIVE: 'executive'>, action='gov.case.open', target='gov/case-A', human_approved=False...kill_switch_level=0, review_days=0, council_approval_pct=0.0, has_identity_header=True, royal_decree=None, metadata={})
+declared_effects = (SovereignEffect(kind=<EffectKind.WRITE: 'WRITE'>, resource='gov/case-A/row', detail='قياس', payload_digest=None),)
+planner = <function test_السياقيستعادبعدرفضمتعششوالعبورالتالييعمل.<locals>.<lambda> at 0x7f471df8b6a0>
+applier = <function test_السياقيستعادبعدرفضمتعششوالعبورالتالييعمل.<locals>.مطبِّقٌ_يرفض at 0x7f471df8bc40>
+operation_key = IdempotencyKey(scope='treasury', value='outer-5')
+compensators = (Compensator(effect_signature='WRITE:gov/case-A/row', apply=<function _معوّض.<locals>.<lambda> at 0x7f471df8b920>, description='إرجاعُ القيمةِ الأصليّة'),)
+judicial_action = None, provider = None, payload_of = None, correlation_id = ''
+
+    def execute(
+        self,
+        request: ActionRequest,
+        *,
+        declared_effects: tuple[SovereignEffect, ...],
+        planner: Callable[[EnforcementPermit], tuple[SovereignEffect, ...]],
+        applier: Callable[[SovereignEffect], None],
+        operation_key: IdempotencyKey,
+        compensators: tuple[Compensator, ...] = (),
+        judicial_action: JudicialAction | None = None,
+        provider: ProviderAdapter | None = None,
+        payload_of: Callable[[SovereignEffect], EffectPayload] | None = None,
+        correlation_id: str = "",
+    ) -> BoundaryOutcome:
+        """اعبُرْ الحدَّ — أو لا تنفُذ. ولا معامَلَ ثالثًا بينَ الاثنين.
+    
+        المُنادي لا يُسلِّمُ `Callable[[], T]` حُرّةً كما في `gateway.execute`، بل
+        يُسلِّمُ خطّةً مُعلَنة. والفرقُ ليس شكليًّا: الحدُّ يعرفُ ما سيُطبَّقُ قبلَ
+        أن يُطبَّق، فيقدرُ أن يمنعَ، وأن يُوجّهَ الأثرَ الخارجيَّ إلى الصادرِ بلا
+        أن يمسَّه مُطبِّقُ المُنادي.
+    
+        وترتيبُ الرفعِ مقصود: كلُّ فحصٍ يفشلُ يرفعُ استثناءَ مرحلتِه، ولا يُلتقَطُ
+        هنا استثناءُ حرسٍ قطُّ — الابتلاعُ هو التجاوزُ بعينِه.
+        """
+        # ⓪ كاشفُ التعشيشِ (WI-115 · Q-9): قبلَ أيِّ حارسٍ وأيِّ decide وأيِّ قيدٍ —
+        # فلا إذنَ ولا حجزَ ولا أثرَ للرفضِ. وعندَ الرفضِ لا يُضبَطُ السياقُ ولا
+        # يُمحى: إطارُ الأبِ يبقى قائمًا.
+        outer_crossing = _active_crossing.get()
+        if outer_crossing is not None and (outer_crossing[0], request.action) not in NESTED_SOVEREIGN_EXEMPTIONS:
+>           raise NestedSovereignCallError(
+                f"عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ: الفعلُ '{request.action}' داخلَ إطارِ "
+                f"'{outer_crossing[0]}' — التعشيشُ السياديُّ ممنوعٌ (WI-115 · Q-9) "
+                "والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه)."
+            )
+E           core.sovereignty.enforcement_boundary.NestedSovereignCallError: عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ: الفعلُ 'gov.case.open' داخلَ إطارِ 'gov.case.open' — التعشيشُ السياديُّ ممنوعٌ (WI-115 · Q-9) والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه).
+
+core/sovereignty/enforcement_boundary.py:378: NestedSovereignCallError
+______________________ test_السياقيستعادبعداستثناءالمطبق _______________________
+
+حدّ = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7f471f2b47a0>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-31/test_السياقيستعادبعداستثناءالم0/IDEMPOTENCY.compensation.json')))
+حالةُ_الدولة = {'treasury/account-A': '1000', 'gov/case-A/row': 'NONE', 'tasks/task-A/row': 'NONE'}
+
+    def test_السياقيستعادبعداستثناءالمطبق(
+        حدّ: SovereignExecutionBoundary,
+        حالةُ_الدولة: dict[str, str],
+    ) -> None:
+        """استثناءُ المطبِّقِ يُغلَّفُ في `IdempotencyError` بعدَ نقلِ السجلِّ إلى «فاشل» (لا أثرَ مُطبَّقًا فلا تعويضَ)، والسياقُ يُستعادُ في `finally`.
+    
+        (يقتلُ طفرةَ حذفِ `finally` في مسارِ الاستثناءِ تحديدًا.)
+        """
+        أثر_الخارجي = _أثر("gov/case-A/row")
+    
+        def مطبِّقٌ_يفشل(effect: SovereignEffect) -> None:
+            raise RuntimeError("فشلٌ مقيسٌ في المطبِّق")
+    
+        with pytest.raises(IdempotencyError, match="فشلٌ مقيسٌ"):
+>           حدّ.execute(
+                _طلب(action="gov.case.open", target="gov/case-A"),
+                declared_effects=(أثر_الخارجي,),
+                planner=lambda _: (أثر_الخارجي,),
+                applier=مطبِّقٌ_يفشل,
+                operation_key=_مفتاح("outer-6"),
+                compensators=(_معوّض(حالةُ_الدولة, أثر_الخارجي),),
+            )
+
+tests/sovereignty/test_wi115_nesting_detector.py:413: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7f471f2b47a0>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-31/test_السياقيستعادبعداستثناءالم0/IDEMPOTENCY.compensation.json')))
+request = ActionRequest(actor=<Branch.EXECUTIVE: 'executive'>, action='gov.case.open', target='gov/case-A', human_approved=False...kill_switch_level=0, review_days=0, council_approval_pct=0.0, has_identity_header=True, royal_decree=None, metadata={})
+declared_effects = (SovereignEffect(kind=<EffectKind.WRITE: 'WRITE'>, resource='gov/case-A/row', detail='قياس', payload_digest=None),)
+planner = <function test_السياقيستعادبعداستثناءالمطبق.<locals>.<lambda> at 0x7f471dfc1ee0>
+applier = <function test_السياقيستعادبعداستثناءالمطبق.<locals>.مطبِّقٌ_يفشل at 0x7f471df8b7e0>
+operation_key = IdempotencyKey(scope='treasury', value='outer-6')
+compensators = (Compensator(effect_signature='WRITE:gov/case-A/row', apply=<function _معوّض.<locals>.<lambda> at 0x7f471dfc1e40>, description='إرجاعُ القيمةِ الأصليّة'),)
+judicial_action = None, provider = None, payload_of = None, correlation_id = ''
+
+    def execute(
+        self,
+        request: ActionRequest,
+        *,
+        declared_effects: tuple[SovereignEffect, ...],
+        planner: Callable[[EnforcementPermit], tuple[SovereignEffect, ...]],
+        applier: Callable[[SovereignEffect], None],
+        operation_key: IdempotencyKey,
+        compensators: tuple[Compensator, ...] = (),
+        judicial_action: JudicialAction | None = None,
+        provider: ProviderAdapter | None = None,
+        payload_of: Callable[[SovereignEffect], EffectPayload] | None = None,
+        correlation_id: str = "",
+    ) -> BoundaryOutcome:
+        """اعبُرْ الحدَّ — أو لا تنفُذ. ولا معامَلَ ثالثًا بينَ الاثنين.
+    
+        المُنادي لا يُسلِّمُ `Callable[[], T]` حُرّةً كما في `gateway.execute`، بل
+        يُسلِّمُ خطّةً مُعلَنة. والفرقُ ليس شكليًّا: الحدُّ يعرفُ ما سيُطبَّقُ قبلَ
+        أن يُطبَّق، فيقدرُ أن يمنعَ، وأن يُوجّهَ الأثرَ الخارجيَّ إلى الصادرِ بلا
+        أن يمسَّه مُطبِّقُ المُنادي.
+    
+        وترتيبُ الرفعِ مقصود: كلُّ فحصٍ يفشلُ يرفعُ استثناءَ مرحلتِه، ولا يُلتقَطُ
+        هنا استثناءُ حرسٍ قطُّ — الابتلاعُ هو التجاوزُ بعينِه.
+        """
+        # ⓪ كاشفُ التعشيشِ (WI-115 · Q-9): قبلَ أيِّ حارسٍ وأيِّ decide وأيِّ قيدٍ —
+        # فلا إذنَ ولا حجزَ ولا أثرَ للرفضِ. وعندَ الرفضِ لا يُضبَطُ السياقُ ولا
+        # يُمحى: إطارُ الأبِ يبقى قائمًا.
+        outer_crossing = _active_crossing.get()
+        if outer_crossing is not None and (outer_crossing[0], request.action) not in NESTED_SOVEREIGN_EXEMPTIONS:
+>           raise NestedSovereignCallError(
+                f"عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ: الفعلُ '{request.action}' داخلَ إطارِ "
+                f"'{outer_crossing[0]}' — التعشيشُ السياديُّ ممنوعٌ (WI-115 · Q-9) "
+                "والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه)."
+            )
+E           core.sovereignty.enforcement_boundary.NestedSovereignCallError: عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ: الفعلُ 'gov.case.open' داخلَ إطارِ 'gov.case.open' — التعشيشُ السياديُّ ممنوعٌ (WI-115 · Q-9) والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه).
+
+core/sovereignty/enforcement_boundary.py:378: NestedSovereignCallError
+=========================== short test summary info ============================
+FAILED tests/sovereignty/test_wi115_nesting_detector.py::test_الزوجالمسجليعبركاملالمسار
+FAILED tests/sovereignty/test_wi115_nesting_detector.py::test_فتحالقضيةليسبابالكلعبورغيرالمستثن
+FAILED tests/sovereignty/test_wi115_nesting_detector.py::test_إطارالأبالباقيبعدالرفضوبعدالعبورالمستثن
+FAILED tests/sovereignty/test_wi115_nesting_detector.py::test_السياقيستعادبعدنجاحالعبوروالعبورالتالييعمل
+FAILED tests/sovereignty/test_wi115_nesting_detector.py::test_السياقيستعادبعدرفضمتعششوالعبورالتالييعمل
+FAILED tests/sovereignty/test_wi115_nesting_detector.py::test_السياقيستعادبعداستثناءالمطبق
+6 failed, 1 passed in 0.18s

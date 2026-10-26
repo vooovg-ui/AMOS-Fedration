@@ -62,6 +62,7 @@
 from __future__ import annotations
 
 import ast
+import contextvars
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
@@ -113,6 +114,34 @@ from core.sovereignty.outbox import (
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
+# كاشفُ التعشيشِ عندَ الحدِّ (WI-115 · Q-9 الخيارُ 4 · سندُه التوجيهُ 22 § 1)
+#
+# النصُّ المقيسُ (W-665 § 1): التعشيشُ القائمُ الوحيدُ اليومَ هو `open_case` —
+# يعبرُ بـ`gov.case.open` ومُطبِّقُهُ يُنادي `task.submit` داخلَه، ومعوِّضُهُ
+# `task.cancel`. وكلُّ ما عدا ذلكَ عبورٌ داخلَ عبورٍ نشطٍ يُرفَضُ قبلَ أيِّ حارسٍ
+# وأيِّ إذنٍ وأيِّ قيدٍ في الدفترِ. والاستثناءُ **أزواجٌ (خارجيٌّ، داخليٌّ)**
+# لا أسماءٌ مفردة، فلا يصيرُ `open_case` بابًا لأيِّ عبورٍ داخلَه — وهو
+# مُجمَّدٌ في الوحدةِ نفسِها ويُعلَّلُ عندَه، فلا يُوسَّعُ بيدِ منفِّذٍ.
+# ─────────────────────────────────────────────────────────────────────────────
+
+#: الاستثناءُ المسجَّلُ باسمِه (Q-9): أزواجُ (فعلٌ خارجيٌّ، فعلٌ داخليٌّ).
+NESTED_SOVEREIGN_EXEMPTIONS: Final[frozenset[tuple[str, str]]] = frozenset(
+    {
+        ("gov.case.open", "task.submit"),
+        ("gov.case.open", "task.cancel"),
+    }
+)
+
+#: إطارُ العبورِ النشطِ `(action, target)` — واحدٌ لكلِّ سياقِ تنفيذٍ.
+#: على مستوى الوحدةِ عمدًا كي يشملَ الكشفُ العبورَ عبرَ نسختَينِ مختلفتَينِ
+#: منَ الحدِّ في السياقِ نفسِه. ولا يُدَّعى انتقالُهُ عبرَ الخيوطِ (غيرُ مقيسٍ —
+#: W-665 § 4).
+_active_crossing: contextvars.ContextVar[tuple[str, str] | None] = (
+    contextvars.ContextVar("amos_sovereign_active_crossing", default=None)
+)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # الأخطاء — كلُّها رفضٌ صريحٌ يُرفَع، ولا رايةَ منطقيّةً ولا ابتلاع
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -152,6 +181,15 @@ class BoundaryConfigurationError(EnforcementBoundaryError):
 
 class StaticGuardError(EnforcementBoundaryError):
     """خللٌ في تشغيلِ الحرسِ الساكنِ نفسِه — لا في المشروعِ المفحوص."""
+
+
+class NestedSovereignCallError(EnforcementBoundaryError):
+    """عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ (WI-115 · Q-9) — رفضٌ صريحٌ لا إذنَ معه.
+
+    يُرفَعُ قبلَ أيِّ حارسٍ وأيِّ `decide` وأيِّ قيدٍ في دفترِ الذرّيّة، فلا
+    يبقى للرفضِ أثرٌ ولا حجزٌ ولا أثرٌ مُطبَّق. والزوجُ المسجَّلُ الوحيدُ
+    المُعفاةُ أزواجُهُ في `NESTED_SOVEREIGN_EXEMPTIONS` (open_case باسمِه).
+    """
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -332,124 +370,141 @@ class SovereignExecutionBoundary:
         وترتيبُ الرفعِ مقصود: كلُّ فحصٍ يفشلُ يرفعُ استثناءَ مرحلتِه، ولا يُلتقَطُ
         هنا استثناءُ حرسٍ قطُّ — الابتلاعُ هو التجاوزُ بعينِه.
         """
-        stages: list[BoundaryStage] = []
-
-        # ① 1G — الاختصاص: ما لا يملكُه الفاعلُ لا يُتعاقَدُ عليه
-        stages.extend(self._guard_jurisdiction(request, declared_effects, judicial_action))
-
-        # ② 1E — العقد: آثارٌ مُعلَنةٌ محصورةٌ في الهدف
-        contract = self._guard_contract(request, declared_effects)
-        stages.append(BoundaryStage.CONTRACT)
-
-        # ③ 1I — خطّةُ التعويض: ربطٌ قبلَ التنفيذ، لا استعادةً بعدَه
-        plan, external_effects = self._guard_compensation(contract, compensators)
-        if plan is not None:
-            stages.append(BoundaryStage.COMPENSATION_PLAN)
-
-        # ④ 1K — تهيئةُ الصادرِ تُفحَصُ قبلَ أيِّ إذنٍ أو حجزٍ أو تطبيق
-        if external_effects:
-            self._guard_outbox_configured(external_effects, provider, payload_of)
-
-        # ⑤ 1H — المفتاح: يُفحَصُ قبلَ إصدارِ الإذنِ فلا يُصدَرُ إذنٌ بلا حجز
-        self._guard_operation_key(operation_key)
-
-        # ⑥ 1D + 1F + 1J — السلطةُ والإذنُ والإغلاق: عبرَ البوابةِ نفسِها
-        permit = self.gateway.decide(request, declared_effects=declared_effects)
-        stages.extend(
-            (
-                BoundaryStage.IDENTITY_AUTHORITY,
-                BoundaryStage.FAIL_CLOSED,
-                BoundaryStage.PERMIT,
+        # ⓪ كاشفُ التعشيشِ (WI-115 · Q-9): قبلَ أيِّ حارسٍ وأيِّ decide وأيِّ قيدٍ —
+        # فلا إذنَ ولا حجزَ ولا أثرَ للرفضِ. وعندَ الرفضِ لا يُضبَطُ السياقُ ولا
+        # يُمحى: إطارُ الأبِ يبقى قائمًا.
+        outer_crossing = _active_crossing.get()
+        if outer_crossing is not None and (outer_crossing[0], request.action) not in NESTED_SOVEREIGN_EXEMPTIONS:
+            raise NestedSovereignCallError(
+                f"عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ: الفعلُ '{request.action}' داخلَ إطارِ "
+                f"'{outer_crossing[0]}' — التعشيشُ السياديُّ ممنوعٌ (WI-115 · Q-9) "
+                "والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه)."
             )
-        )
 
-        # ⑦ 1H — الذرّيّةُ تلفُّ التطبيق
-        enqueued: list[str] = []
-        applied_holder: list[tuple[SovereignEffect, ...]] = []
-        # [W-603 · Q-70] ما طبّقه مُطبِّقُ المُنادي **وعادَ** بنجاحٍ — بترتيبِ التطبيق.
-        applied_internal: list[str] = []
-        routed = self._route_effect(
-            permit=permit,
-            operation_key=operation_key,
-            applier=applier,
-            provider=provider,
-            payload_of=payload_of,
-            correlation_id=correlation_id,
-            enqueued=enqueued,
-        )
-
-        def _tracked(effect: SovereignEffect) -> None:
-            routed(effect)
-            if (
-                plan is not None
-                and effect.kind is not EffectKind.EXTERNAL
-                and plan.covers(effect.signature)
-            ):
-                applied_internal.append(effect.signature)
-
-        def _under_permit() -> tuple[str, ...]:
-            """ما يُرجَعُ للحارسِ بصماتٌ نصّيّةٌ لا كائنات.
-
-            سجلُّ 1H يُثبِّتُ بصمةَ النتيجةِ بـ`json`، والكائنُ غيرُ القابلِ
-            للتمثيلِ يُفشِلُ التثبيت. والبصماتُ هي ما يُقارَنُ عندَ الإعادةِ
-            أصلًا، فلا يُفقَدُ شيءٌ بإرجاعِها.
-            """
-            produced = self.policy_enforcement_point.enforce(
-                permit,
-                planner=planner,
-                applier=_tracked,
-            )
-            applied_holder.append(produced)
-            return tuple(e.signature for e in produced)
-
-        fingerprint = compute_fingerprint(
-            scope=operation_key.scope,
-            action=request.action,
-            target=request.target,
-            effect_signatures=tuple(sorted(contract.declared_signatures)),
-            actor=request.actor,
-        )
-        external_prefix = EffectKind.EXTERNAL.value + ":"
+        token = _active_crossing.set((request.action, request.target))
         try:
-            result: OperationResult[tuple[str, ...]] = IdempotencyGuard(
-                ledger=self.idempotency_ledger
-            ).run_once(
-                key=operation_key,
-                fingerprint=fingerprint,
-                execute=_under_permit,
-                extract_effect_signatures=lambda sigs: tuple(sigs or ()),
-                detect_external=lambda sigs: any(
-                    s.startswith(external_prefix) for s in (sigs or ())
-                ),
-            )
-        except Exception as exc:
-            if plan is None or not applied_internal:
-                # لا أثرَ طُبِّقَ: الاستثناءُ يُرفَعُ كما هو (لا لفَّ ولا تغييرَ نوعٍ).
-                raise
-            self._compensate_applied(
-                exc,
-                contract=contract,
-                plan=plan,
-                operation_key=operation_key,
-                applied=tuple(applied_internal),
-            )
-            raise  # pragma: no cover — `_compensate_applied` يرفعُ دائمًا
-        stages.append(BoundaryStage.IDEMPOTENCY)
-        if enqueued:
-            stages.append(BoundaryStage.EXTERNAL_OUTBOX)
+            stages: list[BoundaryStage] = []
 
-        applied = applied_holder[0] if applied_holder else ()
-        self._executions += 1
-        return BoundaryOutcome(
-            contract=contract,
-            permit_id=permit.permit_id,
-            operation_key=operation_key.composite,
-            applied_effects=tuple(applied),
-            enqueued_effect_ids=tuple(enqueued),
-            stages=tuple(stages),
-            is_replay=result.is_replay,
-            compensation_plan=plan,
-        )
+            # ① 1G — الاختصاص: ما لا يملكُه الفاعلُ لا يُتعاقَدُ عليه
+            stages.extend(self._guard_jurisdiction(request, declared_effects, judicial_action))
+
+            # ② 1E — العقد: آثارٌ مُعلَنةٌ محصورةٌ في الهدف
+            contract = self._guard_contract(request, declared_effects)
+            stages.append(BoundaryStage.CONTRACT)
+
+            # ③ 1I — خطّةُ التعويض: ربطٌ قبلَ التنفيذ، لا استعادةً بعدَه
+            plan, external_effects = self._guard_compensation(contract, compensators)
+            if plan is not None:
+                stages.append(BoundaryStage.COMPENSATION_PLAN)
+
+            # ④ 1K — تهيئةُ الصادرِ تُفحَصُ قبلَ أيِّ إذنٍ أو حجزٍ أو تطبيق
+            if external_effects:
+                self._guard_outbox_configured(external_effects, provider, payload_of)
+
+            # ⑤ 1H — المفتاح: يُفحَصُ قبلَ إصدارِ الإذنِ فلا يُصدَرُ إذنٌ بلا حجز
+            self._guard_operation_key(operation_key)
+
+            # ⑥ 1D + 1F + 1J — السلطةُ والإذنُ والإغلاق: عبرَ البوابةِ نفسِها
+            permit = self.gateway.decide(request, declared_effects=declared_effects)
+            stages.extend(
+                (
+                    BoundaryStage.IDENTITY_AUTHORITY,
+                    BoundaryStage.FAIL_CLOSED,
+                    BoundaryStage.PERMIT,
+                )
+            )
+
+            # ⑦ 1H — الذرّيّةُ تلفُّ التطبيق
+            enqueued: list[str] = []
+            applied_holder: list[tuple[SovereignEffect, ...]] = []
+            # [W-603 · Q-70] ما طبّقه مُطبِّقُ المُنادي **وعادَ** بنجاحٍ — بترتيبِ التطبيق.
+            applied_internal: list[str] = []
+            routed = self._route_effect(
+                permit=permit,
+                operation_key=operation_key,
+                applier=applier,
+                provider=provider,
+                payload_of=payload_of,
+                correlation_id=correlation_id,
+                enqueued=enqueued,
+            )
+
+            def _tracked(effect: SovereignEffect) -> None:
+                routed(effect)
+                if (
+                    plan is not None
+                    and effect.kind is not EffectKind.EXTERNAL
+                    and plan.covers(effect.signature)
+                ):
+                    applied_internal.append(effect.signature)
+
+            def _under_permit() -> tuple[str, ...]:
+                """ما يُرجَعُ للحارسِ بصماتٌ نصّيّةٌ لا كائنات.
+
+                سجلُّ 1H يُثبِّتُ بصمةَ النتيجةِ بـ`json`، والكائنُ غيرُ القابلِ
+                للتمثيلِ يُفشِلُ التثبيت. والبصماتُ هي ما يُقارَنُ عندَ الإعادةِ
+                أصلًا، فلا يُفقَدُ شيءٌ بإرجاعِها.
+                """
+                produced = self.policy_enforcement_point.enforce(
+                    permit,
+                    planner=planner,
+                    applier=_tracked,
+                )
+                applied_holder.append(produced)
+                return tuple(e.signature for e in produced)
+
+            fingerprint = compute_fingerprint(
+                scope=operation_key.scope,
+                action=request.action,
+                target=request.target,
+                effect_signatures=tuple(sorted(contract.declared_signatures)),
+                actor=request.actor,
+            )
+            external_prefix = EffectKind.EXTERNAL.value + ":"
+            try:
+                result: OperationResult[tuple[str, ...]] = IdempotencyGuard(
+                    ledger=self.idempotency_ledger
+                ).run_once(
+                    key=operation_key,
+                    fingerprint=fingerprint,
+                    execute=_under_permit,
+                    extract_effect_signatures=lambda sigs: tuple(sigs or ()),
+                    detect_external=lambda sigs: any(
+                        s.startswith(external_prefix) for s in (sigs or ())
+                    ),
+                )
+            except Exception as exc:
+                if plan is None or not applied_internal:
+                    # لا أثرَ طُبِّقَ: الاستثناءُ يُرفَعُ كما هو (لا لفَّ ولا تغييرَ نوعٍ).
+                    raise
+                self._compensate_applied(
+                    exc,
+                    contract=contract,
+                    plan=plan,
+                    operation_key=operation_key,
+                    applied=tuple(applied_internal),
+                )
+                raise  # pragma: no cover — `_compensate_applied` يرفعُ دائمًا
+            stages.append(BoundaryStage.IDEMPOTENCY)
+            if enqueued:
+                stages.append(BoundaryStage.EXTERNAL_OUTBOX)
+
+            applied = applied_holder[0] if applied_holder else ()
+            self._executions += 1
+            return BoundaryOutcome(
+                contract=contract,
+                permit_id=permit.permit_id,
+                operation_key=operation_key.composite,
+                applied_effects=tuple(applied),
+                enqueued_effect_ids=tuple(enqueued),
+                stages=tuple(stages),
+                is_replay=result.is_replay,
+                compensation_plan=plan,
+            )
+        finally:
+            # الاستعادةُ بالرمزِ لا الضبطُ إلى None: قد يكونُ لنا أبٌ خارجيٌّ أعلنَ
+            # إطارَهُ — فالضبطُ إلى None كانَ سيمحو إطارَ الأبِ بعدَ عودةِ عبورٍ مستثنًى.
+            _active_crossing.reset(token)
 
     # ── التعويضُ الآليُّ بعدَ الالتزام (W-603 · Q-70) ─────────────────────────
     def _compensate_applied(

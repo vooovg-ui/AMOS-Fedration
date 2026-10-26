@@ -1,0 +1,25 @@
+== قياسات ما قبل — 2026-10-26T05:48Z · main = bd1dc84b ==
+
+== (أ) حرس المال: ملفات guard_declared( في شِفرةِ الإنتاجِ المتتبعةِ (git ls-files) ==
+docs/audit/evidence/W-581/probe_issue_ruling_actors.py
+docs/audit/evidence/W-628/mutation_probe_wi107.py
+federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py
+federal/executive/services/src/amos_federation/services/executive_core/engine.py
+federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py
+federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py
+federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py
+federal/executive/services/src/amos_federation/services/federal_judiciary/service.py
+federal/executive/services/src/amos_federation/services/governance/canary.py
+federal/executive/services/src/amos_federation/services/governance/factories.py
+federal/executive/services/src/amos_federation/services/governance/federation.py
+federal/executive/services/src/amos_federation/services/governance/state_runtime.py
+federal/executive/services/src/amos_federation/services/government_services/service.py
+federal/executive/services/src/amos_federation/services/national_registry/service.py
+federal/executive/services/src/amos_federation/services/state_registry/service.py
+
+عدد الملفات: 15
+
+الملفات الثلاثة (القياسُ المتوقعُ من W-665 §1.1):
+federal/executive/services/src/amos_federation/services/state_treasury/service.py: 0
+federal/executive/services/src/amos_federation/services/national_economy/service.py: 0
+federal/executive/services/src/amos_federation/services/federal_state/service.py: 0

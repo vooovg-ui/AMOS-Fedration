@@ -1,0 +1,239 @@
+F.FF.F.                                                                  [100%]
+=================================== FAILURES ===================================
+________________ test_التعشيشغيرالمستثنىيرفضقبلأيحارسوقبلأيإذن _________________
+
+حدّ = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7fa920807ec0>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-29/test_التعشيشغيرالمستثنىيرفضقبل0/IDEMPOTENCY.compensation.json')))
+بوابة = <core.sovereignty.gateway.SovereignGateway object at 0x7fa920807ec0>
+سجلُّ_الذرّيّة = IdempotencyLedger(path=PosixPath('/tmp/pytest-of-user/pytest-29/test_التعشيشغيرالمستثنىيرفضقبل0/IDEMPOTENCY.json'))
+حالةُ_الدولة = {'treasury/account-A': 'MUTATED', 'gov/case-A/row': 'MUTATED', 'tasks/task-A/row': 'NONE'}
+
+    def test_التعشيشغيرالمستثنىيرفضقبلأيحارسوقبلأيإذن(
+        حدّ: SovereignExecutionBoundary,
+        بوابة: SovereignGateway,
+        سجلُّ_الذرّيّة: IdempotencyLedger,
+        حالةُ_الدولة: dict[str, str],
+    ) -> None:
+        """عبورٌ داخلَ عبورٍ نشطٍ بفعلٍ غيرِ مستثنًى يُرفَضُ — فلا `decide` ولا قيدَ ولا أثرَ.
+    
+        والدليلُ مقيسٌ لا مُفترَضٌ: سجلُّ البوابةِ يحملُ حكمَ الخارجيِّ وحدَه،
+        ودفترُ الذرّيّةِ لا يعرفُ مفتاحَ الداخلِ، والحالةُ لم يمسَّها إلا الخارجيُّ.
+        (وهذا الفحصُ نفسُه يقتلُ طفرةَ حذفِ الفحصِ عندَ دخولِ execute.)
+        """
+        مفتاح_الخارجي = _مفتاح("outer-1")
+        مفتاح_الداخل = _مفتاح("inner-1")
+        أثر_الخارجي = _أثر("gov/case-A/row")
+        أثر_الداخل = _أثر("treasury/account-A")
+        أخطاء: list[BaseException] = []
+    
+        def مطبِّقٌ_يعشِّش(effect: SovereignEffect) -> None:
+            try:
+                حدّ.execute(
+                    _طلب(action="credit_account", target="treasury/account-A"),
+                    declared_effects=(أثر_الداخل,),
+                    planner=lambda _: (أثر_الداخل,),
+                    applier=lambda e: حالةُ_الدولة.__setitem__(e.resource, "MUTATED"),
+                    operation_key=مفتاح_الداخل,
+                    compensators=(_معوّض(حالةُ_الدولة, أثر_الداخل),),
+                )
+            except BaseException as exc:  # noqa: BLE001 — يُلتقطُ للقياسِ لا للاستمرارِ
+                أخطاء.append(exc)
+            حالةُ_الدولة[effect.resource] = "MUTATED"
+    
+        حصيلة = حدّ.execute(
+            _طلب(action="gov.case.open", target="gov/case-A"),
+            declared_effects=(أثر_الخارجي,),
+            planner=lambda _: (أثر_الخارجي,),
+            applier=مطبِّقٌ_يعشِّش,
+            operation_key=مفتاح_الخارجي,
+            compensators=(_معوّض(حالةُ_الدولة, أثر_الخارجي),),
+        )
+        assert حصيلة.is_replay is False
+    
+        # الرفضُ صريحٌ وبالصنفِ المُعلَنِ لا بعمومِ الاستثناءِ
+>       assert len(أخطاء) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests/sovereignty/test_wi115_nesting_detector.py:184: AssertionError
+____________________ test_فتحالقضيةليسبابالكلعبورغيرالمستثن ____________________
+
+حدّ = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7fa9208310a0>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-29/test_فتحالقضيةليسبابالكلعبورغي0/IDEMPOTENCY.compensation.json')))
+حالةُ_الدولة = {'treasury/account-A': 'MUTATED', 'gov/case-A/row': 'MUTATED', 'tasks/task-A/row': 'NONE'}
+
+    def test_فتحالقضيةليسبابالكلعبورغيرالمستثن(
+        حدّ: SovereignExecutionBoundary,
+        حالةُ_الدولة: dict[str, str],
+    ) -> None:
+        """طاردُ طفرةِ توسيعِ الاستثناءِ إلى اسمٍ مفردٍ: `gov.case.open` خارجيٌّ لا يعفي غيرَ زوجِه.
+    
+        لو اتُّسِعَ الاستثناءُ إلى اسمِ الفعلِ الخارجيِّ وحدَه لَعبرَ `credit_account`
+        داخلَ إطارِ `open_case` — وهذا الفحصُ يقتلُ تلك الطفرةَ.
+        """
+        أثر_الخارجي = _أثر("gov/case-A/row")
+        أثر_الداخل = _أثر("treasury/account-A")
+        أخطاء: list[BaseException] = []
+    
+        def مطبِّقٌ_غيرُ_مستثنًى(effect: SovereignEffect) -> None:
+            try:
+                حدّ.execute(
+                    _طلب(action="credit_account", target="treasury/account-A"),
+                    declared_effects=(أثر_الداخل,),
+                    planner=lambda _: (أثر_الداخل,),
+                    applier=lambda e: حالةُ_الدولة.__setitem__(e.resource, "MUTATED"),
+                    operation_key=_مفتاح("inner-3"),
+                    compensators=(_معوّض(حالةُ_الدولة, أثر_الداخل),),
+                )
+            except BaseException as exc:  # noqa: BLE001
+                أخطاء.append(exc)
+            حالةُ_الدولة[effect.resource] = "MUTATED"
+    
+        حدّ.execute(
+            _طلب(action="gov.case.open", target="gov/case-A"),
+            declared_effects=(أثر_الخارجي,),
+            planner=lambda _: (أثر_الخارجي,),
+            applier=مطبِّقٌ_غيرُ_مستثنًى,
+            operation_key=_مفتاح("outer-3"),
+            compensators=(_معوّض(حالةُ_الدولة, أثر_الخارجي),),
+        )
+>       assert len(أخطاء) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests/sovereignty/test_wi115_nesting_detector.py:276: AssertionError
+_________________ test_إطارالأبالباقيبعدالرفضوبعدالعبورالمستثن _________________
+
+حدّ = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7fa920833ce0>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-29/test_إطارالأبالباقيبعدالرفضوبع0/IDEMPOTENCY.compensation.json')))
+حالةُ_الدولة = {'treasury/account-A': 'MUTATED', 'gov/case-A/row': 'NONE', 'tasks/task-A/row': 'NONE'}
+
+    def test_إطارالأبالباقيبعدالرفضوبعدالعبورالمستثن(
+        حدّ: SovereignExecutionBoundary,
+        حالةُ_الدولة: dict[str, str],
+    ) -> None:
+        """إطارُ الأبِ لا يُمحى برفضِ ولدٍ ولا بعودةِ ولدٍ مستثنًى — والحمايةُ باقيةٌ حتى النهاية.
+    
+        (يقتلُ طفرةَ الضبطِ إلى None بدلَ الاستعادةِ بالرمزِ: لو مُحِيَ إطارُ الأبِ
+        بعدَ ولدٍ مستثنًى لَما رُفِضَ الثاني.)
+        """
+        أثر_الداخل = _أثر("tasks/task-A/row")
+        أثر_الداخل_المرفوض = _أثر("treasury/account-A")
+        رفضٌ: list[int] = []
+    
+        def مطبِّقٌ_مُوالٍ(effect: SovereignEffect) -> None:
+            # (1) ولدٌ غيرُ مستثنًى: يُرفَضُ
+            with pytest.raises(NestedSovereignCallError):
+                حدّ.execute(
+                    _طلب(action="credit_account", target="treasury/account-A"),
+                    declared_effects=(أثر_الداخل_المرفوض,),
+                    planner=lambda _: (أثر_الداخل_المرفوض,),
+                    applier=lambda e: حالةُ_الدولة.__setitem__(e.resource, "MUTATED"),
+                    operation_key=_مفتاح("inner-4a"),
+                    compensators=(_معوّض(حالةُ_الدولة, أثر_الداخل_المرفوض),),
+                )
+            رفضٌ.append(1)
+            # (2) ولدٌ مستثنًى: يعبرُ ويَعودُ
+            حصيلة_مستثنًى = حدّ.execute(
+                _طلب(action="task.submit", target="tasks/task-A"),
+                declared_effects=(أثر_الداخل,),
+                planner=lambda _: (أثر_الداخل,),
+                applier=lambda e: None,
+                operation_key=_مفتاح("inner-4b"),
+                compensators=(_معوّض(حالةُ_الدولة, أثر_الداخل),),
+            )
+            assert حصيلة_مستثنًى.is_replay is False
+            # (3) بعدَ الولدِ المستثنَّى: الحمايةُ باقيةٌ — ولدٌ غيرُ مستثنًى يُرفَضُ من جديدٍ
+            with pytest.raises(NestedSovereignCallError):
+                حدّ.execute(
+                    _طلب(action="credit_account", target="treasury/account-A"),
+                    declared_effects=(أثر_الداخل_المرفوض,),
+                    planner=lambda _: (أثر_الداخل_المرفوض,),
+                    applier=lambda e: حالةُ_الدولة.__setitem__(e.resource, "MUTATED"),
+                    operation_key=_مفتاح("inner-4c"),
+                    compensators=(_معوّض(حالةُ_الدولة, أثر_الداخل_المرفوض),),
+                )
+            رفضٌ.append(2)
+            حالةُ_الدولة[effect.resource] = "MUTATED"
+    
+>       حدّ.execute(
+            _طلب(action="gov.case.open", target="gov/case-A"),
+            declared_effects=(_أثر("gov/case-A/row"),),
+            planner=lambda _: (_أثر("gov/case-A/row"),),
+            applier=مطبِّقٌ_مُوالٍ,
+            operation_key=_مفتاح("outer-4"),
+            compensators=(_معوّض(حالةُ_الدولة, _أثر("gov/case-A/row")),),
+        )
+
+tests/sovereignty/test_wi115_nesting_detector.py:328: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/enforcement_boundary.py:467: in execute
+    ).run_once(
+core/sovereignty/idempotency.py:886: in run_once
+    return self._run_once_inner(
+core/sovereignty/idempotency.py:923: in _run_once_inner
+    value = execute()
+            ^^^^^^^^^
+core/sovereignty/enforcement_boundary.py:448: in _under_permit
+    produced = self.policy_enforcement_point.enforce(
+core/sovereignty/enforcement.py:377: in enforce
+    applier(effect)
+core/sovereignty/enforcement_boundary.py:433: in _tracked
+    routed(effect)
+core/sovereignty/enforcement_boundary.py:723: in route
+    applier(effect)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+effect = SovereignEffect(kind=<EffectKind.WRITE: 'WRITE'>, resource='gov/case-A/row', detail='قياس', payload_digest=None)
+
+    def مطبِّقٌ_مُوالٍ(effect: SovereignEffect) -> None:
+        # (1) ولدٌ غيرُ مستثنًى: يُرفَضُ
+>       with pytest.raises(NestedSovereignCallError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE NestedSovereignCallError
+
+tests/sovereignty/test_wi115_nesting_detector.py:295: Failed
+________________ test_السياقيستعادبعدرفضمتعششوالعبورالتالييعمل _________________
+
+حدّ = SovereignExecutionBoundary(gateway=<core.sovereignty.gateway.SovereignGateway object at 0x7fa920805af0>, idempotency_l...Journal(path=PosixPath('/tmp/pytest-of-user/pytest-29/test_السياقيستعادبعدرفضمتعششوا0/IDEMPOTENCY.compensation.json')))
+حالةُ_الدولة = {'treasury/account-A': 'MUTATED', 'gov/case-A/row': 'MUTATED', 'tasks/task-A/row': 'NONE'}
+
+    def test_السياقيستعادبعدرفضمتعششوالعبورالتالييعمل(
+        حدّ: SovereignExecutionBoundary,
+        حالةُ_الدولة: dict[str, str],
+    ) -> None:
+        """بعدَ عبورٍ رُفِضَ تعشيشُهُ (ورُدَّ أثرُهُ)، السياقُ نظيفٌ والعبورُ التاليُ يعملُ."""
+        أثر_الخارجي = _أثر("gov/case-A/row")
+        أثر_الداخل = _أثر("treasury/account-A")
+        رُفِظَ = False
+    
+        def مطبِّقٌ_يرفض(effect: SovereignEffect) -> None:
+            nonlocal رُفِظَ
+            try:
+                حدّ.execute(
+                    _طلب(action="credit_account", target="treasury/account-A"),
+                    declared_effects=(أثر_الداخل,),
+                    planner=lambda _: (أثر_الداخل,),
+                    applier=lambda e: حالةُ_الدولة.__setitem__(e.resource, "MUTATED"),
+                    operation_key=_مفتاح("inner-5"),
+                    compensators=(_معوّض(حالةُ_الدولة, أثر_الداخل),),
+                )
+            except NestedSovereignCallError:
+                رُفِظَ = True
+            حالةُ_الدولة[effect.resource] = "MUTATED"
+    
+        حدّ.execute(
+            _طلب(action="gov.case.open", target="gov/case-A"),
+            declared_effects=(أثر_الخارجي,),
+            planner=lambda _: (أثر_الخارجي,),
+            applier=مطبِّقٌ_يرفض,
+            operation_key=_مفتاح("outer-5"),
+            compensators=(_معوّض(حالةُ_الدولة, أثر_الخارجي),),
+        )
+>       assert رُفِظَ is True
+E       assert False is True
+
+tests/sovereignty/test_wi115_nesting_detector.py:393: AssertionError
+=========================== short test summary info ============================
+FAILED tests/sovereignty/test_wi115_nesting_detector.py::test_التعشيشغيرالمستثنىيرفضقبلأيحارسوقبلأيإذن
+FAILED tests/sovereignty/test_wi115_nesting_detector.py::test_فتحالقضيةليسبابالكلعبورغيرالمستثن
+FAILED tests/sovereignty/test_wi115_nesting_detector.py::test_إطارالأبالباقيبعدالرفضوبعدالعبورالمستثن
+FAILED tests/sovereignty/test_wi115_nesting_detector.py::test_السياقيستعادبعدرفضمتعششوالعبورالتالييعمل
+4 failed, 3 passed in 0.20s
