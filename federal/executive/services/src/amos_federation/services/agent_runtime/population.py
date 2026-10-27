@@ -24,7 +24,10 @@ R4: كان هذا الملفّ قبل اليوم سجل هوية مستقلًّ�
 كمرآة توافُقية **مهجورة** لقرّاء خارج المستودع، ولا يُقرأ منها هنا شيء.
 """
 
+import hashlib
 import json
+import logging
+import secrets
 from datetime import UTC, datetime
 from typing import Any
 
@@ -33,17 +36,53 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from amos_federation.common.database import get_database_url
 from amos_federation.services.executive_core.agent_identity import (
+    ACTION_SPAWN_AGENT,
     CANONICAL_IDENTITY_TABLE,
     PROJECTION_TABLE,
     UNKNOWN,
     AgentIdentity,
+    DuplicateAgentIdentityError,
+    _delete_identity_row,
+    _register_identity_core,
+    _set_lifecycle_state_core,
     get_identity,
     list_identities,
     new_agent_id,
     population_projection,
-    register_identity,
     set_lifecycle_state,
 )
+from amos_federation.services.executive_core.sovereignty_bridge import (
+    ConstitutionalAuthorizer,
+    compensator,
+    declared_effect,
+    operation_key,
+)
+
+_logger = logging.getLogger(__name__)
+
+# ── E1 · أفعالُ عبورِ أسطحِ السكّانِ (W-699 · تصميمُ E1 المعتمَدِ § 2.2) ────────
+
+#: تحديثُ صفِّ السكّانِ (المرآةِ التوافُقيةِ) — المحجوزُ منَ المستوى 3
+#: (إسقاطُ هويّةٍ · تصميمُ E1 § 2.2).
+ACTION_UPDATE_POPULATION_STATE = "update_population_state"
+
+#: تسجيلُ خطوةِ منهجٍ — المحجوزُ منَ المستوى 1 (صنفُ train_model · التصميمُ § 2.2).
+ACTION_RECORD_CURRICULUM_STEP = "record_curriculum_step"
+
+#: فاعلُ أسطحِ السكّانِ — سابقةُ WI-082/Q-15 ①.
+AGENT_RUNTIME_ACTOR = "EXECUTIVE"
+
+#: المُصرّحُ الافتراضيُّ — كائنٌ واحدٌ للوحدةِ (سابقةُ W-532/Q-62 ②).
+_DEFAULT_AUTHORIZER: ConstitutionalAuthorizer | None = None
+
+
+def _default_authorizer() -> ConstitutionalAuthorizer:
+    """المُصرّحُ الافتراضيُّ بفاعلٍ مسمّى — واحدٌ للوحدةِ (سابقةُ W-532)."""
+    global _DEFAULT_AUTHORIZER
+    if _DEFAULT_AUTHORIZER is None:
+        _DEFAULT_AUTHORIZER = ConstitutionalAuthorizer(actor=AGENT_RUNTIME_ACTOR)
+    return _DEFAULT_AUTHORIZER
+
 
 #: حالة «بُذِر ولم يُستخدم» — وجودها وحده ليس دليلًا تاريخيًّا على الاستخدام.
 SEED_LIFECYCLE_STATE = "registered"
@@ -176,6 +215,7 @@ class PopulationRegistry:
         allowed_tools: list[str] | None = None,
         token_budget: int = 10000,
         agent_id: str | None = None,
+        authorizer: ConstitutionalAuthorizer | None = None,
     ) -> dict[str, Any]:
         """تسجيل وكيل: الهوية تُنشأ في السجل الكانوني، والملفّ التدريبي هنا.
 
@@ -183,33 +223,86 @@ class PopulationRegistry:
         `agent_population` وحده، فينشأ وكيل لا يعرفه مسار التنفيذ. الآن
         المعرّف والهوية يُنشآن مرّة واحدة في `agents`، ثم يُكتب هنا صفّ ملفّ
         بنفس المعرّف (مع مرآة توافُقية مهجورة للأعمدة المكرّرة).
+
+        عبورٌ واحدٌ (W-699 · تصميمُ E1 § 2.2/§ 2.3): إنشاءُ الهويّةِ في السجلِّ
+        الكانونيِّ وإنشاءُ صفِّ الملفِّ التدريبيِّ أثرانِ معلنانِ في عبورٍ واحدٍ
+        بالفعلِ «spawn_agent» (المحجوزِ منَ المستوى 3 — سابقةُ WI-082/Q-15 ①)
+        عبرَ نواةِ كتابةِ الهويّةِ الصافيةِ فلا تعشيشَ، ومعوّضانِ يحذفانِ الصفّينِ.
+        والكتابتانِ على مُحرِّكي قواعدَ مختلفينِ فلا معاملةً واحدةً — وهذا مقيسٌ
+        ومُعلنٌ والمعوّضانِ هما ضمانُ العكسِ (تصميمُ E1 § 2.5 «ما أمكنَ»).
         """
-        identity = register_identity(
-            agent_id or new_agent_id(),
-            name=name,
-            role=role,
-            permissions=permissions or [],
-            allowed_tools=allowed_tools or [],
-            token_budget=token_budget,
+        actor_authorizer = authorizer if authorizer is not None else _default_authorizer()
+        resolved_agent_id = agent_id or new_agent_id()
+        # قاعدةُ نطاقٍ **قبلَ الحدِّ** (قراءةٌ لا كتابةٌ): رفضٌ مبكّرٌ صريحٌ
+        # للتكرارِ — نفسُ عقدِ `register_identity` العلنيِّ.
+        if get_identity(resolved_agent_id) is not None:
+            raise DuplicateAgentIdentityError(f"هوية موجودة فعلًا بهذا المعرّف: {resolved_agent_id}")
+
+        target = f"agent:{resolved_agent_id}"
+        identity_effect = declared_effect(
+            "CREATE",
+            f"{target}/identity",
+            f"هويّةُ وكيلٍ «{name}» في السجلِّ الكانونيِّ الواحد",
         )
-        session = self._Session()
-        try:
-            session.add(
-                AgentPopulationModel(
-                    agent_id=identity.agent_id,
+        profile_effect = declared_effect(
+            "CREATE",
+            f"{target}/population-profile",
+            f"ملفٌّ تدريبيٌّ وإسقاطٌ سكّانيٌّ للوكيلِ «{resolved_agent_id}»",
+        )
+
+        def _apply(effect: Any) -> None:
+            # الحدُّ يمرّرُ كلَّ أثرٍ على حدةٍ — كلُّ أثرٍ يُطبِّقُ كتابتَهُ لا غيرَ.
+            if effect.signature == identity_effect.signature:
+                _register_identity_core(
+                    resolved_agent_id,
+                    name,
+                    role,
+                    permissions=permissions,
+                    allowed_tools=allowed_tools,
+                    lifecycle_state=SEED_LIFECYCLE_STATE,
+                    token_budget=token_budget,
+                    tenant_id="default",
+                )
+            elif effect.signature == profile_effect.signature:
+                _create_population_profile_core(
+                    self,
+                    resolved_agent_id,
                     name=name,
                     role=role,
                     category=category,
-                    state=identity.lifecycle_state,
-                    permissions=json.dumps(permissions or []),
-                    allowed_tools=json.dumps(allowed_tools or []),
+                    permissions=permissions,
+                    allowed_tools=allowed_tools,
                     token_budget=token_budget,
                 )
-            )
-            session.commit()
-        finally:
-            session.close()
-        return self.get_agent(identity.agent_id) or identity.as_dict()
+
+        actor_authorizer.guard_declared(
+            ACTION_SPAWN_AGENT,
+            target,
+            declared_effects=(identity_effect, profile_effect),
+            applier=_apply,
+            # نطاقٌ مميّزٌ عن عبورِ `register_identity` المباشرِ (agents.identity.spawn):
+            # فعبورُ الملفِّ التدريبيِّ عمليّةٌ أوسعُ من إنشاءِ الهويّةِ وحدها، ولا
+            # يُرفضُ عبورٌ مشروعٌ كإعادةِ إذنٍ في الثانيةِ نفسِها.
+            operation_key=operation_key("agents.population.spawn", resolved_agent_id),
+            compensators=(
+                compensator(
+                    identity_effect.signature,
+                    lambda: _delete_identity_row(resolved_agent_id),
+                    "حذفُ صفِّ الهويّةِ المُنشَأ — عكسٌ حقيقيٌّ للإنشاءِ",
+                ),
+                compensator(
+                    profile_effect.signature,
+                    lambda: _delete_population_profile_core(self, resolved_agent_id),
+                    "حذفُ صفِّ الملفِّ التدريبيِّ المُنشَأ — عكسٌ حقيقيٌّ للإنشاءِ",
+                ),
+            ),
+        )
+        return self.get_agent(resolved_agent_id) or {
+            "agent_id": resolved_agent_id,
+            "name": name,
+            "role": role,
+            "status": SEED_LIFECYCLE_STATE,
+        }
 
     def seed_initial_population(self) -> list[dict[str, Any]]:
         """بذر السكان الأوائل (20 وكيل)."""
@@ -268,27 +361,176 @@ class PopulationRegistry:
             rows = [row for row in rows if row["category"] == category]
         return rows
 
-    def update_state(self, agent_id: str, new_state: str, **extra) -> bool:
-        """تغيير دورة الحياة في الحقل الكانوني، مع مرآة توافُقية في جدول السكّان."""
-        canonical_updated = set_lifecycle_state(agent_id, new_state)
-        session = self._Session()
-        try:
-            agent = (
-                session.query(AgentPopulationModel)
-                .filter(AgentPopulationModel.agent_id == agent_id)
-                .first()
+    def update_state(
+        self,
+        agent_id: str,
+        new_state: str,
+        authorizer: ConstitutionalAuthorizer | None = None,
+        **extra,
+    ) -> bool:
+        """تغيير دورة الحياة في الحقل الكانوني، مع مرآة توافُقية في جدول السكّان.
+
+        تحقّقٌ مسبقٌ ثمَّ عبورانِ متعاقبانِ (W-699 · تصميمُ E1 § 2.2): الأثرُ
+        المُعلنُ لعبورِ هذا السطحِ هو كتابةُ صفِّ السكّانِ وحدَه (المرآة) بالفعلِ
+        «update_population_state» المحجوزِ منَ المستوى 3، والانتقالُ الكانونيُّ
+        يبقى عبرَ العبورِ العلنيِّ «set_lifecycle_state» بفعلِهِ الموجَّهِ
+        (contain_agent/activate_agent). والتحقّقُ المسبقُ بطلبِ إذنٍ على فعلِ
+        السطحِ نفسِهِ **قبلَ أيِّ كتابةٍ** يمنعُ الرفضَ المتأخِّرَ: فلا كتابةً
+        كانونيّةً تُلزَمُ ثمَّ تُرفَضُ المرآةُ (الصنفُ 1 منَ التصميمِ § 3) ولا
+        مرآةً تكذبُ بـ«active» والكانونُ محتوى.
+        """
+        actor_authorizer = authorizer if authorizer is not None else _default_authorizer()
+        target = f"population:{agent_id}"
+        # لقطةُ الحقولِ السابقةِ (قراءةٌ قبلَ الحدِّ) — تُبنى منها بصمةُ الحمولةِ
+        # في المفتاحِ والموردِ، ويُبنى منها المعوّضُ (لا من قراءةٍ لاحقةٍ).
+        profile = self._profile(agent_id)
+        previous_state = profile.state if profile is not None else ""
+        previous_graduated_at = profile.graduated_at if profile is not None else None
+        previous_extra = {
+            k: getattr(profile, k) for k in extra if profile is not None and hasattr(profile, k)
+        }
+        payload_fingerprint = hashlib.sha256(
+            json.dumps(
+                {"state": new_state, **{k: _jsonable(v) for k, v in extra.items()}},
+                sort_keys=True,
+                default=str,
+            ).encode("utf-8")
+        ).hexdigest()
+
+        # ناجحٌ أو غيابُ سجلٍّ يعنيانِ المحاولةَ الأولى فلا يتغيّرُ المفتاحُ.
+        from core.sovereignty.idempotency import OperationStatus
+
+        mirror_prior = actor_authorizer.boundary.idempotency_ledger.get(
+            operation_key(
+                "agents.population.state",
+                f"{agent_id}/{previous_state}->{new_state}.{payload_fingerprint[:16]}",
             )
-            if agent is not None:
-                agent.state = new_state
-                if new_state == "employed" and not agent.graduated_at:
-                    agent.graduated_at = datetime.now(UTC)
-                for k, v in extra.items():
-                    if hasattr(agent, k):
-                        setattr(agent, k, v)
-                session.commit()
-            return canonical_updated or agent is not None
-        finally:
-            session.close()
+        )
+        attempt_seq = (
+            len(mirror_prior.attempts)
+            if mirror_prior is not None and mirror_prior.status == OperationStatus.FAILED_RETRYABLE
+            else 0
+        )
+        composite_operation_id = f"{payload_fingerprint[:16]}.{attempt_seq}"
+
+        mirror_effect = declared_effect(
+            "WRITE",
+            f"{target}/state.{previous_state}->{new_state}.{payload_fingerprint[:16]}",
+            f"تحديثُ صفِّ السكّانِ (المرآةِ) للوكيلِ «{agent_id}» إلى «{new_state}»",
+        )
+
+        # التحقّقُ المسبقُ على فعلِ السطحِ نفسِهِ — رفضٌ نظيفٌ قبلَ أيِّ كتابةٍ
+        # (يرتفعُ SovereigntyViolation عندَ المستوى 3 وما فوقَ).
+        actor_authorizer.request_permit(
+            ACTION_UPDATE_POPULATION_STATE,
+            target,
+            declared_effects=(mirror_effect,),
+        )
+
+        # لقطةُ الحالةِ الكانونيّةِ قبلَ العبورِ الكانونيِّ — يحتاجها معوّضُ
+        # المرآةِ: إن نجحَ الكانونيُّ وفشلَتِ المرآةُ فلا يبقى الانتقالُ
+        # الكانونيُّ قائمًا والعمليةُ كلُّها فاشلةٌ (تعويضٌ منسَّقٌ · E1 § 2.3).
+        canonical_identity = get_identity(agent_id)
+        canonical_previous = (
+            canonical_identity.lifecycle_state if canonical_identity is not None else None
+        )
+
+        # هويةُ العمليةِ المركَّبةِ (تصميمُ E1 § 2.2): بصمةُ الحمولةِ المطلوبةِ +
+        # ترقيمُ المحاولةِ — «عمليةٌ جديدةٌ على الكيانِ نفسِهِ ⇒ مفتاحٌ جديدٌ» (§ 2.4):
+        # فإعادةُ إرسالِ التحديثِ نفسِهِ إعادةٌ واحدةٌ على المفتاحِ نفسِهِ، ومحاولةٌ
+        # لاحقةٌ بعدَ فشلٍ قابلٍ للإعادةِ (عُوّضَ أثرُها كاملًا) عمليةٌ جديدةٌ تُكمِلُ
+        # البدءَ ما بدأَهُ التعويضُ. المرجعُ سجلُّ عبورِ المرآةِ: محاولةٌ فاشلةٌ
+        # قابلةٌ للإعادةِ ترقّمُ محاولةً جديدةً (يتغيّرُ المفتاحُ الكانونيُّ)، وعبورٌ
+
+        # الانتقالُ الكانونيُّ عبرَ العبورِ العلنيِّ (فعلٌ موجَّهٌ · المستوى 4 للاستعادة).
+        canonical_updated = set_lifecycle_state(
+            agent_id,
+            new_state,
+            authorizer=actor_authorizer,
+            operation_id=composite_operation_id,
+        )
+
+        # العمليّةُ الفارغةُ لا تُقاسُ (سابقةُ `set_lifecycle_state` · تصميمُ E1
+        # § 2.4): إعادةُ إرسالِ تحديثٍ وقعَ فعلًا — الصفُّ يحملُ الحالةَ والقيمَ
+        # المطلوبةَ — لا عبورَ ولا كتابةً ولا مفتاحَ ذرّيّةٍ لما لم يقعْ، فلا
+        # يُبتلَعُ الانتقالُ إعادةً ولا تُكرَّرُ كتابتُهُ (الصنفُ 4).
+        mirror_already_applied = (
+            profile is not None
+            and previous_state == new_state
+            and all(str(getattr(profile, k, None)) == str(v) for k, v in extra.items())
+        )
+
+        # عبورُ كتابةِ المرآةِ — الأثرُ المُعلنُ الوحيدُ لهذا السطحِ (تصميمُ E1 § 2.2).
+        if not mirror_already_applied:
+
+            def _apply(_effect: Any) -> None:
+                _update_population_row_core(
+                    self,
+                    agent_id,
+                    new_state=new_state,
+                    extras=extra,
+                )
+
+            def _compensate_mirror() -> None:
+                _restore_population_snapshot_core(
+                    self,
+                    agent_id,
+                    previous_state=previous_state,
+                    previous_graduated_at=previous_graduated_at,
+                    previous_extra=previous_extra,
+                )
+                # وتعويضُ الانتقالِ الكانونيِّ المرافقِ (نجحَ الكانونيُّ وفشلَتِ
+                # المرآةُ): عبورُ المرآةِ آخرُ العبورينِ، فمعوّضُهُ يعكِسُ أثرَهُ
+                # **وأثرَ العبورِ الكانونيِّ الذي نجحَ قبلَهُ** — وإلا بقيَ
+                # الكانونُ قد انتقلَ والعمليةُ كلُّها فاشلةٌ (E1 § 2.3:
+                # معوّضٌ لكلِّ أثرٍ مُعلنٍ في العمليةِ الواحدةِ).
+                if canonical_previous is not None and canonical_previous != new_state:
+                    _set_lifecycle_state_core(agent_id, canonical_previous)
+
+            try:
+                actor_authorizer.guard_declared(
+                    ACTION_UPDATE_POPULATION_STATE,
+                    target,
+                    declared_effects=(mirror_effect,),
+                    applier=_apply,
+                    operation_key=operation_key(
+                        "agents.population.state",
+                        f"{agent_id}/{previous_state}->{new_state}.{payload_fingerprint[:16]}",
+                    ),
+                    compensators=(
+                        compensator(
+                            mirror_effect.signature,
+                            _compensate_mirror,
+                            "إرجاعُ لقطةِ صفِّ السكّانِ وعكسُ الانتقالِ الكانونيِّ المرافقِ",
+                        ),
+                    ),
+                )
+            except Exception as exc:
+                # فشلَ عبورُ المرآةِ والحدُّ لم يُشغّلْ معوّضَهُ (أثرٌ واحدٌ لا
+                # يُتتبَّعُ مُطبَّقًا إلّا إذا عادَ مُطبِّقُهُ — والكاتبُ قد يكتبُ
+                # جزئيًّا ثمَّ يرفعُ، فيقعُ الأثرُ فعلًا دونَ تتبُّعٍ منَ الحدِّ):
+                # يُعوّضُ السطحُ بنفسِهِ **الأثرينِ معًا** (تعويضٌ منسَّقٌ · E1
+                # § 2.3): إرجاعُ لقطةِ صفِّ السكّانِ — استعادةٌ آمنةٌ وإن لم يقعِ
+                # الكتابُ (إرجاعُ الحالةِ إلى حالِها) وعكسٌ حقيقيٌّ إن وقعَ — وعكسُ
+                # الانتقالِ الكانونيِّ الذي نجحَ قبلَهُ، فلا يبقى الكانونُ قد
+                # انتقلَ والعمليةُ كلُّها فاشلةٌ. ثمَّ يُعادُ رفعُ الانكسارِ كما هو
+                # لا يُبتلَعُ.
+                from core.sovereignty.idempotency import IdempotencyError
+
+                if not isinstance(exc, IdempotencyError):
+                    raise
+                if profile is not None:
+                    _restore_population_snapshot_core(
+                        self,
+                        agent_id,
+                        previous_state=previous_state,
+                        previous_graduated_at=previous_graduated_at,
+                        previous_extra=previous_extra,
+                    )
+                if canonical_previous is not None and canonical_previous != new_state:
+                    _set_lifecycle_state_core(agent_id, canonical_previous)
+                raise
+        return canonical_updated or profile is not None
 
     def population_stats(self) -> dict[str, Any]:
         """إحصاءات السكّان مشتقّة من السجل الكانوني — لا عدّاد ثانٍ."""
@@ -459,35 +701,76 @@ class AgentSchool:
         PopulationBase.metadata.create_all(self._engine)
         self._Session = sessionmaker(bind=self._engine, autoflush=False, expire_on_commit=False)
 
-    def take_step(self, agent_id: str, step: int, score: int, notes: str = "") -> dict[str, Any]:
-        """تسجيل نتيجة خطوة من المنهج."""
+    def take_step(
+        self,
+        agent_id: str,
+        step: int,
+        score: int,
+        notes: str = "",
+        result_id: str | None = None,
+        authorizer: ConstitutionalAuthorizer | None = None,
+    ) -> dict[str, Any]:
+        """تسجيل نتيجة خطوة من المنهج.
+
+        الإلحاقُ لا يقعُ إلّا عبرَ الحدِّ السياديِّ بالفعلِ «record_curriculum_step»
+        (W-699 · تصميمُ E1 § 2.2): فعلٌ محجوزٌ منَ المستوى 1 (صنفُ train_model)،
+        ومفتاحُ الذرّيّةِ من (الوكيلِ، الخطوةِ، النتيجةِ) — فإعادةُ المحاولةِ بذاتِ
+        المُعرِّفِ إعادةٌ واحدةٌ ولا يُلحَقُ صفٌّ ثانٍ.
+        """
         if step < 1 or step > 6:
             return {"error": "step_out_of_range"}
 
         curriculum = self.CURRICULUM[step - 1]
         passed = score >= curriculum["pass_threshold"]
+        actor_authorizer = authorizer if authorizer is not None else _default_authorizer()
+        if result_id is None:
+            # مُعرِّفُ نتيجةٍ (لا مُعرِّفَ هويةٍ): «uuid» ممنوعٌ في هذه الوحدةِ بحارسٍ
+            # ثابتٍ (لا توليدَ هويةٍ محليًّا) — فالمُعرِّفُ هنا مُميِّزُ عمليّةٍ فقط.
+            result_id = secrets.token_hex(16)
 
-        session = self._Session()
-        try:
-            result = SchoolResultModel(
-                agent_id=agent_id,
-                step=curriculum["name"],
+        target = f"curriculum:{agent_id}"
+        effect = declared_effect(
+            "CREATE",
+            f"{target}/{step}/{result_id}",
+            f"نتيجةُ خطوةِ منهجٍ ({curriculum['name']}) للوكيلِ «{agent_id}»",
+        )
+        appended_row_ids: list[int] = []
+
+        def _apply(_effect: Any) -> None:
+            row_id = _create_school_result_core(
+                self,
+                agent_id,
+                step_name=curriculum["name"],
                 passed=str(passed).lower(),
                 score=score,
                 notes=notes,
             )
-            session.add(result)
-            session.commit()
-            return {
-                "agent_id": agent_id,
-                "step": step,
-                "step_name": curriculum["name"],
-                "score": score,
-                "passed": passed,
-                "threshold": curriculum["pass_threshold"],
-            }
-        finally:
-            session.close()
+            if row_id is not None:
+                appended_row_ids.append(row_id)
+
+        actor_authorizer.guard_declared(
+            ACTION_RECORD_CURRICULUM_STEP,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key("agents.curriculum.step", f"{agent_id}/{step}/{result_id}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: _delete_school_results_core(self, appended_row_ids),
+                    "حذفُ صفِّ نتيجةِ منهجٍ غيرِ موجودٍ فعلًا — عكسٌ حقيقيٌّ للإلحاقِ",
+                ),
+            ),
+        )
+        return {
+            "agent_id": agent_id,
+            "step": step,
+            "step_name": curriculum["name"],
+            "score": score,
+            "passed": passed,
+            "threshold": curriculum["pass_threshold"],
+            "result_id": result_id,
+        }
 
     def get_agent_results(self, agent_id: str) -> list[dict[str, Any]]:
         """نتائج وكيل في المدرسة."""
@@ -610,3 +893,178 @@ def get_school() -> AgentSchool:
     if _school is None:
         _school = AgentSchool()
     return _school
+
+
+# ── E1 · نوى كتابةٍ صافيةٌ بلا عبورٍ (W-699 · تصميمُ E1 § 2.3) ──────────────────
+#
+# تستعملُها الأسطحُ المحروسةُ أعلاهُ في عبورِها الأعلى فلا تعشيشَ (عبورٌ داخلَ
+# مُطبِّقِ عبورٍ يرتفعُ NestedSovereignCallError). ولا تُستعملُ مباشرةً من خارجِ
+# الوحدةِ: المرجعُ العلنيُّ هو الأسطحُ المحروسةُ نفسُها.
+
+
+def _jsonable(value: Any) -> Any:
+    """تحويلٌ آمنٌ للبصمةِ — لا استثناءاتِ تسلسلٍ في المفاتيحِ.
+
+    الارتدادُ هنا **مُسجَّلٌ لا صامتٌ** (قيدُ التدقيقِ SILENT_FALLBACK):
+    القيمةُ غيرُ القابلةِ للتسلسلِ تُحوَّلُ إلى نصِّها ويُسجَّلَ التحويلُ، فلا
+    يُخفى فشلُ مصدرِ الحقيقةِ (W-027: السقّاطةُ لا تصعدُ).
+    """
+    try:
+        json.dumps(value, default=str)
+        return value
+    except (TypeError, ValueError) as _serialization_error:
+        _logger.warning(
+            "قيمةٌ لا تُتسلسلُ في بصمةِ المرآةِ (%s) — حُوِّلَتْ إلى نصِّها",
+            type(_serialization_error).__name__,
+        )
+        return str(value)
+
+
+def _create_population_profile_core(
+    registry: "PopulationRegistry",
+    agent_id: str,
+    *,
+    name: str,
+    role: str,
+    category: str,
+    permissions: list[str] | None,
+    allowed_tools: list[str] | None,
+    token_budget: int,
+) -> None:
+    """نواةُ كتابةِ إنشاءِ صفِّ الملفِّ التدريبيِّ (الإسقاطِ السكّانيِّ)."""
+    session = registry._Session()
+    try:
+        session.add(
+            AgentPopulationModel(
+                agent_id=agent_id,
+                name=name,
+                role=role,
+                category=category,
+                state=SEED_LIFECYCLE_STATE,
+                permissions=json.dumps(permissions or []),
+                allowed_tools=json.dumps(allowed_tools or []),
+                token_budget=token_budget,
+            )
+        )
+        session.commit()
+    finally:
+        session.close()
+
+
+def _delete_population_profile_core(registry: "PopulationRegistry", agent_id: str) -> bool:
+    """حذفُ صفِّ ملفٍّ تدريبيٍّ موجودٍ فعلًا — عكسٌ حقيقيٌّ للإنشاءِ (معوّضُ 1I)."""
+    session = registry._Session()
+    try:
+        row = (
+            session.query(AgentPopulationModel)
+            .filter(AgentPopulationModel.agent_id == agent_id)
+            .first()
+        )
+        if row is None:
+            return False
+        session.delete(row)
+        session.commit()
+        return True
+    finally:
+        session.close()
+
+
+def _update_population_row_core(
+    registry: "PopulationRegistry",
+    agent_id: str,
+    *,
+    new_state: str,
+    extras: dict[str, Any],
+) -> None:
+    """نواةُ كتابةِ تحديثِ صفِّ السكّانِ (المرآةِ التوافُقيةِ)."""
+    session = registry._Session()
+    try:
+        agent = (
+            session.query(AgentPopulationModel)
+            .filter(AgentPopulationModel.agent_id == agent_id)
+            .first()
+        )
+        if agent is None:
+            return
+        agent.state = new_state
+        if new_state == "employed" and not agent.graduated_at:
+            agent.graduated_at = datetime.now(UTC)
+        for k, v in extras.items():
+            if hasattr(agent, k):
+                setattr(agent, k, v)
+        session.commit()
+    finally:
+        session.close()
+
+
+def _restore_population_snapshot_core(
+    registry: "PopulationRegistry",
+    agent_id: str,
+    *,
+    previous_state: str,
+    previous_graduated_at: Any,
+    previous_extra: dict[str, Any],
+) -> None:
+    """إرجاعُ لقطةِ صفِّ السكّانِ السابقةِ — عكسٌ حقيقيٌّ للتحديثِ."""
+    session = registry._Session()
+    try:
+        agent = (
+            session.query(AgentPopulationModel)
+            .filter(AgentPopulationModel.agent_id == agent_id)
+            .first()
+        )
+        if agent is None:
+            return
+        if previous_state:
+            agent.state = previous_state
+        agent.graduated_at = previous_graduated_at
+        for k, v in previous_extra.items():
+            if hasattr(agent, k):
+                setattr(agent, k, v)
+        session.commit()
+    finally:
+        session.close()
+
+
+def _create_school_result_core(
+    school: "AgentSchool",
+    agent_id: str,
+    *,
+    step_name: str,
+    passed: str,
+    score: int,
+    notes: str,
+) -> int | None:
+    """نواةُ كتابةِ إلحاقِ نتيجةِ خطوةِ منهجٍ — تُعيدُ مُعرِّفَ الصفِّ للمعوّضِ."""
+    session = school._Session()
+    try:
+        result = SchoolResultModel(
+            agent_id=agent_id,
+            step=step_name,
+            passed=passed,
+            score=score,
+            notes=notes,
+        )
+        session.add(result)
+        session.commit()
+        return result.id
+    finally:
+        session.close()
+
+
+def _delete_school_results_core(school: "AgentSchool", row_ids: list[int]) -> bool:
+    """حذفُ صفوفِ نتائجِ منهجٍ مُلحَقةٍ فعلًا — عكسٌ حقيقيٌّ للإلحاقِ (معوّضُ 1I)."""
+    if not row_ids:
+        return False
+    session = school._Session()
+    try:
+        deleted = False
+        for row_id in row_ids:
+            row = session.get(SchoolResultModel, row_id)
+            if row is not None:
+                session.delete(row)
+                deleted = True
+        session.commit()
+        return deleted
+    finally:
+        session.close()

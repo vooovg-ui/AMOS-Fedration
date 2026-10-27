@@ -1,7 +1,7 @@
 {
  "$comment": "الهدف: جردُ مواضعِ الكتابةِ في المستودعِ وتصنيفُ ما عبرَ الحدَّ السّياديَّ وما لم يعبُر— مُخرَجُ tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039).",
  "summary": {
-  "write_sites_total": 235,
+  "write_sites_total": 234,
   "by_area": {
    "core": {
     "public": 1,
@@ -15,8 +15,8 @@
    },
    "services": {
     "public": 159,
-    "sovereign": 51,
-    "non_sovereign": 107
+    "sovereign": 59,
+    "non_sovereign": 99
    },
    "tools": {
     "public": 1,
@@ -25,9 +25,9 @@
    }
   },
   "public_write_operations": 182,
-  "sovereign_write_operations": 51,
+  "sovereign_write_operations": 59,
   "closed_legacy_paths": 7,
-  "non_sovereign_write_operations": 129,
+  "non_sovereign_write_operations": 121,
   "non_sovereign_by_file": {
    "federal/executive/services/src/amos_federation/services/national_economy/service.py": 16,
    "federal/executive/services/src/amos_federation/common/persistent.py": 13,
@@ -39,11 +39,9 @@
    "federal/executive/services/src/amos_federation/services/governance/system_life.py": 7,
    "federal/executive/services/src/amos_federation/services/state_treasury/service.py": 7,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py": 6,
-   "federal/executive/services/src/amos_federation/services/agent_runtime/health.py": 5,
    "federal/executive/services/src/amos_federation/services/governance/security.py": 5,
    "federal/executive/services/src/amos_federation/services/governance/state_runtime.py": 5,
    "federal/executive/services/src/amos_federation/common/database.py": 4,
-   "federal/executive/services/src/amos_federation/services/agent_runtime/population.py": 3,
    "federal/executive/services/src/amos_federation/common/durable_event_bus.py": 2,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py": 2,
    "federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py": 2,
@@ -378,13 +376,13 @@
    "function": "check_agent",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_delete_health_check_core",
+    "_write_health_check_core"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/agent_runtime/health.py",
@@ -392,13 +390,13 @@
    "function": "isolate",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_create_isolation_record_core",
+    "_delete_isolation_record_core"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/agent_runtime/health.py",
@@ -406,12 +404,13 @@
    "function": "log_action",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_append_isolation_log_core",
+    "_remove_isolation_log_entry_core"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/agent_runtime/health.py",
@@ -419,12 +418,13 @@
    "function": "release",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_release_isolation_record_core",
+    "_restore_isolation_record_core"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/agent_runtime/health.py",
@@ -432,13 +432,15 @@
    "function": "start_treatment",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_complete_treatment_record_core",
+    "_create_treatment_record_core",
+    "_delete_treatment_record_core",
+    "_restore_treatment_in_progress_core"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/agent_runtime/population.py",
@@ -446,13 +448,13 @@
    "function": "take_step",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_create_school_result_core",
+    "_delete_school_results_core"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/agent_runtime/population.py",
@@ -460,13 +462,13 @@
    "function": "register_agent",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_create_population_profile_core",
+    "_delete_population_profile_core"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/agent_runtime/population.py",
@@ -474,12 +476,13 @@
    "function": "update_state",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_restore_population_snapshot_core",
+    "_update_population_row_core"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/api_gateway/store.py",
@@ -498,31 +501,15 @@
   {
    "path": "federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py",
    "owner": "-",
-   "function": "_apply",
-   "ordinal": 0,
-   "public": false,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": []
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/services/executive_core/agent_identity.py",
-   "owner": "-",
    "function": "register_identity",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
+   "writes": [],
    "guarded": true,
    "closed_legacy": false,
    "writes_via": [
-    "_delete_identity_row"
+    "_delete_identity_row",
+    "_register_identity_core"
    ]
   },
   {

@@ -272,9 +272,15 @@ def test_bridge_actor_is_declared_parameter_defaulting_to_executive() -> None:
     assert isinstance(default, ast.Name) and default.id == "DEFAULT_ACTOR"
 
 
-# ── 4. مواضعُ بناءِ المُصرِّحِ: تسعةٌ تُعلِنُ فاعلَها وأربعةٌ تتَّكِلُ على الافتراض ──
+# ── 4. مواضعُ بناءِ المُصرِّحِ: ثلاثةَ عشرَ تُعلِنُ فاعلَها وأربعةٌ تتَّكِلُ على الافتراض ──
 def test_production_authorizer_sites_split_eight_declared_four_defaulted() -> None:
-    """(محدّثة في W-696 · تصحيحُ حمرةِ CI على PR #167 · شِفرةُ E1/WI-119 بقرارِ Q-73):
+    """(محدّثة في W-699 · شِفرةُ E1/WI-119 النصفُ الثاني · بقرارِ Q-73): المُصرِّحُ
+    الثانيَ عشرَ والثالثَ عشرَ المُعلِنَانِ فاعلَهُ — المُفوِّضانِ الكسولانِ في
+    agent_runtime/health.py وagent_runtime/population.py (AGENT_RUNTIME_ACTOR=
+    "EXECUTIVE" · بمفاتيحِ مُصرِّحٍ فرديّةٍ على نمطِ W-532 · أسطحُ agent_runtime
+    الثمانيةُ) — تحديثُ المُثبَّتِ بالمقيسِ لا تخفيفُ فحصٍ (سابقةُ W-696/W-676/
+    W-640/W-625/W-617/W-593/W-402). والافتراضيّةُ الأربعُ كما هي.
+    (محدّثة في W-696 · تصحيحُ حمرةِ CI على PR #167 · شِفرةُ E1/WI-119 بقرارِ Q-73):
     المُصرِّحُ العاشرُ والحاديَ عشرَ المُعلِنَانِ فاعلَهُ — المُفوِّضانِ الكسولانِ في
     executive_core/repository.py (actor="EXECUTIVE" · بسطوحِ create/delete/
     compare_and_set) وexecutive_core/dispatcher.py (actor="EXECUTIVE" · بسطحِ
@@ -296,7 +302,7 @@ def test_production_authorizer_sites_split_eight_declared_four_defaulted() -> No
     Q-69/D17-6) — على سابقةِ factories.py نفسِها، لا هروبًا من الإعلانِ. والافتراضيّةُ
     الأربعُ كما هي. (وكانت خمسةً بعدَ WI-082 · W-402.)"""
     sites = _authorizer_construction_sites()
-    assert len(sites["declared"]) == 11, sites["declared"]
+    assert len(sites["declared"]) == 13, sites["declared"]
     assert len(sites["defaulted"]) == 4, sites["defaulted"]
     assert sorted(Path(p.split(":")[0]).name for p in sites["declared"]) == [
         "agent_identity.py",
@@ -305,8 +311,10 @@ def test_production_authorizer_sites_split_eight_declared_four_defaulted() -> No
         "factories.py",
         "factories.py",
         "federation.py",
+        "health.py",
         "money_authority.py",
         "money_authority.py",
+        "population.py",
         "repository.py",
         "rulings.py",
         "service.py",

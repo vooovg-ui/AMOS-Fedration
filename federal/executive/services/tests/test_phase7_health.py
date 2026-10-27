@@ -72,7 +72,9 @@ class TestIsolationSystem:
         )
         iso = get_isolation_system()
         r = iso.isolate(agent["agent_id"], reason="اختبار")
-        result = iso.release(r["isolation_id"], decision="اختبار انتهى")
+        # W-699: قراراتُ الرفعِ المحروسةُ هي retire/release/retrain — النصُّ الحرُّ
+        # لم يعد قرارًا مقبولًا (رفضٌ صريحٌ لا تحديثُ سجلٍّ بصياغةٍ عابرةٍ).
+        result = iso.release(r["isolation_id"], decision="retire")
         assert "released_at" in result
 
     def test_isolated_agent_cannot_execute(self):

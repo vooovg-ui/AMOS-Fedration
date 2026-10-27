@@ -253,6 +253,22 @@
    "kind": "work_drift",
    "reason": "حرقُ E1 (W-696 · WI-119 · بقرارِ المالكِ Q-73 «اعتماد تصميم E1 (13 اسمًا)»): أسطحُ executive_core الستةُ (agent_identity: update_identity وset_lifecycle_state · dispatcher: register_agent · repository: create/delete/compare_and_set) عبرتِ الحدَّ بنوى خاصّةٍ ومعوّضاتٍ — الدَّينُ 135 ← 129 · السياديّةُ 46 ← 51 · والقياسُ مودوعٌ في evidence/W-696/inventory_after_w696.json",
    "recorded_at": "2026-10-26T21:43:41+00:00"
+  },
+  {
+   "debt": 121,
+   "sovereign": 59,
+   "closed_legacy": 7,
+   "write_sites_total": 234,
+   "git_head": "5b0abef3",
+   "waves": {
+    "W1": 11,
+    "W2": 34,
+    "W3": 76
+   },
+   "decision": "W-699",
+   "kind": "work_drift",
+   "reason": "حرقُ E1 النصفُ الثاني (W-699 · WI-119 · بقرارِ المالكِ Q-73): أسطحُ agent_runtime الثمانيةُ (health: run_health_check وstart_agent_treatment وisolate_agent وlog_isolated_action وrelease_agent · population: register_agent وupdate_state وrecord_curriculum_step) عبرتِ الحدَّ بنوى خاصّةٍ بلا تعشيشٍ ومعوّضاتٍ مربوطةٍ — الدَّينُ 129 ← 121 (الإسقاطُ الكاملُ) · السياديّةُ 51 ← 59 · الحمولةُ في evidence/W-699/inventory_after_w699.json",
+   "recorded_at": "2026-10-27T00:31:55+00:00"
   }
  ]
 }

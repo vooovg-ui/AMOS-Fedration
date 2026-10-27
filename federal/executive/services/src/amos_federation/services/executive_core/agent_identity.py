@@ -291,6 +291,43 @@ def _default_authorizer() -> ConstitutionalAuthorizer:
     return _DEFAULT_AUTHORIZER
 
 
+def _register_identity_core(
+    agent_id: str,
+    name: str,
+    role: str,
+    *,
+    permissions: list[str] | None,
+    allowed_tools: list[str] | None,
+    lifecycle_state: str,
+    token_budget: int,
+    tenant_id: str,
+) -> None:
+    """نواةُ كتابةِ إنشاءِ الهويّةِ — كاتبٌ صافٍ بلا عبورٍ (تصميمُ E1 § 2.3 · W-699).
+
+    تستعملُها العبورُ العلنيُّ `register_identity` نفسُهُ وكلُّ سطحٍ أعلنَ أثرَ
+    إنشاءِ الهويّةِ في عبورِهِ الأعلى (population.register_agent) فلا تعشيشَ.
+    ولا تُستعملُ مباشرةً من خارجِ الوحدةِ: المرجعُ العلنيُّ هو `register_identity`
+    المحروسُ — والأسطحُ المسمّاةُ هنا هي المستعملونَ المُعيَّنونَ بتصميمٍ معتمَدٍ.
+    """
+    session = get_session_factory()()
+    try:
+        session.add(
+            AgentModel(
+                id=agent_id,
+                name=name,
+                role=role,
+                status=lifecycle_state,
+                permissions=permissions or [],
+                allowed_tools=allowed_tools or [],
+                token_budget=token_budget,
+                tenant_id=tenant_id,
+            )
+        )
+        session.commit()
+    finally:
+        session.close()
+
+
 def register_identity(
     agent_id: str,
     name: str,
@@ -335,23 +372,16 @@ def register_identity(
     effect = declared_effect("CREATE", target, f"هويةُ وكيلٍ «{name}» في السجلِّ الكانونيِّ الواحد")
 
     def _apply(_effect: Any) -> None:
-        write_session = get_session_factory()()
-        try:
-            write_session.add(
-                AgentModel(
-                    id=agent_id,
-                    name=name,
-                    role=role,
-                    status=lifecycle_state,
-                    permissions=permissions or [],
-                    allowed_tools=allowed_tools or [],
-                    token_budget=token_budget,
-                    tenant_id=tenant_id,
-                )
-            )
-            write_session.commit()
-        finally:
-            write_session.close()
+        _register_identity_core(
+            agent_id,
+            name,
+            role,
+            permissions=permissions,
+            allowed_tools=allowed_tools,
+            lifecycle_state=lifecycle_state,
+            token_budget=token_budget,
+            tenant_id=tenant_id,
+        )
 
     guarded = actor_authorizer.guard_declared(
         ACTION_SPAWN_AGENT,
@@ -497,7 +527,10 @@ def _update_identity_core(agent_id: str, changes: dict[str, Any]) -> None:
 
 
 def set_lifecycle_state(
-    agent_id: str, lifecycle_state: str, authorizer: ConstitutionalAuthorizer | None = None
+    agent_id: str,
+    lifecycle_state: str,
+    authorizer: ConstitutionalAuthorizer | None = None,
+    operation_id: str | None = None,
 ) -> bool:
     """تغيير دورة الحياة في الحقل الكانوني الوحيد — عبر الحد السيادي (E1 · WI-119).
 
@@ -513,6 +546,13 @@ def set_lifecycle_state(
     يحملُ الاتجاهَ (تصميمُ E1 § 2.2): فالانتقالانِ المتعاقبانِ (ACTIVE→PAUSED→ACTIVE)
     عمليّتانِ (تصميمُ E1 § 3 الصنفُ 4) وإعادةُ الإرسالِ بعدَ النجاحِ عمليةٌ فارغةٌ
     تعودُ بلا أثرٍ. والمعوّضُ يُرجِعُ الحالةَ السابقةَ.
+
+    «operation_id» (اختياريٌّ) هويةُ العمليةِ التي يملكها المنادي (معرِّفُ علاجٍ
+    أو عزلٍ أو بصمةُ حمولةِ عمليةٍ مركَّبة): به تُفرَّقُ عمليّاتٌ متعددةٌ على
+    الكيانِ نفسِهِ بالاتجاهِ نفسِهِ — «عمليةٌ جديدةٌ على الكيانِ نفسِهِ ⇒ مفتاحٌ
+    جديدٌ» (تصميمُ E1 § 2.4) — فلا يُرفَعُ تضاربُ الذرّيّةِ على دورةٍ ثانيةٍ
+    مشروعَةٍ، بينما إعادةُ إرسالِ العمليةِ نفسِها (المعرِّفُ نفسُهُ) إعادةٌ واحدةٌ
+    كما في صنفِ الاختبارِ الرابعِ («قبولُ عمليّةٍ لاحقةٍ مشروعةٍ» · § 3.4).
 
     Returns:
         False إن لم تكن هناك هوية كانونية بهذا المعرّف — بلا إنشاء ضمني.
@@ -537,11 +577,16 @@ def set_lifecycle_state(
     )
     target = f"agent:{agent_id}"
     # موردُ الأثرِ يحملُ الاتجاهَ (موردٌ فرعيٌّ داخلَ نطاقِ الهدفِ — `in_scope`):
-    # به تتميّزُ العقودُ بينَ انتقالينِ مختلفينِ للوكيلِ نفسِهِ فلا يُرفَض انتقالٌ
-    # مشروعٌ كإعادةِ إذنٍ في الثانيةِ نفسِها.
+    # به تتميّزُ العقودُ بينَ انتقالينِ مختلفينِ للوكيلِ نفسِهِ فلا يُرفَع انتقالٌ
+    # مشروعٌ كإعادةِ إذنٍ في الثانيةِ نفسِها. وهو يَحملُ كذلكَ هويةَ العمليةِ
+    # «operation_id» حينَ يملكُها المنادي (تصميمُ § 2.4): فالعمليّتانِ المختلفتانِ
+    # على الكيانِ نفسِهِ بالاتجاهِ نفسِهِ عمليّتانِ بموردينِ مختلفينِ — به لا
+    # يصطدمُ عقدُ الإذنِ (Q-11: دقّةُ ثانيةٍ) بينَ دورتينِ متعاقبتينِ في الثانيةِ
+    # نفسِها، ولو لم يكنِ الاصطدامُ ليقعَ إلّا في الاختبارِ الأسرعَ منَ الثانيةِ.
     effect = declared_effect(
         "WRITE",
-        f"{target}/lifecycle.{previous_state}->{lifecycle_state}",
+        f"{target}/lifecycle.{previous_state}->{lifecycle_state}"
+        + (f"@{operation_id}" if operation_id is not None else ""),
         f"انتقالُ دورةِ الحياةِ {previous_state} → {lifecycle_state} في الحقلِ الكانونيِّ الوحيدِ",
     )
 
@@ -553,11 +598,15 @@ def set_lifecycle_state(
         target,
         declared_effects=(effect,),
         applier=_apply,
-        # النطاقُ يحملُ الاتجاهَ (مفتاحُ التصميمِ § 2.2: دورةُ الحياةِ + المعرِّفُ +
-        # الحالةُ السابقةُ + الحالةُ الهدفُ) — فالبصمةُ السياديّةُ تفرّقُ بينَ
-        # اتجاهاتٍ مختلفةٍ ولا يُرفَض عبورٌ مشروعٌ كإعادةِ إذنٍ في الثانيةِ نفسِها.
         operation_key=operation_key(
-            f"{LIFECYCLE_SCOPE}.{previous_state}->{lifecycle_state}", agent_id
+            # النطاقُ يحملُ الاتجاهَ (مفتاحُ التصميمِ § 2.2: دورةُ الحياةِ + المعرِّفُ +
+            # الحالةُ السابقةُ + الحالةُ الهدفُ) — فالبصمةُ السياديّةُ تفرّقُ بينَ
+            # اتجاهاتٍ مختلفةٍ ولا يُرفَض عبورٌ مشروعٌ كإعادةِ إذنٍ في الثانيةِ نفسِها —
+            # وهويةُ العمليةِ «operation_id» حينَ يملكها المنادي تُفرّقُ بينَ عمليّاتٍ
+            # متعددةٍ على الكيانِ نفسِهِ بالاتجاهِ نفسِهِ (عمليةٌ جديدةٌ ⇒ مفتاحٌ جديدٌ).
+            f"{LIFECYCLE_SCOPE}.{previous_state}->{lifecycle_state}"
+            + (f"@{operation_id}" if operation_id is not None else ""),
+            agent_id,
         ),
         compensators=(
             compensator(
@@ -583,9 +632,10 @@ def _set_lifecycle_state_core(agent_id: str, lifecycle_state: str) -> bool:
     """نواةُ كتابةِ دورةِ الحياةِ — كاتبٌ صافٍ بلا عبورٍ (Q-9 § 2.3 · تصميمُ E1).
 
     تستعملُها الأسطحُ التي أعلنت أثرَ انتقالِ دورةِ الحياةِ في عبورِها الأعلى
-    (health.isolate · health.start_treatment · health.release …) فلا تعشيشَ،
+    (health.isolate · health.start_treatment · health.release) فلا تعشيشَ،
     ويستعملُها العبورُ العلنيُّ `set_lifecycle_state` نفسُه. ولا تُستعملُ مباشرةً
-    من خارجِ الوحدةِ: المرجعُ العلنيُّ هو `set_lifecycle_state` المحروس.
+    من خارجِ الوحدةِ: المرجعُ العلنيُّ هو `set_lifecycle_state` المحروسُ — والأسطحُ
+    المسمّاةُ هي المستعملونَ المُعيَّنونَ بتصميمِ E1 المعتمَدِ (W-699).
     """
     session = get_session_factory()()
     try:

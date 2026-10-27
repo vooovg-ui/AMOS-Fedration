@@ -1,0 +1,125 @@
+{
+  "$comment": "حملةُ طفرةِ أسطحِ W-699/E1: لكلِّ فعلٍ مُستهدَفٍ خطُّ أساسٍ ناجحٌ بلا طفرةٍ ثمَّ فشلٌ على تأكيدِ الدليلِ تحديدًا تحتَ نزعِ الحارسِ — لا فشلًا عارضًا يُحتسبُ قتلًا (المادةُ التاسعةُ · W-699)",
+  "cases": [
+    {
+      "verb": "run_health_check",
+      "test": "_check_agent_case",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert evidence[\"action\"] == ACTION_RUN_HEALTH_CHECK == \"run_health_check\"",
+      "failure": "AssertionError: assert None == 'run_health_check'"
+    },
+    {
+      "verb": "start_agent_treatment",
+      "test": "_start_treatment_case",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert _evidence(recorder, 0)[\"action\"] == ACTION_START_AGENT_TREATMENT",
+      "failure": "AssertionError: assert None == 'start_agent_treatment'"
+    },
+    {
+      "verb": "isolate_agent",
+      "test": "_isolate_case",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert evidence[\"action\"] == ACTION_ISOLATE_AGENT == \"isolate_agent\"",
+      "failure": "AssertionError: assert None == 'isolate_agent'"
+    },
+    {
+      "verb": "log_isolated_action",
+      "test": "_log_action_case",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert evidence[\"action\"] == ACTION_LOG_ISOLATED_ACTION == \"log_isolated_action\"",
+      "failure": "AssertionError: assert None == 'log_isolated_action'"
+    },
+    {
+      "verb": "release_agent",
+      "test": "_release_case",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert evidence[\"action\"] == ACTION_RELEASE_AGENT == \"release_agent\"",
+      "failure": "AssertionError: assert None == 'release_agent'"
+    },
+    {
+      "verb": "spawn_agent",
+      "test": "_register_agent_case",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert evidence[\"action\"] == \"spawn_agent\"",
+      "failure": "AssertionError: assert None == 'spawn_agent'"
+    },
+    {
+      "verb": "update_population_state",
+      "test": "_update_state_case",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert evidence[\"action\"] == ACTION_UPDATE_POPULATION_STATE == \"update_population_state\"",
+      "failure": "AssertionError: assert None == 'update_population_state'"
+    },
+    {
+      "verb": "record_curriculum_step",
+      "test": "_take_step_case",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert evidence[\"action\"] == ACTION_RECORD_CURRICULUM_STEP == \"record_curriculum_step\"",
+      "failure": "AssertionError: assert None == 'record_curriculum_step'"
+    },
+    {
+      "verb": "update_agent_identity",
+      "test": "test_e1_5_update_identity_crosses_with_literal_evidence",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert evidence[\"action\"] == ACTION_UPDATE_AGENT_IDENTITY == \"update_agent_identity\"",
+      "failure": "AssertionError: assert None == 'update_agent_identity'"
+    },
+    {
+      "verb": "contain_agent",
+      "test": "test_e1_6_lifecycle_crosses_by_direction",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert _evidence(recorder)[\"action\"] == ACTION_CONTAIN_AGENT == \"contain_agent\"",
+      "failure": "AssertionError: assert None == 'contain_agent'"
+    },
+    {
+      "verb": "activate_agent",
+      "test": "test_e1_6_lifecycle_crosses_by_direction",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert _evidence(recorder)[\"action\"] == ACTION_ACTIVATE_AGENT == \"activate_agent\"",
+      "failure": "AssertionError: assert None == 'activate_agent'"
+    },
+    {
+      "verb": "spawn_agent",
+      "test": "test_e1_7_dispatcher_register_agent_crosses_spawn",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert evidence[\"action\"] == \"spawn_agent\"",
+      "failure": "AssertionError: assert None == 'spawn_agent'"
+    },
+    {
+      "verb": "create_task",
+      "test": "test_e1_8_task_surfaces_cross_with_literal_evidence",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert _evidence(recorder)[\"action\"] == \"create_task\"",
+      "failure": "AssertionError: assert None == 'create_task'"
+    },
+    {
+      "verb": "delete_task",
+      "test": "test_e1_8_task_surfaces_cross_with_literal_evidence",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert _evidence(recorder)[\"action\"] == \"delete_task\"",
+      "failure": "AssertionError: assert None == 'delete_task'"
+    },
+    {
+      "verb": "transition_task_state",
+      "test": "test_e1_8_task_surfaces_cross_with_literal_evidence",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "assert _evidence(recorder)[\"action\"] == \"transition_task_state\"",
+      "failure": "AssertionError: assert None == 'transition_task_state'"
+    }
+  ]
+}
