@@ -1184,3 +1184,319 @@ def get_health_checker_for_test() -> Any:
     from amos_federation.services.agent_runtime.health import HealthChecker
 
     return HealthChecker()
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# الفئةُ الخامسةُ · فروعُ الرفضِ والمساراتُ الجانبيةُ — استكمالُ ما كشفَهُ حرسُ
+# تغطيةِ الفروعِ في CI (≥80%) بعدَ جولةِ التحققِ: فروعُ الرفضِ النظيفِ (الوكلاءُ
+# المفقودونَ والقراراتُ الحرةُ والخطواتُ خارجَ المنهجِ)، ومساراتُ الإعادةِ
+# والتعويضِ الجزئيُّ في الأسطحِ الثمانيةِ — تُقاسُ لا تُفترَضُ.
+# ═════════════════════════════════════════════════════════════════════════════
+
+
+def test_w699_5_take_step_rejects_steps_outside_curriculum() -> None:
+    """الخطوةُ خارجَ حدودِ المنهجِ (1..6) رفضٌ نظيفٌ بلا عبورٍ ولا كتابةٍ."""
+    school = AgentSchool()
+
+    below = school.take_step("w699-5-range", 0, 90)
+    above = school.take_step("w699-5-range", 7, 90)
+
+    assert below == {"error": "step_out_of_range"}
+    assert above == {"error": "step_out_of_range"}
+
+
+def test_w699_5_register_agent_rejects_existing_identity() -> None:
+    """تكرارُ التسجيلِ بالمعرّفِ نفسِهِ رفضٌ مبكّرٌ صريحٌ قبلَ أيِّ كتابةٍ."""
+    from amos_federation.services.executive_core.agent_identity import (
+        DuplicateAgentIdentityError,
+    )
+
+    registry = PopulationRegistry()
+    registry.register_agent("وكيل مكرر", "executor", "cognitive_executor", agent_id="w699-5-dup")
+
+    with pytest.raises(DuplicateAgentIdentityError):
+        registry.register_agent("وكيل آخر", "executor", "cognitive_executor", agent_id="w699-5-dup")
+
+
+def test_w699_5_update_state_on_identity_without_population_row() -> None:
+    """تحديثُ حالةِ وكيلٍ له هويةٌ كانونيةٌ ولا صفَّ سكّانٍ: الكانونيُّ ينتقلُ
+    وكاتبُ المرآةِ لا شيءَ يكتبُهُ (لا صفَّ) فلا يُنشئُ صفًّا ولا يفشلُ."""
+    _spawn("w699-5-no-pop")
+    registry = PopulationRegistry()
+
+    assert registry.update_state("w699-5-no-pop", "paused") is True
+
+    assert registry._profile("w699-5-no-pop") is None, "صفُّ سكّانٍ أُنشئ بلا تسجيل"
+    from amos_federation.services.executive_core.agent_identity import require_identity
+
+    assert require_identity("w699-5-no-pop").lifecycle_state == "paused"
+
+
+def test_w699_5_update_state_ignores_extra_without_matching_attribute() -> None:
+    """الحقولُ الزائدةُ في «extra» التي لا عمودَ لها في صفِّ السكّانِ تُتجاهَلُ
+    ولا تفشلُ العمليةَ — فالعمليةُ تُكملُ بمرورِها على ما يعرفُهُ الصفُّ."""
+    registry = PopulationRegistry()
+    registry.register_agent("وكيل حقول", "executor", "cognitive_executor", agent_id="w699-5-extra")
+
+    result = registry.update_state(
+        "w699-5-extra",
+        "paused",
+        authorizer=RecordingAuthorizer(actor="EXECUTIVE"),
+        **{"حقل_غير_موجود": "قيمة"},
+    )
+
+    assert result is True
+
+
+def test_w699_5_mirror_failure_on_identity_without_population_row() -> None:
+    """فشلُ عبورِ المرآةِ على وكيلٍ بلا صفِّ سكّانٍ: لا لقطةَ تُستعادُ (لا صفَّ)
+    والكانونيُّ الذي نجحَ قبلَهُ يُعكَسُ — ثم يُعادُ رفعُ الانكسارِ كما هو."""
+    _spawn("w699-5-no-pop-mirror")
+    from amos_federation.services.agent_runtime import population as population_mod
+
+    original = population_mod._update_population_row_core
+
+    def _poisoned(*args: Any, **kwargs: Any) -> None:
+        original(*args, **kwargs)
+        raise RuntimeError("انكسارٌ مُفتعَلٌ بعدَ كتابةِ المرآةِ")
+
+    registry = PopulationRegistry()
+    population_mod._update_population_row_core = _poisoned
+    try:
+        with pytest.raises(_idempotency_error()):
+            registry.update_state("w699-5-no-pop-mirror", "paused")
+    finally:
+        population_mod._update_population_row_core = original
+
+    # الكانونيُّ عُوِّضَ رجوعًا إلى حالِهِ قبلَ العبورِ الفاشلِ.
+    from amos_federation.services.executive_core.agent_identity import require_identity
+
+    assert require_identity("w699-5-no-pop-mirror").lifecycle_state == "active"
+
+
+def test_w699_5_mirror_failure_with_unchanged_target_skips_canonical_restore() -> None:
+    """فشلُ عبورِ المرآةِ والحالةُ الكانونيةُ مساويةٌ للهدفِ: عكسُ الانتقالِ
+    الكانونيِّ يُتخطّى (لا انتقالَ وقعَ) ولقطةُ صفِّ السكّانِ وحدها تُستعادُ."""
+    registry = PopulationRegistry()
+    registry.register_agent(
+        "وكيل هدف ثابت", "executor", "cognitive_executor", agent_id="w699-5-same"
+    )
+    registry.update_state("w699-5-same", "paused")
+    from amos_federation.services.agent_runtime import population as population_mod
+
+    original = population_mod._update_population_row_core
+
+    def _poisoned(*args: Any, **kwargs: Any) -> None:
+        original(*args, **kwargs)
+        raise RuntimeError("انكسارٌ مُفتعَلٌ بعدَ كتابةِ المرآةِ")
+
+    population_mod._update_population_row_core = _poisoned
+    try:
+        with pytest.raises(_idempotency_error()):
+            # الحمولةُ تتغيّرُ (الاسمُ) فالعمليةُ ليست «مُطبَّقةً فعلًا»،
+            # والحالةُ الكانونيةُ «paused» مساويةٌ للهدفِ «paused».
+            registry.update_state("w699-5-same", "paused", name="اسم جديد بعد الفشل")
+    finally:
+        population_mod._update_population_row_core = original
+
+    # الكانونيُّ بقيَ على «paused» (لم يُعكَسْ إلى ما قبلَهُ — لا انتقالَ وقعَ)
+    # وصفُّ السكّانِ استُعيدَ بلقطةِ الاسمِ الأصليِّ.
+    from amos_federation.services.executive_core.agent_identity import require_identity
+
+    assert require_identity("w699-5-same").lifecycle_state == "paused"
+    assert registry._profile("w699-5-same").name == "وكيل هدف ثابت"
+
+
+def test_w699_5_set_lifecycle_state_replay_returns_true() -> None:
+    """إعادةُ الإرسالِ بالمفتاحِ نفسِهِ (انتقالُ الحالةِ إلى حالِها) إعادةٌ
+    نظيفةٌ: لا عبورَ جديدَ ولا كتابةٌ — النتيجةُ المخزّنةُ تُعادُ."""
+    _spawn("w699-5-replay")
+
+    first = set_lifecycle_state("w699-5-replay", "active", operation_id="w699-5-rep-1")
+    second = set_lifecycle_state("w699-5-replay", "active", operation_id="w699-5-rep-1")
+
+    assert first is True
+    assert second is True
+
+
+def test_w699_5_set_lifecycle_state_replay_detects_divergence() -> None:
+    """إعادةُ المفتاحِ نفسِهِ بعدَ رجّعِ الحالةِ يدويًّا (لا عبورَ) تضاربٌ
+    مقيسٌ: السجلُّ يقولُ «تمّ» والكانونُ يقولُ غيرَ ذلكَ — رفضٌ صريحٌ."""
+    from amos_federation.services.executive_core.agent_identity import (
+        IdentityLedgerDivergenceError,
+        _set_lifecycle_state_core,
+    )
+
+    _spawn("w699-5-div")
+    set_lifecycle_state("w699-5-div", "paused", operation_id="w699-5-div-1")
+    # سُمَّ الكانونَ: رجّعَ الحالةَ بلا عبورٍ — المفتاحُ نفسُهُ سيُعادُ.
+    _set_lifecycle_state_core("w699-5-div", "active")
+
+    with pytest.raises(IdentityLedgerDivergenceError):
+        set_lifecycle_state("w699-5-div", "paused", operation_id="w699-5-div-1")
+
+
+def test_w699_5_set_lifecycle_state_core_unknown_agent_returns_false() -> None:
+    """الكتابةُ الكانونيةُ الصافيةُ على وكيلٍ لا هويةَ لهُ رفضٌ هادئٌ: False."""
+    from amos_federation.services.executive_core.agent_identity import (
+        _set_lifecycle_state_core,
+    )
+
+    assert _set_lifecycle_state_core("w699-5-unknown", "paused") is False
+
+
+def test_w699_5_clean_rejections_of_missing_entities() -> None:
+    """الرفضُ النظيفُ قبلَ أيِّ كتابةٍ: علاجُ وكيلٍ مفقودٍ، وعزلُ وكيلٍ مفقودٍ،
+    وتسجيلُ فعلٍ على سجلِّ عزلٍ غيرِ موجودٍ، ورفعُ عزلٍ غيرِ موجودٍ أو بقرارٍ
+    حرٍّ غيرِ موجَّهٍ."""
+    treatment = get_treatment_system()
+    isolation = get_isolation_system()
+
+    with pytest.raises(ValueError):
+        treatment.start_treatment("w699-5-missing", "retrain", "اختبار الرفض")
+    with pytest.raises(ValueError):
+        isolation.isolate("w699-5-missing", reason="اختبار الرفض")
+    with pytest.raises(ValueError):
+        isolation.log_action("w699-5-no-isolation", "فحص", {})
+    with pytest.raises(ValueError):
+        isolation.release("w699-5-no-isolation", decision="retire")
+
+    _spawn("w699-5-rel")
+    record = isolation.isolate("w699-5-rel", reason="اختبار القرار الحر")
+    with pytest.raises(ValueError):
+        isolation.release(record["isolation_id"], decision="نص حر غير موجّه")
+
+
+def test_w699_5_release_retrain_skips_lifecycle_effect() -> None:
+    """رفعُ العزلِ بقرارِ «retrain» لا يعلنُ أثرَ انتقالِ دورةِ حياةٍ (لا
+    استعادةَ قدرةٍ) — أثرُ سجلِّ العزلِ وحدهُ يُعلَنُ ويُطبَّقُ."""
+    _spawn("w699-5-ret")
+    isolation = get_isolation_system()
+    isolation.isolate("w699-5-ret", reason="اختبار", isolation_id="w699-5-ret-1")
+    recorder = RecordingAuthorizer(actor="EXECUTIVE")
+
+    isolation.release("w699-5-ret-1", "retrain", authorizer=recorder)
+
+    row = _isolation_row("w699-5-ret-1")
+    assert row is not None and row.status == "retrain"
+    from amos_federation.services.executive_core.agent_identity import require_identity
+
+    # عبورُ الرفعِ نفسُهُ لا يُعلنُ أثرَ انتقالِ (لا «activate» من هذا الطريقِ):
+    # العودةُ إلى «active» وقعتَ في عبورِ العلاجِ اللاحقِ لا في عبورِ الرفعِ.
+    assert require_identity("w699-5-ret").lifecycle_state == "active"
+
+
+def _w699_5_experience(agent_id: str, quality: float, success: bool) -> None:
+    """خبرةٌ مصنوعةٌ لقياسِ تصنيفِ الفحصِ — لا افتراضَ بلا قياسٍ."""
+    from amos_federation.common.persistent import PersistentExperienceStore
+
+    PersistentExperienceStore().record(
+        {
+            "experience_id": f"w699-5-exp-{agent_id}-{quality}",
+            "agent_id": agent_id,
+            "type": "success" if success else "failure",
+            "quality_score": quality,
+            "outcome": {"success": success},
+        }
+    )
+
+
+def _w699_5_reset_global_stores() -> None:
+    """تصفيرُ المخازنِ العالميةِ (التدقيقِ والخبراتِ) — قياسٌ محكمٌ على سجلٍّ
+    يملؤهُ الفحصُ نفسُهُ لا على بقايا فحوصٍ سابقةٍ في الجلسةِ (سجلُّ التدقيقِ
+    والمخازنُ العالميةُ خارجَ تنظيفِ التجهيزةِ التلقائيةِ)."""
+    from amos_federation.common.database import get_session_factory
+    from amos_federation.common.persistent import AuditEntryModel, ExperienceModel
+
+    session = get_session_factory()()
+    try:
+        session.query(AuditEntryModel).delete()
+        session.query(ExperienceModel).delete()
+        session.commit()
+    finally:
+        session.close()
+
+
+def _w699_5_audit(action: str) -> None:
+    from amos_federation.common.persistent import PersistentAuditStore
+
+    PersistentAuditStore().append(action, "EXECUTIVE", {})
+
+
+def test_w699_5_health_check_classifies_thresholds() -> None:
+    """تصنيفُ الفحصِ يقيسُ العتباتِ المعلنةَ: الأداءُ الحرجُ عزلٌ، والأداءُ
+    المنخفضُ معَ مخالفةِ سياسةٍ أو أخطاءٍ علاجٌ — بلا افتراضِ «سليم» لكلِّ وكيلٍ."""
+    _w699_5_reset_global_stores()
+    checker = get_health_checker_for_test()
+    # سجلُّ تدقيقٍ عالميٌّ: مخالفتانِ من أربعِ — التزامٌ بالسياساتِ 0.5.
+    _w699_5_audit("policy_violation: تجاوز حدّ")
+    _w699_5_audit("policy_violation: تجاوز آخر")
+    _w699_5_audit("tool_call")
+    _w699_5_audit("read")
+
+    _spawn("w699-5-iso")
+    _spawn("w699-5-retrain")
+    _spawn("w699-5-reset")
+    _w699_5_experience("w699-5-iso", 0.2, False)
+    _w699_5_experience("w699-5-retrain", 0.4, False)
+    _w699_5_experience("w699-5-reset", 0.4, True)
+
+    iso = checker.check_agent("w699-5-iso")
+    retrain = checker.check_agent("w699-5-retrain")
+    reset = checker.check_agent("w699-5-reset")
+
+    assert iso["status"] == "isolated", "الأداءُ الحرجُ (<0.3) عزلٌ لا غيرَ"
+    assert retrain["status"] == "treatment", "الأداءُ المنخفضُ معَ أخطاءٍ علاجٌ"
+    assert reset["status"] == "treatment", "الأداءُ المنخفضُ معَ مخالفةِ سياسةٍ علاجٌ"
+
+
+def test_w699_5_health_check_monitor_and_healthy() -> None:
+    """تصنيفُ الفحصِ: أداءٌ دونَ عتبةِ المراقبةِ بلا أخطاءٍ ومخالفاتٍ «مراقبة»،
+    وأداءٌ جيدٌ «سليم» — والقراءةُ منَ الخبراتِ الفعليةِ لا منَ الافتراضِ."""
+    _w699_5_reset_global_stores()
+    checker = get_health_checker_for_test()
+    # مخالفةٌ واحدةٌ من عشرِ — التزامٌ بالسياساتِ 0.9: فوقَ عتبةِ المراقبةِ
+    # (0.9) فالوكيلُ الجيدُ «سليم»، وفوقَ عتبةِ العلاجِ (0.7) فالمنخفضُ «مراقبة».
+    _w699_5_audit("policy_violation: مخالفة وحيدة")
+    for _ in range(9):
+        _w699_5_audit("tool_call")
+
+    _spawn("w699-5-monitor")
+    _spawn("w699-5-healthy")
+    _w699_5_experience("w699-5-monitor", 0.5, True)
+    _w699_5_experience("w699-5-healthy", 0.9, True)
+
+    monitor = checker.check_agent("w699-5-monitor")
+    healthy = checker.check_agent("w699-5-healthy")
+
+    assert monitor["status"] == "monitor", "الأداءُ دونَ 0.7 بلا أخطاءٍ مراقبةٌ"
+    assert healthy["status"] == "healthy", "الأداءُ الجيدُ سليمٌ"
+
+
+def test_w699_5_run_health_cycle_remediates() -> None:
+    """دورةُ الفحصِ الصحيةِ الكاملةُ تعالجُ وتعزلُ فعليًّا: نتائجُ الفحصِ
+    تصنّفُ الوكلاءَ ثمّ يعالجُ التابعُ المعالَجَ ويَعزلُ الحرجَ — قياسًا منَ
+    السجلِّ لا منَ الوعدِ."""
+    from amos_federation.services.agent_runtime.health import run_health_cycle
+    from amos_federation.services.executive_core.agent_identity import require_identity
+
+    _w699_5_reset_global_stores()
+    # التزامٌ بالسياساتِ 0.75 — فالمنخفضُ علاجٌ بلا حاجةِ مخالفةٍ.
+    _w699_5_audit("policy_violation: مخالفة وحيدة")
+    _w699_5_audit("tool_call")
+    _w699_5_audit("read")
+    _w699_5_audit("write")
+
+    _spawn("w699-5-cycle-treat")
+    _spawn("w699-5-cycle-iso")
+    _w699_5_experience("w699-5-cycle-treat", 0.4, False)
+    _w699_5_experience("w699-5-cycle-iso", 0.2, False)
+
+    summary = run_health_cycle()
+
+    assert summary["treatment"] == 1 and summary["treatments_started"] == 1
+    assert summary["isolated"] == 1 and summary["isolations_started"] == 1
+    # المعالَجُ دخلَ العلاجَ (بدءُ علاجٍ يعيدُه «active» بعدَ إتمامِهِ) والحرجُ
+    # عُزلَ فانتقلَ إلى «paused».
+    assert require_identity("w699-5-cycle-treat").lifecycle_state == "active"
+    assert require_identity("w699-5-cycle-iso").lifecycle_state == "paused"
