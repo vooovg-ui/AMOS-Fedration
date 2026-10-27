@@ -391,10 +391,10 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 520,
+      "md_files": 521,
       "py_files": 24,
       "yaml_files": 0,
-      "code_lines": 2156,
+      "code_lines": 2154,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -991,7 +991,7 @@
     "findings_total": 61,
     "identity_violations": 0,
     "unreadable_files": 0,
-    "unparsable_files": 3,
+    "unparsable_files": 0,
     "by_severity": {
       "CRITICAL": 2,
       "HIGH": 59

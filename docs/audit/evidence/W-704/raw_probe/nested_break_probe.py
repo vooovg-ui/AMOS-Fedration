@@ -4,9 +4,9 @@
 على نمطِ فحوصِ الكاشفِ نفسِها) فيتوقَّعُ أنْ يُرمى `NestedSovereignCallError` قبلَ
 أيِّ `decide` وأيِّ قيدٍ في دفترِ الذرّيّةِ — هذا مسبارٌ من عندِ المقعدِ لا من أوامرِ (ج)
 (البروتوكولُ § 4.9).
-"""
 
 الهدف: مسبارُ المنسِّقِ — كسرُ كاشفِ التعشيشِ عندَ الحدِّ (WI-115) بمحاولةِ عبورٍ معشّقٍ (جولةُ W-704).
+"""
 
 
 from __future__ import annotations
@@ -68,8 +68,8 @@ def main() -> None:
             applier=lambda e: state.__setitem__(e.resource, "MUTATED"),
             operation_key=IdempotencyKey(scope="probe", value="inner"),
         )
-    except NestedSovereignCallError:
-        print("PASS: NestedSovereignCallError raised for non-exempt 'credit_account' inside active crossing")
+    except NestedSovereignCallError as exc:
+        print(f"PASS: NestedSovereignCallError raised for non-exempt 'credit_account' inside active crossing: {exc}")
     else:
         print("FAIL: nesting silently allowed — no NestedSovereignCallError raised")
     finally:

@@ -3,9 +3,9 @@
 يشغِّلُ الخدمتَينِ عبرَ uvicorn برمزِ مواطنٍ (role=citizen) ويطلبُ المساراتِ الأربعةِ
 المحروسةَ (المعيارُ 1) فيتوقَّعُ الرفضَ 403 دونَ تغييرِ المستوى، ثمَّ برمزِ الملكِ
 فيجتازُ (المعيارُ 3) — هذا مسبارٌ من عندِ المقعدِ لا من أوامرِ (ج) (§ 4.9).
-"""
 
 الهدف: مسبارُ المنسِّقِ — حارسُ require_king عبرَ HTTP حقيقيٍّ (uvicorn) على مساراتِ WI-117 الأربعةِ (جولةُ W-704).
+"""
 
 
 from __future__ import annotations
@@ -22,10 +22,7 @@ BASE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE / "repo"))
 sys.path.insert(0, str(BASE / "repo" / "federal" / "executive" / "services" / "src"))
 
-from cryptography.hazmat.primitives.asymmetric import ed25519  # noqa: E402
 
-from core.constitutional_engine.engine import ConstitutionalEngine  # noqa: E402
-from core.constitutional_engine.ledger import ConstitutionalLedger  # noqa: E402
 
 REPO = BASE / "repo"
 SERVICES = REPO / "federal" / "executive" / "services"
@@ -66,7 +63,8 @@ def wait_ready(port: int, proc: subprocess.Popen, tries: int = 40) -> bool:
         try:
             http_get(port, "/health", None)
             return True
-        except Exception:
+        except Exception as exc:
+            print(f"[probe] service not ready yet: {type(exc).__name__}")
             time.sleep(0.25)
     return False
 
