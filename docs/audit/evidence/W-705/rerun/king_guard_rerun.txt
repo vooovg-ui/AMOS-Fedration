@@ -1,0 +1,14 @@
+[probe] service not ready yet: URLError
+[probe] service not ready yet: URLError
+[probe] service not ready yet: URLError
+[probe] service not ready yet: URLError
+PASS: citizen rejected (403) on governance /v1/system/kill-switch/reset
+  level after citizen attempt: None
+PASS: citizen rejected (403) on governance /v1/promotions
+  level after citizen attempt: None
+PASS: citizen rejected (403) on governance /v1/promotions/p1/gates
+  level after citizen attempt: None
+PASS: citizen rejected (403) on console /v1/kill-switch/reset
+  level after citizen attempt: None
+PASS: king accepted (200) on governance /v1/system/kill-switch/reset
+PASS: king accepted (200) on console /v1/kill-switch/reset

@@ -1,0 +1,2 @@
+PASS: NestedSovereignCallError raised for non-exempt 'credit_account' inside active crossing
+PASS: context restored (no dangling crossing frame)
