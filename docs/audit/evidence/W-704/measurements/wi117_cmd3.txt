@@ -1,0 +1,9 @@
+=== RAW [3] BEGIN ===
+CMD: git rev-parse HEAD
+EXIT: 0
+BYTES: 41
+SHA256: 1bacee57227e4261e1673f1ddaeefa87699b523ee2391c4837661e2e182c6d3c
+NO_EOL: 0
+--- OUTPUT ---
+147a0c6b1357ddf0a93ba1c4d16e82e8648cb247
+=== RAW [3] END ===

@@ -1,0 +1,36 @@
+=== RAW [5] BEGIN ===
+CMD: git show --stat 153109cf
+EXIT: 0
+BYTES: 2053
+SHA256: acb2658a8321be636b044da19b30b5bfbf7c4bdcab4a1056e54bc825389e5498
+NO_EOL: 0
+--- OUTPUT ---
+commit 153109cf1d49581a9e83efd03e3000df84e8e4bd
+Author: vooovg-ui <326082239+vooovg-ui@users.noreply.github.com>
+Date:   Mon Oct 26 21:29:37 2026 +0000
+
+    W-696: شِّفرةُ E1 · أسطحُ executive_core الستةُ تعبرُ الحدَّ السياديَّ (القاموسُ 13 اسمًا باعتمادِ Q-73 · نوى خاصّةٌ ومعوّضاتٌ · فحوصُ الأصنافِ الخمسةِ 14 · قياسُ القبولِ D-4 135←129 والسياديّةُ 46←51) + واجبُ N+1 لدفعةِ W-695 (حكما main على 13f1edf6 مقروءانِ أخضرانِ) · لا انتقالَ حالةٍ · المنسِّقُ GLM-5.3 (Perplexity Computer)
+
+ PROJECT_STATE.md                                   |    4 +-
+ core/constitutional_engine/rules.py                |   63 +-
+ docs/PROJECT_HANDBOOK.md                           |    2 +-
+ docs/audit/ACTIVE_EXECUTION_STATE.md               |    1 +
+ docs/audit/COMPLETION_LEDGER.md                    |    2 +
+ docs/audit/SOVEREIGN_DECISION_REGISTER.md          |   21 +-
+ docs/audit/TRUTH_MATRIX.md                         |    6 +-
+ docs/audit/evidence/W-696/README.md                |   42 +
+ docs/audit/evidence/W-696/ci/README.md             |   36 +
+ docs/audit/evidence/W-696/ci/nplus1_main_jobs.json | 1666 ++++++++++
+ docs/audit/evidence/W-696/ci/nplus1_main_run.json  |  225 ++
+ .../audit/evidence/W-696/inventory_after_w696.json | 3279 ++++++++++++++++++++
+ docs/audit/truth_matrix.json                       |   24 +-
+ docs/governance/work/ACTIVE_WORK.md                |   12 +-
+ .../work/HANDOFFS/OWNER-DECISIONS-D26.md           |   28 +
+ .../services/executive_core/agent_identity.py      |  224 +-
+ .../services/executive_core/dispatcher.py          |  101 +-
+ .../services/executive_core/engine.py              |   14 +-
+ .../services/executive_core/repository.py          |  251 +-
+ .../tests/test_e1_executive_identity_crossing.py   |  393 +++
+ .../services/tests/test_executive_core.py          |   12 +-
+ 21 files changed, 6337 insertions(+), 69 deletions(-)
+=== RAW [5] END ===

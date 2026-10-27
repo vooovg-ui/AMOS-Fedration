@@ -1,0 +1,10 @@
+=== RAW [14] BEGIN ===
+CMD: .venv/bin/python ../probe/nested_break_probe.py
+EXIT: 0
+BYTES: 145
+SHA256: 74f210a11d90a21630c3d8c5c8e2de7f238f38be5ad5c5243d7eb44ddeebca2b
+NO_EOL: 0
+--- OUTPUT ---
+PASS: NestedSovereignCallError raised for non-exempt 'credit_account' inside active crossing
+PASS: context restored (no dangling crossing frame)
+=== RAW [14] END ===

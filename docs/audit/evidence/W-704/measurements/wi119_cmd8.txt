@@ -1,0 +1,20 @@
+=== RAW [8] BEGIN ===
+CMD: .venv/bin/python -m pytest -q -p no:cacheprovider federal/executive/services/tests/test_w699_agent_runtime_crossing.py
+EXIT: 0
+BYTES: 711
+SHA256: ce2e6e4a041bdbccc289f74eec49d60c230ced1c1d6fa7a124d4fe1455a1a2e1
+NO_EOL: 0
+--- OUTPUT ---
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+rootdir: /home/user/workspace/council_w701/kimi_k3/wi119/repo/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.6, asyncio-1.4.1, cov-7.1.0, anyio-4.15.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 41 items
+
+federal/executive/services/tests/test_w699_agent_runtime_crossing.py ... [  7%]
+......................................                                   [100%]
+
+============================== 41 passed in 4.48s ==============================
+=== RAW [8] END ===

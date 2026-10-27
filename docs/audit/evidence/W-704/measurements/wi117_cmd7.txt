@@ -1,0 +1,15 @@
+=== RAW [7] BEGIN ===
+CMD: rg -n "require_king" federal/executive/services/src/amos_federation/services/governance/main.py federal/executive/services/src/amos_federation/services/control_console/main.py
+EXIT: 0
+BYTES: 1009
+SHA256: 7819eef502b030874641e976ce8b493cb95062624144f0a3c8bb15fd0975eac9
+NO_EOL: 0
+--- OUTPUT ---
+federal/executive/services/src/amos_federation/services/governance/main.py:14:from amos_federation.common.auth import require_auth, require_king
+federal/executive/services/src/amos_federation/services/governance/main.py:149:    _: Annotated[dict[str, object], Depends(require_king)],
+federal/executive/services/src/amos_federation/services/governance/main.py:170:    _: Annotated[dict[str, object], Depends(require_king)],
+federal/executive/services/src/amos_federation/services/governance/main.py:203:    _: Annotated[dict[str, object], Depends(require_king)],
+federal/executive/services/src/amos_federation/services/control_console/main.py:15:from amos_federation.common.auth import require_auth, require_king
+federal/executive/services/src/amos_federation/services/control_console/main.py:211:    _: Annotated[dict[str, object], Depends(require_king)],
+federal/executive/services/src/amos_federation/services/control_console/main.py:233:    token_data: Annotated[dict[str, object], Depends(require_king)],
+=== RAW [7] END ===

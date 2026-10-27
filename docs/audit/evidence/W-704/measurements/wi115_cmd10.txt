@@ -1,0 +1,26 @@
+=== RAW [10] BEGIN ===
+CMD: rm -rf ../old && git worktree add --detach ../old 2b814b34^ && cp tests/sovereignty/test_wi115_nesting_detector.py ../old/tests/sovereignty/ && cd ../old && /home/user/workspace/council_w701/kimi_k3/wi115/repo/.venv/bin/python -m pytest -q -p no:cacheprovider tests/sovereignty/test_wi115_nesting_detector.py
+EXIT: 2
+BYTES: 1356
+SHA256: 5be01963070ff520b9f20aa6a1063620120a746587dec474f968649cf07fb41b
+NO_EOL: 0
+--- OUTPUT ---
+Preparing worktree (detached HEAD bd1dc84b)
+HEAD is now at bd1dc84b W-684: إعادةُ توليدِ مصفوفةِ الحقيقةِ (ملفّاتٌ مُعفاةٌ وحدَها)
+
+==================================== ERRORS ====================================
+______ ERROR collecting tests/sovereignty/test_wi115_nesting_detector.py _______
+ImportError while importing test module '/home/user/workspace/council_w701/kimi_k3/wi115/old/tests/sovereignty/test_wi115_nesting_detector.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/uv/python/cpython-3.12.15-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/sovereignty/test_wi115_nesting_detector.py:35: in <module>
+    from core.sovereignty.enforcement_boundary import (
+E   ImportError: cannot import name 'NestedSovereignCallError' from 'core.sovereignty.enforcement_boundary' (/home/user/workspace/council_w701/kimi_k3/wi115/old/core/sovereignty/enforcement_boundary.py)
+=========================== short test summary info ============================
+ERROR tests/sovereignty/test_wi115_nesting_detector.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.19s
+=== RAW [10] END ===

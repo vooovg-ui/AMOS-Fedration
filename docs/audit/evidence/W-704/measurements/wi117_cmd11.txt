@@ -1,0 +1,60 @@
+=== RAW [11] BEGIN ===
+CMD: sed -i "s/Depends(require_king)/Depends(require_auth)/g" federal/executive/services/src/amos_federation/services/governance/main.py federal/executive/services/src/amos_federation/services/control_console/main.py && .venv/bin/python -m pytest -q -p no:cacheprovider federal/executive/services/tests/test_wi117_king_guard_routes.py
+EXIT: 1
+BYTES: 3951
+SHA256: 256a479ca284f71ca24e82e925c4e33875f7693b93c33999a9bed54056b8875a
+NO_EOL: 0
+--- OUTPUT ---
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+rootdir: /home/user/workspace/council_w701/kimi_k3/wi117/repo/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.6, asyncio-1.4.1, cov-7.1.0, anyio-4.15.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 10 items
+
+federal/executive/services/tests/test_wi117_king_guard_routes.py F.F.F.F [ 70%]
+.F.                                                                      [100%]
+
+=================================== FAILURES ===================================
+___________________ test_governance_reset_citizen_forbidden ____________________
+federal/executive/services/tests/test_wi117_king_guard_routes.py:31: in test_governance_reset_citizen_forbidden
+    assert resp.status_code == 403
+E   assert 200 == 403
+E    +  where 200 = <Response [200 OK]>.status_code
+_________________ test_governance_promotions_citizen_forbidden _________________
+federal/executive/services/tests/test_wi117_king_guard_routes.py:51: in test_governance_promotions_citizen_forbidden
+    assert resp.status_code == 403
+E   assert 201 == 403
+E    +  where 201 = <Response [201 Created]>.status_code
+___________________ test_governance_gates_citizen_forbidden ____________________
+federal/executive/services/tests/test_wi117_king_guard_routes.py:72: in test_governance_gates_citizen_forbidden
+    assert resp.status_code == 403
+E   assert 200 == 403
+E    +  where 200 = <Response [200 OK]>.status_code
+_____________________ test_console_reset_citizen_forbidden _____________________
+federal/executive/services/tests/test_wi117_king_guard_routes.py:93: in test_console_reset_citizen_forbidden
+    assert resp.status_code == 403
+E   assert 200 == 403
+E    +  where 200 = <Response [200 OK]>.status_code
+___________________ test_console_approval_citizen_forbidden ____________________
+federal/executive/services/tests/test_wi117_king_guard_routes.py:111: in test_console_approval_citizen_forbidden
+    assert resp.status_code == 403
+E   assert 200 == 403
+E    +  where 200 = <Response [200 OK]>.status_code
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /home/user/workspace/council_w701/kimi_k3/wi117/repo/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED federal/executive/services/tests/test_wi117_king_guard_routes.py::test_governance_reset_citizen_forbidden
+FAILED federal/executive/services/tests/test_wi117_king_guard_routes.py::test_governance_promotions_citizen_forbidden
+FAILED federal/executive/services/tests/test_wi117_king_guard_routes.py::test_governance_gates_citizen_forbidden
+FAILED federal/executive/services/tests/test_wi117_king_guard_routes.py::test_console_reset_citizen_forbidden
+FAILED federal/executive/services/tests/test_wi117_king_guard_routes.py::test_console_approval_citizen_forbidden
+==================== 5 failed, 5 passed, 1 warning in 1.16s ====================
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.91s. Error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+=== RAW [11] END ===

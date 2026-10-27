@@ -1,0 +1,9 @@
+=== RAW [13] BEGIN ===
+CMD: sha256sum docs/audit/evidence/W-701/briefs_wi119/briefing_kimi_k3.md
+EXIT: 0
+BYTES: 125
+SHA256: ef82dfcc5f594a6365543676381b30ab723d2e6cf2971d48bbf37a37d799b9df
+NO_EOL: 0
+--- OUTPUT ---
+2cb2df2277aa1335adaf6912214986cbd687c954bce7bb10e3efd822c068b356  docs/audit/evidence/W-701/briefs_wi119/briefing_kimi_k3.md
+=== RAW [13] END ===

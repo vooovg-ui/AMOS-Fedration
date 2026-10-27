@@ -1,0 +1,92 @@
+=== RAW [13] BEGIN ===
+CMD: nl -ba ../probe/nested_break_probe.py
+EXIT: 0
+BYTES: 4434
+SHA256: 8593911507205afa2133389c83e7dbb86982e9c2f4357b7955be316ae4ae49ae
+NO_EOL: 0
+--- OUTPUT ---
+     1	"""مسبارُ المقعدِ kimi_k3 (WI-115 · جولةُ W-701) — كسرُ الكاشفِ النافيُّ للتعشيشِ.
+     2	
+     3	يحاولُ المسبارُ استدعاءً سياديًّا داخلَ عبورٍ نشطٍ بفعلٍ غيرُ مستثنًى (`credit_account`
+     4	على نمطِ فحوصِ الكاشفِ نفسِها) فيتوقَّعُ أنْ يُرمى `NestedSovereignCallError` قبلَ
+     5	أيِّ `decide` وأيِّ قيدٍ في دفترِ الذرّيّةِ — هذا مسبارٌ من عندِ المقعدِ لا من أوامرِ (ج)
+     6	(البروتوكولُ § 4.9).
+     7	"""
+     8	
+     9	from __future__ import annotations
+    10	
+    11	from pathlib import Path
+    12	import sys
+    13	import tempfile
+    14	
+    15	BASE = Path(__file__).resolve().parent.parent
+    16	sys.path.insert(0, str(BASE / "repo"))
+    17	sys.path.insert(0, str(BASE / "repo" / "federal" / "executive" / "services" / "src"))
+    18	
+    19	from cryptography.hazmat.primitives.asymmetric import ed25519  # noqa: E402
+    20	
+    21	from core.constitutional_engine.engine import ConstitutionalEngine  # noqa: E402
+    22	from core.constitutional_engine.ledger import ConstitutionalLedger  # noqa: E402
+    23	from core.sovereignty.enforcement_boundary import (  # noqa: E402
+    24	    NestedSovereignCallError,
+    25	    SovereignExecutionBoundary,
+    26	    _active_crossing,
+    27	)
+    28	from core.sovereignty.gateway import SovereignGateway  # noqa: E402
+    29	from core.sovereignty.idempotency import IdempotencyKey, IdempotencyLedger  # noqa: E402
+    30	from core.sovereignty.outbox import OutboxLedger, SovereignOutbox  # noqa: E402
+    31	from core.constitutional_engine.model import ActionRequest, Branch  # noqa: E402
+    32	
+    33	
+    34	def main() -> None:
+    35	    tmp = Path(tempfile.mkdtemp(prefix="probe_wi115_kimi_"))
+    36	
+    37	    gateway = SovereignGateway(ConstitutionalEngine(ledger=ConstitutionalLedger(tmp / "l.jsonl")))
+    38	    idempotency = IdempotencyLedger(tmp / "IDEMPOTENCY.json")
+    39	    outbox = SovereignOutbox(
+    40	        ledger=OutboxLedger(tmp / "OUTBOX.json"),
+    41	        verifying_key=ed25519.Ed25519PublicKey.from_public_bytes(
+    42	            bytes.fromhex(gateway.verifying_key_hex)
+    43	        ),
+    44	    )
+    45	    boundary = SovereignExecutionBoundary(
+    46	        gateway=gateway,
+    47	        idempotency_ledger=idempotency,
+    48	        outbox=outbox,
+    49	    )
+    50	
+    51	    state = {"treasury/account-A": "1000", "gov/case-A/row": "NONE"}
+    52	
+    53	    # فعلٌ سياديٌّ غيرُ مستثنًى (credit_account) داخلَ إطارِ gov.case.open النشطِ —
+    54	    # يُتوقَّعُ رفضُهُ قبلَ أيِّ decide وأيِّ قيدٍ.
+    55	    # مسبارٌ مباشرٌ: الإطارُ النشطُ يُثبَتُ بالمدخلِ العموميِّ (`_active_crossing`)
+    56	    # لا بعبورٍ خارجيٍّ — فالكاشفُ يُقاسُ على المنعِ قبلَ أيِّ حارسٍ وأيِّ قيدٍ.
+    57	    outer_token = None
+    58	    try:
+    59	        outer_token = _active_crossing.set(("gov.case.open", "gov/case-A"))
+    60	
+    61	        boundary.execute(
+    62	            ActionRequest(actor=Branch.EXECUTIVE, action="credit_account", target="treasury/account-A", channel="official"),
+    63	            declared_effects=(),
+    64	            planner=lambda _: (),
+    65	            applier=lambda e: state.__setitem__(e.resource, "MUTATED"),
+    66	            operation_key=IdempotencyKey(scope="probe", value="inner"),
+    67	        )
+    68	    except NestedSovereignCallError:
+    69	        print("PASS: NestedSovereignCallError raised for non-exempt 'credit_account' inside active crossing")
+    70	    else:
+    71	        print("FAIL: nesting silently allowed — no NestedSovereignCallError raised")
+    72	    finally:
+    73	        if outer_token is not None:
+    74	            _active_crossing.reset(outer_token)
+    75	
+    76	    # (3) السياقُ مستعادٌ — لا إطارَ معلَّقًا.
+    77	    if _active_crossing.get() is None:
+    78	        print("PASS: context restored (no dangling crossing frame)")
+    79	    else:
+    80	        print("FAIL: context NOT restored — dangling frame")
+    81	
+    82	
+    83	if __name__ == "__main__":
+    84	    main()
+=== RAW [13] END ===

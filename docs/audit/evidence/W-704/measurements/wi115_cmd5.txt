@@ -1,0 +1,33 @@
+=== RAW [5] BEGIN ===
+CMD: git show --stat 2b814b34
+EXIT: 0
+BYTES: 2007
+SHA256: 9cdf1572424eacdd6528c5c3958a4544784ab3ff5a494b2af73f106cd233509d
+NO_EOL: 0
+--- OUTPUT ---
+commit 2b814b340b4ed36af4d8353073d84ebb81d85587
+Author: vooovg-ui <326082239+vooovg-ui@users.noreply.github.com>
+Date:   Mon Oct 26 06:41:42 2026 +0000
+
+    W-685: تنفيذُ كاشفِ التعشيشِ لِـ WI-115 (المعيارُ (3) وشقُّ الكاشفِ من (5)): استثناءُ التعشيشِ بأزواجٍ مُجمَّدةٍ + NestedSovereignCallError يُرمى قبلَ أيِّ حارسٍ + استعادةٌ بالرمزِ عبرَ try/finally · 7 فحوصٍ جذريةٍ + مسبارٌ دائمٌ لقياسِ § 4 (المعوِّضُ داخلَ الإطارِ) · 3 طفراتٍ مقتولةٍ · المعيارُ (4) مؤجَّلٌ بتعارضٍ مقيسٍ معَ حرسِ Q-32 — عرضٌ على المالكِ · المنسِّقُ GLM-5.3 (Perplexity Computer)
+
+ PROJECT_STATE.md                                   |   3 +-
+ core/sovereignty/enforcement_boundary.py           | 275 ++++++-----
+ docs/PROJECT_HANDBOOK.md                           |  10 +-
+ docs/audit/ACTIVE_EXECUTION_STATE.md               |   1 +
+ docs/audit/COMPLETION_LEDGER.md                    |   3 +
+ docs/audit/evidence/W-685/README.md                | 105 ++++
+ docs/audit/evidence/W-685/before_measurements.txt  |  25 +
+ docs/audit/evidence/W-685/mutations/README.md      |  46 ++
+ .../W-685/mutations/after_restore_output.txt       |   3 +
+ .../W-685/mutations/m1_delete_check_exit.txt       |   1 +
+ .../W-685/mutations/m1_delete_check_output.txt     | 239 +++++++++
+ .../W-685/mutations/m2_single_name_exit.txt        |   1 +
+ .../W-685/mutations/m2_single_name_output.txt      | 239 +++++++++
+ .../W-685/mutations/m3_delete_finally_exit.txt     |   1 +
+ .../W-685/mutations/m3_delete_finally_output.txt   | 532 +++++++++++++++++++++
+ docs/governance/work/ACTIVE_WORK.md                |  10 +-
+ .../tests/test_wi115_nesting_compensator_frame.py  | 237 +++++++++
+ tests/sovereignty/test_wi115_nesting_detector.py   | 406 ++++++++++++++++
+ 18 files changed, 2016 insertions(+), 121 deletions(-)
+=== RAW [5] END ===

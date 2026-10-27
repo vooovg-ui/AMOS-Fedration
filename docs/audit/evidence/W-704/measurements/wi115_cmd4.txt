@@ -1,0 +1,14 @@
+=== RAW [4] BEGIN ===
+CMD: git log --format='%h %cI %s' -- core/sovereignty/enforcement_boundary.py tests/sovereignty/test_wi115_nesting_detector.py federal/executive/services/tests/test_wi115_reversed_replay.py federal/executive/services/tests/test_wi115_nesting_compensator_frame.py
+EXIT: 0
+BYTES: 2549
+SHA256: 1d22d1badaa14b88295b92b6cc2a02e7bd63ea4fbc5d3e10475c4b3a6b6204c8
+NO_EOL: 0
+--- OUTPUT ---
+d9603291 2026-10-26T06:57:24Z W-686: تصحيحٌ مؤرَّخٌ لحمرةِ lint في CI على رأسِ PR #159 (تشغيلٌ 40281491512 · بوّابةُ lint وحْدَها · سابقةُ W-676): علاماتُ noqa: E402 لاستيرادَي core وفقَ عُرفِ الشجرةِ + اسمٌ لاتينيٌّ للمسبارِ (N802) + تنظيمُ استيراداتٍ وتنسيقٌ · القياسُ بعدَ: تسلسلُ lint كاملًا أخضرُ محليًّا بترتيبِ CI نفسِهِ · لا انتقالَ حالةٍ · المنسِّقُ GLM-5.3 (Perplexity Computer)
+2b814b34 2026-10-26T06:41:42Z W-685: تنفيذُ كاشفِ التعشيشِ لِـ WI-115 (المعيارُ (3) وشقُّ الكاشفِ من (5)): استثناءُ التعشيشِ بأزواجٍ مُجمَّدةٍ + NestedSovereignCallError يُرمى قبلَ أيِّ حارسٍ + استعادةٌ بالرمزِ عبرَ try/finally · 7 فحوصٍ جذريةٍ + مسبارٌ دائمٌ لقياسِ § 4 (المعوِّضُ داخلَ الإطارِ) · 3 طفراتٍ مقتولةٍ · المعيارُ (4) مؤجَّلٌ بتعارضٍ مقيسٍ معَ حرسِ Q-32 — عرضٌ على المالكِ · المنسِّقُ GLM-5.3 (Perplexity Computer)
+93434790 2026-10-25T08:45:43Z W-670: WI-115 — إصلاحُ § 3.5: إعادةُ صرفٍ بمفتاحِ حركةٍ معكوسةٍ تُرفَضُ (EntityStateError) · فحصانِ وطفرةٌ · وثائقُ الحالةِ وأرقامُ الحزمِ (2727 · 1525+53) — المنسِّقُ Claude Opus 5.5
+968e5ba4 2026-10-22T05:38:45Z W-603: وصل التعويض الآلي في الحد (core/sovereignty/enforcement_boundary.py وحده · قرار المالك Q-70 · ملحق التصميم § 7) — تتبع الأثر · لف run_once ⇒ CompensationGuard.compensate بمفتاح الحلقة ثم CompensationRequired · FAILED_RETRYABLE/FAILED_FINAL · T6p/T8/T9/T10 · الطفرات M5–M8 كل أسقط فحصه · مسبار W-601 بعد الوصل: المعوض 1 في السطحين · DISC-129 · D-4 181←181 · نص المسبار الإلزامي في COUNCIL_PROTOCOL § 4.9 والقالب (التوجيه 18 § 3)
+6ad36aed 2026-08-19T08:43:18Z fix(P22): قصرُ مسحِ الحرسِ الساكنِ على ما يُعلِنُه المشروعُ لا على مبنيّاتِ المفسِّرِ
+0a5bc77b 2026-08-18T08:52:52Z 1M: حدُّ التنفيذِ السياديُّ والحرسُ الساكن — فرضُ 1E–1K على مسارِ التنفيذ
+=== RAW [4] END ===

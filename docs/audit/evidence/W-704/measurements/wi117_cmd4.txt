@@ -1,0 +1,22 @@
+=== RAW [4] BEGIN ===
+CMD: git log --format='%h %cI %s' -- federal/executive/services/src/amos_federation/services/governance/main.py federal/executive/services/src/amos_federation/services/control_console/main.py federal/executive/services/tests/test_wi117_king_guard_routes.py
+EXIT: 0
+BYTES: 2109
+SHA256: 7ce0faf53d4fabe03a3052b77c751ce6991dc9576aa436f7c577f8c2cf5a0ac2
+NO_EOL: 0
+--- OUTPUT ---
+e15e5b82 2026-10-26T10:33:12Z W-690: تصحيحٌ مؤرَّخٌ لحمرةِ lint على رأسِ PR #162 — تنسيقُ 3 ملفاتِ فحصٍ بـruff format (تنسيقٌ لا تغييرَ في المضمونِ · 65 فحصًا خضراءَ بعدَه) · لا انتقالَ حالةٍ · سابقةُ W-676/W-686 · المنسِّقُ GLM-5.3 (Perplexity Computer)
+f8d33807 2026-10-26T10:15:25Z W-689: شِفرةُ تحصينِ WI-117 — require_king على المساراتِ الأربعةِ (reset ×2 · promotions · gates) + تحصينُ sign_approval (الموقِّعُ هويةُ الرمزِ لا جسمَ الطلبِ) + 13 فحصًا + طفرةٌ مقتولةٌ + مسبارُ HTTP حقيقيٌّ (مواطنٌ ⇒ 403 ×5 والمستوى halt والملكُ 200) · انتقالٌ واحدٌ: IN_PROGRESS→IN_REVIEW · D-4: تصحيحٌ لا حرقٌ · المنسِّقُ GLM-5.3 (Perplexity Computer)
+f4df92e2 2026-08-16T20:50:29Z R4: توحيد هوية الوكيل والسجل والسكّان — مصدر حقيقة واحد وإسقاط سكّاني
+93c524db 2026-08-15T07:44:23Z chore: fix CI, identity checks, and code formatting
+3f601e7b 2026-08-15T04:46:17Z Phase 11: Full population expansion + universities + retirement (v1.0 roadmap)
+08b46ae9 2026-08-15T04:37:44Z Phase 10: Federal Treasury + amos-credit digital currency (v1.0 roadmap)
+6c97d476 2026-08-15T04:29:38Z Phase 9: Federal institutions + complete governance (v1.0 roadmap)
+f1816aef 2026-08-15T04:20:45Z Phase 8: Agent Health System + PostgreSQL (v1.0 roadmap)
+858cc365 2026-08-15T03:49:52Z Phase 7: Control Console — human control surface (v1.0 roadmap)
+5bd8f75b 2026-08-15T03:39:44Z Phase 3: Foundational governance (v1.0 roadmap)
+bc573e24 2026-08-15T03:37:14Z Phase 2: Event bus / nervous system (v1.0 roadmap)
+5597816d 2026-08-15T03:34:39Z Phase 1: Persistent memory (v1.0 roadmap)
+5052d4ba 2026-08-15T01:57:01Z Phase 6: Governance + Canary
+21bfaecb 2026-08-15T03:39:37+03:00 feat(services): تنفيذ هياكل الخدمات التسعة + مصادقة JWT + بوابة المهام والمنسق
+=== RAW [4] END ===

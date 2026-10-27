@@ -1,0 +1,16 @@
+=== RAW [9] BEGIN ===
+CMD: rg -n "NESTED_SOVEREIGN_EXEMPTIONS|NestedSovereignCallError|open_case" core/sovereignty/enforcement_boundary.py
+EXIT: 0
+BYTES: 796
+SHA256: 546f6b1a06a270ecccc25ef587bee4307dfb536676c5b6b035079a9cfaf0da04
+NO_EOL: 0
+--- OUTPUT ---
+119:# النصُّ المقيسُ (W-665 § 1): التعشيشُ القائمُ الوحيدُ اليومَ هو `open_case` —
+123:# لا أسماءٌ مفردة، فلا يصيرُ `open_case` بابًا لأيِّ عبورٍ داخلَه — وهو
+128:NESTED_SOVEREIGN_EXEMPTIONS: Final[frozenset[tuple[str, str]]] = frozenset(
+186:class NestedSovereignCallError(EnforcementBoundaryError):
+191:    المُعفاةُ أزواجُهُ في `NESTED_SOVEREIGN_EXEMPTIONS` (open_case باسمِه).
+377:        if outer_crossing is not None and (outer_crossing[0], request.action) not in NESTED_SOVEREIGN_EXEMPTIONS:
+378:            raise NestedSovereignCallError(
+381:                "والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه)."
+=== RAW [9] END ===

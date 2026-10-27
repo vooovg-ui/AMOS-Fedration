@@ -1,0 +1,11 @@
+=== RAW [14] BEGIN ===
+CMD: cat docs/audit/evidence/W-701/briefs_wi119/SHA256SUMS
+EXIT: 0
+BYTES: 268
+SHA256: 385cbff62bf797f3924b753f7d9ec30e39e3218ba3309b6e829d58e9f081af52
+NO_EOL: 0
+--- OUTPUT ---
+1a4a66aed889802c98477899668d6e00f025fbf047d90e7bc553f7b40469fdae  briefing_gemini_3_8_flash.md
+83a4c4de9c37f49f4190b7171cce352b735bf3ae323e0265071527a606088f30  briefing_grok_4_7.md
+2cb2df2277aa1335adaf6912214986cbd687c954bce7bb10e3efd822c068b356  briefing_kimi_k3.md
+=== RAW [14] END ===

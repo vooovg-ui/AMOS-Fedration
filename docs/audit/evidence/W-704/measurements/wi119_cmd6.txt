@@ -1,0 +1,40 @@
+=== RAW [6] BEGIN ===
+CMD: git show --stat 5f644d88
+EXIT: 0
+BYTES: 2268
+SHA256: fd8f92bd86c8ffcf685165acb63e9cfce5c8cd56ea5aa2dae968d0bdd73b2171
+NO_EOL: 0
+--- OUTPUT ---
+commit 5f644d889671edf5568a4b9ebbf58c6f917b5d32
+Author: vooovg-ui <326082239+vooovg-ui@users.noreply.github.com>
+Date:   Tue Oct 27 06:43:52 2026 +0000
+
+    W-699: شِفرةُ E1 · النصفُ الثاني · أسطحُ agent_runtime الثمانيةُ تعبرُ الحدَّ السياديَّ (نوى خاصّةٌ ومعوّضاتٌ · مفتاحُ §2.4 بمعاملِ operation_id باعتمادِ المالكِ Q-74 · فحوصُ الأصنافِ الخمسةِ 27 · محرّكُ طفراتٍ 15 · القبولُ D-4 129←121 والسياديّةُ 51←59) · المنسِّقُ GLM-5.3 (Perplexity Computer)
+
+ PROJECT_STATE.md                                   |    4 +-
+ docs/PROJECT_HANDBOOK.md                           |    7 +-
+ docs/audit/ACTIVE_EXECUTION_STATE.md               |    1 +
+ docs/audit/COMPLETION_LEDGER.md                    |    2 +
+ .../audit/E1_EXECUTIVE_IDENTITY_CROSSING_DESIGN.md |    4 +-
+ docs/audit/SOVEREIGN_DECISION_REGISTER.md          |   13 +
+ docs/audit/TRUTH_MATRIX.md                         |    6 +-
+ docs/audit/evidence/W-699/README.md                |   58 +
+ docs/audit/evidence/W-699/ci/README.md             |   35 +
+ .../evidence/W-699/ci/main_5b0abef3_jobs.json      | 1666 ++++++++++
+ docs/audit/evidence/W-699/ci/pr167_green_jobs.json | 1666 ++++++++++
+ .../audit/evidence/W-699/inventory_after_w699.json | 3266 ++++++++++++++++++++
+ docs/audit/evidence/W-699/mutation_results.json    |  125 +
+ docs/audit/measurements/decision_gate_ledger.json  |   16 +
+ docs/audit/measurements/decision_wave_map.json     |    6 +-
+ docs/audit/measurements/final_audit_p14.json       |   16 +-
+ docs/audit/measurements/write_inventory_p13.json   |  129 +-
+ docs/audit/truth_matrix.json                       |   28 +-
+ docs/governance/work/ACTIVE_WORK.md                |    6 +-
+ .../services/agent_runtime/health.py               |  879 +++++-
+ .../services/agent_runtime/population.py           |  578 +++-
+ .../services/executive_core/agent_identity.py      |  104 +-
+ .../executive/services/tests/test_phase7_health.py |    4 +-
+ .../tests/test_w699_agent_runtime_crossing.py      | 1186 +++++++
+ .../test_q3_branch_declaration_surface.py          |   14 +-
+ 25 files changed, 9472 insertions(+), 347 deletions(-)
+=== RAW [6] END ===

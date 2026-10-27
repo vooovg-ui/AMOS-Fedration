@@ -1,0 +1,22 @@
+=== RAW [11] BEGIN ===
+CMD: rm -rf ../old && git worktree add --detach ../old 5f644d88^ && cp federal/executive/services/tests/test_w699_agent_runtime_crossing.py ../old/federal/executive/services/tests/ && cd ../old && /home/user/workspace/council_w701/kimi_k3/wi119/repo/.venv/bin/python -m pytest -q -p no:cacheprovider federal/executive/services/tests/test_w699_agent_runtime_crossing.py
+EXIT: 0
+BYTES: 1111
+SHA256: 75ac22458d13ddc687b281c82f229945358cba54eee9ef0f3f70d0c65498d46d
+NO_EOL: 0
+--- OUTPUT ---
+Preparing worktree (detached HEAD 5b0abef3)
+HEAD is now at 5b0abef3 W-698: تصحيحُ حمرةِ CI الثانيةِ على رأسِ PR #167: تنسيقُ ruff format لملفاتِ E1 الأربعةِ (تجميليٌّ · لا تغييرَ قصدٍ · سابقةُ W-676/W-686) + إعادةُ توليدِ المصفوفةِ والقياساتِ · المنسِّقُ GLM-5.3 (Perplexity Computer)
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+rootdir: /home/user/workspace/council_w701/kimi_k3/wi119/old/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.6, asyncio-1.4.1, cov-7.1.0, anyio-4.15.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 41 items
+
+federal/executive/services/tests/test_w699_agent_runtime_crossing.py ... [  7%]
+......................................                                   [100%]
+
+============================== 41 passed in 4.73s ==============================
+=== RAW [11] END ===

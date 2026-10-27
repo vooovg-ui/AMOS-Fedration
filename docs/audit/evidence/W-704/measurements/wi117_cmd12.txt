@@ -1,0 +1,8 @@
+=== RAW [12] BEGIN ===
+CMD: git checkout -- federal/executive/services/src/amos_federation/services/governance/main.py federal/executive/services/src/amos_federation/services/control_console/main.py && git status --short && git diff --stat
+EXIT: 0
+BYTES: 0
+SHA256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+NO_EOL: 0
+--- OUTPUT ---
+=== RAW [12] END ===

@@ -1,0 +1,10 @@
+=== RAW [7] BEGIN ===
+CMD: .venv/bin/python -m pytest -q -p no:cacheprovider tests/sovereignty/test_wi115_nesting_detector.py
+EXIT: 0
+BYTES: 98
+SHA256: caf56757b18b52a7c892a24609a6f4ec6e8900c554da434531b573fc2a87250b
+NO_EOL: 0
+--- OUTPUT ---
+.......                                                                  [100%]
+7 passed in 0.12s
+=== RAW [7] END ===

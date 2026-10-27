@@ -1,0 +1,36 @@
+=== RAW [5] BEGIN ===
+CMD: git show --stat f8d33807
+EXIT: 0
+BYTES: 2051
+SHA256: 6838873fa7af86690eb5a1b8deb32288c24cb6053a43bccc223c96427c8a8b26
+NO_EOL: 0
+--- OUTPUT ---
+commit f8d338077f7450a89dfe01a060dbf0e452dee7e8
+Author: vooovg-ui <326082239+vooovg-ui@users.noreply.github.com>
+Date:   Mon Oct 26 10:15:25 2026 +0000
+
+    W-689: شِفرةُ تحصينِ WI-117 — require_king على المساراتِ الأربعةِ (reset ×2 · promotions · gates) + تحصينُ sign_approval (الموقِّعُ هويةُ الرمزِ لا جسمَ الطلبِ) + 13 فحصًا + طفرةٌ مقتولةٌ + مسبارُ HTTP حقيقيٌّ (مواطنٌ ⇒ 403 ×5 والمستوى halt والملكُ 200) · انتقالٌ واحدٌ: IN_PROGRESS→IN_REVIEW · D-4: تصحيحٌ لا حرقٌ · المنسِّقُ GLM-5.3 (Perplexity Computer)
+
+ PROJECT_STATE.md                                   |   3 +-
+ docs/PROJECT_HANDBOOK.md                           |   7 +-
+ docs/audit/ACTIVE_EXECUTION_STATE.md               |   1 +
+ docs/audit/COMPLETION_LEDGER.md                    |   3 +
+ docs/audit/TRUTH_MATRIX.md                         |   4 +-
+ docs/audit/evidence/W-689/README.md                |  45 ++++
+ docs/audit/evidence/W-689/http_probe.py            | 247 +++++++++++++++++++++
+ docs/audit/evidence/W-689/http_probe_raw.txt       |  56 +++++
+ docs/audit/evidence/W-689/mutations/README.md      |  40 ++++
+ .../W-689/mutations/after_restore_output.txt       |   2 +
+ .../W-689/mutations/m1_guard_dropped_exit.txt      |   1 +
+ .../W-689/mutations/m1_guard_dropped_output.txt    |   6 +
+ .../evidence/W-689/mutations/mutation_log.txt      |  11 +
+ docs/audit/truth_matrix.json                       |  10 +-
+ docs/governance/work/ACTIVE_WORK.md                |  12 +-
+ .../services/control_console/main.py               |  20 +-
+ .../amos_federation/services/governance/main.py    |   8 +-
+ federal/executive/services/tests/per_test_auth.py  |  10 +-
+ .../services/tests/test_control_console.py         |  61 ++++-
+ .../executive/services/tests/test_governance.py    |  42 ++--
+ .../services/tests/test_wi117_king_guard_routes.py | 126 +++++++++++
+ 21 files changed, 656 insertions(+), 59 deletions(-)
+=== RAW [5] END ===

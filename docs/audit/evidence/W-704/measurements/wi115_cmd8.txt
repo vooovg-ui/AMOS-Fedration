@@ -1,0 +1,20 @@
+=== RAW [8] BEGIN ===
+CMD: .venv/bin/python -m pytest -q -p no:cacheprovider federal/executive/services/tests/test_wi115_reversed_replay.py federal/executive/services/tests/test_wi115_nesting_compensator_frame.py
+EXIT: 0
+BYTES: 712
+SHA256: 2de2fcad80f02f06be4ff584cc04bfb35c447cc1ad8343de8b3d4103f255b55c
+NO_EOL: 0
+--- OUTPUT ---
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0
+rootdir: /home/user/workspace/council_w701/kimi_k3/wi115/repo/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.13.6, asyncio-1.4.1, cov-7.1.0, anyio-4.15.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 3 items
+
+federal/executive/services/tests/test_wi115_reversed_replay.py ..        [ 66%]
+federal/executive/services/tests/test_wi115_nesting_compensator_frame.py . [100%]
+
+============================== 3 passed in 1.59s ===============================
+=== RAW [8] END ===
