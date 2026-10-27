@@ -1,5 +1,6 @@
-قياسٌ مباشرٌ (منسِّقٌ GLM-5.3 · W-706): مستوى مفتاح الإيقاف قبلَ وبعدَ محاولةِ المواطنِ المرفوضةِ
-الجذرُ: council_w701/kimi_k3/wi117 (repo عند العقدةِ 147a0c6b) · uvicorn حقيقيٌّ على gov:8711 · مواطنٌ role=citizen
+ملخّصُ قياسِ منسِّقٍ (GLM-5.3 · W-707) — ليسَ مخرجًا خامًّا لبرنامجٍ آليٍّ بل ملخّصٌ كتبهُ المنسِّقُ من قياسٍ مباشرٍ في الجلسةِ
+النطاقُ: خدمةُ governance وحدها · مسارُ reset وحده (لا المساراتُ الأربعةُ ولا خدمةُ console)
+الجذرُ: council_w701/kimi_k3/wi117 (repo عند العقدةِ 147a0c6b — نظافةٌ مقيسةٌ: git status --porcelain = 0) · uvicorn حقيقيٌّ على gov:8711 · مواطنٌ role=citizen
 الأمرُ: activate halt (مواطنٌ · مسارٌ غيرُ محروسٍ يقرأه require_auth) ← قراءةُ /v1/system/status ← محاولةُ /v1/system/kill-switch/reset (مواطنٌ) ← قراءةُ /v1/system/status
 
 activate halt (citizen): 200 {"level":"halt","reason":"probe pre",...}
