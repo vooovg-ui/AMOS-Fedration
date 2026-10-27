@@ -391,16 +391,16 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 500,
-      "py_files": 20,
+      "md_files": 516,
+      "py_files": 21,
       "yaml_files": 0,
-      "code_lines": 1681,
+      "code_lines": 1875,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
       },
       "has_readme": true,
-      "real_source_hits": 11,
+      "real_source_hits": 14,
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,
