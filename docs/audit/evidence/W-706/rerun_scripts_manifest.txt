@@ -1,0 +1,15 @@
+بصماتُ المسابِرِ المُشغَّلةِ في evidence/W-706 (مطابقةٌ للمَنشورِ في evidence/W-704/raw_probe · بصمةٌ واحدةٌ لكلِّ مسبارٍ — النسخةُ المنشورةُ = النسخةُ المُشغَّلةُ):
+971e21897b036cc98823d43ce2ee1de9ab434ec207ad58d1c6bca77bfae334a1  docs/audit/evidence/W-704/raw_probe/king_guard_http_probe.py
+00ea112da10e5a88ae5cace4df01ea7d7dac198c0e38e2f450dd7600431c344d  docs/audit/evidence/W-704/raw_probe/nested_break_probe.py
+96f290d77983f85f0a7b128779e5d046d497aa10e9d2c640ca5813c32b235fdd  docs/audit/evidence/W-704/raw_probe/register_agent_probe.py
+
+مطابقةُ بصمةِ النسخةِ المُشغَّلةِ على جذرِ العزلِ (council_w701/kimi_k3/{wi117,wi115,wi119}/probe/) معَ المنشورةِ:
+king_guard_http_probe.py:   971e21897b036cc98823d43ce2ee1de9ab434ec207ad58d1c6bca77bfae334a1  == published
+nested_break_probe.py:     00ea112da10e5a88ae5cace4df01ea7d7dac198c0e38e2f450dd7600431c344d  == published
+register_agent_probe.py:   96f290d77983f85f0a7b128779e5d046d497aa10e9d2c640ca5813c32b235fdd  == published
+
+عقدةُ المستودعِ في جذورِ العزلِ: 147a0c6b1357ddf0a93ba1c4d16e82e8648cb247 (آخرُ التزامٍ على main يمسُّ مجلَّدَي الإحاطاتِ — الأصلُ في إحاطاتِ W-701 المبصومةِ)
+نظافةُ الجذرِ مقابلَ الإحاطةِ: الإحاطاتُ التسعُ مُبصَمةٌ في SHA256SUMS (evidence/W-701) ولم تُمسَّ · المسباراتُ نسخٌ من المنشورِ المُبصَمِ أعلاه.
+
+ملاحظةٌ على عدِّ النتائجِ (تصحيحُ وصفٍ سابقٍ): king_guard_rerun.txt يحوي 6 أسطرِ PASS (مواطنٌ 403 ×4 + ملكٌ 200 ×2) — لا «PASS ×5» كما وُصفَ سابقًا · والعدُّ الإجماليُّ للمسابِرِ الثلاثةِ = 2+3+6 = 11 سطرَ PASS لا 10.
+ملاحظةٌ على مستوى مفتاحِ الإيقافِ: عبارةُ «level after citizen attempt: None» في مخرجاتِ المسبارِ لا تُثبِتُ بقاءَ المستوى (المسارُ GET /v1/system/kill-switch يرفضُ 405) — القياسُ المباشرُ في level_direct_measurement.txt (المستوى halt قبلَ وبعدَ · LEVEL UNCHANGED: True) هو الدليلُ.

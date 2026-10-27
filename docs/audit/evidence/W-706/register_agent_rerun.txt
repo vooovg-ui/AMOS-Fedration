@@ -1,0 +1,3 @@
+PASS: register_agent succeeded for probe-1b885885 (result keys: ['agent_id', 'allowed_tools', 'canonical', 'category', 'created_at', 'graduated_at', 'identity_source', 'name', 'permissions', 'role', 'school_score', 'specialization', 'state', 'token_budget', 'tokens_used'])
+PASS: identity recorded for probe-1b885885 — lifecycle_state=registered
+PASS: second register_agent with same id rejected: DuplicateAgentIdentityError: هوية موجودة فعلًا بهذا المعرّف: probe-1b885885

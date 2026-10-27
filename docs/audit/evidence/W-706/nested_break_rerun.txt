@@ -1,0 +1,2 @@
+PASS: NestedSovereignCallError raised for non-exempt 'credit_account' inside active crossing: عبورٌ سياديٌّ داخلَ عبورٍ نشطٍ: الفعلُ 'credit_account' داخلَ إطارِ 'gov.case.open' — التعشيشُ السياديُّ ممنوعٌ (WI-115 · Q-9) والزوجُ ليسَ منَ الاستثناءِ المسجَّلِ (open_case باسمِه وحدَه).
+PASS: context restored (no dangling crossing frame)

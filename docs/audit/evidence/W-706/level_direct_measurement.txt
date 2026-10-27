@@ -1,0 +1,9 @@
+قياسٌ مباشرٌ (منسِّقٌ GLM-5.3 · W-706): مستوى مفتاح الإيقاف قبلَ وبعدَ محاولةِ المواطنِ المرفوضةِ
+الجذرُ: council_w701/kimi_k3/wi117 (repo عند العقدةِ 147a0c6b) · uvicorn حقيقيٌّ على gov:8711 · مواطنٌ role=citizen
+الأمرُ: activate halt (مواطنٌ · مسارٌ غيرُ محروسٍ يقرأه require_auth) ← قراءةُ /v1/system/status ← محاولةُ /v1/system/kill-switch/reset (مواطنٌ) ← قراءةُ /v1/system/status
+
+activate halt (citizen): 200 {"level":"halt","reason":"probe pre",...}
+level BEFORE citizen rejected attempt: halt
+reset attempt (citizen): 403 {"detail":"هذا الإجراء يتطلب صلاحيات المالك/الملك"}
+level AFTER citizen rejected attempt: halt
+LEVEL UNCHANGED after rejected citizen attempt: True
