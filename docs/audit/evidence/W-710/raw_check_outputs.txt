@@ -1,0 +1,47 @@
+# مخرجاتُ الفاحصِ council_verdict_raw_check.py على الأحكامِ التسعةِ (من مستودعِ المنسِّقِ عندَ رأسِ main 081e75f3 — يضمُّ عقدةَ الجولةِ 147a0c6b) · قيدُ W-710 · 2026-10-28
+
+== gemini_3_8_flash / wi117 ==
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/council_w701/gemini_3_8_flash/wi117/VERDICT.md · أوامرُ 17 · كتلُ RAW 17
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+== gemini_3_8_flash / wi119 ==
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/council_w701/gemini_3_8_flash/wi119/VERDICT.md · أوامرُ 16 · كتلُ RAW 16
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+== gemini_3_8_flash / wi115 ==
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/council_w701/gemini_3_8_flash/wi115/VERDICT.md · أوامرُ 14 · كتلُ RAW 14
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+== grok_4_7 / wi117 ==
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/council_w701/grok_4_7/wi117/VERDICT.md · أوامرُ 18 · كتلُ RAW 18
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+== grok_4_7 / wi119 ==
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/council_w701/grok_4_7/wi119/VERDICT.md · أوامرُ 19 · كتلُ RAW 19
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+== grok_4_7 / wi115 ==
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/council_w701/grok_4_7/wi115/VERDICT.md · أوامرُ 14 · كتلُ RAW 14
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+== kimi_k3 / wi117 ==
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/council_w701/kimi_k3/wi117/VERDICT.md · أوامرُ 17 · كتلُ RAW 17
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+== kimi_k3 / wi119 ==
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/council_w701/kimi_k3/wi119/VERDICT.md · أوامرُ 19 · كتلُ RAW 19
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+== kimi_k3 / wi115 ==
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/council_w701/kimi_k3/wi115/VERDICT.md · أوامرُ 15 · كتلُ RAW 15
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+

@@ -1,0 +1,96 @@
+# قياساتُ افتتاحِ الجلسة (W-710 · 2026-10-28 · المنسِّق GLM-5.3 · Perplexity Computer)
+
+== bootstrap.sh ==
+EXIT=0
+    federal/executive/services/src federal/executive/services/tests
+
+وتذكّرْ: آخرُ أمرٍ يُغيِّرُ بايتًا من الكودِ يسبقُ آخرَ توليدٍ للمصفوفة.
+
+== check_work_governance --self-check ==
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-040: قيدُه (W-637) مدموجٌ في «origin/main» وحالتُه ما زالت IN_PROGRESS — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-082: قيدُه (W-498، W-576) مدموجٌ في «origin/main» وحالتُه ما زالت VERIFIED — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-096: قيدُه (W-611) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-098: قيدُه (W-498) مدموجٌ في «origin/main» وحالتُه ما زالت PROPOSED — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-100: قيدُه (W-498، W-499، W-500، W-501، W-502، W-503، W-504، W-507، W-508، W-509، W-510، W-511، W-512، W-560، W-574، W-575، W-662) مدموجٌ في «origin/main» وحالتُه ما زالت IN_PROGRESS — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-102: قيدُه (W-553، W-554، W-555، W-559) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-103: قيدُه (W-561، W-562، W-563، W-564، W-565، W-566، W-567، W-568، W-571، W-572، W-573) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-109: قيدُه (W-636، W-638، W-639) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-110: قيدُه (W-636، W-638، W-639) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-112: قيدُه (W-643) مدموجٌ في «origin/main» وحالتُه ما زالت READY — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-113: قيدُه (W-666، W-668، W-669، W-673) مدموجٌ في «origin/main» وحالتُه ما زالت VERIFIED — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-114: قيدُه (W-664، W-672، W-675) مدموجٌ في «origin/main» وحالتُه ما زالت IN_PROGRESS — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-115: قيدُه (W-665، W-668، W-670، W-673) مدموجٌ في «origin/main» وحالتُه ما زالت IN_PROGRESS — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-117: قيدُه (W-672) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+EXIT=0
+
+== check_work_governance --today 2026-11-01 ==
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-040: قيدُه (W-637) مدموجٌ في «origin/main» وحالتُه ما زالت IN_PROGRESS — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-082: قيدُه (W-498، W-576) مدموجٌ في «origin/main» وحالتُه ما زالت VERIFIED — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-096: قيدُه (W-611) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-098: قيدُه (W-498) مدموجٌ في «origin/main» وحالتُه ما زالت PROPOSED — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-100: قيدُه (W-498، W-499، W-500، W-501، W-502، W-503، W-504، W-507، W-508، W-509، W-510، W-511، W-512، W-560، W-574، W-575، W-662) مدموجٌ في «origin/main» وحالتُه ما زالت IN_PROGRESS — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-102: قيدُه (W-553، W-554، W-555، W-559) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-103: قيدُه (W-561، W-562، W-563، W-564، W-565، W-566، W-567، W-568، W-571، W-572، W-573) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-109: قيدُه (W-636، W-638، W-639) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-110: قيدُه (W-636، W-638، W-639) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-112: قيدُه (W-643) مدموجٌ في «origin/main» وحالتُه ما زالت READY — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-113: قيدُه (W-666، W-668، W-669، W-673) مدموجٌ في «origin/main» وحالتُه ما زالت VERIFIED — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-114: قيدُه (W-664، W-672، W-675) مدموجٌ في «origin/main» وحالتُه ما زالت IN_PROGRESS — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-115: قيدُه (W-665، W-668، W-670، W-673) مدموجٌ في «origin/main» وحالتُه ما زالت IN_PROGRESS — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-117: قيدُه (W-672) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ✗ مخالفات: 17
+  RESERVATION_EXPIRED: WI-026: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-027: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-028: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-029: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-030: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-031: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-033: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-036: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-034: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-038: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-039: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_PROGRESS — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-040: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_PROGRESS — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-041: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-043: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-047: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-046: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+  RESERVATION_EXPIRED: WI-045: انتهى الحجزُ في 2026-10-31 والحالةُ ما زالت IN_REVIEW — يُحدَّثُ الحجزُ أو يُسلَّمُ البندُ (THE_ROADMAP § 6.3)
+
+  القانونُ الملزم: docs/governance/work/THE_ROADMAP.md § 2 · § 6 · § 7
+EXIT=1
+
+== truth_audit --ratchet ==
+[TRUTH AUDIT] أقاليم: 12 | مُثبَتة: 0 | مخالفات: 61
+  - IN_MEMORY_STORE: 59
+  - HARDCODED_TRUTH: 2
+[TRUTH AUDIT] كُتبت: /home/user/workspace/amos/docs/audit/TRUTH_MATRIX.md
+[RATCHET] ثابت عند 61 مخالفة.
+EXIT=0
+
+== state_document_drift ==
+[STATE DRIFT] موضعُ وثائقِ الحالةِ من سجلِّ الإكمالِ:
+  أحدثُ قيدٍ في § 8: W-709 (2026-10-27) · صفوفٌ: 707
+  PROJECT_STATE.md: أحدثُ قيدٍ مذكورٍ W-709 · تاريخٌ مُعلَنٌ 2026-10-27 · قيودٌ مذكورةٌ 397
+    الحقلُ المُعلَنُ حالةً: Last Completed Work · قيدُه W-709 · السطرُ 25
+  docs/PROJECT_HANDBOOK.md: أحدثُ قيدٍ مذكورٍ W-709 · تاريخٌ مُعلَنٌ 2026-10-27 · قيودٌ مذكورةٌ 124
+    الحقلُ المُعلَنُ حالةً: تاريخ آخر تعديل · قيدُه W-709 · السطرُ 12
+  ملاحظة · LEDGER_HEAD: أحدثُ قيدٍ مقروءٍ في § 8: W-709 (2026-10-27) · وعددُ الصفوفِ 707 · ووثائقُ الحالةِ المُعلَنةُ 2 منها 0 متأخِّرةٌ · وحقولٌ مُعلَنةٌ متأخِّرةٌ 0.
+  ✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ.
+EXIT=0
+
+== identity ==
+identity tool name unknown
+EXIT=0
+
+== main node ==
+081e75f33b03415763731567b4ec06b5b5cdbfd9 2026-10-27T18:30:24Z W-709: توثيقُ قضيةِ CI لدفعةِ W-708
+== round node (الأمر 1 من الإحاطات) ==
+147a0c6b1357ddf0a93ba1c4d16e82e8648cb247
+== فروع بعيدة / PRs مفتوحة ==
+73	Revert "W-402+W-403: WI-082 — هجرة register_identity عبر الحد السيادي بفعل spawn_agent (Q-15 ①)"	revert-72-wi-082-spawn-agent	OPEN	2026-10-18T04:24:56Z
+71	WI-086 (C3): أ-2 في ConstitutionalLedger.append() — DISC-100 · مكدَّسٌ فوقَ WI-082 م3 وWI-085	wi-086-ledger-a2	OPEN	2026-10-17T06:30:03Z
+70	WI-085: قياسُ جذرِ DISC-100 ووثيقةُ تصميمِ المسارِ (أ) — W-407..W-412 (مكدَّسٌ فوقَ wi-082-stage3 · لا دمجَ قبلَ قرارِ المالك)	wi-085-ledger-append-design	OPEN	2026-10-17T01:47:58Z
+69	W-402..W-404: WI-082 — هجرةُ register_identity عبرَ الحدِّ السياديِّ بفعلِ spawn_agent (Q-15 ①) + IN_REVIEW + تصحيحاتُ CI	wi-082-stage3	OPEN	2026-10-16T20:34:59Z
+55	W-337: WI-074 — مِسبارُ الطفرةِ على حرسِ Q-E (4/4 CAUGHT) · IN_PROGRESS → IN_REVIEW	w-337-mutation-probe	OPEN	2026-10-15T01:35:38Z
