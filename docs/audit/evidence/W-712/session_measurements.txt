@@ -1,0 +1,31 @@
+# قياساتُ جلسةِ الإغلاقِ (W-712 · 2026-10-28 · المنسِّق GLM-5.3 · Perplexity Computer)
+
+== رأسُ main بعدَ دمجِ W-711 ==
+46e49040 W-711: تصحيحٌ مؤرَّخٌ (قاعدةُ 9) لحمرةِ CI الكاملِ على رأسَي الدفعتَينِ … (التقديمُ السريعُ 13785310..46e49040 · PR #176 MERGED)
+
+== واجبُ N+1 لدفعةِ W-711 (كلُّ تشغيلاتِ العقدةِ 46e49040 بالفاحصِ كلًّا بقِراءتِهِ) ==
+.venv/bin/python tools/governance/ci_verdict_readability.py --from-json <payload> --require-readable --expect-sha 46e49040ca7225b70aa3e1ed08f6dc3736fda96c
+- تشغيلُ المصفوفةِ على الفرعِ 40650581892 (push · 1/1): EXIT 0 — «كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — فالدمجُ جائزٌ إجرائيًّا»
+- تشغيلُ CI الكاملِ على الفرعِ 40650589167 (pull_request · PR #176 · 13/13): EXIT 0 — «كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — فالدمجُ جائزٌ إجرائيًّا»
+- تشغيلُ المصفوفةِ على main 40652842551 (push · 1/1): EXIT 0 — «كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها»
+(المخرجاتُ الحرفيّةُ في verdict_*.txt والحجولُ الخامُّ في ci_*_jobs.json)
+
+== PR #176 ==
+state: MERGED · mergedAt: 2026-10-28T07:52:03Z (مقيسًا بـgh pr view)
+
+== الإغلاقاتُ (بإذنِ D27) ==
+WI-113: VERIFIED→CLOSED · WI-117: VERIFIED→CLOSED · WI-119: VERIFIED→CLOSED (خلايا الإغلاقِ وخلايا «قيدُ السجلّ» في ACTIVE_WORK.md)
+
+== check_work_governance --self-check ==
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+EXIT=0
+
+== truth_audit --ratchet ==
+[RATCHET] ثابت عند 61 مخالفة. (IN_MEMORY_STORE 59 · HARDCODED_TRUTH 2)
+
+== state_document_drift ==
+✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ (LEDGER_HEAD W-712)
+
+== check_repository_identity.py ==
+نجح: كل مجلد يحمل بطاقة هوية كاملة، وكل ملف يُعلن هدفه.
+EXIT=0
