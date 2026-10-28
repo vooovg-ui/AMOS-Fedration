@@ -1,0 +1,187 @@
+HEAD=4cc68b35c1ce0d2351769833038aa6a6114216e9
+
+## D-1 · مخالفاتُ مصفوفةِ الحقيقة (والأقاليمُ لـ D-2 في السطرِ الأوّل)
+$ .venv/bin/python tools/governance/truth_audit.py . --ratchet
+[TRUTH AUDIT] أقاليم: 12 | مُثبَتة: 0 | مخالفات: 61
+  - IN_MEMORY_STORE: 59
+  - HARDCODED_TRUTH: 2
+[TRUTH AUDIT] كُتبت: /home/user/workspace/amos/docs/audit/TRUTH_MATRIX.md
+[RATCHET] ثابت عند 61 مخالفة.
+[exit=0]
+
+$ git diff --stat -- docs/audit/TRUTH_MATRIX.md docs/audit/truth_matrix.json
+ docs/audit/TRUTH_MATRIX.md   | 2 +-
+ docs/audit/truth_matrix.json | 8 ++++----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+[exit=0]
+
+$ git checkout -- docs/audit/TRUTH_MATRIX.md docs/audit/truth_matrix.json
+[exit=0]
+
+## D-2 · أقاليمُ PROVEN
+$ grep -c PROVEN docs/audit/TRUTH_MATRIX.md
+4
+[exit=0]
+
+$ grep -n مُثبَت\|PROVEN docs/audit/TRUTH_MATRIX.md
+21:| الأقاليم بحالة PROVEN | 0 |
+40:| الإقليم | موثّق | منفّذ | مصدر حقيقي | زائف/مخبأ | مدمج | مختبَر | مؤمَّن | مُراقَب | منشور | **مُثبَت** | الحالة |
+55:> `⚠️` في عمود «زائف/مخبأ» يعني وجود قيم ثابتة أو مخازن ذاكرة تُستخدم بديلًا عن مصدر الحقيقة. أي إقليم يحمل `⚠️` **لا يمكن** أن يصل PROVEN.
+182:| إثباتُ مصدر القضية | `PARTIAL` | بقصد: `PROVEN` يلزمه سلسلةُ إثباتٍ كاملة، والناقصُ يُعلَن ناقصًا |
+216:كل صف بحالة أقل من `PROVEN` هو **دَين تنفيذي** مفتوح. خطة Phase E مرتّبة لسداد هذا الدين إقليمًا إقليمًا.
+[exit=0]
+
+## D-3 · مراحلُ Phase E
+$ grep -n ^\*\*التقدم:\*\* docs/audit/PHASE_E_ROADMAP.md
+114:**التقدم:** 4 / 28 مرحلةً بحالةِ `PROVEN` (E0 · E1 · E2 · E2.1) · 1 `SECURITY_TESTED` (E2.2) · 2 `IN_PROGRESS` (E2.3 · E3) · 21 `DESIGNED` (E4–E24) — **مُقيسَةٌ من جدولِ § «المراحل» (28 صفًّا) بأمرٍ يُعيدُ العدَّ** (2026-10-13 · M2 · `W-305` · توجيهُ المستشارِ 1 · D3) · **المقامُ 28 لا 25 لأنَّ الجدولَ يُعَدُّ بالصفوفِ لا بأرقامِ المراحلِ** (E2.1 · E2.2 · E2.3 صفوفٌ لا مراحلُ).
+[exit=0]
+
+## D-4 · الكتاباتُ غيرُ السياديّة
+$ .venv/bin/python tools/audit/sovereign_write_inventory.py --root .
+== جردُ الكتاباتِ الإنتاجيّة ==
+  جذرُ القياس            : .
+  مواضعُ كتابةٍ (كلُّها)   : 235
+  عمليّاتٌ عامّةٌ مُغيِّرة   : 182
+  منها تعبرُ الحدَّ        : 59
+  مساراتٌ قديمةٌ مُغلَقة    : 7
+  **لا تعبرُ الحدَّ**       : 121
+  التوزيعُ على المناطق (عامّة / سياديّة / متجاوزة):
+    core                1 /   0 /    0
+    service_common     21 /   0 /   21
+    services          159 /  59 /   99
+    tools               1 /   0 /    1
+  التوزيعُ على الملفّات:
+      16  federal/executive/services/src/amos_federation/services/national_economy/service.py
+      13  federal/executive/services/src/amos_federation/common/persistent.py
+      10  federal/executive/services/src/amos_federation/services/federal_state/service.py
+       9  federal/executive/services/src/amos_federation/services/governance/treasury.py
+       9  federal/executive/services/src/amos_federation/services/royal/main.py
+       8  federal/executive/services/src/amos_federation/services/governance/expansion.py
+       7  federal/executive/services/src/amos_federation/services/governance/learning_cycle.py
+       7  federal/executive/services/src/amos_federation/services/governance/system_life.py
+       7  federal/executive/services/src/amos_federation/services/state_treasury/service.py
+       6  federal/executive/services/src/amos_federation/services/federal_judiciary/service.py
+       5  federal/executive/services/src/amos_federation/services/governance/security.py
+       5  federal/executive/services/src/amos_federation/services/governance/state_runtime.py
+       4  federal/executive/services/src/amos_federation/common/database.py
+       2  federal/executive/services/src/amos_federation/common/durable_event_bus.py
+       2  federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py
+       2  federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py
+       2  federal/executive/services/src/amos_federation/services/training/persistent_registry.py
+       1  federal/executive/services/src/amos_federation/common/event_bus.py
+       1  federal/executive/services/src/amos_federation/common/events.py
+       1  federal/executive/services/src/amos_federation/services/api_gateway/store.py
+       1  federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py
+       1  federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py
+       1  federal/executive/services/src/amos_federation/services/government_services/service.py
+       1  tools/migrations/r4_unify_agent_identity.py
+[exit=0]
+
+$ .venv/bin/python tools/audit/decision_gate.py --measure
+{
+ "debt": 121,
+ "sovereign": 59,
+ "closed_legacy": 7,
+ "write_sites_total": 235,
+ "git_head": "4cc68b35",
+ "waves": {
+  "W1": 11,
+  "W2": 34,
+  "W3": 76
+ }
+}
+[exit=0]
+
+## D-4 · أسطحُ G1 بعدَ استثناءاتِ التوجيه 27
+$ .venv/bin/python docs/audit/evidence/W-721/surface_recount.py
+أسطحُ الحوكمةِ العامّةُ المفتوحةُ: 41
+  expansion.py: 8 — approve_output · create_batch · employ_batch · enroll_batch · graduate_batch · retire_agent · submit_output · take_exam
+  learning_cycle.py: 7 — collect_experiences · complete_training · evaluate_model · promote_beta_to_alpha · start_canary · start_shadow · start_training
+  security.py: 5 — check_rate · create_session · issue_certificate · store_secret · verify_certificate
+  state_runtime.py: 5 — assign_agent · reactivate_state · register_state · send_message · suspend_state
+  system_life.py: 7 — bootstrap · create_backup · graceful_shutdown · health_check · launch_checklist · restore_backup · self_heal
+  treasury.py: 9 — allocate_budget · charge_model_invoke · charge_retraining · charge_storage · generate_financial_report · process_real_costs · reward_quality_report · reward_successful_training · reward_task_completion
+المستثنى: treasury ⇒ M1 = 9 · دَينٌ (store_secret/restore_backup) = 2
+المتبقّي لـ G1 = 30
+  دفعة state_runtime+system_life: 11
+  دفعة expansion: 8
+  دفعة learning_cycle+security: 11
+[exit=0]
+
+## D-5 · أسئلةُ Q-1…Q-27
+$ .venv/bin/python docs/audit/evidence/W-721/d5_status.py
+محسومٌ مكتوبًا: 23 / 27 — Q-1 · Q-5 · Q-6 · Q-7 · Q-8 · Q-9 · Q-10 · Q-11 · Q-12 · Q-13 · Q-14 · Q-15 · Q-16 · Q-17 · Q-18 · Q-19 · Q-20 · Q-21 · Q-22 · Q-23 · Q-24 · Q-25 · Q-26
+  Q-1: قسمُه · أسطر [5, 254, 273]
+  Q-5:  · أسطر [788, 804]
+  Q-6:  · أسطر [274, 3115]
+  Q-7: قسمُه · أسطر [2330, 2351]
+  Q-8: قسمُه · أسطر [2330, 2351]
+  Q-9:  · أسطر [2366, 2388]
+  Q-10: قسمُه · أسطر [2351]
+  Q-11: قسمُه · أسطر [278]
+  Q-12: قسمُه · أسطر [278]
+  Q-13: قسمُه · أسطر [2328]
+  Q-14: قسمُه · أسطر [2329]
+  Q-15: قسمُه · أسطر [3119]
+  Q-16: قسمُه · أسطر [3120]
+  Q-17:  · صفٌّ تحتَ عنوانٍ DECIDED
+  Q-18: قسمُه · أسطر [2345] · صفٌّ تحتَ عنوانٍ DECIDED
+  Q-19: قسمُه · أسطر [2345] · صفٌّ تحتَ عنوانٍ DECIDED
+  Q-20: قسمُه · صفٌّ تحتَ عنوانٍ DECIDED
+  Q-21: قسمُه · أسطر [3116]
+  Q-22: قسمُه · أسطر [3117]
+  Q-23: قسمُه · أسطر [2332]
+  Q-24: قسمُه · أسطر [3118]
+  Q-25: قسمُه · أسطر [3121]
+  Q-26: قسمُه · أسطر [2331]
+HUMAN_DECISION_REQUIRED: 3 — Q-2 · Q-3 · Q-4
+NO_STATUS_LINE: 1 — Q-27
+[exit=0]
+
+## D-6 · CI على main + قابليّةُ إعادةِ القياس
+$ gh run list --repo vooovg-ui/AMOS-Fedration --branch main --limit 4 --json databaseId,headSha,conclusion,name
+[{"conclusion":"success","databaseId":40727603862,"headSha":"4cc68b35c1ce0d2351769833038aa6a6114216e9","name":"مصفوفةُ الحقيقةِ المولَّدة"},{"conclusion":"success","databaseId":40727603825,"headSha":"4cc68b35c1ce0d2351769833038aa6a6114216e9","name":"AMOS-Federation CI"},{"conclusion":"success","databaseId":40706763935,"headSha":"95ed1cb4b6c2005187ca5968b8ca61f80e7c046a","name":"مصفوفةُ الحقيقةِ المولَّدة"},{"conclusion":"success","databaseId":40706763491,"headSha":"95ed1cb4b6c2005187ca5968b8ca61f80e7c046a","name":"AMOS-Federation CI"}]
+[exit=0]
+
+$ .venv/bin/python tools/governance/measurement_provenance.py . --check --without-deps
+عقدُ نَسَبِ القياساتِ مستقيمٌ: 11 قياسًا مقيَّدًا · 8 محروسًا (‏منها 1 برباطٍ مقيسٍ نصًّا) · 3 مُعلَنًا بسببٍ مكتوبٍ. ومُؤَجَّلٌ إلى الشطرِ الآخرِ: 2 (‏من 2 يحتاجُ حزمًا خارجيّةً).
+[exit=0]
+
+## D-7 · النشر
+$ ls docs/governance/work/HANDOFFS/D7-DEPLOYMENT-REQUIREMENTS.md
+docs/governance/work/HANDOFFS/D7-DEPLOYMENT-REQUIREMENTS.md
+[exit=0]
+
+## معنى «المستوى N» (التوجيه 27 §1 ج)
+$ env PYTHONPATH=. .venv/bin/python docs/audit/evidence/W-721/killswitch_probe.py
+KILL_SWITCH_BLOCKS[1] = ['evolve', 'record_curriculum_step', 'self_modify', 'start_agent_treatment', 'train_model']
+KILL_SWITCH_BLOCKS[2] = ['clone_agent', 'replicate', 'spawn_population']
+KILL_SWITCH_BLOCKS[3] = ['dispatch_agent', 'expand_state', 'spawn_agent', 'update_agent_identity', 'update_population_state']
+KILL_SWITCH_BLOCKS[4] = ['activate_agent', 'coordinate', 'create_task', 'delete_task', 'execute_task', 'invoke_model', 'invoke_tool', 'orchestrate', 'transition_task_state']
+KILL_SWITCH_BLOCKS[5] = ['external_fetch', 'network_call', 'publish']
+activate_agent @ level 0: ALLOW
+activate_agent @ level 1: ALLOW
+activate_agent @ level 2: ALLOW
+activate_agent @ level 3: ALLOW
+activate_agent @ level 4: BLOCK — زر التوقف عند المستوى 4، والفعل «activate_agent» مُجمَّد ابتداءً من المستوى 4.
+activate_agent @ level 5: BLOCK — زر التوقف عند المستوى 5، والفعل «activate_agent» مُجمَّد ابتداءً من المستوى 4.
+dispatch_agent @ level 0: ALLOW
+dispatch_agent @ level 1: ALLOW
+dispatch_agent @ level 2: ALLOW
+dispatch_agent @ level 3: BLOCK — زر التوقف عند المستوى 3، والفعل «dispatch_agent» مُجمَّد ابتداءً من المستوى 3.
+dispatch_agent @ level 4: BLOCK — زر التوقف عند المستوى 4، والفعل «dispatch_agent» مُجمَّد ابتداءً من المستوى 3.
+dispatch_agent @ level 5: BLOCK — زر التوقف عند المستوى 5، والفعل «dispatch_agent» مُجمَّد ابتداءً من المستوى 3.
+spawn_population @ level 0: ALLOW
+spawn_population @ level 1: ALLOW
+spawn_population @ level 2: BLOCK — زر التوقف عند المستوى 2، والفعل «spawn_population» مُجمَّد ابتداءً من المستوى 2.
+spawn_population @ level 3: BLOCK — زر التوقف عند المستوى 3، والفعل «spawn_population» مُجمَّد ابتداءً من المستوى 2.
+spawn_population @ level 4: BLOCK — زر التوقف عند المستوى 4، والفعل «spawn_population» مُجمَّد ابتداءً من المستوى 2.
+spawn_population @ level 5: BLOCK — زر التوقف عند المستوى 5، والفعل «spawn_population» مُجمَّد ابتداءً من المستوى 2.
+record_curriculum_step @ level 0: ALLOW
+record_curriculum_step @ level 1: BLOCK — زر التوقف عند المستوى 1، والفعل «record_curriculum_step» مُجمَّد ابتداءً من المستوى 1.
+record_curriculum_step @ level 2: BLOCK — زر التوقف عند المستوى 2، والفعل «record_curriculum_step» مُجمَّد ابتداءً من المستوى 1.
+record_curriculum_step @ level 3: BLOCK — زر التوقف عند المستوى 3، والفعل «record_curriculum_step» مُجمَّد ابتداءً من المستوى 1.
+record_curriculum_step @ level 4: BLOCK — زر التوقف عند المستوى 4، والفعل «record_curriculum_step» مُجمَّد ابتداءً من المستوى 1.
+record_curriculum_step @ level 5: BLOCK — زر التوقف عند المستوى 5، والفعل «record_curriculum_step» مُجمَّد ابتداءً من المستوى 1.
+[exit=0]
+
