@@ -4,6 +4,7 @@ AMOS-Federation Phase 17 — System Life + Launch
 النطاق: services/governance/system_life
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-15
+تاريخ آخر تعديل: 2026-10-28 (W-723 — G1 الدفعة 2: ستّةُ أسطحٍ تعبرُ الحدَّ · self_heal بشرطِه · restore_backup دَينٌ لم يُمَسّ)
 
 المتطلبات:
   17.1: System Bootstrap — تهيئة كاملة من الصفر
@@ -25,6 +26,27 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from amos_federation.common.database import get_database_url
 from amos_federation.common.persistent import PersistentAuditStore
+from amos_federation.services.executive_core.sovereignty_bridge import (
+    ConstitutionalAuthorizer,
+    compensator,
+    declared_effect,
+    get_authorizer,
+    operation_key,
+)
+
+# ── G1 الدفعة 2 (W-723): أفعالُ الأسطحِ الستّةِ من جدولِ G1 § 2 بنصِّه ──────
+#: `bootstrap` · `graceful_shutdown` · `launch_checklist` — `orchestrate` (ممنوعٌ عندَ ≥4).
+#: وتعارضُ عمودِ القاطعِ للأخيرينِ مرفوعٌ للمالكِ Q-76 (G1 § 9.8.3) لا محسومٌ هنا.
+ACTION_ORCHESTRATE = "orchestrate"
+#: `health_check` — رصدٌ لا يُمنَع.
+ACTION_HEALTH_CHECK = "run_health_check"
+#: `self_heal` — اسمٌ جديدٌ (W-722) ممنوعٌ عندَ ≥4.
+ACTION_SELF_HEAL = "self_heal"
+#: `create_backup` — اسمٌ جديدٌ (W-722) أداةُ استردادٍ لا تُمنَع.
+ACTION_CREATE_BACKUP = "create_backup"
+
+#: نطاقُ مفاتيحِ الذرّيّة (1H) — يُذيَّلُ باسمِ السطح.
+LIFECYCLE_SCOPE = "system_life"
 
 
 class SystemBase(DeclarativeBase):
@@ -62,7 +84,14 @@ class BackupModel(SystemBase):
 class SystemLifecycle:
     """17: دورة حياة النظام الكاملة."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        authorizer: ConstitutionalAuthorizer | None = None,
+        state_runtime: Any | None = None,
+    ) -> None:
+        self._authorizer = authorizer
+        # زمنُ تشغيلِ الولاياتِ لـ`self_heal` — يُحقَنُ في الاختبارِ ويُؤخَذُ الوحيدُ افتراضًا.
+        self._state_runtime = state_runtime
         self._engine = create_engine(
             get_database_url(),
             connect_args={"check_same_thread": False}
@@ -72,14 +101,89 @@ class SystemLifecycle:
         SystemBase.metadata.create_all(self._engine)
         self._Session = sessionmaker(bind=self._engine, autoflush=False, expire_on_commit=False)
 
+    @property
+    def authorizer(self) -> ConstitutionalAuthorizer:
+        """المُصرِّحُ التنفيذيُّ الافتراضيّ — يُبنى عندَ أوّلِ حاجة.
+
+        عبرَ `get_authorizer()` في الجسرِ (موضعُ بناءٍ افتراضيٌّ قائمٌ معدودٌ) لا بموضعِ
+        بناءٍ جديد: الفاعلُ الافتراضيُّ `EXECUTIVE` نفسُه، ومن أرادَ غيرَه يُمرِّرُه صريحًا.
+        """
+        if self._authorizer is None:
+            self._authorizer = get_authorizer()
+        return self._authorizer
+
+    def _runtime(self) -> Any:
+        if self._state_runtime is None:
+            from amos_federation.services.governance.state_runtime import get_state_runtime
+
+            self._state_runtime = get_state_runtime()
+        return self._state_runtime
+
+    def _delete_event(self, event_id: str) -> None:
+        """معوِّضُ سجلِّ الحدث: حذفُ الإدخالِ الذي كتبَه العبور."""
+        session = self._Session()
+        try:
+            session.query(SystemEventModel).filter(SystemEventModel.event_id == event_id).delete()
+            session.commit()
+        finally:
+            session.close()
+
+    def _event_contract(
+        self,
+        surface: str,
+        target: str,
+        event_type: str,
+        component: str,
+        status: str,
+        details: dict[str, Any],
+        audit_event: str | None = None,
+        audit_payload: dict[str, Any] | None = None,
+    ) -> tuple[str, dict[str, Any]]:
+        """ابنِ عقدَ سطحٍ أثرُه إدخالُ حدثٍ واحد (+ تدقيقٌ اختياريّ) — **لا يعبرُ بنفسِه**.
+
+        يُرجِعُ (معرِّفَ الحدث، وسائطَ `guard_declared`)، والعبورُ نفسُه في جسدِ السطحِ
+        العامِّ. والمعرِّفُ يُولَّدُ **قبلَ** الحدِّ ليُسمّيَه الأثرُ والمعوِّضُ والمفتاحُ معًا،
+        فالمعوِّضُ يحذفُ الإدخالَ نفسَه لا «آخرَ إدخال».
+        """
+        event_id = f"sys-{uuid.uuid4().hex[:10]}"
+        effect = declared_effect(
+            "CREATE",
+            f"{target}/event:{event_id}",
+            f"إدخالُ حدثٍ «{event_type}» للمكوِّن «{component}» في system_events",
+        )
+
+        def _apply(_effect: Any) -> str:
+            self._log_event(event_type, component, status, details, event_id=event_id)
+            if audit_event is not None:
+                PersistentAuditStore().append(
+                    audit_event, "system", {"event_id": event_id, **(audit_payload or {})}
+                )
+            return event_id
+
+        return event_id, {
+            "declared_effects": (effect,),
+            "applier": _apply,
+            "operation_key": operation_key(f"{LIFECYCLE_SCOPE}.{surface}", event_id),
+            "compensators": (
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_event(event_id),
+                    "حذفُ إدخالِ الحدث",
+                ),
+            ),
+            "metadata": {"surface": surface, "component": component},
+        }
+
     def _log_event(
         self,
         event_type: str,
         component: str,
         status: str = "success",
         details: dict[str, Any] | None = None,
+        *,
+        event_id: str | None = None,
     ) -> str:
-        event_id = f"sys-{uuid.uuid4().hex[:10]}"
+        event_id = event_id or f"sys-{uuid.uuid4().hex[:10]}"
         session = self._Session()
         try:
             event = SystemEventModel(
@@ -135,12 +239,18 @@ class SystemLifecycle:
             steps.append({"step": "learning", "status": "error", "error": str(e)})
 
         all_success = all(s["status"] == "success" for s in steps)
-        event_id = self._log_event(
-            "bootstrap", "system", "success" if all_success else "warning", {"steps": steps}
+        # التهيئةُ أعلاه بناءُ وحيداتٍ (كتاباتُها في منشئاتِها)، وأثرُ هذا السطحِ إدخالُه.
+        event_id, contract = self._event_contract(
+            "bootstrap",
+            "system:bootstrap",
+            "bootstrap",
+            "system",
+            "success" if all_success else "warning",
+            {"steps": steps},
+            audit_event="system.bootstrap",
+            audit_payload={"steps": len(steps)},
         )
-
-        audit = PersistentAuditStore()
-        audit.append("system.bootstrap", "system", {"event_id": event_id, "steps": len(steps)})
+        self.authorizer.guard_declared(ACTION_ORCHESTRATE, "system:bootstrap", **contract)
 
         return {
             "event_id": event_id,
@@ -200,9 +310,15 @@ class SystemLifecycle:
             components.append({"component": "factories", "status": "error", "error": str(e)})
 
         all_healthy = all(c["status"] in ("healthy",) for c in components)
-        event_id = self._log_event(
-            "health", "system", "success" if all_healthy else "warning", {"components": components}
+        event_id, contract = self._event_contract(
+            "health",
+            "system:health",
+            "health",
+            "system",
+            "success" if all_healthy else "warning",
+            {"components": components},
         )
+        self.authorizer.guard_declared(ACTION_HEALTH_CHECK, "system:health", **contract)
 
         return {
             "event_id": event_id,
@@ -212,8 +328,16 @@ class SystemLifecycle:
         }
 
     def self_heal(self, component: str) -> dict[str, Any]:
-        """17.3: Self-Healing — إصلاح ذاتي لمكون معطل."""
-        actions = []
+        """17.3: Self-Healing — عبرَ الحدِّ (`self_heal` · ممنوعٌ عندَ ≥4) وبشرطِ المالك.
+
+        «لا يُعيد تفعيل ولاية عُلِّقت بقرار محكوم» (التوجيهُ 27 § 1): ولايةٌ لها سجلُّ
+        إيقافٍ محكومٍ نشطٌ تُتخطّى (`noop`)، والمعلَّقةُ بلا سجلٍّ (تلقائيًّا) يُعادُ
+        تفعيلُها كما كان. وكلُّ إعادةِ تفعيلٍ أثرٌ مُعلَنٌ داخلَ الهدفِ بمعوِّضٍ يُرجِعُ
+        الحالةَ (G1 § 9.8.2)، وتمرُّ بنواةٍ خاصّةٍ لا بـ`reactivate_state` المحروس.
+        """
+        actions: list[dict[str, Any]] = []
+        to_heal: list[str] = []
+        runtime: Any = None
         if component == "audit_chain":
             try:
                 audit = PersistentAuditStore()
@@ -231,26 +355,82 @@ class SystemLifecycle:
                 actions.append({"action": "error", "target": "audit_chain", "error": str(e)})
         elif component == "states":
             try:
-                from amos_federation.services.governance.state_runtime import get_state_runtime
-
-                runtime = get_state_runtime()
-                states = runtime.list_states()
-                for s in states:
-                    if s["status"] == "suspended":
-                        runtime.reactivate_state(s["state_id"])
-                        actions.append({"action": "reactivate", "target": s["state_id"]})
-                if not actions:
+                runtime = self._runtime()
+                for s in runtime.list_states():
+                    if s["status"] != "suspended":
+                        continue
+                    if runtime.has_governed_suspension(s["state_id"]):
+                        actions.append(
+                            {
+                                "action": "noop",
+                                "target": s["state_id"],
+                                "message": "governed_suspension",
+                            }
+                        )
+                    else:
+                        to_heal.append(s["state_id"])
+                if not actions and not to_heal:
                     actions.append({"action": "noop", "target": "states", "message": "all active"})
             except Exception as e:
                 actions.append({"action": "error", "target": "states", "error": str(e)})
         else:
             actions.append({"action": "unknown_component", "target": component})
 
-        event_id = self._log_event("heal", component, "success", {"actions": actions})
-        audit = PersistentAuditStore()
-        audit.append(
-            "system.self_heal", "system", {"component": component, "actions": len(actions)}
+        target = f"system:heal:{component}"
+        heal_effects = tuple(
+            declared_effect(
+                "WRITE",
+                f"{target}/state:{state_id}",
+                f"federal_states «{state_id}».status: suspended → active (تعليقٌ بلا قرارٍ محكوم)",
+            )
+            for state_id in to_heal
         )
+        healed: list[str] = []
+        planned = [
+            *actions,
+            *({"action": "reactivate", "target": state_id} for state_id in to_heal),
+        ]
+        event_id, contract = self._event_contract(
+            "self_heal",
+            target,
+            "heal",
+            component,
+            "success",
+            {"actions": planned},
+            audit_event="system.self_heal",
+            audit_payload={"component": component, "actions": len(planned)},
+        )
+        log_effect = contract["declared_effects"][0]
+        log_apply = contract["applier"]
+
+        def _apply(effect: Any) -> Any:
+            if effect.signature == log_effect.signature:
+                return log_apply(effect)
+            state_id = effect.resource.rsplit("/state:", 1)[1]
+            if runtime._heal_reactivate_core(state_id):
+                healed.append(state_id)
+            return state_id
+
+        def _resuspend(state_id: str) -> Any:
+            return lambda: runtime._set_status(state_id, "suspended", expected="active")
+
+        compensators = (
+            *contract["compensators"],
+            *(
+                compensator(e.signature, _resuspend(sid), "إرجاعُ الولايةِ إلى suspended")
+                for sid, e in zip(to_heal, heal_effects, strict=True)
+            ),
+        )
+        self.authorizer.guard_declared(
+            ACTION_SELF_HEAL,
+            target,
+            declared_effects=(*heal_effects, log_effect),
+            applier=_apply,
+            operation_key=contract["operation_key"],
+            compensators=compensators,
+            metadata={**contract["metadata"], "reactivate": list(to_heal)},
+        )
+        actions.extend({"action": "reactivate", "target": state_id} for state_id in healed)
 
         return {
             "event_id": event_id,
@@ -275,11 +455,18 @@ class SystemLifecycle:
         # تسجيل الإيقاف
         steps.append({"step": "log_shutdown", "status": "success"})
 
-        event_id = self._log_event(
-            "shutdown", "system", "success", {"reason": reason, "steps": steps}
+        event_id, contract = self._event_contract(
+            "shutdown",
+            "system:shutdown",
+            "shutdown",
+            "system",
+            "success",
+            {"reason": reason, "steps": steps},
+            audit_event="system.shutdown",
+            audit_payload={"reason": reason},
         )
-        audit = PersistentAuditStore()
-        audit.append("system.shutdown", "system", {"reason": reason, "event_id": event_id})
+        # `orchestrate` ممنوعٌ عندَ ≥4 خلافًا لعمودِ القاطعِ «بلا منعٍ» — Q-76 (G1 § 9.8.3).
+        self.authorizer.guard_declared(ACTION_ORCHESTRATE, "system:shutdown", **contract)
 
         return {
             "event_id": event_id,
@@ -288,27 +475,49 @@ class SystemLifecycle:
             "steps": steps,
         }
 
+    def _delete_backup(self, backup_id: str) -> None:
+        """معوِّضُ `create_backup`: حذفُ صفِّ النسخةِ وإدخالِ حدثِها."""
+        session = self._Session()
+        try:
+            session.query(BackupModel).filter(BackupModel.backup_id == backup_id).delete()
+            session.query(SystemEventModel).filter(
+                SystemEventModel.event_type == "backup",
+                SystemEventModel.details.like(f'%"{backup_id}"%'),
+            ).delete(synchronize_session=False)
+            session.commit()
+        finally:
+            session.close()
+
     def create_backup(self, component: str = "all") -> dict[str, Any]:
-        """17.5: Backup & Restore — نسخ احتياطي."""
+        """17.5: Backup & Restore — نسخ احتياطي عبرَ الحدِّ (`create_backup` · لا يُمنَع)."""
         import hashlib
 
         backup_id = f"backup-{uuid.uuid4().hex[:10]}"
         # محاكاة حجم البيانات
         size = 1024 * 1024  # 1MB placeholder
         checksum = hashlib.sha256(f"{backup_id}:{component}:{size}".encode()).hexdigest()
+        target = f"backup:{backup_id}"
+        effect = declared_effect(
+            "CREATE",
+            target,
+            f"صفُّ نسخةٍ احتياطيّةٍ للمكوِّن «{component}» في system_backups + إدخالُ حدثِها",
+        )
 
-        session = self._Session()
-        try:
-            backup = BackupModel(
-                backup_id=backup_id,
-                component=component,
-                size_bytes=size,
-                checksum=checksum,
-                status="created",
-            )
-            session.add(backup)
-            session.commit()
-
+        def _apply(_effect: Any) -> dict[str, Any]:
+            session = self._Session()
+            try:
+                session.add(
+                    BackupModel(
+                        backup_id=backup_id,
+                        component=component,
+                        size_bytes=size,
+                        checksum=checksum,
+                        status="created",
+                    )
+                )
+                session.commit()
+            finally:
+                session.close()
             self._log_event("backup", component, "success", {"backup_id": backup_id, "size": size})
             return {
                 "backup_id": backup_id,
@@ -317,8 +526,23 @@ class SystemLifecycle:
                 "checksum": checksum,
                 "status": "created",
             }
-        finally:
-            session.close()
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_CREATE_BACKUP,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(f"{LIFECYCLE_SCOPE}.backup", backup_id),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_backup(backup_id),
+                    "حذفُ صفِّ النسخةِ وإدخالِها",
+                ),
+            ),
+            metadata={"component": component},
+        )
+        return dict(guarded.value)
 
     def restore_backup(self, backup_id: str) -> dict[str, Any]:
         """17.5: استرجاع نسخة احتياطية."""
@@ -398,9 +622,16 @@ class SystemLifecycle:
         )
 
         all_passed = all(c["passed"] for c in checks)
-        event_id = self._log_event(
-            "launch", "system", "success" if all_passed else "warning", {"checks": checks}
+        event_id, contract = self._event_contract(
+            "launch",
+            "system:launch",
+            "launch",
+            "system",
+            "success" if all_passed else "warning",
+            {"checks": checks},
         )
+        # `orchestrate` ممنوعٌ عندَ ≥4 خلافًا لعمودِ القاطعِ «رصدٌ» — Q-76 (G1 § 9.8.3).
+        self.authorizer.guard_declared(ACTION_ORCHESTRATE, "system:launch", **contract)
 
         return {
             "event_id": event_id,

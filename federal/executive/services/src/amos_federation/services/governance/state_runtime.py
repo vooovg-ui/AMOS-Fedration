@@ -4,7 +4,7 @@ AMOS-Federation Phase 12 — State Runtime
 النطاق: services/governance/state_runtime
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-15
-تاريخ آخر تعديل: 2026-08-22 (W-019 — نقضُ سابقةِ 2A: فعلٌ غيرُ دستوريٍّ وفاعلٌ تنفيذيّ)
+تاريخ آخر تعديل: 2026-10-28 (W-723 — G1 الدفعة 2: خمسةُ أسطحٍ تعبرُ الحدَّ · سجلُّ الإيقافِ المحكوم) · وقبله: 2026-08-22 (W-019 — نقضُ سابقةِ 2A: فعلٌ غيرُ دستوريٍّ وفاعلٌ تنفيذيّ)
 
 المتطلبات (من خارطة الطريق):
   12.1: State Runtime بحيث كل ولاية لها services/agents/tools منفصلة
@@ -31,6 +31,7 @@ from amos_federation.services.executive_core.sovereignty_bridge import (
     UndeclaredExecutionError,
     compensator,
     declared_effect,
+    get_authorizer,
     operation_key,
 )
 
@@ -56,6 +57,34 @@ BUDGET_OPERATION_SCOPE = "state_runtime.budget.allocate"
 
 class BudgetAllocationError(RuntimeError):
     """توزيعُ ميزانيةٍ تعذّرَ تطبيقُه — رفعٌ صريحٌ لا قيمةٌ صامتة."""
+
+
+# ── G1 الدفعة 2 (W-723): أفعالُ الأسطحِ الخمسةِ من جدولِ G1 § 2 بنصِّه ──────
+#: `register_state` = `create_state` الملكيُّ (Q-13 · G1 § 3.1) — يعبرُ بمرسومٍ موقَّع.
+ACTION_CREATE_STATE = "create_state"
+#: الإيقافُ احتواءٌ: `contain_agent` لا يمنعُه القاطعُ في أيِّ مستوى (G1 § 5 بند 2).
+ACTION_SUSPEND_STATE = "contain_agent"
+#: إعادةُ التفعيلِ استعادةُ قدرةٍ: `activate_agent` ممنوعٌ عندَ ≥4.
+ACTION_REACTIVATE_STATE = "activate_agent"
+#: تعيينُ وكيلٍ: `dispatch_agent` ممنوعٌ عندَ ≥3.
+ACTION_ASSIGN_AGENT = "dispatch_agent"
+#: رسالةٌ بينَ ولايتين: `coordinate` ممنوعٌ عندَ ≥4.
+ACTION_SEND_MESSAGE = "coordinate"
+
+#: نطاقاتُ مفاتيحِ الذرّيّة (1H) — لكلِّ سطحٍ نطاقُه فلا تصادم.
+CREATE_STATE_SCOPE = "state_runtime.state.create"
+SUSPEND_STATE_SCOPE = "state_runtime.state.suspend"
+REACTIVATE_STATE_SCOPE = "state_runtime.state.reactivate"
+ASSIGN_AGENT_SCOPE = "state_runtime.state.assign"
+SEND_MESSAGE_SCOPE = "state_runtime.message.send"
+
+
+class DecreeTargetMismatchError(ValueError):
+    """مرسومٌ هدفُه غيرُ الولايةِ المطلوبة — يُرفَضُ قبلَ العبور (G1 § 9.8.1).
+
+    `classify` يطابقُ فعلَ المرسومِ لا هدفَه (المقيسُ في `core/sovereignty/authority.py`)،
+    فمرسومُ إنشاءِ ولايةٍ لا يُعادُ توجيهُه إلى ولايةٍ أخرى.
+    """
 
 
 class StateBase(DeclarativeBase):
@@ -111,6 +140,27 @@ class StateMessage(StateBase):
     delivered_at = Column(DateTime, nullable=True)
 
 
+class StateSuspensionRecord(StateBase):
+    """سجلُّ الإيقافِ المحكوم (التوجيهُ 27 § 1 · G1 § 9.6 و§ 9.8.2).
+
+    جدولٌ جديدٌ يُنشئُه `create_all` — لا عمودَ يُضافُ إلى `federal_states` فتنكسرَ
+    قاعدةٌ قائمة. سجلٌّ **نشطٌ** (`cleared_at` فارغ) = إيقافٌ عبرَ `suspend_state`
+    المحروس، فلا يُعيدُ `self_heal` تفعيلَ ولايتِه. وولايةٌ معلَّقةٌ بلا سجلٍّ نشطٍ
+    = تعليقٌ تلقائيٌّ (بلا قرار) يُعادُ تفعيلُه كما كان.
+    """
+
+    __tablename__ = "state_suspension_records"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    record_id = Column(String, nullable=False, unique=True, index=True)
+    state_id = Column(String, nullable=False, index=True)
+    operation_id = Column(String, nullable=False)
+    previous_status = Column(String, nullable=False)
+    reason = Column(Text, default="")
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+    cleared_at = Column(DateTime, nullable=True)
+
+
 # الولايات التسع المعرفة في الدستور
 FEDERAL_STATES = {
     "finance": {"name": "ولاية المال", "type": "finance", "target_population": 45},
@@ -145,7 +195,11 @@ STATE_ADMIN_STRUCTURE = {
 class StateRuntime:
     """12.1: State Runtime — كل ولاية وحدة تشغيل معزولة."""
 
-    def __init__(self, authorizer: ConstitutionalAuthorizer | None = None) -> None:
+    def __init__(
+        self,
+        authorizer: ConstitutionalAuthorizer | None = None,
+        royal_authorizer: ConstitutionalAuthorizer | None = None,
+    ) -> None:
         self._engine = create_engine(
             get_database_url(),
             connect_args={"check_same_thread": False}
@@ -159,6 +213,10 @@ class StateRuntime:
         # لا يُوسَمُ كائنُ التشغيلِ كلُّه بفاعلِ خزانةٍ (وهذا نصُّ ما منعَه Q-19)،
         # والصادقُ أنَّ عدَّ وحدةٍ تشغيليّةٍ في خدمةٍ تنفيذيّةٍ عملُ الفرعِ التنفيذيّ.
         self._authorizer = authorizer
+        # مُصرِّحُ المسارِ الملكيِّ لـ`register_state` وحدَه (G1 § 9.8.1) — **يُمرَّرُ صريحًا ولا
+        # يُبنى هنا** (سابقةُ Q-19: «من أرادَ فاعلًا آخرَ يُمرِّرُ مُصرِّحَه صريحًا»). وبلا
+        # تمريرٍ يعبرُ السطحُ بالمُصرِّحِ التنفيذيِّ فيرفضُه الدستورُ (R-010-1 · R-010-5).
+        self._royal_authorizer = royal_authorizer
 
     @property
     def authorizer(self) -> ConstitutionalAuthorizer:
@@ -225,26 +283,66 @@ class StateRuntime:
         finally:
             session.close()
 
+    def _delete_state_row(self, state_id: str) -> None:
+        """معوِّضُ `register_state`: حذفُ الصفِّ الذي أنشأه العبور."""
+        session = self._Session()
+        try:
+            session.query(StateModel).filter(StateModel.state_id == state_id).delete()
+            session.commit()
+        finally:
+            session.close()
+
     def register_state(
-        self, state_id: str, name: str, state_type: str, budget: str = "0"
+        self,
+        state_id: str,
+        name: str,
+        state_type: str,
+        budget: str = "0",
+        *,
+        royal_decree: Any | None = None,
     ) -> dict[str, Any]:
-        """12.8: تسجيل ولاية جديدة — لا يتطلب تعديل الدستور."""
+        """12.8: تسجيل ولاية جديدة — عبرَ المسارِ الملكيِّ بمرسومٍ موقَّع (Q-13 · W-723).
+
+        الفعلُ دستوريًّا `create_state` (G1 § 3.1): فاعلُه `ROYAL` والمرسومُ الموقَّعُ هوَ
+        البوّابة. بلا مرسومٍ يرفعُ `classify` `RoyalImpersonation` قبلَ أيِّ كتابة،
+        ومرسومٌ هدفُه غيرُ `state:{state_id}` يُرفَضُ قبلَ العبور.
+        """
         session = self._Session()
         try:
             existing = session.query(StateModel).filter(StateModel.state_id == state_id).first()
             if existing:
                 return {"error": "state_already_exists", "state_id": state_id}
-            state = StateModel(
-                state_id=state_id,
-                name=name,
-                type=state_type,
-                budget=budget,
+        finally:
+            session.close()
+
+        target = f"state:{state_id}"
+        if royal_decree is not None and getattr(royal_decree, "target", None) != target:
+            raise DecreeTargetMismatchError(
+                f"المرسومُ «{getattr(royal_decree, 'decree_id', '—')}» هدفُه "
+                f"«{getattr(royal_decree, 'target', None)}» والمطلوبُ «{target}» — "
+                "لا يُعادُ توجيهُ مرسومٍ إلى ولايةٍ أخرى."
             )
-            session.add(state)
-            session.commit()
-            # تسجيل في سجل التدقيق
-            audit = PersistentAuditStore()
-            audit.append("state.registered", "system", {"state_id": state_id, "name": name})
+        decree_id = getattr(royal_decree, "decree_id", "—")
+        effect = declared_effect(
+            "CREATE",
+            target,
+            f"صفُّ ولايةٍ جديدةٍ «{state_id}» في federal_states بالمرسوم «{decree_id}»",
+        )
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            session = self._Session()
+            try:
+                session.add(
+                    StateModel(state_id=state_id, name=name, type=state_type, budget=budget)
+                )
+                session.commit()
+            finally:
+                session.close()
+            PersistentAuditStore().append(
+                "state.registered",
+                "system",
+                {"state_id": state_id, "name": name, "decree_id": decree_id},
+            )
             return {
                 "state_id": state_id,
                 "name": name,
@@ -253,8 +351,27 @@ class StateRuntime:
                 "status": "active",
                 "registered": True,
             }
-        finally:
-            session.close()
+
+        crossing = self._royal_authorizer if self._royal_authorizer is not None else self.authorizer
+        guarded = crossing.guard_declared(
+            ACTION_CREATE_STATE,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(CREATE_STATE_SCOPE, f"{state_id}:{decree_id}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_state_row(state_id),
+                    "حذفُ صفِّ الولايةِ المُنشَأ",
+                ),
+            ),
+            metadata={"state_id": state_id, "name": name, "type": state_type},
+            royal_decree=royal_decree,
+        )
+        if guarded.is_replay:
+            return {"state_id": state_id, "registered": False, "replayed": True}
+        return {**guarded.value, "replayed": False}
 
     def get_state(self, state_id: str) -> dict[str, Any] | None:
         """تفاصيل ولاية."""
@@ -295,53 +412,237 @@ class StateRuntime:
         finally:
             session.close()
 
-    def suspend_state(self, state_id: str, reason: str = "") -> dict[str, Any]:
-        """12.7: إيقاف ولاية — لا يؤثر على بقية الولايات."""
+    # ── نوى خاصّةٌ للحالةِ وسجلِّ الإيقاف (تُنادى من المُطبِّقِ والمعوِّضِ فقط) ──
+    def _state_status(self, state_id: str) -> str | None:
         session = self._Session()
         try:
             state = session.query(StateModel).filter(StateModel.state_id == state_id).first()
-            if not state:
-                return {"error": "state_not_found"}
-            state.status = "suspended"
-            session.commit()
-            audit = PersistentAuditStore()
-            audit.append("state.suspended", "system", {"state_id": state_id, "reason": reason})
-            return {"state_id": state_id, "status": "suspended", "reason": reason}
+            return None if state is None else str(state.status)
         finally:
             session.close()
 
-    def reactivate_state(self, state_id: str) -> dict[str, Any]:
-        """إعادة تفعيل ولاية."""
+    def _set_status(self, state_id: str, status: str, *, expected: str | None = None) -> bool:
+        """غيِّرْ حالةَ ولايةٍ — وإن مُرِّرَ `expected` فلا تمسَّ تحديثًا أحدث."""
         session = self._Session()
         try:
             state = session.query(StateModel).filter(StateModel.state_id == state_id).first()
-            if not state:
-                return {"error": "state_not_found"}
-            state.status = "active"
+            if state is None or (expected is not None and state.status != expected):
+                return False
+            state.status = status
             session.commit()
-            return {"state_id": state_id, "status": "active"}
+            return True
         finally:
             session.close()
 
-    def assign_agent(self, state_id: str, agent_id: str, role: str) -> dict[str, Any]:
-        """12.6: تعيين وكيل في ولاية."""
+    def _open_suspension_record(
+        self, state_id: str, operation_id: str, previous: str, reason: str
+    ) -> str:
+        record_id = f"susp-{uuid.uuid4().hex[:12]}"
         session = self._Session()
         try:
-            assignment = StateAgentAssignment(
-                state_id=state_id,
-                agent_id=agent_id,
-                role=role,
+            session.add(
+                StateSuspensionRecord(
+                    record_id=record_id,
+                    state_id=state_id,
+                    operation_id=operation_id,
+                    previous_status=previous,
+                    reason=reason,
+                )
             )
-            session.add(assignment)
             session.commit()
-            return {
-                "state_id": state_id,
-                "agent_id": agent_id,
-                "role": role,
-                "assigned": True,
-            }
+            return record_id
         finally:
             session.close()
+
+    def _delete_suspension_records(self, state_id: str, operation_id: str) -> None:
+        session = self._Session()
+        try:
+            session.query(StateSuspensionRecord).filter(
+                StateSuspensionRecord.state_id == state_id,
+                StateSuspensionRecord.operation_id == operation_id,
+            ).delete()
+            session.commit()
+        finally:
+            session.close()
+
+    def _set_records_cleared(self, record_ids: list[str], cleared: bool) -> None:
+        session = self._Session()
+        try:
+            for rec in (
+                session.query(StateSuspensionRecord)
+                .filter(StateSuspensionRecord.record_id.in_(record_ids))
+                .all()
+            ):
+                rec.cleared_at = datetime.now(UTC) if cleared else None
+            session.commit()
+        finally:
+            session.close()
+
+    def _active_record_ids(self, state_id: str) -> list[str]:
+        session = self._Session()
+        try:
+            return [
+                r.record_id
+                for r in session.query(StateSuspensionRecord)
+                .filter(
+                    StateSuspensionRecord.state_id == state_id,
+                    StateSuspensionRecord.cleared_at.is_(None),
+                )
+                .all()
+            ]
+        finally:
+            session.close()
+
+    def has_governed_suspension(self, state_id: str) -> bool:
+        """هل للولايةِ إيقافٌ محكومٌ نشط؟ — قراءةٌ لا كتابة (G1 § 9.6)."""
+        return bool(self._active_record_ids(state_id))
+
+    def _heal_reactivate_core(self, state_id: str) -> bool:
+        """نواةُ `self_heal` الخاصّة (G1 § 5.3 و§ 9.8.2) — لا عبورَ ثانٍ داخلَ عبور.
+
+        تُعيدُ تفعيلَ ولايةٍ معلَّقةٍ **بلا سجلٍّ محكومٍ نشط** فقط، وتُرجِعُ هل وقعَ الأثر.
+        """
+        if self.has_governed_suspension(state_id):
+            return False
+        return self._set_status(state_id, "active", expected="suspended")
+
+    def suspend_state(
+        self, state_id: str, reason: str = "", *, operation_id: str | None = None
+    ) -> dict[str, Any]:
+        """12.7: إيقاف ولاية — احتواءٌ محكومٌ عبرَ الحدِّ (Q-14 · W-723).
+
+        الأثرُ المُعلَنُ يحملُ `state:{state_id}` والحالةَ السابقةَ والسببَ (G1 § 3.2 الشرطُ 1)،
+        والمُطبِّقُ يكتبُ **سجلَّ الإيقافِ المحكوم** فلا ينقضُه `self_heal`.
+        """
+        previous = self._state_status(state_id)
+        if previous is None:
+            return {"error": "state_not_found"}
+        op = operation_id or f"suspend-{uuid.uuid4().hex[:12]}"
+        target = f"state:{state_id}"
+        effect = declared_effect(
+            "WRITE",
+            f"{target}/status.{previous}->suspended@{op}",
+            f"إيقافُ الولايةِ «{state_id}» (السابقُ: {previous}) — السبب: {reason or 'بلا سبب'}",
+        )
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            self._set_status(state_id, "suspended")
+            self._open_suspension_record(state_id, op, previous, reason)
+            PersistentAuditStore().append(
+                "state.suspended",
+                "system",
+                {"state_id": state_id, "reason": reason, "previous": previous, "op": op},
+            )
+            return {"state_id": state_id, "status": "suspended", "reason": reason}
+
+        def _undo() -> None:
+            self._delete_suspension_records(state_id, op)
+            self._set_status(state_id, previous, expected="suspended")
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_SUSPEND_STATE,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(SUSPEND_STATE_SCOPE, f"{state_id}:{previous}:{op}"),
+            compensators=(compensator(effect.signature, _undo, "إرجاعُ الحالةِ السابقةِ وحذفُ السجل"),),
+            metadata={"state_id": state_id, "previous_status": previous, "reason": reason},
+        )
+        if guarded.is_replay:
+            return {"state_id": state_id, "status": "suspended", "replayed": True}
+        return {**guarded.value, "previous_status": previous, "operation_id": op}
+
+    def reactivate_state(self, state_id: str, *, operation_id: str | None = None) -> dict[str, Any]:
+        """إعادة تفعيل ولاية — استعادةُ قدرةٍ عبرَ الحدِّ (`activate_agent` · ممنوعٌ عندَ ≥4).
+
+        تُغلِقُ سجلَّ الإيقافِ المحكومِ النشط، والمعوِّضُ يُرجِعُ الحالةَ ويُعيدُ فتحَه.
+        """
+        previous = self._state_status(state_id)
+        if previous is None:
+            return {"error": "state_not_found"}
+        records = self._active_record_ids(state_id)
+        if previous == "active" and not records:
+            # عمليّةٌ فارغةٌ لا تُقاس (سابقةُ E1): لا عبورَ لما لم يقع.
+            return {"state_id": state_id, "status": "active", "noop": True}
+        op = operation_id or f"reactivate-{uuid.uuid4().hex[:12]}"
+        target = f"state:{state_id}"
+        effect = declared_effect(
+            "WRITE",
+            f"{target}/status.{previous}->active@{op}",
+            f"إعادةُ تفعيلِ الولايةِ «{state_id}» (السابقُ: {previous}) وإغلاقُ {len(records)} سجل",
+        )
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            self._set_status(state_id, "active")
+            self._set_records_cleared(records, True)
+            return {"state_id": state_id, "status": "active"}
+
+        def _undo() -> None:
+            self._set_records_cleared(records, False)
+            self._set_status(state_id, previous, expected="active")
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_REACTIVATE_STATE,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(REACTIVATE_STATE_SCOPE, f"{state_id}:{previous}:{op}"),
+            compensators=(
+                compensator(effect.signature, _undo, "إرجاعُ الحالةِ السابقةِ وإعادةُ فتحِ السجل"),
+            ),
+            metadata={"state_id": state_id, "previous_status": previous},
+        )
+        if guarded.is_replay:
+            return {"state_id": state_id, "status": "active", "replayed": True}
+        return {**guarded.value, "previous_status": previous, "operation_id": op}
+
+    def assign_agent(
+        self, state_id: str, agent_id: str, role: str, *, operation_id: str | None = None
+    ) -> dict[str, Any]:
+        """12.6: تعيين وكيل في ولاية — عبرَ الحدِّ (`dispatch_agent` · ممنوعٌ عندَ ≥3)."""
+        op = operation_id or f"assign-{uuid.uuid4().hex[:12]}"
+        target = f"state:{state_id}/agent:{agent_id}"
+        effect = declared_effect(
+            "CREATE",
+            f"{target}/row@{op}",
+            f"صفُّ تعيينِ الوكيلِ «{agent_id}» بدورِ «{role}» في الولاية «{state_id}»",
+        )
+        created: list[int] = []
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            session = self._Session()
+            try:
+                row = StateAgentAssignment(state_id=state_id, agent_id=agent_id, role=role)
+                session.add(row)
+                session.commit()
+                created.append(int(row.id))
+            finally:
+                session.close()
+            return {"state_id": state_id, "agent_id": agent_id, "role": role, "assigned": True}
+
+        def _undo() -> None:
+            session = self._Session()
+            try:
+                if created:
+                    session.query(StateAgentAssignment).filter(
+                        StateAgentAssignment.id.in_(created)
+                    ).delete(synchronize_session=False)
+                    session.commit()
+            finally:
+                session.close()
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_ASSIGN_AGENT,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ASSIGN_AGENT_SCOPE, f"{state_id}:{agent_id}:{op}"),
+            compensators=(compensator(effect.signature, _undo, "حذفُ صفِّ التعيين"),),
+            metadata={"state_id": state_id, "agent_id": agent_id, "role": role},
+        )
+        if guarded.is_replay:
+            return {"state_id": state_id, "agent_id": agent_id, "role": role, "replayed": True}
+        return {**guarded.value, "operation_id": op}
 
     def get_state_agents(self, state_id: str) -> list[dict[str, Any]]:
         """وكلاء ولاية معينة."""
@@ -499,7 +800,7 @@ class StateRuntime:
 class FederalMessageBus:
     """12.3: Federal Message Bus — توجيه الرسائل بين الولايات عبر فحص صلاحية."""
 
-    def __init__(self) -> None:
+    def __init__(self, authorizer: ConstitutionalAuthorizer | None = None) -> None:
         self._engine = create_engine(
             get_database_url(),
             connect_args={"check_same_thread": False}
@@ -508,14 +809,37 @@ class FederalMessageBus:
         )
         StateBase.metadata.create_all(self._engine)
         self._Session = sessionmaker(bind=self._engine, autoflush=False, expire_on_commit=False)
+        self._authorizer = authorizer
+
+    @property
+    def authorizer(self) -> ConstitutionalAuthorizer:
+        """المُصرِّحُ التنفيذيُّ الافتراضيّ — يُبنى عندَ أوّلِ حاجة.
+
+        عبرَ `get_authorizer()` في الجسرِ (موضعُ بناءٍ افتراضيٌّ قائمٌ معدودٌ) لا بموضعِ
+        بناءٍ جديد: الفاعلُ الافتراضيُّ `EXECUTIVE` نفسُه، ومن أرادَ غيرَه يُمرِّرُه صريحًا.
+        """
+        if self._authorizer is None:
+            self._authorizer = get_authorizer()
+        return self._authorizer
+
+    def _delete_message(self, message_id: str) -> None:
+        session = self._Session()
+        try:
+            session.query(StateMessage).filter(StateMessage.message_id == message_id).delete()
+            session.commit()
+        finally:
+            session.close()
 
     def send_message(
         self, from_state: str, to_state: str, subject: str, body: str = ""
     ) -> dict[str, Any]:
-        """إرسال رسالة بين ولايتين — تخضع لفحص السياسة."""
+        """إرسال رسالة بين ولايتين — فحصُ السياسةِ ثمَّ العبورُ (`coordinate` · ممنوعٌ عندَ ≥4).
+
+        الفحصُ قراءةٌ قبلَ الحدّ، والكتابةُ (صفُّ الرسالةِ + التدقيق) داخلَ المُطبِّق.
+        """
+        message_id = f"msg-{uuid.uuid4().hex[:12]}"
         session = self._Session()
         try:
-            message_id = f"msg-{uuid.uuid4().hex[:12]}"
             # فحص السياسة: هل الولايتان موجودتان ونشطتان؟
             from_ok = (
                 session.query(StateModel)
@@ -527,23 +851,35 @@ class FederalMessageBus:
                 .filter(StateModel.state_id == to_state, StateModel.status == "active")
                 .first()
             )
+        finally:
+            session.close()
+        policy_check = "approved" if (from_ok and to_ok) else "denied"
 
-            policy_check = "approved" if (from_ok and to_ok) else "denied"
+        target = f"msg:{message_id}"
+        effect = declared_effect(
+            "CREATE",
+            target,
+            f"صفُّ رسالةٍ {from_state} → {to_state} (فحصُ السياسة: {policy_check})",
+        )
 
-            msg = StateMessage(
-                message_id=message_id,
-                from_state=from_state,
-                to_state=to_state,
-                subject=subject,
-                body=body,
-                policy_check=policy_check,
-                delivered_at=datetime.now(UTC) if policy_check == "approved" else None,
-            )
-            session.add(msg)
-            session.commit()
-
-            audit = PersistentAuditStore()
-            audit.append(
+        def _apply(_effect: Any) -> dict[str, Any]:
+            session = self._Session()
+            try:
+                session.add(
+                    StateMessage(
+                        message_id=message_id,
+                        from_state=from_state,
+                        to_state=to_state,
+                        subject=subject,
+                        body=body,
+                        policy_check=policy_check,
+                        delivered_at=datetime.now(UTC) if policy_check == "approved" else None,
+                    )
+                )
+                session.commit()
+            finally:
+                session.close()
+            PersistentAuditStore().append(
                 "state.message_sent",
                 from_state,
                 {
@@ -553,7 +889,6 @@ class FederalMessageBus:
                     "policy_check": policy_check,
                 },
             )
-
             return {
                 "message_id": message_id,
                 "from_state": from_state,
@@ -562,8 +897,23 @@ class FederalMessageBus:
                 "policy_check": policy_check,
                 "delivered": policy_check == "approved",
             }
-        finally:
-            session.close()
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_SEND_MESSAGE,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(SEND_MESSAGE_SCOPE, message_id),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_message(message_id),
+                    "حذفُ صفِّ الرسالة",
+                ),
+            ),
+            metadata={"from_state": from_state, "to_state": to_state, "policy": policy_check},
+        )
+        return dict(guarded.value)
 
     def get_messages(
         self, state_id: str, direction: str = "received", limit: int = 50

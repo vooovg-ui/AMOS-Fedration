@@ -40,7 +40,7 @@
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 
@@ -136,6 +136,7 @@ class SovereignAuthorizer(Protocol):
         compensators: tuple[Any, ...] = (),
         metadata: dict[str, Any] | None = None,
         judicial_action: Any | None = None,
+        royal_decree: Any | None = None,
     ) -> GuardedResult: ...
 
     def review_only(
@@ -364,6 +365,7 @@ class ConstitutionalAuthorizer:
         compensators: tuple[Any, ...] = (),
         metadata: dict[str, Any] | None = None,
         judicial_action: Any | None = None,
+        royal_decree: Any | None = None,
     ) -> GuardedResult:
         """نفِّذْ عبر حدِّ التنفيذِ السياديّ — أو لا تنفُذ.
 
@@ -378,6 +380,11 @@ class ConstitutionalAuthorizer:
         تُترك ترتفع كما هي: منعٌ دستوريٌّ ليس فشلًا تقنيًّا يُبتلع.
         """
         request = self._request(action, target, metadata)
+        if royal_decree is not None:
+            # قناةُ المرسومِ (W-723 · G1 § 9.8.1): نقلٌ لا سلطة — الجسرُ لا يتحقّقُ
+            # ولا يُقرِّر، و`classify` في البوابةِ يثبتُ الأصالةَ أو يرفعُ. ويُركَّبُ
+            # بعدَ `_request` فلا يتغيّرُ توقيعُه على المُصرِّحاتِ التي تتجاوزُه.
+            request = replace(request, royal_decree=royal_decree)
         captured: list[Any] = []
 
         def _apply(effect: Any) -> None:

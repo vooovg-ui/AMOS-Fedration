@@ -155,18 +155,24 @@ class TestNewStateRegistration:
     """12.8: إضافة ولاية جديدة بلا تعديل الدستور."""
 
     def test_register_new_state(self):
-        """12.8: ولاية جديدة تُسجل بدون لمس الدستور."""
+        """12.8 بعدَ Q-13 (W-723): إنشاءُ ولايةٍ `create_state` ملكيٌّ حصريّ — بلا مرسومٍ يُرفَض.
+
+        كانَ هذا الفحصُ يُثبتُ تسجيلًا بلا إذن، وهوَ الكتابةُ التي عبرَها G1 § 3.1. والمسارُ
+        المأذونُ (مرسومٌ موقَّعٌ وتاجٌ منصَّب) مفحوصٌ في `test_w723_g1_state_runtime_system_life.py`.
+        """
+        import pytest
         from amos_federation.services.governance.state_runtime import get_state_runtime
+        from core.sovereignty.gateway import SovereigntyViolation
 
         runtime = get_state_runtime()
-        result = runtime.register_state(
-            "experimental_tenth",
-            "ولاية تجريبية عاشرة",
-            "experimental",
-            budget="100",
-        )
-        assert result["registered"] is True
-        assert result["state_id"] == "experimental_tenth"
+        with pytest.raises(SovereigntyViolation):
+            runtime.register_state(
+                "experimental_tenth",
+                "ولاية تجريبية عاشرة",
+                "experimental",
+                budget="100",
+            )
+        assert runtime.get_state("experimental_tenth") is None
 
     def test_duplicate_state_rejected(self):
         """12.8: لا يمكن تسجيل ولاية موجودة."""
