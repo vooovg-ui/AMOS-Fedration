@@ -1,0 +1,2667 @@
+{
+ "$comment": "WI-118 · مساراتُ الاستدعاءِ العامّةِ لمواقعِ persistent.py تحتَ D-4 — قياسٌ لا حكم (D4_CALLERS_COVERAGE_ANALYSIS.md)",
+ "sites": [
+  {
+   "by_kind": {
+    "HTTP": {
+     "total": 2,
+     "unguarded": 2,
+     "unguarded_lexical": 2
+    }
+   },
+   "direct_call_sites": [
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/api_gateway/main.py::register_agent",
+     "line": 171,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/tool_registry/main.py::register_agent",
+     "line": 112,
+     "under_guard": false
+    }
+   ],
+   "paths": [
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/api_gateway/main.py::register_agent"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/api_gateway/main.py::register_agent",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /agents",
+     "write_line": 171
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/main.py::register_agent"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/tool_registry/main.py::register_agent",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /agents",
+     "write_line": 112
+    }
+   ],
+   "paths_guarded": 0,
+   "paths_guarded_lexical": 0,
+   "paths_total": 2,
+   "paths_unguarded": 2,
+   "paths_unguarded_lexical": 2,
+   "site": "PersistentAgentStore.register",
+   "truncated": false
+  },
+  {
+   "by_kind": {
+    "EVENT": {
+     "total": 1,
+     "unguarded": 1,
+     "unguarded_lexical": 1
+    },
+    "HTTP": {
+     "total": 32,
+     "unguarded": 21,
+     "unguarded_lexical": 21
+    },
+    "UNRESOLVED_ROOT": {
+     "total": 63,
+     "unguarded": 60,
+     "unguarded_lexical": 46
+    }
+   },
+   "direct_call_sites": [
+    {
+     "caller": "federal/executive/services/src/amos_federation/common/event_wiring.py::AuditConsumer._handle_tool_executed",
+     "line": 233,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/control_console/main.py::activate_kill_switch",
+     "line": 205,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/control_console/main.py::sign_approval",
+     "line": 249,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/factories.py::Factory.start_production._apply",
+     "line": 286,
+     "under_guard": true
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/factories.py::FactoryRegistry.assign_manager._apply",
+     "line": 623,
+     "under_guard": true
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py::LearningCycle.collect_experiences",
+     "line": 164,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py::LearningCycle.start_training",
+     "line": 198,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py::ModelPromotionCycle.start_shadow",
+     "line": 401,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py::ModelPromotionCycle.promote_beta_to_alpha",
+     "line": 454,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/main.py::_append_audit",
+     "line": 43,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/security.py::SecretVault.store_secret",
+     "line": 360,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/security.py::TLSCertManager.issue_certificate",
+     "line": 469,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py::StateRuntime.register_state",
+     "line": 247,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py::StateRuntime.suspend_state",
+     "line": 308,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py::StateRuntime.allocate_budget._apply",
+     "line": 446,
+     "under_guard": true
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py::FederalMessageBus.send_message",
+     "line": 546,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/system_life.py::SystemLifecycle.bootstrap",
+     "line": 143,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/system_life.py::SystemLifecycle.self_heal",
+     "line": 251,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/system_life.py::SystemLifecycle.graceful_shutdown",
+     "line": 282,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace",
+     "line": 61,
+     "under_guard": false
+    }
+   ],
+   "paths": [
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/common/event_wiring.py::AuditConsumer._handle_tool_executed"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/common/event_wiring.py::AuditConsumer._handle_tool_executed",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "EVENT",
+     "route": null,
+     "write_line": 233
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/control_console/main.py::activate_kill_switch"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/control_console/main.py::activate_kill_switch",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /kill-switch",
+     "write_line": 205
+    },
+    {
+     "auth": [
+      "Depends(require_king)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/control_console/main.py::sign_approval"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/control_console/main.py::sign_approval",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /approval",
+     "write_line": 249
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/main.py::_append_audit"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::activate_kill_switch",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /system/kill-switch",
+     "write_line": 43
+    },
+    {
+     "auth": [
+      "Depends(require_king)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::check_gate_endpoint",
+      "federal/executive/services/src/amos_federation/services/governance/main.py::_append_audit"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::check_gate_endpoint",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /promotions/{promotion_id}/gates",
+     "write_line": 43
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::check_policy_endpoint",
+      "federal/executive/services/src/amos_federation/services/governance/main.py::_append_audit"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::check_policy_endpoint",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /policies/check",
+     "write_line": 43
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::check_tool_access",
+      "federal/executive/services/src/amos_federation/services/governance/main.py::_append_audit"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::check_tool_access",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /policy/check-tool",
+     "write_line": 43
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::create_canary_endpoint",
+      "federal/executive/services/src/amos_federation/services/governance/main.py::_append_audit"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::create_canary_endpoint",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /canary",
+     "write_line": 43
+    },
+    {
+     "auth": [
+      "Depends(require_king)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::create_promotion_endpoint",
+      "federal/executive/services/src/amos_federation/services/governance/main.py::_append_audit"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::create_promotion_endpoint",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /promotions",
+     "write_line": 43
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::evaluate_policy_engine",
+      "federal/executive/services/src/amos_federation/services/governance/main.py::_append_audit"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::evaluate_policy_engine",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /policy/evaluate",
+     "write_line": 43
+    },
+    {
+     "auth": [
+      "Depends(require_king)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::reset_kill_switch_endpoint",
+      "federal/executive/services/src/amos_federation/services/governance/main.py::_append_audit"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::reset_kill_switch_endpoint",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /system/kill-switch/reset",
+     "write_line": 43
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::rollback_canary_endpoint",
+      "federal/executive/services/src/amos_federation/services/governance/main.py::_append_audit"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::rollback_canary_endpoint",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /canary/{canary_id}/rollback",
+     "write_line": 43
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::update_canary_metrics_endpoint",
+      "federal/executive/services/src/amos_federation/services/governance/main.py::_append_audit"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::update_canary_metrics_endpoint",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "PATCH /canary/{canary_id}/metrics",
+     "write_line": 43
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/government_services/main.py::process_case",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.process_case",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/government_services/main.py::process_case",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /cases/{reference}/process",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/state_treasury/main.py::allocate",
+      "federal/executive/services/src/amos_federation/services/state_treasury/service.py::StateTreasury.allocate",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/state_treasury/main.py::allocate",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /budgets/{code}/allocations",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/state_treasury/main.py::create_budget",
+      "federal/executive/services/src/amos_federation/services/state_treasury/service.py::StateTreasury.create_budget",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/state_treasury/main.py::create_budget",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /treasuries/{code}/budgets",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/state_treasury/main.py::disburse",
+      "federal/executive/services/src/amos_federation/services/state_treasury/service.py::StateTreasury.disburse",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/state_treasury/main.py::disburse",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /allocations/{allocation_id}/disbursements",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/state_treasury/main.py::establish_treasury",
+      "federal/executive/services/src/amos_federation/services/state_treasury/service.py::StateTreasury.establish_treasury",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/state_treasury/main.py::establish_treasury",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /treasuries",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/state_treasury/main.py::execute_decision_disbursement",
+      "federal/executive/services/src/amos_federation/services/state_treasury/service.py::StateTreasury.execute_decision_disbursement",
+      "federal/executive/services/src/amos_federation/services/state_treasury/service.py::StateTreasury.disburse",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/state_treasury/main.py::execute_decision_disbursement",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /allocations/{allocation_id}/executions",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/state_treasury/main.py::open_account",
+      "federal/executive/services/src/amos_federation/services/state_treasury/service.py::StateTreasury.open_account",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/state_treasury/main.py::open_account",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /treasuries/{code}/accounts",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/state_treasury/main.py::post_funding",
+      "federal/executive/services/src/amos_federation/services/state_treasury/service.py::StateTreasury.post_funding",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/state_treasury/main.py::post_funding",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /treasuries/{code}/funding",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/state_treasury/main.py::reverse_transaction",
+      "federal/executive/services/src/amos_federation/services/state_treasury/service.py::StateTreasury.reverse_transaction",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/state_treasury/main.py::reverse_transaction",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /transactions/{reference}/reversal",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.appoint_judge",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.appoint_judge",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py",
+      "tools/audit/judicial_gate_probe.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.assign_case",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.assign_case",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "core/constitutional_engine/rules.py",
+      "core/sovereignty/jurisdiction.py",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+      "federal/executive/services/src/amos_federation/services/government_services/main.py",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py",
+      "tools/audit/judicial_gate_probe.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.close_case",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.close_case",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+      "federal/executive/services/src/amos_federation/services/government_services/main.py",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py",
+      "tools/audit/judicial_gate_probe.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.enforce_ruling_via_task",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._publish_enforcement",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.enforce_ruling_via_task",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.enforce_ruling_via_task",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._publish_enforcement",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.enforce_ruling_via_task",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.enforce_ruling_via_treasury",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._publish_enforcement",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.enforce_ruling_via_treasury",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.enforce_ruling_via_treasury",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._publish_enforcement",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.enforce_ruling_via_treasury",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.file_case",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._publish_proceeding",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.file_case",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+      "federal/executive/services/src/amos_federation/services/governance/federation.py",
+      "tools/audit/judicial_gate_probe.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.issue_ruling",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._publish_proceeding",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.issue_ruling",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "core/constitutional_engine/rules.py",
+      "core/sovereignty/jurisdiction.py",
+      "docs/audit/evidence/W-581/probe_issue_ruling_actors.py",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py",
+      "federal/executive/services/src/amos_federation/services/governance/federation.py",
+      "tools/audit/judicial_gate_probe.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.issue_ruling",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.issue_ruling",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "core/constitutional_engine/rules.py",
+      "core/sovereignty/jurisdiction.py",
+      "docs/audit/evidence/W-581/probe_issue_ruling_actors.py",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py",
+      "federal/executive/services/src/amos_federation/services/governance/federation.py",
+      "tools/audit/judicial_gate_probe.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.open_case",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.open_case",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "core/sovereignty/enforcement_boundary.py",
+      "docs/audit/evidence/W-701/gen_w701_briefs.py",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+      "federal/executive/services/src/amos_federation/services/government_services/main.py",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.open_hearing",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._publish_proceeding",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.open_hearing",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+      "tools/audit/judicial_gate_probe.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.record_proceeding",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._publish_proceeding",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.record_proceeding",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "core/constitutional_engine/rules.py",
+      "core/sovereignty/jurisdiction.py",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/rulings.py",
+      "tools/audit/judicial_gate_probe.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.register_court",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.register_court",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "tools/audit/judicial_gate_probe.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.set_court_status",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.set_court_status",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py",
+      "tools/audit/judicial_gate_probe.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.set_judge_status",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.set_judge_status",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py",
+      "tools/audit/judicial_gate_probe.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.submit_evidence",
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::FederalJudiciary.submit_evidence",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py",
+      "tools/audit/judicial_gate_probe.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.bind_institution",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.bind_institution",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.execute_scoped_disbursement",
+      "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment._record_operation",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.execute_scoped_disbursement",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "tools/audit/decision_gate.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.execute_scoped_operation",
+      "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment._record_operation",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.execute_scoped_operation",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.grant_delegation",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.grant_delegation",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.record_relation",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.record_relation",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.register_government",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.register_government",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.revoke_delegation",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.revoke_delegation",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.scope_case",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.scope_case",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.scope_service",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.scope_service",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.set_government_status",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/federal_state/service.py::FederalStateGovernment.set_government_status",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py::LearningCycle.collect_experiences"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py::LearningCycle.collect_experiences",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 164
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py::LearningCycle.start_training"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py::LearningCycle.start_training",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 198
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py::ModelPromotionCycle.promote_beta_to_alpha"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py::ModelPromotionCycle.promote_beta_to_alpha",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 454
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py::ModelPromotionCycle.start_shadow"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py::ModelPromotionCycle.start_shadow",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 401
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/security.py::SecretVault.store_secret"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/security.py::SecretVault.store_secret",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 360
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/security.py::TLSCertManager.issue_certificate"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/security.py::TLSCertManager.issue_certificate",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 469
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/state_runtime.py::FederalMessageBus.send_message"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py::FederalMessageBus.send_message",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 546
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/state_runtime.py::StateRuntime.register_state"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py::StateRuntime.register_state",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 247
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/state_runtime.py::StateRuntime.suspend_state"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py::StateRuntime.suspend_state",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 308
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/system_life.py::SystemLifecycle.bootstrap"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/system_life.py::SystemLifecycle.bootstrap",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "docs/audit/evidence/W-701/gen_w701_briefs.py",
+      "tools/audit/sovereign_write_inventory.py"
+     ],
+     "route": null,
+     "write_line": 143
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/system_life.py::SystemLifecycle.graceful_shutdown"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/system_life.py::SystemLifecycle.graceful_shutdown",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 282
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/system_life.py::SystemLifecycle.self_heal"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/system_life.py::SystemLifecycle.self_heal",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 251
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.activate_policy",
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy._announce",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.activate_policy",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.authorize_expenditure",
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy._announce",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.authorize_expenditure",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "core/constitutional_engine/rules.py",
+      "federal/executive/services/src/amos_federation/common/money_delegation.py",
+      "tools/audit/treasury_gate_probe.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.authorize_procurement",
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy._announce",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.authorize_procurement",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.authorize_transfer",
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy._announce",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.authorize_transfer",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.create_program",
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy._announce",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.create_program",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.execute_economic_decision",
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy._announce",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.execute_economic_decision",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.execute_expenditure",
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy._announce",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.execute_expenditure",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.issue_policy",
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy._announce",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.issue_policy",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.register_public_asset",
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy._announce",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.register_public_asset",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.register_public_entity",
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy._announce",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.register_public_entity",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.register_public_liability",
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy._announce",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.register_public_liability",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.register_revenue_source",
+      "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy._announce",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_economy/service.py::NationalEconomy.register_revenue_source",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.assign_position",
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.assign_position",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.create_position",
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.create_position",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.grant_authority",
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.grant_authority",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "core/sovereignty/authority_grants.py",
+      "core/sovereignty/prerogatives.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.link_agent",
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.link_agent",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.link_agent",
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.create_identity",
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.link_agent",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.link_principal",
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.link_principal",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "docs/audit/evidence/W-628/mutation_probe_wi107.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.revoke_assignment",
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.revoke_assignment",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "docs/audit/evidence/W-628/mutation_probe_wi107.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.revoke_authority",
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.revoke_authority",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "core/sovereignty/authority_grants.py",
+      "core/sovereignty/prerogatives.py"
+     ],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.set_identity_status",
+      "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/national_registry/service.py::NationalRegistry.set_identity_status",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/government_services/main.py::assign_case",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.assign_case",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.assign_case._apply",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/government_services/main.py::assign_case",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "PATCH /cases/{reference}/assignment",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/government_services/main.py::close_case",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.close_case",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.close_case._apply",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/government_services/main.py::close_case",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /cases/{reference}/close",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/government_services/main.py::decide_case",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.decide_case",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.decide_case._apply",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.decide_case._write_status",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/government_services/main.py::decide_case",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /cases/{reference}/decision",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/government_services/main.py::open_case",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.open_case",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.open_case._apply",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.open_case._write_case_row",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/government_services/main.py::open_case",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /institutions/{code}/cases",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/government_services/main.py::publish_service",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.publish_service",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.publish_service._apply",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/government_services/main.py::publish_service",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /institutions/{code}/services",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/government_services/main.py::set_service_status",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.set_service_status",
+      "federal/executive/services/src/amos_federation/services/government_services/service.py::GovernmentServices.set_service_status._apply",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/government_services/main.py::set_service_status",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "PATCH /institutions/{code}/services/{service_code}/status",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/state_registry/main.py::appoint_official",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry.appoint_official",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry.appoint_official._apply",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/state_registry/main.py::appoint_official",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /institutions/{code}/officials",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/state_registry/main.py::create_department",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry.create_department",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry.create_department._apply",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/state_registry/main.py::create_department",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /institutions/{code}/departments",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/state_registry/main.py::register_institution",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry.register_institution",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry.register_institution._apply",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/state_registry/main.py::register_institution",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /institutions",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/state_registry/main.py::revoke_official",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry.revoke_official",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry.revoke_official._apply",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/state_registry/main.py::revoke_official",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "DELETE /officials/{official_id}",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/state_registry/main.py::set_institution_status",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry.set_institution_status",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry.set_institution_status._apply",
+      "federal/executive/services/src/amos_federation/services/state_registry/service.py::StateRegistry._record",
+      "federal/executive/services/src/amos_federation/services/state_registry/trace.py::record_domain_trace"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/state_registry/main.py::set_institution_status",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "PATCH /institutions/{code}/status",
+     "write_line": 61
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/factories.py::FactoryRegistry.assign_manager",
+      "federal/executive/services/src/amos_federation/services/governance/factories.py::FactoryRegistry.assign_manager._apply"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/factories.py::FactoryRegistry.assign_manager",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 623
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/state_runtime.py::StateRuntime.allocate_budget",
+      "federal/executive/services/src/amos_federation/services/governance/state_runtime.py::StateRuntime.allocate_budget._apply"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/state_runtime.py::StateRuntime.allocate_budget",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "core/constitutional_engine/rules.py",
+      "core/sovereignty/jurisdiction.py",
+      "federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py",
+      "federal/executive/services/src/amos_federation/services/governance/treasury.py",
+      "tools/audit/treasury_gate_probe.py"
+     ],
+     "route": null,
+     "write_line": 446
+    },
+    {
+     "auth": [],
+     "chain": [
+      "tools/governance/restart_survival_probe.py::_write_factory_product",
+      "federal/executive/services/src/amos_federation/services/governance/factories.py::Factory.run_full_pipeline",
+      "federal/executive/services/src/amos_federation/services/governance/factories.py::Factory.start_production",
+      "federal/executive/services/src/amos_federation/services/governance/factories.py::Factory.start_production._apply"
+     ],
+     "entry": "tools/governance/restart_survival_probe.py::_write_factory_product",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 286
+    }
+   ],
+   "paths_guarded": 14,
+   "paths_guarded_lexical": 28,
+   "paths_total": 96,
+   "paths_unguarded": 82,
+   "paths_unguarded_lexical": 68,
+   "site": "PersistentAuditStore.append",
+   "truncated": false
+  },
+  {
+   "by_kind": {
+    "HTTP": {
+     "total": 1,
+     "unguarded": 1,
+     "unguarded_lexical": 1
+    }
+   },
+   "direct_call_sites": [
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/critic/main.py::review_task",
+     "line": 171,
+     "under_guard": false
+    }
+   ],
+   "paths": [
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/critic/main.py::review_task"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/critic/main.py::review_task",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /reviews",
+     "write_line": 171
+    }
+   ],
+   "paths_guarded": 0,
+   "paths_guarded_lexical": 0,
+   "paths_total": 1,
+   "paths_unguarded": 1,
+   "paths_unguarded_lexical": 1,
+   "site": "PersistentCriticStore.review",
+   "truncated": false
+  },
+  {
+   "by_kind": {
+    "EVENT": {
+     "total": 1,
+     "unguarded": 1,
+     "unguarded_lexical": 1
+    },
+    "HTTP": {
+     "total": 1,
+     "unguarded": 1,
+     "unguarded_lexical": 1
+    }
+   },
+   "direct_call_sites": [
+    {
+     "caller": "federal/executive/services/src/amos_federation/common/event_wiring.py::MemoryConsumer._handle_experience",
+     "line": 255,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/evaluation/main.py::record_experience",
+     "line": 95,
+     "under_guard": false
+    }
+   ],
+   "paths": [
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/common/event_wiring.py::MemoryConsumer._handle_experience"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/common/event_wiring.py::MemoryConsumer._handle_experience",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "EVENT",
+     "route": null,
+     "write_line": 255
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/evaluation/main.py::record_experience"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/evaluation/main.py::record_experience",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /experiences",
+     "write_line": 95
+    }
+   ],
+   "paths_guarded": 0,
+   "paths_guarded_lexical": 0,
+   "paths_total": 2,
+   "paths_unguarded": 2,
+   "paths_unguarded_lexical": 2,
+   "site": "PersistentExperienceStore.record",
+   "truncated": false
+  },
+  {
+   "by_kind": {
+    "HTTP": {
+     "total": 4,
+     "unguarded": 4,
+     "unguarded_lexical": 1
+    }
+   },
+   "direct_call_sites": [
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/agent_runtime/health.py::TreatmentSystem._execute_treatment",
+     "line": 600,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/memory_service/main.py::store_memory",
+     "line": 53,
+     "under_guard": false
+    }
+   ],
+   "paths": [
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/control_console/main.py::release_agent",
+      "federal/executive/services/src/amos_federation/services/agent_runtime/health.py::IsolationSystem.release",
+      "federal/executive/services/src/amos_federation/services/agent_runtime/health.py::TreatmentSystem.start_treatment",
+      "federal/executive/services/src/amos_federation/services/agent_runtime/health.py::TreatmentSystem._execute_treatment"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/control_console/main.py::release_agent",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /health/release/{isolation_id}",
+     "write_line": 600
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/control_console/main.py::run_health_check",
+      "federal/executive/services/src/amos_federation/services/agent_runtime/health.py::run_health_cycle",
+      "federal/executive/services/src/amos_federation/services/agent_runtime/health.py::TreatmentSystem.start_treatment",
+      "federal/executive/services/src/amos_federation/services/agent_runtime/health.py::TreatmentSystem._execute_treatment"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/control_console/main.py::run_health_check",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /health/check",
+     "write_line": 600
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/control_console/main.py::treat_agent",
+      "federal/executive/services/src/amos_federation/services/agent_runtime/health.py::TreatmentSystem.start_treatment",
+      "federal/executive/services/src/amos_federation/services/agent_runtime/health.py::TreatmentSystem._execute_treatment"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/control_console/main.py::treat_agent",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /health/treat/{agent_id}",
+     "write_line": 600
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/memory_service/main.py::store_memory"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/memory_service/main.py::store_memory",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /memory/store",
+     "write_line": 53
+    }
+   ],
+   "paths_guarded": 0,
+   "paths_guarded_lexical": 3,
+   "paths_total": 4,
+   "paths_unguarded": 4,
+   "paths_unguarded_lexical": 1,
+   "site": "PersistentMemoryStore.store",
+   "truncated": false
+  },
+  {
+   "by_kind": {
+    "HTTP": {
+     "total": 1,
+     "unguarded": 0,
+     "unguarded_lexical": 0
+    },
+    "IMPORT": {
+     "total": 1,
+     "unguarded": 1,
+     "unguarded_lexical": 1
+    }
+   },
+   "direct_call_sites": [
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/canary.py::create_promotion._apply",
+     "line": 328,
+     "under_guard": true
+    },
+    {
+     "caller": "tools/ops/pg_backup_restore.py::_write_through_service_path",
+     "line": 272,
+     "under_guard": false
+    }
+   ],
+   "paths": [
+    {
+     "auth": [],
+     "chain": [
+      "tools/ops/pg_backup_restore.py::main",
+      "tools/ops/pg_backup_restore.py::prove",
+      "tools/ops/pg_backup_restore.py::_write_through_service_path"
+     ],
+     "entry": "tools/ops/pg_backup_restore.py::main",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "IMPORT",
+     "route": null,
+     "write_line": 272
+    },
+    {
+     "auth": [
+      "Depends(require_king)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::create_promotion_endpoint",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::create_promotion",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::create_promotion._apply"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::create_promotion_endpoint",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /promotions",
+     "write_line": 328
+    }
+   ],
+   "paths_guarded": 1,
+   "paths_guarded_lexical": 1,
+   "paths_total": 2,
+   "paths_unguarded": 1,
+   "paths_unguarded_lexical": 1,
+   "site": "PersistentPromotionStore.create",
+   "truncated": false
+  },
+  {
+   "by_kind": {
+    "HTTP": {
+     "total": 2,
+     "unguarded": 1,
+     "unguarded_lexical": 1
+    }
+   },
+   "direct_call_sites": [
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/canary.py::create_promotion._cancel",
+     "line": 332,
+     "under_guard": true
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/canary.py::check_gate",
+     "line": 375,
+     "under_guard": false
+    }
+   ],
+   "paths": [
+    {
+     "auth": [
+      "Depends(require_king)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::check_gate_endpoint",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::check_gate"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::check_gate_endpoint",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /promotions/{promotion_id}/gates",
+     "write_line": 375
+    },
+    {
+     "auth": [
+      "Depends(require_king)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::create_promotion_endpoint",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::create_promotion",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::create_promotion._cancel"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::create_promotion_endpoint",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /promotions",
+     "write_line": 332
+    }
+   ],
+   "paths_guarded": 1,
+   "paths_guarded_lexical": 1,
+   "paths_total": 2,
+   "paths_unguarded": 1,
+   "paths_unguarded_lexical": 1,
+   "site": "PersistentPromotionStore.save_gates",
+   "truncated": false
+  },
+  {
+   "by_kind": {
+    "HTTP": {
+     "total": 6,
+     "unguarded": 6,
+     "unguarded_lexical": 4
+    },
+    "IMPORT": {
+     "total": 1,
+     "unguarded": 1,
+     "unguarded_lexical": 1
+    },
+    "UNRESOLVED_ROOT": {
+     "total": 12,
+     "unguarded": 12,
+     "unguarded_lexical": 12
+    }
+   },
+   "direct_call_sites": [
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status",
+     "line": 123,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch",
+     "line": 181,
+     "under_guard": false
+    },
+    {
+     "caller": "tools/ops/pg_backup_restore.py::_read_through_service_path",
+     "line": 295,
+     "under_guard": false
+    }
+   ],
+   "paths": [
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/control_console/main.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/control_console/main.py::activate_kill_switch",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /kill-switch",
+     "write_line": 181
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/control_console/main.py::get_dashboard",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/control_console/main.py::get_dashboard",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "GET /dashboard",
+     "write_line": 123
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/main.py::_activate_kill_switch_safe",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::activate_kill_switch",
+     "guarded": false,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /system/kill-switch",
+     "write_line": 181
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::check_tool_access",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::check_tool_access",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /policy/check-tool",
+     "write_line": 123
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::evaluate_policy_engine",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::evaluate_policy_engine",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /policy/evaluate",
+     "write_line": 123
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::system_status",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::system_status",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "GET /system/status",
+     "write_line": 123
+    },
+    {
+     "auth": [],
+     "chain": [
+      "tools/ops/pg_backup_restore.py::main",
+      "tools/ops/pg_backup_restore.py::prove",
+      "tools/ops/pg_backup_restore.py::_read_through_service_path"
+     ],
+     "entry": "tools/ops/pg_backup_restore.py::main",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "IMPORT",
+     "route": null,
+     "write_line": 295
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::is_execution_blocked",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/canary.py::is_execution_blocked",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 123
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::is_system_halted",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/canary.py::is_system_halted",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [],
+     "route": null,
+     "write_line": 123
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::execute_authorized_tool",
+      "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::authorize",
+      "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::_enforce_governance",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::enforce_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::execute_authorized_tool",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/agent_runtime/sandbox.py"
+     ],
+     "route": null,
+     "write_line": 123
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::execute_authorized_tool",
+      "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::authorize",
+      "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::_enforce_governance",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::execute_authorized_tool",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/agent_runtime/sandbox.py"
+     ],
+     "route": null,
+     "write_line": 123
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/deprecated_role_path.py::execute_tool_with_declared_role",
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_with_governance",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::enforce_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/tool_registry/deprecated_role_path.py::execute_tool_with_declared_role",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py"
+     ],
+     "route": null,
+     "write_line": 123
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/deprecated_role_path.py::execute_tool_with_declared_role",
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_with_governance",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/tool_registry/deprecated_role_path.py::execute_tool_with_declared_role",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py"
+     ],
+     "route": null,
+     "write_line": 123
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/deprecated_role_path.py::execute_tool_with_declared_role",
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_with_governance",
+      "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::authorize",
+      "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::_enforce_governance",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::enforce_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/tool_registry/deprecated_role_path.py::execute_tool_with_declared_role",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py"
+     ],
+     "route": null,
+     "write_line": 123
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/deprecated_role_path.py::execute_tool_with_declared_role",
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_with_governance",
+      "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::authorize",
+      "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::_enforce_governance",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/tool_registry/deprecated_role_path.py::execute_tool_with_declared_role",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py"
+     ],
+     "route": null,
+     "write_line": 123
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_for_principal",
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_with_governance",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::enforce_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_for_principal",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/deprecated_role_path.py"
+     ],
+     "route": null,
+     "write_line": 123
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_for_principal",
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_with_governance",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_for_principal",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/deprecated_role_path.py"
+     ],
+     "route": null,
+     "write_line": 123
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_for_principal",
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_with_governance",
+      "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::authorize",
+      "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::_enforce_governance",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::enforce_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_for_principal",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/deprecated_role_path.py"
+     ],
+     "route": null,
+     "write_line": 123
+    },
+    {
+     "auth": [],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_for_principal",
+      "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_with_governance",
+      "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::authorize",
+      "federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py::_enforce_governance",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::get_system_status"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py::execute_tool_for_principal",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "UNRESOLVED_ROOT",
+     "mentions_elsewhere": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/deprecated_role_path.py"
+     ],
+     "route": null,
+     "write_line": 123
+    }
+   ],
+   "paths_guarded": 0,
+   "paths_guarded_lexical": 2,
+   "paths_total": 19,
+   "paths_unguarded": 19,
+   "paths_unguarded_lexical": 17,
+   "site": "PersistentSystemStateStore.get",
+   "truncated": false
+  },
+  {
+   "by_kind": {
+    "HTTP": {
+     "total": 4,
+     "unguarded": 2,
+     "unguarded_lexical": 2
+    }
+   },
+   "direct_call_sites": [
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch._restore",
+     "line": 199,
+     "under_guard": true
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/canary.py::reset_kill_switch",
+     "line": 229,
+     "under_guard": false
+    }
+   ],
+   "paths": [
+    {
+     "auth": [
+      "Depends(require_king)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/control_console/main.py::reset_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::reset_kill_switch"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/control_console/main.py::reset_kill_switch",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /kill-switch/reset",
+     "write_line": 229
+    },
+    {
+     "auth": [
+      "Depends(require_king)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::reset_kill_switch_endpoint",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::reset_kill_switch"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::reset_kill_switch_endpoint",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /system/kill-switch/reset",
+     "write_line": 229
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/control_console/main.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch._restore"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/control_console/main.py::activate_kill_switch",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /kill-switch",
+     "write_line": 199
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/main.py::_activate_kill_switch_safe",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch._restore"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::activate_kill_switch",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /system/kill-switch",
+     "write_line": 199
+    }
+   ],
+   "paths_guarded": 2,
+   "paths_guarded_lexical": 2,
+   "paths_total": 4,
+   "paths_unguarded": 2,
+   "paths_unguarded_lexical": 2,
+   "site": "PersistentSystemStateStore.reset",
+   "truncated": false
+  },
+  {
+   "by_kind": {
+    "HTTP": {
+     "total": 4,
+     "unguarded": 0,
+     "unguarded_lexical": 0
+    },
+    "IMPORT": {
+     "total": 1,
+     "unguarded": 1,
+     "unguarded_lexical": 1
+    }
+   },
+   "direct_call_sites": [
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch._apply",
+     "line": 194,
+     "under_guard": true
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch._restore",
+     "line": 201,
+     "under_guard": true
+    },
+    {
+     "caller": "tools/ops/pg_backup_restore.py::_write_through_service_path",
+     "line": 268,
+     "under_guard": false
+    }
+   ],
+   "paths": [
+    {
+     "auth": [],
+     "chain": [
+      "tools/ops/pg_backup_restore.py::main",
+      "tools/ops/pg_backup_restore.py::prove",
+      "tools/ops/pg_backup_restore.py::_write_through_service_path"
+     ],
+     "entry": "tools/ops/pg_backup_restore.py::main",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "IMPORT",
+     "route": null,
+     "write_line": 268
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/control_console/main.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch._apply"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/control_console/main.py::activate_kill_switch",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /kill-switch",
+     "write_line": 194
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/control_console/main.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch._restore"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/control_console/main.py::activate_kill_switch",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /kill-switch",
+     "write_line": 201
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/main.py::_activate_kill_switch_safe",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch._apply"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::activate_kill_switch",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /system/kill-switch",
+     "write_line": 194
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/governance/main.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/main.py::_activate_kill_switch_safe",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch",
+      "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch._restore"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/governance/main.py::activate_kill_switch",
+     "guarded": true,
+     "guarded_lexical": true,
+     "kind": "HTTP",
+     "route": "POST /system/kill-switch",
+     "write_line": 201
+    }
+   ],
+   "paths_guarded": 4,
+   "paths_guarded_lexical": 4,
+   "paths_total": 5,
+   "paths_unguarded": 1,
+   "paths_unguarded_lexical": 1,
+   "site": "PersistentSystemStateStore.set_level",
+   "truncated": false
+  },
+  {
+   "by_kind": {},
+   "direct_call_sites": [],
+   "paths": [],
+   "paths_guarded": 0,
+   "paths_guarded_lexical": 0,
+   "paths_total": 0,
+   "paths_unguarded": 0,
+   "paths_unguarded_lexical": 0,
+   "site": "PersistentTaskStore.create",
+   "truncated": false
+  },
+  {
+   "by_kind": {},
+   "direct_call_sites": [],
+   "paths": [],
+   "paths_guarded": 0,
+   "paths_guarded_lexical": 0,
+   "paths_total": 0,
+   "paths_unguarded": 0,
+   "paths_unguarded_lexical": 0,
+   "site": "PersistentTaskStore.update_status",
+   "truncated": false
+  },
+  {
+   "by_kind": {
+    "HTTP": {
+     "total": 2,
+     "unguarded": 2,
+     "unguarded_lexical": 2
+    }
+   },
+   "direct_call_sites": [
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/api_gateway/main.py::register_tool",
+     "line": 182,
+     "under_guard": false
+    },
+    {
+     "caller": "federal/executive/services/src/amos_federation/services/tool_registry/main.py::register_tool",
+     "line": 81,
+     "under_guard": false
+    }
+   ],
+   "paths": [
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/api_gateway/main.py::register_tool"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/api_gateway/main.py::register_tool",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /tools",
+     "write_line": 182
+    },
+    {
+     "auth": [
+      "Depends(require_auth)"
+     ],
+     "chain": [
+      "federal/executive/services/src/amos_federation/services/tool_registry/main.py::register_tool"
+     ],
+     "entry": "federal/executive/services/src/amos_federation/services/tool_registry/main.py::register_tool",
+     "guarded": false,
+     "guarded_lexical": false,
+     "kind": "HTTP",
+     "route": "POST /tools",
+     "write_line": 81
+    }
+   ],
+   "paths_guarded": 0,
+   "paths_guarded_lexical": 0,
+   "paths_total": 2,
+   "paths_unguarded": 2,
+   "paths_unguarded_lexical": 2,
+   "site": "PersistentToolStore.register",
+   "truncated": false
+  }
+ ]
+}

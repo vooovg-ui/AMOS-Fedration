@@ -1,0 +1,353 @@
+== تحليلُ مساراتِ الاستدعاءِ العامةِ لمواقعِ persistent.py (WI-118) ==
+  المواقعُ المقيسةُ (من الجردِ نفسِه): 13
+  ملفّاتُ الإنتاجِ المقروءة: 286
+
+  الموقع | نداءات | مسارات | HTTP | حدث | استيراد | جذر | ✗ تنفيذيًّا | ✗ لفظيًّا
+  PersistentAgentStore.register | 2 | 2 | 2 | 0 | 0 | 0 | 2 | 2
+  PersistentAuditStore.append | 20 | 96 | 32 | 1 | 0 | 63 | 82 | 68
+  PersistentCriticStore.review | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 1
+  PersistentExperienceStore.record | 2 | 2 | 1 | 1 | 0 | 0 | 2 | 2
+  PersistentMemoryStore.store | 2 | 4 | 4 | 0 | 0 | 0 | 4 | 1
+  PersistentPromotionStore.create | 2 | 2 | 1 | 0 | 1 | 0 | 1 | 1
+  PersistentPromotionStore.save_gates | 2 | 2 | 2 | 0 | 0 | 0 | 1 | 1
+  PersistentSystemStateStore.get | 3 | 19 | 6 | 0 | 1 | 12 | 19 | 17
+  PersistentSystemStateStore.reset | 2 | 4 | 4 | 0 | 0 | 0 | 2 | 2
+  PersistentSystemStateStore.set_level | 3 | 5 | 4 | 0 | 1 | 0 | 1 | 1
+  PersistentTaskStore.create | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+  PersistentTaskStore.update_status | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+  PersistentToolStore.register | 2 | 2 | 2 | 0 | 0 | 0 | 2 | 2
+  المجموع | 41 | 139 | 59 | 2 | 3 | 75 | 117 | 98
+  (✗ تنفيذيًّا = الكتابةُ لا تُنفَّذُ داخلَ مُطبِّقٍ تحتَ guard_declared · ✗ لفظيًّا = لا دالّةَ في السلسلةِ يقعُ في جسدِها guard_declared)
+
+--- PersistentAgentStore.register  (مسارات 2 · غيرُ محروسة 2) 
+    نداءٌ مباشر: ~/services/api_gateway/main.py::register_agent:171  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/tool_registry/main.py::register_agent:112  تحتَ الحدّ=False
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /agents]
+        ~/services/api_gateway/main.py::register_agent
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /agents]
+        ~/services/tool_registry/main.py::register_agent
+--- PersistentAuditStore.append  (مسارات 96 · غيرُ محروسة 82) 
+    نداءٌ مباشر: ~/common/event_wiring.py::AuditConsumer._handle_tool_executed:233  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/control_console/main.py::activate_kill_switch:205  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/control_console/main.py::sign_approval:249  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/governance/factories.py::Factory.start_production._apply:286  تحتَ الحدّ=True
+    نداءٌ مباشر: ~/services/governance/factories.py::FactoryRegistry.assign_manager._apply:623  تحتَ الحدّ=True
+    نداءٌ مباشر: ~/services/governance/learning_cycle.py::LearningCycle.collect_experiences:164  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/governance/learning_cycle.py::LearningCycle.start_training:198  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/governance/learning_cycle.py::ModelPromotionCycle.start_shadow:401  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/governance/learning_cycle.py::ModelPromotionCycle.promote_beta_to_alpha:454  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/governance/main.py::_append_audit:43  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/governance/security.py::SecretVault.store_secret:360  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/governance/security.py::TLSCertManager.issue_certificate:469  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/governance/state_runtime.py::StateRuntime.register_state:247  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/governance/state_runtime.py::StateRuntime.suspend_state:308  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/governance/state_runtime.py::StateRuntime.allocate_budget._apply:446  تحتَ الحدّ=True
+    نداءٌ مباشر: ~/services/governance/state_runtime.py::FederalMessageBus.send_message:546  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/governance/system_life.py::SystemLifecycle.bootstrap:143  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/governance/system_life.py::SystemLifecycle.self_heal:251  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/governance/system_life.py::SystemLifecycle.graceful_shutdown:282  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/state_registry/trace.py::record_domain_trace:61  تحتَ الحدّ=False
+    ✗ تنفيذيًّا · ✗ لفظيًّا · EVENT
+        ~/common/event_wiring.py::AuditConsumer._handle_tool_executed
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /kill-switch] auth=['Depends(require_auth)']
+        ~/services/control_console/main.py::activate_kill_switch
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /approval] auth=['Depends(require_king)']
+        ~/services/control_console/main.py::sign_approval
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /system/kill-switch] auth=['Depends(require_auth)']
+        ~/services/governance/main.py::activate_kill_switch → ~/services/governance/main.py::_append_audit
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /promotions/{promotion_id}/gates] auth=['Depends(require_king)']
+        ~/services/governance/main.py::check_gate_endpoint → ~/services/governance/main.py::_append_audit
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /policies/check] auth=['Depends(require_auth)']
+        ~/services/governance/main.py::check_policy_endpoint → ~/services/governance/main.py::_append_audit
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /policy/check-tool] auth=['Depends(require_auth)']
+        ~/services/governance/main.py::check_tool_access → ~/services/governance/main.py::_append_audit
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /canary] auth=['Depends(require_auth)']
+        ~/services/governance/main.py::create_canary_endpoint → ~/services/governance/main.py::_append_audit
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /promotions] auth=['Depends(require_king)']
+        ~/services/governance/main.py::create_promotion_endpoint → ~/services/governance/main.py::_append_audit
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /policy/evaluate] auth=['Depends(require_auth)']
+        ~/services/governance/main.py::evaluate_policy_engine → ~/services/governance/main.py::_append_audit
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /system/kill-switch/reset] auth=['Depends(require_king)']
+        ~/services/governance/main.py::reset_kill_switch_endpoint → ~/services/governance/main.py::_append_audit
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /canary/{canary_id}/rollback] auth=['Depends(require_auth)']
+        ~/services/governance/main.py::rollback_canary_endpoint → ~/services/governance/main.py::_append_audit
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [PATCH /canary/{canary_id}/metrics] auth=['Depends(require_auth)']
+        ~/services/governance/main.py::update_canary_metrics_endpoint → ~/services/governance/main.py::_append_audit
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /cases/{reference}/process]
+        ~/services/government_services/main.py::process_case → ~/services/government_services/service.py::GovernmentServices.process_case → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /budgets/{code}/allocations]
+        ~/services/state_treasury/main.py::allocate → ~/services/state_treasury/service.py::StateTreasury.allocate → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /treasuries/{code}/budgets]
+        ~/services/state_treasury/main.py::create_budget → ~/services/state_treasury/service.py::StateTreasury.create_budget → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /allocations/{allocation_id}/disbursements]
+        ~/services/state_treasury/main.py::disburse → ~/services/state_treasury/service.py::StateTreasury.disburse → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /treasuries]
+        ~/services/state_treasury/main.py::establish_treasury → ~/services/state_treasury/service.py::StateTreasury.establish_treasury → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /allocations/{allocation_id}/executions]
+        ~/services/state_treasury/main.py::execute_decision_disbursement → ~/services/state_treasury/service.py::StateTreasury.execute_decision_disbursement → ~/services/state_treasury/service.py::StateTreasury.disburse → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /treasuries/{code}/accounts]
+        ~/services/state_treasury/main.py::open_account → ~/services/state_treasury/service.py::StateTreasury.open_account → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /treasuries/{code}/funding]
+        ~/services/state_treasury/main.py::post_funding → ~/services/state_treasury/service.py::StateTreasury.post_funding → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /transactions/{reference}/reversal]
+        ~/services/state_treasury/main.py::reverse_transaction → ~/services/state_treasury/service.py::StateTreasury.reverse_transaction → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/federal_judiciary/registry.py', 'tools/audit/judicial_gate_probe.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.appoint_judge → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['core/constitutional_engine/rules.py', 'core/sovereignty/jurisdiction.py', '~/services/federal_judiciary/docket.py', '~/services/government_services/main.py', '~/services/government_services/service.py', 'tools/audit/judicial_gate_probe.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.assign_case → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/federal_judiciary/docket.py', '~/services/government_services/main.py', '~/services/government_services/service.py', 'tools/audit/judicial_gate_probe.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.close_case → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/federal_judiciary/enforcement.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.enforce_ruling_via_task → ~/services/federal_judiciary/service.py::FederalJudiciary._publish_enforcement → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/federal_judiciary/enforcement.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.enforce_ruling_via_task → ~/services/federal_judiciary/service.py::FederalJudiciary._publish_enforcement → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/federal_judiciary/enforcement.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.enforce_ruling_via_treasury → ~/services/federal_judiciary/service.py::FederalJudiciary._publish_enforcement → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/federal_judiciary/enforcement.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.enforce_ruling_via_treasury → ~/services/federal_judiciary/service.py::FederalJudiciary._publish_enforcement → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/federal_judiciary/docket.py', '~/services/governance/federation.py', 'tools/audit/judicial_gate_probe.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.file_case → ~/services/federal_judiciary/service.py::FederalJudiciary._publish_proceeding → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['core/constitutional_engine/rules.py', 'core/sovereignty/jurisdiction.py', 'docs/audit/evidence/W-581/probe_issue_ruling_actors.py', '~/services/federal_judiciary/docket.py', '~/services/federal_judiciary/rulings.py', '~/services/governance/federation.py', 'tools/audit/judicial_gate_probe.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.issue_ruling → ~/services/federal_judiciary/service.py::FederalJudiciary._publish_proceeding → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['core/constitutional_engine/rules.py', 'core/sovereignty/jurisdiction.py', 'docs/audit/evidence/W-581/probe_issue_ruling_actors.py', '~/services/federal_judiciary/docket.py', '~/services/federal_judiciary/rulings.py', '~/services/governance/federation.py', 'tools/audit/judicial_gate_probe.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.issue_ruling → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['core/sovereignty/enforcement_boundary.py', 'docs/audit/evidence/W-701/gen_w701_briefs.py', '~/services/federal_judiciary/docket.py', '~/services/government_services/main.py', '~/services/government_services/service.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.open_case → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/federal_judiciary/docket.py', 'tools/audit/judicial_gate_probe.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.open_hearing → ~/services/federal_judiciary/service.py::FederalJudiciary._publish_proceeding → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['core/constitutional_engine/rules.py', 'core/sovereignty/jurisdiction.py', '~/services/federal_judiciary/docket.py', '~/services/federal_judiciary/rulings.py', 'tools/audit/judicial_gate_probe.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.record_proceeding → ~/services/federal_judiciary/service.py::FederalJudiciary._publish_proceeding → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['tools/audit/judicial_gate_probe.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.register_court → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/federal_judiciary/registry.py', 'tools/audit/judicial_gate_probe.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.set_court_status → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/federal_judiciary/registry.py', 'tools/audit/judicial_gate_probe.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.set_judge_status → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/federal_judiciary/docket.py', 'tools/audit/judicial_gate_probe.py']
+        ~/services/federal_judiciary/service.py::FederalJudiciary.submit_evidence → ~/services/federal_judiciary/service.py::FederalJudiciary._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/federal_state/service.py::FederalStateGovernment.bind_institution → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['tools/audit/decision_gate.py']
+        ~/services/federal_state/service.py::FederalStateGovernment.execute_scoped_disbursement → ~/services/federal_state/service.py::FederalStateGovernment._record_operation → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/federal_state/service.py::FederalStateGovernment.execute_scoped_operation → ~/services/federal_state/service.py::FederalStateGovernment._record_operation → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/federal_state/service.py::FederalStateGovernment.grant_delegation → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/federal_state/service.py::FederalStateGovernment.record_relation → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/federal_state/service.py::FederalStateGovernment.register_government → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/federal_state/service.py::FederalStateGovernment.revoke_delegation → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/federal_state/service.py::FederalStateGovernment.scope_case → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/federal_state/service.py::FederalStateGovernment.scope_service → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/federal_state/service.py::FederalStateGovernment.set_government_status → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/governance/learning_cycle.py::LearningCycle.collect_experiences
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/governance/learning_cycle.py::LearningCycle.start_training
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/governance/learning_cycle.py::ModelPromotionCycle.promote_beta_to_alpha
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/governance/learning_cycle.py::ModelPromotionCycle.start_shadow
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/governance/security.py::SecretVault.store_secret
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/governance/security.py::TLSCertManager.issue_certificate
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/governance/state_runtime.py::FederalMessageBus.send_message
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/governance/state_runtime.py::StateRuntime.register_state
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/governance/state_runtime.py::StateRuntime.suspend_state
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['docs/audit/evidence/W-701/gen_w701_briefs.py', 'tools/audit/sovereign_write_inventory.py']
+        ~/services/governance/system_life.py::SystemLifecycle.bootstrap
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/governance/system_life.py::SystemLifecycle.graceful_shutdown
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/governance/system_life.py::SystemLifecycle.self_heal
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_economy/service.py::NationalEconomy.activate_policy → ~/services/national_economy/service.py::NationalEconomy._announce → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['core/constitutional_engine/rules.py', '~/common/money_delegation.py', 'tools/audit/treasury_gate_probe.py']
+        ~/services/national_economy/service.py::NationalEconomy.authorize_expenditure → ~/services/national_economy/service.py::NationalEconomy._announce → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_economy/service.py::NationalEconomy.authorize_procurement → ~/services/national_economy/service.py::NationalEconomy._announce → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_economy/service.py::NationalEconomy.authorize_transfer → ~/services/national_economy/service.py::NationalEconomy._announce → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_economy/service.py::NationalEconomy.create_program → ~/services/national_economy/service.py::NationalEconomy._announce → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_economy/service.py::NationalEconomy.execute_economic_decision → ~/services/national_economy/service.py::NationalEconomy._announce → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_economy/service.py::NationalEconomy.execute_expenditure → ~/services/national_economy/service.py::NationalEconomy._announce → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_economy/service.py::NationalEconomy.issue_policy → ~/services/national_economy/service.py::NationalEconomy._announce → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_economy/service.py::NationalEconomy.register_public_asset → ~/services/national_economy/service.py::NationalEconomy._announce → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_economy/service.py::NationalEconomy.register_public_entity → ~/services/national_economy/service.py::NationalEconomy._announce → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_economy/service.py::NationalEconomy.register_public_liability → ~/services/national_economy/service.py::NationalEconomy._announce → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_economy/service.py::NationalEconomy.register_revenue_source → ~/services/national_economy/service.py::NationalEconomy._announce → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_registry/service.py::NationalRegistry.assign_position → ~/services/national_registry/service.py::NationalRegistry._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_registry/service.py::NationalRegistry.create_position → ~/services/national_registry/service.py::NationalRegistry._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['core/sovereignty/authority_grants.py', 'core/sovereignty/prerogatives.py']
+        ~/services/national_registry/service.py::NationalRegistry.grant_authority → ~/services/national_registry/service.py::NationalRegistry._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_registry/service.py::NationalRegistry.link_agent → ~/services/national_registry/service.py::NationalRegistry._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_registry/service.py::NationalRegistry.link_agent → ~/services/national_registry/service.py::NationalRegistry.create_identity → ~/services/national_registry/service.py::NationalRegistry._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['docs/audit/evidence/W-628/mutation_probe_wi107.py']
+        ~/services/national_registry/service.py::NationalRegistry.link_principal → ~/services/national_registry/service.py::NationalRegistry._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['docs/audit/evidence/W-628/mutation_probe_wi107.py']
+        ~/services/national_registry/service.py::NationalRegistry.revoke_assignment → ~/services/national_registry/service.py::NationalRegistry._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['core/sovereignty/authority_grants.py', 'core/sovereignty/prerogatives.py']
+        ~/services/national_registry/service.py::NationalRegistry.revoke_authority → ~/services/national_registry/service.py::NationalRegistry._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✗ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/national_registry/service.py::NationalRegistry.set_identity_status → ~/services/national_registry/service.py::NationalRegistry._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [PATCH /cases/{reference}/assignment]
+        ~/services/government_services/main.py::assign_case → ~/services/government_services/service.py::GovernmentServices.assign_case → ~/services/government_services/service.py::GovernmentServices.assign_case._apply → ~/services/state_registry/trace.py::record_domain_trace
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /cases/{reference}/close]
+        ~/services/government_services/main.py::close_case → ~/services/government_services/service.py::GovernmentServices.close_case → ~/services/government_services/service.py::GovernmentServices.close_case._apply → ~/services/state_registry/trace.py::record_domain_trace
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /cases/{reference}/decision]
+        ~/services/government_services/main.py::decide_case → ~/services/government_services/service.py::GovernmentServices.decide_case → ~/services/government_services/service.py::GovernmentServices.decide_case._apply → ~/services/government_services/service.py::GovernmentServices.decide_case._write_status → ~/services/state_registry/trace.py::record_domain_trace
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /institutions/{code}/cases]
+        ~/services/government_services/main.py::open_case → ~/services/government_services/service.py::GovernmentServices.open_case → ~/services/government_services/service.py::GovernmentServices.open_case._apply → ~/services/government_services/service.py::GovernmentServices.open_case._write_case_row → ~/services/state_registry/trace.py::record_domain_trace
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /institutions/{code}/services]
+        ~/services/government_services/main.py::publish_service → ~/services/government_services/service.py::GovernmentServices.publish_service → ~/services/government_services/service.py::GovernmentServices.publish_service._apply → ~/services/state_registry/trace.py::record_domain_trace
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [PATCH /institutions/{code}/services/{service_code}/status]
+        ~/services/government_services/main.py::set_service_status → ~/services/government_services/service.py::GovernmentServices.set_service_status → ~/services/government_services/service.py::GovernmentServices.set_service_status._apply → ~/services/state_registry/trace.py::record_domain_trace
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /institutions/{code}/officials]
+        ~/services/state_registry/main.py::appoint_official → ~/services/state_registry/service.py::StateRegistry.appoint_official → ~/services/state_registry/service.py::StateRegistry.appoint_official._apply → ~/services/state_registry/service.py::StateRegistry._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /institutions/{code}/departments]
+        ~/services/state_registry/main.py::create_department → ~/services/state_registry/service.py::StateRegistry.create_department → ~/services/state_registry/service.py::StateRegistry.create_department._apply → ~/services/state_registry/service.py::StateRegistry._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /institutions]
+        ~/services/state_registry/main.py::register_institution → ~/services/state_registry/service.py::StateRegistry.register_institution → ~/services/state_registry/service.py::StateRegistry.register_institution._apply → ~/services/state_registry/service.py::StateRegistry._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [DELETE /officials/{official_id}]
+        ~/services/state_registry/main.py::revoke_official → ~/services/state_registry/service.py::StateRegistry.revoke_official → ~/services/state_registry/service.py::StateRegistry.revoke_official._apply → ~/services/state_registry/service.py::StateRegistry._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [PATCH /institutions/{code}/status]
+        ~/services/state_registry/main.py::set_institution_status → ~/services/state_registry/service.py::StateRegistry.set_institution_status → ~/services/state_registry/service.py::StateRegistry.set_institution_status._apply → ~/services/state_registry/service.py::StateRegistry._record → ~/services/state_registry/trace.py::record_domain_trace
+    ✓ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/governance/factories.py::FactoryRegistry.assign_manager → ~/services/governance/factories.py::FactoryRegistry.assign_manager._apply
+    ✓ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['core/constitutional_engine/rules.py', 'core/sovereignty/jurisdiction.py', '~/services/executive_core/sovereignty_bridge.py', '~/services/governance/treasury.py', 'tools/audit/treasury_gate_probe.py']
+        ~/services/governance/state_runtime.py::StateRuntime.allocate_budget → ~/services/governance/state_runtime.py::StateRuntime.allocate_budget._apply
+    ✓ تنفيذيًّا · ✓ لفظيًّا · UNRESOLVED_ROOT
+        tools/governance/restart_survival_probe.py::_write_factory_product → ~/services/governance/factories.py::Factory.run_full_pipeline → ~/services/governance/factories.py::Factory.start_production → ~/services/governance/factories.py::Factory.start_production._apply
+--- PersistentCriticStore.review  (مسارات 1 · غيرُ محروسة 1) 
+    نداءٌ مباشر: ~/services/critic/main.py::review_task:171  تحتَ الحدّ=False
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /reviews] auth=['Depends(require_auth)']
+        ~/services/critic/main.py::review_task
+--- PersistentExperienceStore.record  (مسارات 2 · غيرُ محروسة 2) 
+    نداءٌ مباشر: ~/common/event_wiring.py::MemoryConsumer._handle_experience:255  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/evaluation/main.py::record_experience:95  تحتَ الحدّ=False
+    ✗ تنفيذيًّا · ✗ لفظيًّا · EVENT
+        ~/common/event_wiring.py::MemoryConsumer._handle_experience
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /experiences]
+        ~/services/evaluation/main.py::record_experience
+--- PersistentMemoryStore.store  (مسارات 4 · غيرُ محروسة 4) 
+    نداءٌ مباشر: ~/services/agent_runtime/health.py::TreatmentSystem._execute_treatment:600  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/memory_service/main.py::store_memory:53  تحتَ الحدّ=False
+    ✗ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /health/release/{isolation_id}] auth=['Depends(require_auth)']
+        ~/services/control_console/main.py::release_agent → ~/services/agent_runtime/health.py::IsolationSystem.release → ~/services/agent_runtime/health.py::TreatmentSystem.start_treatment → ~/services/agent_runtime/health.py::TreatmentSystem._execute_treatment
+    ✗ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /health/check] auth=['Depends(require_auth)']
+        ~/services/control_console/main.py::run_health_check → ~/services/agent_runtime/health.py::run_health_cycle → ~/services/agent_runtime/health.py::TreatmentSystem.start_treatment → ~/services/agent_runtime/health.py::TreatmentSystem._execute_treatment
+    ✗ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /health/treat/{agent_id}] auth=['Depends(require_auth)']
+        ~/services/control_console/main.py::treat_agent → ~/services/agent_runtime/health.py::TreatmentSystem.start_treatment → ~/services/agent_runtime/health.py::TreatmentSystem._execute_treatment
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /memory/store]
+        ~/services/memory_service/main.py::store_memory
+--- PersistentPromotionStore.create  (مسارات 2 · غيرُ محروسة 1) 
+    نداءٌ مباشر: ~/services/governance/canary.py::create_promotion._apply:328  تحتَ الحدّ=True
+    نداءٌ مباشر: tools/ops/pg_backup_restore.py::_write_through_service_path:272  تحتَ الحدّ=False
+    ✗ تنفيذيًّا · ✗ لفظيًّا · IMPORT
+        tools/ops/pg_backup_restore.py::main → tools/ops/pg_backup_restore.py::prove → tools/ops/pg_backup_restore.py::_write_through_service_path
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /promotions] auth=['Depends(require_king)']
+        ~/services/governance/main.py::create_promotion_endpoint → ~/services/governance/canary.py::create_promotion → ~/services/governance/canary.py::create_promotion._apply
+--- PersistentPromotionStore.save_gates  (مسارات 2 · غيرُ محروسة 1) 
+    نداءٌ مباشر: ~/services/governance/canary.py::create_promotion._cancel:332  تحتَ الحدّ=True
+    نداءٌ مباشر: ~/services/governance/canary.py::check_gate:375  تحتَ الحدّ=False
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /promotions/{promotion_id}/gates] auth=['Depends(require_king)']
+        ~/services/governance/main.py::check_gate_endpoint → ~/services/governance/canary.py::check_gate
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /promotions] auth=['Depends(require_king)']
+        ~/services/governance/main.py::create_promotion_endpoint → ~/services/governance/canary.py::create_promotion → ~/services/governance/canary.py::create_promotion._cancel
+--- PersistentSystemStateStore.get  (مسارات 19 · غيرُ محروسة 19) 
+    نداءٌ مباشر: ~/services/governance/canary.py::get_system_status:123  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/governance/canary.py::activate_kill_switch:181  تحتَ الحدّ=False
+    نداءٌ مباشر: tools/ops/pg_backup_restore.py::_read_through_service_path:295  تحتَ الحدّ=False
+    ✗ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /kill-switch] auth=['Depends(require_auth)']
+        ~/services/control_console/main.py::activate_kill_switch → ~/services/governance/canary.py::activate_kill_switch
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [GET /dashboard] auth=['Depends(require_auth)']
+        ~/services/control_console/main.py::get_dashboard → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /system/kill-switch] auth=['Depends(require_auth)']
+        ~/services/governance/main.py::activate_kill_switch → ~/services/governance/main.py::_activate_kill_switch_safe → ~/services/governance/canary.py::activate_kill_switch
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /policy/check-tool] auth=['Depends(require_auth)']
+        ~/services/governance/main.py::check_tool_access → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /policy/evaluate] auth=['Depends(require_auth)']
+        ~/services/governance/main.py::evaluate_policy_engine → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [GET /system/status] auth=['Depends(require_auth)']
+        ~/services/governance/main.py::system_status → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✗ لفظيًّا · IMPORT
+        tools/ops/pg_backup_restore.py::main → tools/ops/pg_backup_restore.py::prove → tools/ops/pg_backup_restore.py::_read_through_service_path
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/governance/canary.py::is_execution_blocked → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT
+        ~/services/governance/canary.py::is_system_halted → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/agent_runtime/sandbox.py']
+        ~/services/tool_registry/authorized_execution.py::execute_authorized_tool → ~/services/tool_registry/authorized_execution.py::authorize → ~/services/tool_registry/authorized_execution.py::_enforce_governance → ~/services/governance/canary.py::enforce_kill_switch → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/agent_runtime/sandbox.py']
+        ~/services/tool_registry/authorized_execution.py::execute_authorized_tool → ~/services/tool_registry/authorized_execution.py::authorize → ~/services/tool_registry/authorized_execution.py::_enforce_governance → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/tool_registry/sandbox.py']
+        ~/services/tool_registry/deprecated_role_path.py::execute_tool_with_declared_role → ~/services/tool_registry/sandbox.py::execute_tool_with_governance → ~/services/governance/canary.py::enforce_kill_switch → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/tool_registry/sandbox.py']
+        ~/services/tool_registry/deprecated_role_path.py::execute_tool_with_declared_role → ~/services/tool_registry/sandbox.py::execute_tool_with_governance → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/tool_registry/sandbox.py']
+        ~/services/tool_registry/deprecated_role_path.py::execute_tool_with_declared_role → ~/services/tool_registry/sandbox.py::execute_tool_with_governance → ~/services/tool_registry/authorized_execution.py::authorize → ~/services/tool_registry/authorized_execution.py::_enforce_governance → ~/services/governance/canary.py::enforce_kill_switch → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/tool_registry/sandbox.py']
+        ~/services/tool_registry/deprecated_role_path.py::execute_tool_with_declared_role → ~/services/tool_registry/sandbox.py::execute_tool_with_governance → ~/services/tool_registry/authorized_execution.py::authorize → ~/services/tool_registry/authorized_execution.py::_enforce_governance → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/tool_registry/deprecated_role_path.py']
+        ~/services/tool_registry/sandbox.py::execute_tool_for_principal → ~/services/tool_registry/sandbox.py::execute_tool_with_governance → ~/services/governance/canary.py::enforce_kill_switch → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/tool_registry/deprecated_role_path.py']
+        ~/services/tool_registry/sandbox.py::execute_tool_for_principal → ~/services/tool_registry/sandbox.py::execute_tool_with_governance → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/tool_registry/deprecated_role_path.py']
+        ~/services/tool_registry/sandbox.py::execute_tool_for_principal → ~/services/tool_registry/sandbox.py::execute_tool_with_governance → ~/services/tool_registry/authorized_execution.py::authorize → ~/services/tool_registry/authorized_execution.py::_enforce_governance → ~/services/governance/canary.py::enforce_kill_switch → ~/services/governance/canary.py::get_system_status
+    ✗ تنفيذيًّا · ✗ لفظيًّا · UNRESOLVED_ROOT · يرِدُ اسمُه في: ['~/services/tool_registry/deprecated_role_path.py']
+        ~/services/tool_registry/sandbox.py::execute_tool_for_principal → ~/services/tool_registry/sandbox.py::execute_tool_with_governance → ~/services/tool_registry/authorized_execution.py::authorize → ~/services/tool_registry/authorized_execution.py::_enforce_governance → ~/services/governance/canary.py::get_system_status
+--- PersistentSystemStateStore.reset  (مسارات 4 · غيرُ محروسة 2) 
+    نداءٌ مباشر: ~/services/governance/canary.py::activate_kill_switch._restore:199  تحتَ الحدّ=True
+    نداءٌ مباشر: ~/services/governance/canary.py::reset_kill_switch:229  تحتَ الحدّ=False
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /kill-switch/reset] auth=['Depends(require_king)']
+        ~/services/control_console/main.py::reset_kill_switch → ~/services/governance/canary.py::reset_kill_switch
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /system/kill-switch/reset] auth=['Depends(require_king)']
+        ~/services/governance/main.py::reset_kill_switch_endpoint → ~/services/governance/canary.py::reset_kill_switch
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /kill-switch] auth=['Depends(require_auth)']
+        ~/services/control_console/main.py::activate_kill_switch → ~/services/governance/canary.py::activate_kill_switch → ~/services/governance/canary.py::activate_kill_switch._restore
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /system/kill-switch] auth=['Depends(require_auth)']
+        ~/services/governance/main.py::activate_kill_switch → ~/services/governance/main.py::_activate_kill_switch_safe → ~/services/governance/canary.py::activate_kill_switch → ~/services/governance/canary.py::activate_kill_switch._restore
+--- PersistentSystemStateStore.set_level  (مسارات 5 · غيرُ محروسة 1) 
+    نداءٌ مباشر: ~/services/governance/canary.py::activate_kill_switch._apply:194  تحتَ الحدّ=True
+    نداءٌ مباشر: ~/services/governance/canary.py::activate_kill_switch._restore:201  تحتَ الحدّ=True
+    نداءٌ مباشر: tools/ops/pg_backup_restore.py::_write_through_service_path:268  تحتَ الحدّ=False
+    ✗ تنفيذيًّا · ✗ لفظيًّا · IMPORT
+        tools/ops/pg_backup_restore.py::main → tools/ops/pg_backup_restore.py::prove → tools/ops/pg_backup_restore.py::_write_through_service_path
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /kill-switch] auth=['Depends(require_auth)']
+        ~/services/control_console/main.py::activate_kill_switch → ~/services/governance/canary.py::activate_kill_switch → ~/services/governance/canary.py::activate_kill_switch._apply
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /kill-switch] auth=['Depends(require_auth)']
+        ~/services/control_console/main.py::activate_kill_switch → ~/services/governance/canary.py::activate_kill_switch → ~/services/governance/canary.py::activate_kill_switch._restore
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /system/kill-switch] auth=['Depends(require_auth)']
+        ~/services/governance/main.py::activate_kill_switch → ~/services/governance/main.py::_activate_kill_switch_safe → ~/services/governance/canary.py::activate_kill_switch → ~/services/governance/canary.py::activate_kill_switch._apply
+    ✓ تنفيذيًّا · ✓ لفظيًّا · HTTP [POST /system/kill-switch] auth=['Depends(require_auth)']
+        ~/services/governance/main.py::activate_kill_switch → ~/services/governance/main.py::_activate_kill_switch_safe → ~/services/governance/canary.py::activate_kill_switch → ~/services/governance/canary.py::activate_kill_switch._restore
+--- PersistentTaskStore.create  (مسارات 0 · غيرُ محروسة 0) 
+--- PersistentTaskStore.update_status  (مسارات 0 · غيرُ محروسة 0) 
+--- PersistentToolStore.register  (مسارات 2 · غيرُ محروسة 2) 
+    نداءٌ مباشر: ~/services/api_gateway/main.py::register_tool:182  تحتَ الحدّ=False
+    نداءٌ مباشر: ~/services/tool_registry/main.py::register_tool:81  تحتَ الحدّ=False
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /tools] auth=['Depends(require_auth)']
+        ~/services/api_gateway/main.py::register_tool
+    ✗ تنفيذيًّا · ✗ لفظيًّا · HTTP [POST /tools] auth=['Depends(require_auth)']
+        ~/services/tool_registry/main.py::register_tool
