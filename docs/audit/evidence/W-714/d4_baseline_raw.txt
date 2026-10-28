@@ -1,0 +1,93 @@
+=== G1 baseline · sovereign_write_inventory.py · raw stdout ===
+Wed Oct 28 10:12:20 UTC 2026
+HEAD: 8dbe0cf7
+== جردُ الكتاباتِ الإنتاجيّة ==
+  جذرُ القياس            : .
+  مواضعُ كتابةٍ (كلُّها)   : 234
+  عمليّاتٌ عامّةٌ مُغيِّرة   : 182
+  منها تعبرُ الحدَّ        : 59
+  مساراتٌ قديمةٌ مُغلَقة    : 7
+  **لا تعبرُ الحدَّ**       : 121
+  التوزيعُ على المناطق (عامّة / سياديّة / متجاوزة):
+    core                1 /   0 /    0
+    service_common     21 /   0 /   21
+    services          159 /  59 /   99
+    tools               1 /   0 /    1
+  التوزيعُ على الملفّات:
+      16  federal/executive/services/src/amos_federation/services/national_economy/service.py
+      13  federal/executive/services/src/amos_federation/common/persistent.py
+      10  federal/executive/services/src/amos_federation/services/federal_state/service.py
+       9  federal/executive/services/src/amos_federation/services/governance/treasury.py
+       9  federal/executive/services/src/amos_federation/services/royal/main.py
+       8  federal/executive/services/src/amos_federation/services/governance/expansion.py
+       7  federal/executive/services/src/amos_federation/services/governance/learning_cycle.py
+       7  federal/executive/services/src/amos_federation/services/governance/system_life.py
+       7  federal/executive/services/src/amos_federation/services/state_treasury/service.py
+       6  federal/executive/services/src/amos_federation/services/federal_judiciary/service.py
+       5  federal/executive/services/src/amos_federation/services/governance/security.py
+       5  federal/executive/services/src/amos_federation/services/governance/state_runtime.py
+       4  federal/executive/services/src/amos_federation/common/database.py
+       2  federal/executive/services/src/amos_federation/common/durable_event_bus.py
+       2  federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py
+       2  federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py
+       2  federal/executive/services/src/amos_federation/services/training/persistent_registry.py
+       1  federal/executive/services/src/amos_federation/common/event_bus.py
+       1  federal/executive/services/src/amos_federation/common/events.py
+       1  federal/executive/services/src/amos_federation/services/api_gateway/store.py
+       1  federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py
+       1  federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py
+       1  federal/executive/services/src/amos_federation/services/government_services/service.py
+       1  tools/migrations/r4_unify_agent_identity.py
+  التفصيلُ محفوظٌ في: docs/audit/evidence/W-714/d4_baseline_inventory.json
+EXIT=0
+
+=== per-file counts of open public surfaces (services/governance) ===
+governance (non-legacy): 82 | open: 63 | open PUBLIC: 41
+  expansion.py 8
+  learning_cycle.py 7
+  security.py 5
+  state_runtime.py 5
+  system_life.py 7
+  treasury.py 9
+expansion.py create_batch writes= 2
+expansion.py employ_batch writes= 1
+expansion.py enroll_batch writes= 1
+expansion.py graduate_batch writes= 1
+expansion.py retire_agent writes= 2
+expansion.py take_exam writes= 2
+expansion.py approve_output writes= 1
+expansion.py submit_output writes= 2
+learning_cycle.py evaluate_model writes= 2
+learning_cycle.py collect_experiences writes= 2
+learning_cycle.py complete_training writes= 1
+learning_cycle.py start_training writes= 2
+learning_cycle.py promote_beta_to_alpha writes= 1
+learning_cycle.py start_canary writes= 1
+learning_cycle.py start_shadow writes= 1
+security.py create_session writes= 2
+security.py check_rate writes= 2
+security.py store_secret writes= 2
+security.py issue_certificate writes= 2
+security.py verify_certificate writes= 1
+state_runtime.py send_message writes= 2
+state_runtime.py assign_agent writes= 2
+state_runtime.py reactivate_state writes= 1
+state_runtime.py register_state writes= 2
+state_runtime.py suspend_state writes= 1
+system_life.py bootstrap writes= 0
+system_life.py create_backup writes= 2
+system_life.py graceful_shutdown writes= 0
+system_life.py health_check writes= 0
+system_life.py launch_checklist writes= 0
+system_life.py restore_backup writes= 1
+system_life.py self_heal writes= 0
+treasury.py allocate_budget writes= 2
+treasury.py charge_model_invoke writes= 0
+treasury.py charge_retraining writes= 0
+treasury.py charge_storage writes= 0
+treasury.py generate_financial_report writes= 2
+treasury.py process_real_costs writes= 0
+treasury.py reward_quality_report writes= 0
+treasury.py reward_successful_training writes= 0
+treasury.py reward_task_completion writes= 0
+summary: {'write_sites_total': 234, 'by_area': {'core': {'public': 1, 'sovereign': 0, 'non_sovereign': 0}, 'service_common': {'public': 21, 'sovereign': 0, 'non_sovereign': 21}, 'services': {'public': 159, 'sovereign': 59, 'non_sovereign': 99}, 'tools': {'public': 1, 'sovereign': 0, 'non_sovereign': 1}}, 'public_write_operations': 182, 'sovereign_write_operations': 59, 'closed_legacy_paths': 7, 'non_sovereign_write_operations': 121, 'non_sovereign_by_file': {'federal/executive/services/src/amos_federation/services/national_economy/service.py': 16, 'federal/executive/services/src/amos_federation/common/persistent.py': 13, 'federal/executive/services/src/amos_federation/services/federal_state/service.py': 10, 'federal/executive/services/src/amos_federation/services/governance/treasury.py': 9, 'federal/executive/services/src/amos_federation/services/royal/main.py': 9, 'federal/executive/services/src/amos_federation/services/governance/expansion.py': 8, 'federal/executive/services/src/amos_federation/services/governance/learning_cycle.py': 7, 'federal/executive/services/src/amos_federation/services/governance/system_life.py': 7, 'federal/executive/services/src/amos_federation/services/state_treasury/service.py': 7, 'federal/executive/services/src/amos_federation/services/federal_judiciary/service.py': 6, 'federal/executive/services/src/amos_federation/services/governance/security.py': 5, 'federal/executive/services/src/amos_federation/services/governance/state_runtime.py': 5, 'federal/executive/services/src/amos_federation/common/database.py': 4, 'federal/executive/services/src/amos_federation/common/durable_event_bus.py': 2, 'federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py': 2, 'federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py': 2, 'federal/executive/services/src/amos_federation/services/training/persistent_registry.py': 2, 'federal/executive/services/src/amos_federation/common/event_bus.py': 1, 'federal/executive/services/src/amos_federation/common/events.py': 1, 'federal/executive/services/src/amos_federation/services/api_gateway/store.py': 1, 'federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py': 1, 'federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py': 1, 'federal/executive/services/src/amos_federation/services/government_services/service.py': 1, 'tools/migrations/r4_unify_agent_identity.py': 1}}

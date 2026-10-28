@@ -1,0 +1,69 @@
+=== session_measurements · W-714 · 2026-10-28 (UTC) ===
+Wed Oct 28 10:14:10 UTC 2026
+HEAD: 8dbe0cf7
+
+== bootstrap ==
+  python tests/smoke/run_smoke_tests.py
+  ruff check . && ruff format --check \
+    federal/executive/services/src federal/executive/services/tests
+
+وتذكّرْ: آخرُ أمرٍ يُغيِّرُ بايتًا من الكودِ يسبقُ آخرَ توليدٍ للمصفوفة.
+EXIT=0
+
+== check_work_governance ==
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-115: قيدُه (W-665، W-668، W-670، W-673) مدموجٌ في «origin/main» وحالتُه ما زالت IN_PROGRESS — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ✗ مخالفات: 1
+  MALFORMED_ITEM: WI-120: بندٌ نشِطٌ بلا كتلةِ تفاصيلَ في § 3 من docs/governance/work/ACTIVE_WORK.md
+
+  القانونُ الملزم: docs/governance/work/THE_ROADMAP.md § 2 · § 6 · § 7
+EXIT=0
+
+== truth_audit ==
+[TRUTH AUDIT] أقاليم: 12 | مُثبَتة: 0 | مخالفات: 61
+  - IN_MEMORY_STORE: 59
+  - HARDCODED_TRUTH: 2
+[TRUTH AUDIT] كُتبت: /home/user/workspace/amos/docs/audit/TRUTH_MATRIX.md
+EXIT=0
+
+== state_document_drift ==
+  docs/PROJECT_HANDBOOK.md: أحدثُ قيدٍ مذكورٍ W-713 · تاريخٌ مُعلَنٌ 2026-10-28 · قيودٌ مذكورةٌ 130
+    الحقلُ المُعلَنُ حالةً: تاريخ آخر تعديل · قيدُه W-713 · السطرُ 12
+  ملاحظة · LEDGER_HEAD: أحدثُ قيدٍ مقروءٍ في § 8: W-713 (2026-10-28) · وعددُ الصفوفِ 711 · ووثائقُ الحالةِ المُعلَنةُ 2 منها 0 متأخِّرةٌ · وحقولٌ مُعلَنةٌ متأخِّرةٌ 0.
+  ✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ.
+EXIT=0
+
+== branch inventory §2.8 ==
+15
+origin 8dbe0cf7
+origin/develop e0be1910
+origin/feat/services-skeleton 21bfaecb
+origin/feature/wi-001-close-post-merge aa886cd0
+origin/feature/wi-001-closed 63f6499a
+origin/feature/wi-001-work-governance-layer f29b8caa
+origin/fix/w329-merge-commit-stamp 4d6932af
+origin/main 8dbe0cf7
+origin/qwen/complete-amos-federation d63a267f
+origin/revert-72-wi-082-spawn-agent 689b781d
+origin/w-031-durable-halt-switch 94352f1a
+origin/w-032-registry-ownership 535bafef
+origin/w-033-durable-cost-record 5a5b469e
+origin/w-034-runtime-state-identity 7cbfaf13
+origin/w-035-measurement-freshness-gate 9e6d3246
+origin/w-036-cost-precision-and-pricing-divergence 42c05645
+origin/w-037-measurement-provenance ebfd6636
+origin/w-038-probe-guards 08b4d22e
+origin/w-039-restore-paths bab6f91b
+origin/w-041-post-merge-ci-record 798b3e86
+
+== git log -3 ==
+8dbe0cf7 W-713: استكمالُ واجبِ § 7/2 لقيدِ الإغلاقِ W-712 (رقمُ الدمجِ PR #177 · eab5913b في خلايا «قيدُ السجلّ» للبنودِ الثلاثةِ) + واجبُ N+1 لدفعةِ W-712 (تشغيلاتُ العقدةِ eab5913b مقروءةٌ خضراءَ بالفاحصِ ×4 · رموزُ الخروجِ مقيسةً بلا أنبوبٍ) + توثيقُ مطابقةِ Q-H الموضوعيةِ (§ 16 الشرطُ الرابع) + تصحيحُ وصفِ ملفّاتِ القياساتِ (سابقةُ W-708) · لا شِّفرةَ · المنسِّقُ GLM-5.3 (Perplexity Computer)
+eab5913b W-712: استكمالُ واجبِ N+1 لدفعةِ W-711 — قراءةُ حكمِ تشغيلِ CI الكاملِ على main (40652842543 · 13/13 · EXIT 0 بالفاحصِ · حرسُ ما بعدَ الدمجِ) وحِملُهُ مودَعٌ في evidence/W-712 · لا شِّفرةَ · المنسِّقُ GLM-5.3 (Perplexity Computer)
+19aeb00a W-712: إغلاقُ WI-113 وWI-117 وWI-119 (VERIFIED→CLOSED) بإذنِ المالكِ D27 المسبقِ في قيدٍ مستقلٍّ بعدَ VERIFIED (سابقةُ W-649/D23 · THE_ROADMAP § 7 واجبُ 2) + واجبُ N+1 لدفعةِ W-711 (تشغيلاتُ العقدةِ 46e49040 مقروءةٌ خضراءَ بالفاحصِ كلًّا بقِراءتِهِ · التقديمُ السريعُ 13785310→46e49040 · PR #176 MERGED) · لا شِّفرةَ · المنسِّقُ GLM-5.3 (Perplexity Computer)
+
+== tree ==
+ M docs/audit/TRUTH_MATRIX.md
+ M docs/audit/truth_matrix.json
+ M docs/governance/work/ACTIVE_WORK.md
+?? docs/audit/G1_GOVERNANCE_CROSSING_DESIGN.md
+?? docs/audit/evidence/W-714/
+(clean if empty)
