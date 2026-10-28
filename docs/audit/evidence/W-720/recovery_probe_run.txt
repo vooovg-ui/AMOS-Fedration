@@ -1,0 +1,21 @@
+/home/user/workspace/amos/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /home/user/workspace/amos/federal/executive/services/../../../.venv/bin/python
+rootdir: /home/user/workspace/amos/federal/executive/services
+configfile: pyproject.toml
+plugins: asyncio-1.4.1, cov-7.1.0, anyio-4.15.1, platformdirs-4.13.7
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 7 items
+
+tests/test_execution_recovery.py::test_crash_between_dispatch_and_commit_has_one_declared_path PASSED [ 14%]
+tests/test_execution_recovery.py::test_never_dispatched_executing_task_fails_with_dispatched_false PASSED [ 28%]
+tests/test_execution_recovery.py::test_successful_execution_keeps_marker_and_completes_once PASSED [ 42%]
+tests/test_execution_recovery.py::test_marker_refused_when_task_left_executing PASSED [ 57%]
+tests/test_execution_recovery.py::test_marker_operation_key_is_single_use PASSED [ 71%]
+tests/test_execution_recovery.py::test_execution_signature_refuses_declared_idempotency PASSED [ 85%]
+tests/test_execution_recovery.py::test_grace_equals_outbox_lease PASSED  [100%]
+
+============================== 7 passed in 2.62s ===============================

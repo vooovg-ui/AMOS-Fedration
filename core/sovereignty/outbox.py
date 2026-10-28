@@ -84,6 +84,12 @@ PAYLOAD_SCHEMA_VERSION: Final[int] = 1
 MAX_PAYLOAD_BYTES: Final[int] = 16_384
 DEFAULT_LEASE_SECONDS: Final[int] = 30
 DEFAULT_MAX_DELIVERY_ATTEMPTS: Final[int] = 3
+#: سقفُ محاولاتِ أثرِ التشغيل — قرارُ المالكِ D24-R2 (الخيارُ 1) · WI-116 · W-720.
+#: محاولةٌ واحدة: ما سقطَ لا يُعادُ آليًّا، يُعلَنُ فشلُه (`EXECUTION_RECOVERY_DESIGN.md` § 2 (أ)).
+EXECUTION_MAX_DELIVERY_ATTEMPTS: Final[int] = 1
+#: بادئةُ توقيعِ أثرِ التشغيل (`Q16_EXECUTION_EFFECT_DESIGN.md` § 4 · C2:
+#: `EXECUTION:executive.task:<task_id>`) — يُقرأُ بها النوعُ إلى أن يوجدَ `EffectKind.EXECUTION`.
+EXECUTION_SIGNATURE_PREFIX: Final[str] = "EXECUTION:"
 MAX_ERROR_DETAIL_CHARS: Final[int] = 400
 
 #: أسماءُ مفاتيحٍ لا تُحفَظُ في حمولةٍ دائمةٍ بحالٍ — السرُّ لا يُخزَّن.
@@ -401,6 +407,22 @@ class EffectEnvelope:
     correlation_id: str = ""
 
 
+def is_execution_signature(effect_signature: str) -> bool:
+    """هل التوقيعُ توقيعُ أثرِ تشغيل؟ (WI-116 · `EXECUTION_RECOVERY_DESIGN.md` § 2 (أ))."""
+    return effect_signature.startswith(EXECUTION_SIGNATURE_PREFIX)
+
+
+def max_attempts_for(effect_signature: str, requested: int) -> int:
+    """السقفُ الفعليُّ لسجلٍّ: يُحسَبُ من **نوعِ الأثر** لا من العامل.
+
+    عاملٌ مُهيَّأٌ بـ`3` لا يُعيدُ أثرَ تشغيل: سقفُه `EXECUTION_MAX_DELIVERY_ATTEMPTS`.
+    وسقفُ الأنواعِ الأخرى يبقى ما طلبَه العامل (خارجَ نطاقِ WI-116 نصًّا).
+    """
+    if is_execution_signature(effect_signature):
+        return min(requested, EXECUTION_MAX_DELIVERY_ATTEMPTS)
+    return requested
+
+
 @runtime_checkable
 class ProviderAdapter(Protocol):
     """حدُّ النظامِ الخارجيّ: `Outbox → ExternalEffect → Adapter → External`.
@@ -453,20 +475,34 @@ class OutboxRecord:
         return self.effect_id
 
     @property
+    def is_execution(self) -> bool:
+        """أثرُ تشغيلٍ (WI-116): لا يُعادُ آليًّا مهما أقرَّ السجلُّ عن مُزوّدِه."""
+        return is_execution_signature(self.effect_signature)
+
+    @property
     def requires_human_resolution(self) -> bool:
-        """غموضٌ لا يقبلُ إعادةً آليّة: لا بدَّ من فصلٍ بشريّ."""
-        return (
-            self.status is DeliveryStatus.INDETERMINATE
-            and not self.provider_supports_idempotency
+        """غموضٌ لا يقبلُ إعادةً آليّة: لا بدَّ من فصلٍ بشريّ.
+
+        وأثرُ التشغيلِ الغامضُ فصلُه بشريٌّ دائمًا (WI-116 § 2 (ب)): لا يُستأنَفُ تشغيلٌ
+        لم تُثبَّت نتيجتُه، ولو كتبَ سجلٌّ قديمٌ أنَّ مُزوّدَه متفرِّد.
+        """
+        return self.status is DeliveryStatus.INDETERMINATE and (
+            not self.provider_supports_idempotency or self.is_execution
         )
 
     def is_claimable(self, *, now: datetime | None = None) -> bool:
         """هل يجوزُ حجزُه الآن؟ الغامضُ يُعادُ فقط إن كان المُزوّدُ متفرِّدًا."""
         moment = now or _now()
+        if self.is_execution and self.attempt_count >= EXECUTION_MAX_DELIVERY_ATTEMPTS:
+            # محاولةٌ واحدةٌ لأثرِ التشغيل (D24-R2): ما بدأَ نداؤه مرّةً لا يُحجَزُ ثانيةً
+            # من أيِّ حال — ولا حتّى حجزٍ منقضٍ معه محاولةٌ قيدَ الطيران؛ تلك تستعيدُها
+            # `reclaim_expired` غموضًا لا حجزًا جديدًا.
+            return False
         if self.status in (DeliveryStatus.PENDING, DeliveryStatus.FAILED_RETRYABLE):
             return True
         if self.status is DeliveryStatus.INDETERMINATE:
-            return self.provider_supports_idempotency
+            # غموضُ التشغيلِ بشريٌّ دائمًا (WI-116 § 2 (ب)) — ولو بلا محاولةٍ مُعَدَّة.
+            return self.provider_supports_idempotency and not self.is_execution
         if self.status is DeliveryStatus.CLAIMED:
             return (
                 self.lease_expires_at is not None
@@ -667,6 +703,12 @@ class OutboxLedger:
         الإدراجُ المكرَّرُ للهويّةِ الواحدةِ **لا يُنشئُ سجلًّا ثانيًا**: هذا هو
         أوّلُ صفٍّ في الدفاعِ عن عدمِ التكرار.
         """
+        if is_execution_signature(effect_signature) and provider_supports_idempotency:
+            raise OutboxError(
+                f"أثرُ التشغيلِ «{effect_signature}» لا يُدرَجُ بمُزوّدٍ يُقِرُّ بالتفرّد: "
+                "تشغيلُ المهمّةِ ليس أحاديًّا لكلِّ خطوة، فالإقرارُ بالتفرّدِ إقرارٌ كاذبٌ "
+                "يُعيدُ الغامضَ آليًّا (WI-116 · EXECUTION_RECOVERY_DESIGN.md § 2 (ب))."
+            )
         with self._lock:
             records = self._load()
             existing = records.get(effect_id)
@@ -873,6 +915,7 @@ class OutboxLedger:
                 record.claimed_by = None
                 record.lease_expires_at = None
             else:  # RETRYABLE_FAILURE
+                max_attempts = max_attempts_for(record.effect_signature, max_attempts)
                 exhausted = record.attempt_count >= max_attempts
                 self._transition(
                     record,
@@ -1367,6 +1410,8 @@ def external_effect_of(
 __all__ = [
     "DEFAULT_LEASE_SECONDS",
     "DEFAULT_MAX_DELIVERY_ATTEMPTS",
+    "EXECUTION_MAX_DELIVERY_ATTEMPTS",
+    "EXECUTION_SIGNATURE_PREFIX",
     "FORBIDDEN_PAYLOAD_KEY_TOKENS",
     "MAX_PAYLOAD_BYTES",
     "OUTBOX_DOMAIN",
@@ -1395,6 +1440,8 @@ __all__ = [
     "compute_effect_id",
     "enqueue_write_ahead",
     "external_effect_of",
+    "is_execution_signature",
+    "max_attempts_for",
     "orphaned_effects",
     "settlement_of",
 ]

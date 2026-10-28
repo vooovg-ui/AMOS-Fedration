@@ -34,9 +34,10 @@
 
 from __future__ import annotations
 
+import os
 import uuid
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from amos_federation.common.durable_event_bus import get_durable_event_bus
@@ -80,6 +81,16 @@ AUDIT_ACTOR = "federal.executive.core"
 #: على المهمّةِ نفسِها، فلا تُعَدُّ إحداهما إعادةً للأخرى.
 SUBMIT_KEY_SCOPE = "federal.executive.task.submit"
 TRANSITION_KEY_SCOPE = "federal.executive.task.transition"
+
+#: حقلُ علامةِ «بدأ التنفيذ» في نتيجةِ المهمّة — تُكتَبُ ذرّيًّا قبلَ `dispatch`
+#: (WI-116 · قرارُ المالكِ D24-R2 · `EXECUTION_RECOVERY_DESIGN.md` § 2 (ج)).
+EXECUTION_BEGIN_FIELD = "execution_begin"
+
+#: مهلةُ الاسترداد: مهمّةٌ عليها علامةٌ لا تُستردُّ قبلَ أن يتجاوزَ عمرُ علامتِها هذا
+#: (§ 2 (د)). هي **الساعةُ نفسُها** التي يحكمُ بها الصادرُ أنَّ العاملَ مهجور
+#: (`core/sovereignty/outbox.py` · `DEFAULT_LEASE_SECONDS`) — ويُقاسُ التطابقُ في
+#: `tests/test_execution_recovery.py` لا يُفترَض.
+EXECUTION_RECOVERY_GRACE_SECONDS = 30
 
 #: أمانة المخرَج: تنفيذ الأدوات محاكاة حتى يُستبدل صندوق الأدوات بأدوات حقيقية.
 #: القيمة تأتي من مفردات واحدة (`fidelity.ExecutionFidelity`) لا من نصّ حرّ، كي
@@ -441,6 +452,56 @@ class ExecutiveCore:
             detail={"agent_id": task["assigned_agent"], "started_at": _now()},
         )
 
+    def _mark_execution_begin(self, task: dict[str, Any]) -> dict[str, Any]:
+        """ثبِّتْ علامةَ «بدأ التنفيذ» ذرّيًّا **قبلَ** `dispatch` (WI-116 § 2 (ج)).
+
+        كتابةٌ محروسةٌ واحدةٌ تحتَ `guard_declared` بمفتاحِ ذرّيّةٍ للمهمّة
+        (`<id>:execution-begin`) فلا تقعُ مرّتين، وبشرطِ أنَّ الحالةَ `EXECUTING`
+        فإن سبقَها `recover()` فشلت ولا dispatch. ولا انتقالَ حالة: الحالةُ تبقى
+        `EXECUTING` والعلامةُ تُضافُ إلى نتيجتِها دونَ أن تمحوَ تعيينَ التوزيع.
+        """
+        task_id = task["id"]
+        previous = dict(task["result"] or {})
+        marker = {"at": _now(), "by": f"{AUDIT_ACTOR}:pid-{os.getpid()}"}
+        marked = {**previous, EXECUTION_BEGIN_FIELD: marker}
+        resource = f"task:{task_id}"
+
+        def _write(_effect: Any) -> bool:
+            return self._repo._set_result_core(task_id, TaskState.EXECUTING, marked)
+
+        def _revert() -> None:
+            self._repo._set_result_core(task_id, TaskState.EXECUTING, previous)
+
+        effect = declared_effect("WRITE", resource, "علامةُ بدءِ التنفيذ قبلَ dispatch")
+        guarded: GuardedResult = self._authorizer.guard_declared(
+            "task.execution_begin",
+            resource,
+            declared_effects=(effect,),
+            applier=_write,
+            operation_key=operation_key(TRANSITION_KEY_SCOPE, f"{task_id}:execution-begin"),
+            compensators=(
+                compensator(effect.signature, _revert, f"محوُ علامةِ بدءِ التنفيذ عن {task_id}"),
+            ),
+            metadata={"phase": "execution_begin"},
+        )
+        if guarded.is_replay or not guarded.value:
+            raise ExecutionRefusedError(
+                f"لم تُثبَّت علامةُ بدءِ التنفيذ للمهمّة {task_id}: "
+                + (
+                    "العلامةُ مُثبَّتةٌ سابقًا في سجلِّ الذرّيّة (تنفيذٌ ثانٍ مرفوض)"
+                    if guarded.is_replay
+                    else "الحالةُ لم تعد executing (سبقَها استردادٌ أو إكمال)"
+                )
+            )
+        self._record(
+            task_id,
+            TaskState.EXECUTING,
+            TaskState.EXECUTING,
+            guarded.evidence,
+            {"phase": "execution_begin", "marker": marker},
+        )
+        return {**task, "result": marked}
+
     def _execute_step(self, task: dict[str, Any]) -> TransitionOutcome:
         """التنفيذ الفعلي عبر حدّ بيئة التشغيل — لا مسار تنفيذ ثانٍ.
 
@@ -480,6 +541,15 @@ class ExecutiveCore:
                 },
                 detail={"reason": "agent_not_employable", "agent_id": agent_id},
             )
+        # الخيارُ 1 (D24-R2): تنفيذٌ واحدٌ للمهمّةِ من أيِّ طريق — الصادرُ أو
+        # `POST /advance` أو `POST /run`. علامةٌ موجودةٌ تعني أنَّ dispatch وقعَ أو
+        # بدأ، ونتيجتُه لم تُثبَّت: مسلكُها `recover()` لا dispatch ثانٍ.
+        if (task["result"] or {}).get(EXECUTION_BEGIN_FIELD) is not None:
+            raise ExecutionRefusedError(
+                f"المهمّة {task_id} بدأ تنفيذُها مرّةً ولم تُثبَّت نتيجتُه — "
+                "لا تنفيذَ ثانيًا؛ مسلكُها المعلَنُ `recover()` (WI-116 · D24-R2)"
+            )
+        task = self._mark_execution_begin(task)
         try:
             outcome = self._runtime.dispatch(
                 task,
@@ -628,26 +698,52 @@ class ExecutiveCore:
         )
 
     # ── الاسترداد ────────────────────────────────────────────────────────
-    def recover(self, max_tasks: int = 50) -> dict[str, Any]:
-        """استرداد المهام غير المنتهية بعد إعادة تشغيل.
+    def recover(self, max_tasks: int = 50, *, now: datetime | None = None) -> dict[str, Any]:
+        """استرداد المهام غير المنتهية بعد إعادة تشغيل — المسلكُ المعلَنُ للعالق (WI-116).
 
         قاعدة الصدق: مهمّة كانت `executing` لحظة الانقطاع **لا** تُعتبر مكتملة
         ولا تُعاد من الصفر — تُنقل إلى `failed` بسبب `interrupted_execution`،
         لأن نتائج خطواتها لم تُثبَّت. أما ما لم يبدأ تنفيذه فيُقدَّم خطوة واحدة.
+
+        وما أضافه WI-116 (`EXECUTION_RECOVERY_DESIGN.md` § 2 (د)): مهمّةٌ **عليها علامةُ**
+        بدءِ التنفيذ لا تُستردُّ إلّا بعدَ `EXECUTION_RECOVERY_GRACE_SECONDS` من علامتِها —
+        فلا يُسقِطُ الاستردادُ تنفيذًا حيًّا؛ وتُؤجَّلُ قبلَها (`deferred`). والنتيجةُ تقولُ
+        `dispatched` صراحةً: الفشلُ يعني «لم تُثبَّت النتيجة» ولا يدّعي أنَّ الأدواتِ لم تُنادَ.
         """
+        moment = now or datetime.now(UTC)
         resumed: list[dict[str, Any]] = []
         failed: list[dict[str, Any]] = []
+        deferred: list[dict[str, Any]] = []
         for task in self._repo.list_unfinished(limit=max_tasks):
             task_id = task["id"]
             state = parse_state(task["status"])
             if state is TaskState.EXECUTING:
+                marker = (task["result"] or {}).get(EXECUTION_BEGIN_FIELD)
+                if marker is not None:
+                    began = datetime.fromisoformat(marker["at"])
+                    age = moment - began
+                    if age <= timedelta(seconds=EXECUTION_RECOVERY_GRACE_SECONDS):
+                        deferred.append(
+                            {
+                                "task_id": task_id,
+                                "execution_begin": marker,
+                                "age_seconds": age.total_seconds(),
+                            }
+                        )
+                        continue
                 outcome = self._guarded_transition(
                     task_id,
                     TaskState.EXECUTING,
                     TaskState.FAILED,
                     "task.fail",
-                    fields={"result": {"error": "interrupted_execution"}},
-                    detail={"reason": "interrupted_execution"},
+                    fields={
+                        "result": {
+                            "error": "interrupted_execution",
+                            "dispatched": marker is not None,
+                            EXECUTION_BEGIN_FIELD: marker,
+                        }
+                    },
+                    detail={"reason": "interrupted_execution", "dispatched": marker is not None},
                 )
                 failed.append(outcome.as_dict())
                 continue
@@ -655,8 +751,10 @@ class ExecutiveCore:
         return {
             "resumed": resumed,
             "interrupted": failed,
+            "deferred": deferred,
             "resumed_count": len(resumed),
             "interrupted_count": len(failed),
+            "deferred_count": len(deferred),
         }
 
     # ── قراءة الحالة ─────────────────────────────────────────────────────

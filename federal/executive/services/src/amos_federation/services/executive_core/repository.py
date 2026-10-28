@@ -318,6 +318,31 @@ class ExecutiveTaskRepository:
         finally:
             session.close()
 
+    def _set_result_core(
+        self,
+        task_id: str,
+        expected: TaskState,
+        result: dict[str, Any],
+    ) -> bool:
+        """نواةٌ خاصةٌ تكتبُ نتيجةَ المهمّةِ **بلا انتقالِ حالة** وبشرطِ حالتِها (WI-116).
+
+        وُجِدَت لعلامةِ «بدأ التنفيذ» قبلَ `dispatch` (`EXECUTION_RECOVERY_DESIGN.md`
+        § 2 (ج)): آلةُ الحالاتِ لا تعرفُ `EXECUTING → EXECUTING`، والعلامةُ ليست
+        انتقالًا. تُنادى من مُطبِّقٍ تحتَ `guard_declared` وحدَه (نمطُ `_transition_core`)،
+        والشرطُ على الحالةِ يجعلُها تفشلُ صريحًا (`False`) إن سبقَها استردادٌ أو إكمال.
+        """
+        session = get_session_factory()()
+        try:
+            outcome = session.execute(
+                update(TaskModel)
+                .where(TaskModel.id == task_id, TaskModel.status == expected.value)
+                .values(result=dict(result), updated_at=datetime.now(UTC))
+            )
+            session.commit()
+            return bool(outcome.rowcount)
+        finally:
+            session.close()
+
     def delete(self, task_id: str) -> bool:
         """امحُ صفَّ مهمّةٍ — معكوسُ `create` وحدَه، لا أداةَ تنظيفٍ عامّة.
 
