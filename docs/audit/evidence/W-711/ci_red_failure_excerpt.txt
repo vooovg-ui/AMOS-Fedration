@@ -1,0 +1,21 @@
+مقتطفٌ من سجلَّي التشغيلينِ الأحمرينِ (gh run view --log-failed) — الجذرُ نفسُه في الوظيفتَينِ الفاشلتَينِ من التشغيلَينِ:
+
+التشغيلُ 40648191937 (PR #176 · العقدةُ ff6a7647) — وظيفةُ Identity Law (E3):
+  FAILED tests/governance/test_w120_suite_size_claims.py::test_المستودعُ_نفسُه_لا_يحملُ_رقمَ_حزمةٍ_ميّتًا
+  AssertionError: رقمُ حزمةٍ مكتوبٌ خالفَ الجمعَ الحيَّ: STALE_SUITE_CLAIM · docs/PROJECT_HANDBOOK.md:161 · root — المكتوبُ مُجمَّعًا 2758 · المجموعُ حيًّا 2767
+  FAILED tests/governance/test_w367_sensitive_verified_rerun.py::test_live_tree_has_no_q_h_violation
+  WI-117: VERIFIED حسّاسٌ (سيادة:federal/executive/services/src/amos_federation/services/governance/) بلا سطرِ Q-H-STATUS — (أ)
+  WI-119: VERIFIED حسّاسٌ (أمن:core/constitutional_engine/) بلا سطرِ Q-H-STATUS — (أ)
+  2 failed, 1398 passed, 3 skipped
+
+التشغيلُ 40648191937 — وظيفةُ Cross-System Suites (E2.2-G) (تشغيلُ الحزمِ الثلاثِ بأداةِ verify_cross_system_suites.py — الفحصانِ الفاشلانِ نفسُهُما داخلَ حزمةِ الجذرِ):
+  STALE_SUITE_CLAIM · docs/PROJECT_HANDBOOK.md:161 · root — المكتوبُ مُجمَّعًا 2758 · المجموعُ حيًّا 2767
+  WI-117: VERIFIED حسّاسٌ … بلا سطرِ Q-H-STATUS — (أ)
+
+التشغيلُ 40647357051 (PR #175 · العقدةُ 13785310 — تشغيلُ CI الكاملُ الذي لم يُقرأ قبلَ دمجِ W-710 · مُقروءًا فعلًا في جلسةِ W-711 هذه):
+  الوظيفتانِ الفاشلتانِ: Identity Law (E3) وCross-System Suites (E2.2-G) — والفحصُ الفاشلُ فيهما واحدٌ: STALE_SUITE_CLAIM (test_w120 · المكتوبُ 2758 · الحيُّ 2767) — **ولا مخالفةَ Q-H فيه** (1 failed, 1399 passed في بوابةِ 5 · و1 failed, 2764 passed في الحزمِ الثلاث) فانتقالاتُ W-711 لم تكن قد وقعتْ بعدُ في تلكَ العقدةِ.
+
+المعالجةُ (تصحيحٌ مؤرَّخٌ — قاعدةُ 9):
+  1. PROJECT_HANDBOOK.md:161 — قياسٌ معادٌ محليًّا 2767 (`pytest tests/ --collect-only -q`) كُتِبَ بتاريخِهِ (2026-10-28 · W-711) معَ بيانِ السببِ (+9 حالاتٍ مُولَّدةٍ لجردِ الأحكامِ المودَعةِ — أحكامُ جولةِ W-710 التسعةُ) بلا محوِ سلسلةِ القياساتِ السابقةِ.
+  2. كتلتا WI-117 وWI-119 في ACTIVE_WORK.md — سطرُ Q-H-STATUS: MET docs/audit/evidence/W-710/README.md لكلٍّ (سابقةُ W-653/W-084) — والتقريرُ المُشارُ إليهِ هو تقريرُ الجولةِ المدموجِ نفسُهُ (أحكامُ المقاعدِ الثلاثةِ لكلِّ نطاقٍ = إعادةُ التحققِ المستقلةُ التي يطلبُها §16).
+  3. بعدَ التصحيحِ محليًّا: الفحصانِ الفاشلانِ أخضرانِ (test_w120_suite_size_claims + test_w367: 31 passed) · check_repository_identity.py EXIT 0 · check_work_governance.py بلا مخالفةٍ.

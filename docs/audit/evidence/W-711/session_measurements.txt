@@ -22,3 +22,28 @@ EXIT=0
     الحقلُ المُعلَنُ حالةً: تاريخ آخر تعديل · قيدُه W-710 · السطرُ 12
   ملاحظة · LEDGER_HEAD: أحدثُ قيدٍ مقروءٍ في § 8: W-710 (2026-10-28) · وعددُ الصفوفِ 708 · ووثائقُ الحالةِ المُعلَنةُ 2 منها 0 متأخِّرةٌ · وحقولٌ مُعلَنةٌ متأخِّرةٌ 0.
   ✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ.
+
+== قياساتُ ما بعدَ التصحيحِ المؤرَّخِ (قاعدةُ 9 · 2026-10-28) ==
+== جذرُ حمرةِ CI (من سجلَّي التشغيلينِ 40648191937 و40647357051) ==
+STALE_SUITE_CLAIM (PROJECT_HANDBOOK.md:161 · المكتوبُ 2758 · الحيُّ 2767 · +9 حالاتٍ مولّدةٍ لجردِ أحكامِ W-710 التسعةِ) + مخالفتا Q-H (WI-117 وWI-119 VERIFIED حسّاسًا بلا سطرِ Q-H-STATUS) — المقتطفُ في ci_red_failure_excerpt.txt
+
+== pytest tests/ --collect-only -q (قياسٌ معادٌ بعدَ التصحيحِ) ==
+2767 tests collected in 2.81s
+
+== الفحوصُ الفاشلةُ في CI بعدَ التصحيحِ (محليًّا) ==
+.venv/bin/python -m pytest tests/governance/test_w120_suite_size_claims.py tests/governance/test_w367_sensitive_verified_rerun.py -q
+31 passed in 7.93s
+
+== check_repository_identity.py ==
+نجح: كل مجلد يحمل بطاقة هوية كاملة، وكل ملف يُعلن هدفه.
+EXIT=0
+
+== check_work_governance --self-check / --today 2026-11-01 ==
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة. (إبلاغاتُ POST_MERGE_NOT_CLOSED فقط — بانتظارِ قيدِ الإغلاقِ W-712)
+EXIT=0
+
+== truth_audit --ratchet ==
+[RATCHET] ثابت عند 61 مخالفة. (IN_MEMORY_STORE 59 · HARDCODED_TRUTH 2)
+
+== state_document_drift ==
+✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ (LEDGER_HEAD W-711 · صفوفُ § 8: 709)
