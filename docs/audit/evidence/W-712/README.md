@@ -16,10 +16,11 @@
 هذهِ خطوةُ ما بعدَ «معالجةِ التقريرِ المدموجِ» في تسلسلِ المالكِ: بعدَ أن حكمَ المجلسُ (جولةُ W-710 المدموجةُ) وصارَ البندانِ WI-117 وWI-119 VERIFIED وWI-113 باقيًا VERIFIED من جولتِهِ، أذنَ المالكُ مسبقًا في D27 بإغلاقِ الثلاثةِ دونَ سؤالٍ جديدٍ لكلِّ بندٍ — فالإغلاقُ يقعُ بقيدٍ مستقلٍّ بعدَ VERIFIED (سابقةُ W-649/D23) وهذا هو ذلك القيدُ.
 
 ## واجبُ N+1 لدفعةِ W-711 (أحكامُ CI على العقدةِ `46e49040`)
-كلُّ تشغيلاتِ العقدةِ قُرئت بالفاحصِ كلًّا بقِراءتِهِ المستقلةِ (`ci_verdict_readability.py --require-readable --expect-sha 46e49040…` EXIT 0 ×3 مقيسًا):
+كلُّ تشغيلاتِ العقدةِ قُرئت بالفاحصِ كلًّا بقِراءتِهِ المستقلةِ (`ci_verdict_readability.py --require-readable --expect-sha 46e49040…` EXIT 0 ×4 مقيسًا):
 - تشغيلُ المصفوفةِ على الفرعِ `40650581892` (حدثُ push · 1/1) — `ci_branch_matrix_jobs.json` + `verdict_branch_matrix.txt`
 - تشغيلُ CI الكاملِ على الفرعِ `40650589167` (حدثُ pull_request · PR #176 · 13/13) — `ci_branch_full_ci_jobs.json` + `verdict_branch_full_ci.txt`
 - تشغيلُ المصفوفةِ على main `40652842551` (حدثُ push بعدَ التقديمِ السريعِ · 1/1) — `ci_main_matrix_jobs.json` + `verdict_main_matrix.txt`
+- تشغيلُ CI الكاملِ على main `40652842543` (حدثُ push بعدَ التقديمِ السريعِ · 13/13) — `ci_main_full_ci_jobs.json` + `verdict_main_full_ci.txt`
 
 والتقديمُ السريعُ `13785310..46e49040` تمَّ وPR #176 MERGED (مقيسًا بـ`gh pr view`).
 
@@ -47,4 +48,6 @@
 - `verdict_branch_matrix.txt` — مخرجُ فاحصِ المقروئيّةِ الحرفيُّ (تشغيلُ الفرعِ · المصفوفةُ)
 - `verdict_branch_full_ci.txt` — مخرجُ فاحصِ المقروئيّةِ الحرفيُّ (تشغيلُ الفرعِ · CI الكاملُ)
 - `verdict_main_matrix.txt` — مخرجُ فاحصِ المقروئيّةِ الحرفيُّ (تشغيلُ main · المصفوفةُ)
+- `ci_main_full_ci_jobs.json` — بيانات مهيكلة (حِملُ تشغيلِ CI الكاملِ على main ‏40652842543)
+- `verdict_main_full_ci.txt` — مخرجُ فاحصِ المقروئيّةِ الحرفيُّ (تشغيلُ main · CI الكاملُ)
 - `session_measurements.txt` — قياساتُ جلسةِ الإغلاقِ (W-712 · 2026-10-28 · المنسِّق GLM-5.3 · Perplexity Computer)
