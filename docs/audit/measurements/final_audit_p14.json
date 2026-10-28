@@ -1,11 +1,11 @@
 {
   "$comment": "الهدف: 21 قياسَ مطابقةٍ بينَ ما يقولُه المستودعُ وما تقولُه الوثيقةُ — مُخرَجُ tools/audit/final_audit.py (P14). يقيسُ ولا يُصلِح، ولا يُقرَأُ شهادةَ نجاح. المادةُ التاسعةُ · 2.",
-  "debt_summary_field": 121,
-  "debt_recount": 121,
-  "sovereign": 59,
+  "debt_summary_field": 110,
+  "debt_recount": 110,
+  "sovereign": 70,
   "closed_legacy": 7,
   "public": 182,
-  "total_sites": 235,
+  "total_sites": 240,
   "program_mentions_168": 73,
   "program_placeholders": 0,
   "program_todo_markers": 0,
@@ -84,9 +84,10 @@
     72,
     73,
     74,
-    75
+    75,
+    76
   ],
-  "questions_count": 75,
+  "questions_count": 76,
   "questions_missing_1_to_max": [],
   "missing_docs": [],
   "missing_tools": [],
@@ -207,6 +208,17 @@
     "service.py::set_identity_status",
     "service.py::set_institution_status",
     "service.py::set_service_status",
-    "state_runtime.py::allocate_budget"
+    "state_runtime.py::allocate_budget",
+    "state_runtime.py::assign_agent",
+    "state_runtime.py::reactivate_state",
+    "state_runtime.py::register_state",
+    "state_runtime.py::send_message",
+    "state_runtime.py::suspend_state",
+    "system_life.py::bootstrap",
+    "system_life.py::create_backup",
+    "system_life.py::graceful_shutdown",
+    "system_life.py::health_check",
+    "system_life.py::launch_checklist",
+    "system_life.py::self_heal"
   ]
 }

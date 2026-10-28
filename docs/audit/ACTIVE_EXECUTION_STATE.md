@@ -18,6 +18,7 @@
 2026-08-16
 
 ## تاريخ آخر تعديل
+2026-10-28 (W-723 — WI-120 دفعةُ G1 state_runtime وsystem_life (شِفرة · § 3 · § 9.8): أحدَ عشرَ سطحًا تعبرُ الحدَّ السياديَّ — register_state بمرسومٍ ملكيٍّ وربطِ الهدف (Q-13) · suspend_state/reactivate_state بسجلِّ إيقافٍ محكومٍ (Q-14) · assign_agent · send_message · bootstrap · health_check · self_heal بشرطِه (D28) · graceful_shutdown · create_backup · launch_checklist · restore_backup دَينٌ (D28 (أ)) · +54 فحصًا · D-4 121 ← 110 (حرقٌ حقيقيٌّ 11 · تصحيحٌ 0) · Q-76 معلَّقٌ للمالك)
 2026-10-28 (W-722 — WI-120 دفعةُ معجمِ G1 (§ 5.1 · شِفرة): EXECUTIVE_ACTIONS ⇐ issue_certificate · create_backup · self_heal · LEGISLATIVE_ACTIONS ⇐ suspend_policy · vote · KILL_SWITCH_BLOCKS ⇐ issue_certificate@3 · self_heal@4 · +15 فحصًا (8 سقطَت قبلَ الشِّفرة · 15 نجحَت بعدَها) · judicial_gate_matrix: 4 أحكامٍ ALLOW→DENY · D-4 = 121 بلا تغيُّر (معجمٌ لا عبور))
 2026-10-28 (W-721 — توجيهُ المستشارِ 27 (دفعةٌ ورقيّة · لا شِفرة): جدولُ D-1…D-7 مقيسًا بأوامرِه في § 9.1 · قراراتُ المالكِ بنصِّها (OWNER-DECISIONS-D28: Q-75 ① لا · G1 معتمَدٌ بتعديلاتٍ ثلاثة · self_heal بشرطِه · جولةٌ واحدة) · WI-120 RESERVED→IN_PROGRESS · WI-121 PROPOSED (EffectKind.EXECUTION · Q-16) · D-4 = 121 بلا تغيُّر)
 2026-10-28 (W-720 — WI-116 RESERVED→IN_PROGRESS: شِفرةُ الأجزاءِ الأربعةِ في outbox.py وengine.py وrepository.py · مسبارُ القبولِ الدائمُ `test_execution_recovery.py` 7 passed بسقوطٍ حقيقيٍّ · أدلّةٌ خامٌ في `evidence/W-720/` · D-4 = 121 · لا VERIFIED بيدِ المنفِّذ · لا جولةَ مجلسٍ)

@@ -269,6 +269,22 @@
    "kind": "work_drift",
    "reason": "حرقُ E1 النصفُ الثاني (W-699 · WI-119 · بقرارِ المالكِ Q-73): أسطحُ agent_runtime الثمانيةُ (health: run_health_check وstart_agent_treatment وisolate_agent وlog_isolated_action وrelease_agent · population: register_agent وupdate_state وrecord_curriculum_step) عبرتِ الحدَّ بنوى خاصّةٍ بلا تعشيشٍ ومعوّضاتٍ مربوطةٍ — الدَّينُ 129 ← 121 (الإسقاطُ الكاملُ) · السياديّةُ 51 ← 59 · الحمولةُ في evidence/W-699/inventory_after_w699.json",
    "recorded_at": "2026-10-27T00:31:55+00:00"
+  },
+  {
+   "debt": 110,
+   "sovereign": 70,
+   "closed_legacy": 7,
+   "write_sites_total": 240,
+   "git_head": "f9d23a8d",
+   "waves": {
+    "W1": 11,
+    "W2": 34,
+    "W3": 65
+   },
+   "decision": "W-723",
+   "kind": "work_drift",
+   "reason": "حرقُ G1 دفعةُ state_runtime وsystem_life (W-723 · WI-120 · بقرارِ المالكِ في التوجيهِ 27 · D28): أحدَ عشرَ سطحًا عبرتِ الحدَّ — state_runtime: register_state (مرسومٌ ملكيٌّ · Q-13) وsuspend_state وreactivate_state (سجلُّ إيقافٍ محكومٍ · Q-14) وassign_agent وsend_message · system_life: bootstrap وhealth_check وself_heal (بشرطِه) وgraceful_shutdown وcreate_backup وlaunch_checklist · restore_backup دَينٌ (D28 (أ)) — الدَّينُ 121 ← 110 · السياديّةُ 59 ← 70 · مواضعُ الكتابةِ 235 ← 240 · الحمولةُ في evidence/W-723/inventory_after_w723.json",
+   "recorded_at": "2026-10-28T20:40:36+00:00"
   }
  ]
 }

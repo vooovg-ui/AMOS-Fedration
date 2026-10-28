@@ -1,0 +1,13 @@
+state_runtime.py	FederalMessageBus.send_message	guarded=True
+state_runtime.py	StateRuntime.allocate_budget	guarded=True
+state_runtime.py	StateRuntime.assign_agent	guarded=True
+state_runtime.py	StateRuntime.reactivate_state	guarded=True
+state_runtime.py	StateRuntime.register_state	guarded=True
+state_runtime.py	StateRuntime.suspend_state	guarded=True
+system_life.py	SystemLifecycle.bootstrap	guarded=True
+system_life.py	SystemLifecycle.create_backup	guarded=True
+system_life.py	SystemLifecycle.graceful_shutdown	guarded=True
+system_life.py	SystemLifecycle.health_check	guarded=True
+system_life.py	SystemLifecycle.launch_checklist	guarded=True
+system_life.py	SystemLifecycle.restore_backup	guarded=False
+system_life.py	SystemLifecycle.self_heal	guarded=True

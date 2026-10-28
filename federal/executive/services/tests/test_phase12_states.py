@@ -161,8 +161,9 @@ class TestNewStateRegistration:
         المأذونُ (مرسومٌ موقَّعٌ وتاجٌ منصَّب) مفحوصٌ في `test_w723_g1_state_runtime_system_life.py`.
         """
         import pytest
-        from amos_federation.services.governance.state_runtime import get_state_runtime
         from core.sovereignty.gateway import SovereigntyViolation
+
+        from amos_federation.services.governance.state_runtime import get_state_runtime
 
         runtime = get_state_runtime()
         with pytest.raises(SovereigntyViolation):
