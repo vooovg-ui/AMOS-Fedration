@@ -1,0 +1,9 @@
+FAILED tests/constitutional/test_g1_vocabulary.py::test_g1v_2_other_branches_are_denied_by_r003_1[create_backup-executive]
+FAILED tests/constitutional/test_g1_vocabulary.py::test_g1v_2_other_branches_are_denied_by_r003_1[issue_certificate-executive]
+FAILED tests/constitutional/test_g1_vocabulary.py::test_g1v_2_other_branches_are_denied_by_r003_1[self_heal-executive]
+FAILED tests/constitutional/test_g1_vocabulary.py::test_g1v_2_other_branches_are_denied_by_r003_1[suspend_policy-legislative]
+FAILED tests/constitutional/test_g1_vocabulary.py::test_g1v_2_other_branches_are_denied_by_r003_1[vote-legislative]
+FAILED tests/constitutional/test_g1_vocabulary.py::test_g1v_3_each_name_belongs_to_exactly_one_vocabulary
+FAILED tests/constitutional/test_g1_vocabulary.py::test_g1v_5_kill_switch_blocks_at_and_above_level[issue_certificate-3]
+FAILED tests/constitutional/test_g1_vocabulary.py::test_g1v_5_kill_switch_blocks_at_and_above_level[self_heal-4]
+8 failed, 7 passed in 1.12s

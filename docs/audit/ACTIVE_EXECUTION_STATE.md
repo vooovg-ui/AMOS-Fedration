@@ -18,6 +18,7 @@
 2026-08-16
 
 ## تاريخ آخر تعديل
+2026-10-28 (W-722 — WI-120 دفعةُ معجمِ G1 (§ 5.1 · شِفرة): EXECUTIVE_ACTIONS ⇐ issue_certificate · create_backup · self_heal · LEGISLATIVE_ACTIONS ⇐ suspend_policy · vote · KILL_SWITCH_BLOCKS ⇐ issue_certificate@3 · self_heal@4 · +15 فحصًا (8 سقطَت قبلَ الشِّفرة · 15 نجحَت بعدَها) · judicial_gate_matrix: 4 أحكامٍ ALLOW→DENY · D-4 = 121 بلا تغيُّر (معجمٌ لا عبور))
 2026-10-28 (W-721 — توجيهُ المستشارِ 27 (دفعةٌ ورقيّة · لا شِفرة): جدولُ D-1…D-7 مقيسًا بأوامرِه في § 9.1 · قراراتُ المالكِ بنصِّها (OWNER-DECISIONS-D28: Q-75 ① لا · G1 معتمَدٌ بتعديلاتٍ ثلاثة · self_heal بشرطِه · جولةٌ واحدة) · WI-120 RESERVED→IN_PROGRESS · WI-121 PROPOSED (EffectKind.EXECUTION · Q-16) · D-4 = 121 بلا تغيُّر)
 2026-10-28 (W-720 — WI-116 RESERVED→IN_PROGRESS: شِفرةُ الأجزاءِ الأربعةِ في outbox.py وengine.py وrepository.py · مسبارُ القبولِ الدائمُ `test_execution_recovery.py` 7 passed بسقوطٍ حقيقيٍّ · أدلّةٌ خامٌ في `evidence/W-720/` · D-4 = 121 · لا VERIFIED بيدِ المنفِّذ · لا جولةَ مجلسٍ)
 2026-10-28 (W-719 — WI-116 READY→RESERVED: أُودِعَ `docs/audit/EXECUTION_RECOVERY_DESIGN.md` ومسبارُ إسقاطِ العاملِ خامًا في `evidence/W-719/` · المعيارُ قابلٌ للتحقيقِ بالخيارِ 1 · أربعةُ أجزاء: سقفٌ 1 · مُزوّدٌ غيرُ متفرِّد · علامةُ بدءِ التنفيذ · recover بشرطِ العمر · لا شِّفرةَ · لا جولةَ مجلسٍ)

@@ -924,16 +924,20 @@
   {
    "action": "suspend_policy",
    "actor": "EXECUTIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "suspend_policy",
    "actor": "JUDICIAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "suspend_policy",
@@ -952,16 +956,20 @@
   {
    "action": "vote",
    "actor": "EXECUTIVE",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "vote",
    "actor": "JUDICIAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "vote",

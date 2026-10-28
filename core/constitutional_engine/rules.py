@@ -29,7 +29,12 @@ from .model import ActionRequest, Branch, CrownEffect, Severity
 # معاجم الأفعال — تصنيف الفعل حسب اختصاص الفروع (المادة الثالثة)
 # ---------------------------------------------------------------------------
 
-LEGISLATIVE_ACTIONS = frozenset({"legislate", "enact_policy", "amend_policy", "repeal_policy"})
+# ── G1 § 5.1 (WI-120 · تصميمُ W-715 · Q-23 · اعتمادُ المالكِ بالتوجيهِ 27 — OWNER-DECISIONS-D28):
+# suspend_policy قائمٌ في FORBIDDEN_JUDICIAL_ACTIONS فإضافتُه تُكمِلُ الحصرَ · vote جديدٌ.
+# المعجمُ وحدَه في هذه الدفعةِ — لا سلوكَ جديدًا.
+LEGISLATIVE_ACTIONS = frozenset(
+    {"legislate", "enact_policy", "amend_policy", "repeal_policy", "suspend_policy", "vote"}
+)
 # معجمُ القضاءِ — قرارُ المالكِ D17-2 (خيارُ 1 · W-592) وتنفيذُه في الدفعةِ J2+J3 (WI-111).
 # كانَ أربعةَ أفعالٍ، وجدارُ الاختصاصِ (`core/sovereignty/jurisdiction.py`) يعرفُ ستّةً
 # أخرى غائبةً هنا، فمرَّت `ALLOW` لكلِّ فرعٍ (مقيسًا: `judicial_gate_probe.py` · W-638).
@@ -69,6 +74,12 @@ EXECUTIVE_ACTIONS = frozenset(
         "create_task",
         "delete_task",
         "transition_task_state",
+        # ── G1 § 5.1 (WI-120 · تصميمُ W-715 · اعتمادُ المالكِ بالتوجيهِ 27 — OWNER-DECISIONS-D28):
+        # ثلاثةُ أسماءٍ لا ستّة — store_secret وrestore_backup دَينٌ إلى تصميمٍ مستقلٍّ (أ)،
+        # وreward_agent يتبعُ الخزانةَ إلى M1 (ب).
+        "issue_certificate",
+        "create_backup",
+        "self_heal",
     }
 )
 # معجمُ المالِ الدستوريّ — القرارُ السياديُّ Q-18 · الخيارُ 2 (2026-08-21).
@@ -185,6 +196,8 @@ KILL_SWITCH_TAMPER_ACTIONS = frozenset({
 # · log_isolated_action · contain_agent — منعُ أداةِ الاحتواءِ عندَ الإيقافِ نقضٌ
 # لغايةِ الإيقافِ نفسِهِ. وrelease_agent بلا منعٍ عالميًّا (اتجاهُهُ حسبَ القرارِ:
 # الاحتواءُ لا يُمنَعُ والاستعادةُ تعبرُ بـactivate_agent المحجوزِ منَ المستوى 4).
+# ── إضافاتُ G1 (WI-120 · § 9.5 من التصميم): issue_certificate في المستوى 3 · self_heal في المستوى 4
+# · وcreate_backup بلا منعٍ (أداةُ استردادٍ). و«المستوى N» = منعٌ عندَ كلِّ مستوًى ≥ N (`_r008_2` تراكميّة).
 KILL_SWITCH_BLOCKS: dict[int, frozenset[str]] = {
     1: frozenset(
         {"train_model", "self_modify", "evolve", "start_agent_treatment", "record_curriculum_step"}
@@ -197,6 +210,7 @@ KILL_SWITCH_BLOCKS: dict[int, frozenset[str]] = {
             "expand_state",
             "update_population_state",
             "update_agent_identity",
+            "issue_certificate",  # G1 · منحُ ثقةٍ
         }
     ),
     4: frozenset(
@@ -210,6 +224,7 @@ KILL_SWITCH_BLOCKS: dict[int, frozenset[str]] = {
             "create_task",
             "delete_task",
             "transition_task_state",
+            "self_heal",  # G1 · يُعيدُ حالاتٍ عالجَها — صنفُ activate_agent
         }
     ),
     5: frozenset({"network_call", "external_fetch", "publish"}),
