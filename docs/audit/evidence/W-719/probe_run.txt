@@ -1,0 +1,17 @@
+/home/user/workspace/amos/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+
+[probe] child exit code = 137
+[probe] P1[supports_idempotency=False] = {"attempt_count": 1, "claimable_after_reclaim": false, "dispatch_count": 1, "in_flight_after_crash": true, "outbox_status_after_crash": "CLAIMED", "outbox_status_after_reclaim": "INDETERMINATE", "outbox_status_final": "INDETERMINATE", "reclaimed": 1, "recover_interrupted_count": 1, "redelivery_by_second_worker": false, "requires_human_resolution": true, "task_error": "interrupted_execution", "task_state_after_crash": "executing", "task_state_final": "failed"}
+.
+[probe] child exit code = 137
+[probe] P1[supports_idempotency=True] = {"attempt_count": 2, "claimable_after_reclaim": true, "dispatch_count": 2, "in_flight_after_crash": true, "outbox_status_after_crash": "CLAIMED", "outbox_status_after_reclaim": "INDETERMINATE", "outbox_status_final": "DELIVERED", "reclaimed": 1, "recover_interrupted_count": 0, "redelivery_by_second_worker": true, "requires_human_resolution": false, "task_error": null, "task_state_after_crash": "executing", "task_state_final": "completed"}
+.
+[probe] child exit code = 137
+[probe] P2 = {"dispatch_count": 2, "outbox_status": "CLAIMED", "task_state": "completed"}
+.[probe] P3[max_attempts=1] = {"status": "DEAD", "terminal_reason": "MAX_ATTEMPTS_EXHAUSTED"}
+.[probe] P3[max_attempts=3] = {"status": "FAILED_RETRYABLE", "terminal_reason": null}
+.
+5 passed in 2.87s

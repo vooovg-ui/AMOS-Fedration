@@ -1,0 +1,154 @@
+
+$ git rev-parse HEAD
+ebd48e519947fb3eb1fdd2a8f0b9d7308db351be
+[exit=0]
+
+$ grep -n DEFAULT_LEASE_SECONDS: Final\|DEFAULT_MAX_DELIVERY_ATTEMPTS: Final core/sovereignty/outbox.py
+85:DEFAULT_LEASE_SECONDS: Final[int] = 30
+86:DEFAULT_MAX_DELIVERY_ATTEMPTS: Final[int] = 3
+[exit=0]
+
+$ sed -n 455,475p core/sovereignty/outbox.py
+    @property
+    def requires_human_resolution(self) -> bool:
+        """غموضٌ لا يقبلُ إعادةً آليّة: لا بدَّ من فصلٍ بشريّ."""
+        return (
+            self.status is DeliveryStatus.INDETERMINATE
+            and not self.provider_supports_idempotency
+        )
+
+    def is_claimable(self, *, now: datetime | None = None) -> bool:
+        """هل يجوزُ حجزُه الآن؟ الغامضُ يُعادُ فقط إن كان المُزوّدُ متفرِّدًا."""
+        moment = now or _now()
+        if self.status in (DeliveryStatus.PENDING, DeliveryStatus.FAILED_RETRYABLE):
+            return True
+        if self.status is DeliveryStatus.INDETERMINATE:
+            return self.provider_supports_idempotency
+        if self.status is DeliveryStatus.CLAIMED:
+            return (
+                self.lease_expires_at is not None
+                and moment > _parse_iso(self.lease_expires_at)
+            )
+        return False
+[exit=0]
+
+$ grep -n     def claim(\|    def begin_attempt(\|    def record_result(\|    def reclaim_expired(\|    def next_claimable(\|    def ambiguous(\|    def _call_provider(\|    def run_once( core/sovereignty/outbox.py
+620:    def ambiguous(self) -> list[OutboxRecord]:
+708:    def claim(
+749:    def begin_attempt(
+811:    def record_result(
+894:    def reclaim_expired(self, *, now: datetime | None = None) -> list[OutboxRecord]:
+947:    def next_claimable(self, *, now: datetime | None = None) -> OutboxRecord | None:
+1139:    def ambiguous(self) -> tuple[OutboxRecord, ...]:
+1244:    def _call_provider(
+1275:    def run_once(self, *, now: datetime | None = None) -> DeliveryReport | None:
+[exit=0]
+
+$ sed -n 815,818p core/sovereignty/outbox.py
+        worker_id: str,
+        receipt: DeliveryReceipt,
+        max_attempts: int = DEFAULT_MAX_DELIVERY_ATTEMPTS,
+        now: datetime | None = None,
+[exit=0]
+
+$ sed -n 875,877p core/sovereignty/outbox.py
+            else:  # RETRYABLE_FAILURE
+                exhausted = record.attempt_count >= max_attempts
+                self._transition(
+[exit=0]
+
+$ sed -n 920,934p core/sovereignty/outbox.py
+                            attempt["detail"] = (
+                                "سقطَ العاملُ داخلَ النداء — النتيجةُ مجهولة"
+                            )
+                    record.in_flight_attempt_id = None
+                    self._transition(
+                        record,
+                        DeliveryStatus.INDETERMINATE,
+                        moment=_iso(moment),
+                        note=(
+                            f"انقضى حجزُ «{abandoned_worker}» ومحاولتُه قيدَ الطيران"
+                        ),
+                    )
+                    record.failure_reason = (
+                        "عاملٌ مهجورٌ داخلَ النداء: لا يُعرَفُ هل وقعَ الأثر."
+                    )
+[exit=0]
+
+$ sed -n 1222,1226p core/sovereignty/outbox.py
+    adapters: Mapping[str, ProviderAdapter]
+    worker_id: str
+    lease_seconds: int = DEFAULT_LEASE_SECONDS
+    max_attempts: int = DEFAULT_MAX_DELIVERY_ATTEMPTS
+
+[exit=0]
+
+$ sed -n 1260,1266p core/sovereignty/outbox.py
+            return DeliveryReceipt(
+                outcome=DeliveryOutcome.INDETERMINATE, detail=str(exc)
+            )
+        except Exception as exc:  # noqa: BLE001 — يُصنَّفُ غموضًا لا يُبتلَع
+            return DeliveryReceipt(
+                outcome=DeliveryOutcome.INDETERMINATE,
+                detail=f"استثناءٌ غيرُ مُصنَّفٍ من المُحوّل: {exc}",
+[exit=0]
+
+$ sed -n 337,353p federal/executive/services/src/amos_federation/services/executive_core/engine.py
+    def advance(self, task_id: str) -> TransitionOutcome:
+        """خطوة واحدة حتمية في دورة حياة المهمّة، حسب حالتها الحالية."""
+        task = self._repo.require(task_id)
+        state = parse_state(task["status"])
+        if is_terminal(state):
+            raise ExecutionRefusedError(
+                f"المهمّة {task_id} في حالة نهائية ({state.value}) — لا تقدُّم بعدها"
+            )
+        if state is TaskState.CREATED:
+            return self._authorize_step(task)
+        if state is TaskState.AUTHORIZED:
+            return self._plan_step(task)
+        if state is TaskState.PLANNED:
+            return self._dispatch_step(task)
+        if state is TaskState.DISPATCHED:
+            return self._start_step(task)
+        return self._execute_step(task)
+[exit=0]
+
+$ grep -n     def _guarded_transition(\|    def _execute_step(\|self._runtime.dispatch(\|            TaskState.COMPLETED,\|    def run(\|    def recover(\|interrupted_execution federal/executive/services/src/amos_federation/services/executive_core/engine.py
+210:    def _guarded_transition(
+444:    def _execute_step(self, task: dict[str, Any]) -> TransitionOutcome:
+484:            outcome = self._runtime.dispatch(
+551:            TaskState.COMPLETED,
+567:    def run(self, task_id: str, max_steps: int = 8) -> dict[str, Any]:
+631:    def recover(self, max_tasks: int = 50) -> dict[str, Any]:
+635:        ولا تُعاد من الصفر — تُنقل إلى `failed` بسبب `interrupted_execution`،
+649:                    fields={"result": {"error": "interrupted_execution"}},
+650:                    detail={"reason": "interrupted_execution"},
+[exit=0]
+
+$ sed -n 249,253p federal/executive/services/src/amos_federation/services/executive_core/engine.py
+            action,
+            resource,
+            declared_effects=(effect,),
+            applier=_write,
+            operation_key=operation_key(
+[exit=0]
+
+$ grep -n @router.post("/tasks/{task_id}/advance")\|@router.post("/tasks/{task_id}/run")\|@router.post("/recover") federal/executive/services/src/amos_federation/services/executive_core/main.py
+81:@router.post("/tasks/{task_id}/advance")
+89:@router.post("/tasks/{task_id}/run")
+127:@router.post("/recover")
+[exit=0]
+
+$ grep -rn \.recover() --include=*.py federal/executive/services/src
+federal/executive/services/src/amos_federation/services/executive_core/main.py:131:        return get_executive_core().recover()
+[exit=0]
+
+$ grep -n TaskState.EXECUTING: frozenset federal/executive/services/src/amos_federation/services/executive_core/states.py
+63:    TaskState.EXECUTING: frozenset({TaskState.COMPLETED, TaskState.FAILED}),
+[exit=0]
+
+$ grep -n مفتاحُ أحاديّتِه\|EXECUTION:executive.task\|يُعَدُّ في الصادرِ كلُّ سجلٍّ docs/audit/Q16_EXECUTION_EFFECT_DESIGN.md
+102:- **الحلُّ المقترح:** المُزوّدُ (`ProviderAdapter`) لـ`EXECUTION` يُنادي `ExecutiveCore.run(task_id)` **ومفتاحُ أحاديّتِه `task_id`**. وبما قيسَ في § 1 (`run` يتوقّفُ عندَ الحالةِ النهائيّة ويُكمِلُ من حيثُ وقف) فالتسليمُ المكرَّرُ لا يُعيدُ خطوةً تمَّت — **بشرطِ** أن تكونَ `advance` نفسُها أحاديّةً لكلِّ خطوة. وهذا الشرطُ **غيرُ مقيسٍ بعدُ** (سؤالُ المراجعةِ R-2).
+115:| C2 · التشغيل | `EXECUTION:executive.task:<task_id>` | الصادرُ (write-ahead) ثمَّ العامل | **لا معوّض** (لامعكوس) |
+148:2. **قبلَ أيِّ رجوعٍ عن (ر1) أو (ر2):** يُعَدُّ في الصادرِ كلُّ سجلٍّ نوعُه `EXECUTION` وحالتُه ليست نهائيّة. يجبُ أن يكونَ **صفرًا** — وإلّا يُصرَفُ (يُسلَّمُ أو يُحسَمُ بشريًّا) أوّلًا. لأنَّ الرجوعَ يحذفُ النوعَ فلا يُقرأُ السجلُّ.
+[exit=0]
