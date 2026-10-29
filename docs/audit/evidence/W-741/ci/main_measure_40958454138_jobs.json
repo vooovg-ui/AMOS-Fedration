@@ -1,0 +1,130 @@
+{
+ "$comment": "الهدف: حِملُ وظائفِ تشغيلِ قياسِ الحوكمةِ المولَّدِ (مسبارُ نجاةِ الإقلاعِ) على main على العقدةِ 67815937 — التشغيلُ 40958454138 — يُقرأُ حكمُهُ بالفاحصِ ci_verdict_readability.py --from-json (قيدُ W-741 · واجبُ N+1)",
+ "total_count": 1,
+ "jobs": [
+  {
+   "id": 123744650449,
+   "run_id": 40958454138,
+   "workflow_name": "قياسُ الحوكمةِ المولَّد",
+   "head_branch": "main",
+   "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40958454138",
+   "run_attempt": 1,
+   "node_id": "CR_kwDOURQm-88AAAAcz8GE0Q",
+   "head_sha": "67815937851a9cbeb1acef85c880f30db9bdb068",
+   "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/123744650449",
+   "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40958454138/job/123744650449",
+   "status": "completed",
+   "conclusion": "success",
+   "created_at": "2026-10-29T21:31:07Z",
+   "started_at": "2026-10-29T21:31:10Z",
+   "completed_at": "2026-10-29T21:39:03Z",
+   "name": "Restart Survival Measurement",
+   "steps": [
+    {
+     "name": "Set up job",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 1,
+     "started_at": "2026-10-29T21:31:11Z",
+     "completed_at": "2026-10-29T21:31:12Z"
+    },
+    {
+     "name": "Run actions/checkout@v4",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 2,
+     "started_at": "2026-10-29T21:31:12Z",
+     "completed_at": "2026-10-29T21:31:18Z"
+    },
+    {
+     "name": "Run actions/setup-python@v5",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 3,
+     "started_at": "2026-10-29T21:31:18Z",
+     "completed_at": "2026-10-29T21:31:18Z"
+    },
+    {
+     "name": "تثبيت التبعيّات",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 4,
+     "started_at": "2026-10-29T21:31:18Z",
+     "completed_at": "2026-10-29T21:31:49Z"
+    },
+    {
+     "name": "تشغيلُ المِسبارِ وتوليدُ القياس",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 5,
+     "started_at": "2026-10-29T21:31:49Z",
+     "completed_at": "2026-10-29T21:34:47Z"
+    },
+    {
+     "name": "حكمُ المِسبارِ على الأسطحِ — مُلزِمٌ لا عرضٌ",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 6,
+     "started_at": "2026-10-29T21:34:47Z",
+     "completed_at": "2026-10-29T21:37:48Z"
+    },
+    {
+     "name": "حرسُ القياسِ الحيِّ (الخطوةُ 18)",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 7,
+     "started_at": "2026-10-29T21:37:48Z",
+     "completed_at": "2026-10-29T21:38:57Z"
+    },
+    {
+     "name": "تسجيلُ لقطةِ انحرافِ الدَّينِ (آخرُ قيدٍ مسجَّلٍ)",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 8,
+     "started_at": "2026-10-29T21:38:57Z",
+     "completed_at": "2026-10-29T21:39:00Z"
+    },
+    {
+     "name": "دفعُ الخرجِ المولَّدِ إن تغيَّر",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 9,
+     "started_at": "2026-10-29T21:39:00Z",
+     "completed_at": "2026-10-29T21:39:00Z"
+    },
+    {
+     "name": "Post Run actions/setup-python@v5",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 17,
+     "started_at": "2026-10-29T21:39:00Z",
+     "completed_at": "2026-10-29T21:39:00Z"
+    },
+    {
+     "name": "Post Run actions/checkout@v4",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 18,
+     "started_at": "2026-10-29T21:39:00Z",
+     "completed_at": "2026-10-29T21:39:00Z"
+    },
+    {
+     "name": "Complete job",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 19,
+     "started_at": "2026-10-29T21:39:00Z",
+     "completed_at": "2026-10-29T21:39:00Z"
+    }
+   ],
+   "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/123744650449",
+   "labels": [
+    "ubuntu-latest"
+   ],
+   "runner_id": 1000008657,
+   "runner_name": "GitHub Actions 1000008657",
+   "runner_group_id": 0,
+   "runner_group_name": "GitHub Actions"
+  }
+ ]
+}

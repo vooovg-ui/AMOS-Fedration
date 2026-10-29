@@ -1,0 +1,45 @@
+حدث أمني سيادي [DECREE_ACTION_MISMATCH] الفاعل «royal» الفعل «create_state»: المرسوم «pd-1e85b133» صادر للفعل «dissolve_state» والمطلوب «create_state». المرسوم لا يُعاد توجيهه إلى فعل آخر.
+حدث أمني سيادي [DECREE_PRESENTED_BY_NON_ROYAL] الفاعل «executive» الفعل «create_state»: الفاعل «executive» يقدّم مرسومًا ملكيًّا «pd-08f480c8» وهو ليس الملك. المرسوم لا يُحمَل بالوكالة ولا يرفع طبقة حامله.
+حدث أمني سيادي [SOVEREIGN_INTERVENTION] الفاعل «royal» الفعل «create_state»: تدخّل سيادي ملكي بمرسوم ثابت التوقيع. ملاحظات دستورية مُسجَّلة غير مانعة: A004. لا يلزم موافقة فرع ولا ولاية ولا مؤسسة ولا وكيل (المادة العاشرة · 5 · 3).
+حدث أمني سيادي [SOVEREIGN_INTERVENTION] الفاعل «royal» الفعل «create_state»: تدخّل سيادي ملكي بمرسوم ثابت التوقيع. ملاحظات دستورية مُسجَّلة غير مانعة: A004. لا يلزم موافقة فرع ولا ولاية ولا مؤسسة ولا وكيل (المادة العاشرة · 5 · 3).
+PROBE root=/home/user/workspace/w741_probe/repo artifacts=run-k4rafm07
+[OK ] A1 suspend_state يعبرُ ويكتبُ سجلًّا محكومًا — {'state_id': 'pr-gov-86cef3', 'status': 'suspended', 'reason': 'قرارٌ تنفيذيٌّ محكوم', 'previous_status': 'active', 'operation_id': 'suspend-c2b921700a9e'}
+[OK ] A2.1 self_heal لا يُعيدُ الولايةَ المعلَّقةَ بقرار — status=suspended
+[OK ] A2.2 self_heal لا يُعيدُ الولايةَ المعلَّقةَ بقرار — status=suspended
+[OK ] A3 self_heal يشفي المعلَّقةَ تلقائيًّا (ليسَ معطَّلًا كلّيًّا) — status=active
+[OK ] A4.4 reactivate_state عندَ المستوى 4 ممنوعٌ بلا أثر — exc=SovereigntyViolation status=suspended
+[OK ] A4.5 reactivate_state عندَ المستوى 5 ممنوعٌ بلا أثر — exc=SovereigntyViolation status=suspended
+[OK ] A5 reactivate_state عندَ المستوى 3 يعبرُ ويُغلقُ السجلّ — exc=None status=active
+[OK ] A6 suspend_state عندَ المستوى 5 لا يُمنَع (احتواء) — exc=None
+[OK ] A7 self_heal عندَ المستوى 4 ممنوعٌ — exc=SovereigntyViolation
+[OK ] A8 الإيقافُ المحكومُ الثاني يصمدُ أمامَ self_heal — status=suspended
+[OK ] B1 بلا مرسوم ⇒ رفضٌ ولا صفّ — exc=SovereigntyViolation
+[OK ] B2 مرسومٌ لفعلٍ آخرَ (dissolve_state) ⇒ رفضٌ ولا صفّ — exc=RoyalImpersonation
+[OK ] B3 مرسومٌ صحيحٌ عبرَ المُصرِّحِ التنفيذيِّ ⇒ رفضٌ ولا صفّ — exc=RoyalImpersonation
+[OK ] B4 مرسومٌ لهدفٍ آخرَ ⇒ رفضٌ ولا صفّ — exc=DecreeTargetMismatchError
+[OK ] B5 مرسومٌ صحيحٌ عبرَ الملكيِّ ⇒ تسجيل — {'state_id': 'pr-q13-180087', 'name': 'و', 'type': 'probe', 'budget': '0', 'status': 'active', 'registered': True, 'replayed': False}
+[OK ] B6 إعادةُ استعمالِ المرسومِ نفسِه بعدَ حذفِ الصفِّ لا تُنشئُ ولايةً — exc=None row=None
+2026-10-29 22:30:00 [warning  ] expansion.health_history_unavailable agent_id=pr-ret-fd0f5bf3 effect='health_failures=0 تعني «لم يُقرأْ» لا «لا إخفاقات»' reason="AttributeError: 'HealthChecker' object has no attribute 'get_agent_history'"
+[OK ] C.k=0 retire_agent ذرّيٌّ تحتَ رفعِ القاطعِ أثناءَه — exc=SovereigntyViolation records=0 before=('employed', 'employed', 'employed') after=('employed', 'employed', 'employed')
+2026-10-29 22:30:00 [warning  ] expansion.health_history_unavailable agent_id=pr-ret-c0de8ae9 effect='health_failures=0 تعني «لم يُقرأْ» لا «لا إخفاقات»' reason="AttributeError: 'HealthChecker' object has no attribute 'get_agent_history'"
+[OK ] C.k=1 retire_agent ذرّيٌّ تحتَ رفعِ القاطعِ أثناءَه — exc=SovereigntyViolation records=0 before=('employed', 'employed', 'employed') after=('employed', 'employed', 'employed')
+2026-10-29 22:30:01 [warning  ] expansion.health_history_unavailable agent_id=pr-ret-83530cbf effect='health_failures=0 تعني «لم يُقرأْ» لا «لا إخفاقات»' reason="AttributeError: 'HealthChecker' object has no attribute 'get_agent_history'"
+[OK ] C.k=2 retire_agent ذرّيٌّ تحتَ رفعِ القاطعِ أثناءَه — exc=None records=1 before=('employed', 'employed', 'employed') after=('retired', 'retired', 'retired')
+2026-10-29 22:30:01 [warning  ] expansion.health_history_unavailable agent_id=pr-ret-63a3e65c effect='health_failures=0 تعني «لم يُقرأْ» لا «لا إخفاقات»' reason="AttributeError: 'HealthChecker' object has no attribute 'get_agent_history'"
+[OK ] C.k=3 retire_agent ذرّيٌّ تحتَ رفعِ القاطعِ أثناءَه — exc=None records=1 before=('employed', 'employed', 'employed') after=('retired', 'retired', 'retired')
+2026-10-29 22:30:02 [warning  ] expansion.health_history_unavailable agent_id=pr-ret-818f739d effect='health_failures=0 تعني «لم يُقرأْ» لا «لا إخفاقات»' reason="AttributeError: 'HealthChecker' object has no attribute 'get_agent_history'"
+[OK ] C.k=4 retire_agent ذرّيٌّ تحتَ رفعِ القاطعِ أثناءَه — exc=None records=1 before=('employed', 'employed', 'employed') after=('retired', 'retired', 'retired')
+2026-10-29 22:30:02 [warning  ] expansion.health_history_unavailable agent_id=pr-ret-89f18101 effect='health_failures=0 تعني «لم يُقرأْ» لا «لا إخفاقات»' reason="AttributeError: 'HealthChecker' object has no attribute 'get_agent_history'"
+[OK ] C.k=5 retire_agent ذرّيٌّ تحتَ رفعِ القاطعِ أثناءَه — exc=None records=1 before=('employed', 'employed', 'employed') after=('retired', 'retired', 'retired')
+2026-10-29 22:30:03 [warning  ] expansion.health_history_unavailable agent_id=pr-ret-602609e8 effect='health_failures=0 تعني «لم يُقرأْ» لا «لا إخفاقات»' reason="AttributeError: 'HealthChecker' object has no attribute 'get_agent_history'"
+[OK ] C.k=6 retire_agent ذرّيٌّ تحتَ رفعِ القاطعِ أثناءَه — exc=None records=1 before=('employed', 'employed', 'employed') after=('retired', 'retired', 'retired')
+2026-10-29 22:30:04 [warning  ] expansion.health_history_unavailable agent_id=pr-ret-6e2ec10d effect='health_failures=0 تعني «لم يُقرأْ» لا «لا إخفاقات»' reason="AttributeError: 'HealthChecker' object has no attribute 'get_agent_history'"
+[OK ] C.k=7 retire_agent ذرّيٌّ تحتَ رفعِ القاطعِ أثناءَه — exc=None records=1 before=('employed', 'employed', 'employed') after=('retired', 'retired', 'retired')
+2026-10-29 22:30:04 [warning  ] expansion.health_history_unavailable agent_id=pr-ret-b37b5045 effect='health_failures=0 تعني «لم يُقرأْ» لا «لا إخفاقات»' reason="AttributeError: 'HealthChecker' object has no attribute 'get_agent_history'"
+[OK ] C.k=8 retire_agent ذرّيٌّ تحتَ رفعِ القاطعِ أثناءَه — exc=None records=1 before=('employed', 'employed', 'employed') after=('retired', 'retired', 'retired')
+[BROKEN] C2 update_state ذرّيٌّ تحتَ رفضٍ متأخِّرٍ لعبورِ المرآة — exc=SovereigntyViolation before=('employed', 'employed', 'employed') after=('retired', 'retired', 'employed')
+[OK ] D1 suspend_policy: التشريعُ وحدَه — {'executive': 'DENY', 'legislative': 'ALLOW', 'judicial': 'DENY', 'treasury': 'DENY'}
+[OK ] D1 vote: التشريعُ وحدَه — {'executive': 'DENY', 'legislative': 'ALLOW', 'judicial': 'DENY', 'treasury': 'DENY'}
+[OK ] D2 contain_agent (suspend_state) لا يُمنَعُ عندَ أيِّ مستوى — [False, False, False, False, False, False]
+[OK ] D3 activate_agent (reactivate_state) يُمنَعُ عندَ ≥4 وحدَها — [False, False, False, False, True, True]
+PROBE SUMMARY: checks=30 broken=1
