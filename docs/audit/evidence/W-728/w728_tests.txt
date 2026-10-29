@@ -1,0 +1,73 @@
+/home/user/workspace/amos/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /home/user/workspace/amos/.venv/bin/python
+rootdir: /home/user/workspace/amos/federal/executive/services
+configfile: pyproject.toml
+plugins: platformdirs-4.14.0, asyncio-1.4.1, cov-7.1.0, anyio-4.15.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 59 items
+
+tests/test_w728_g1_learning_security.py::test_c1_collect_blocked_at_level1_no_row PASSED [  1%]
+tests/test_w728_g1_learning_security.py::test_c1_complete_not_blocked_at_level5_q78_measured PASSED [  3%]
+tests/test_w728_g1_learning_security.py::test_c1_shadow_blocked_from_level4_q80b[3-False] PASSED [  5%]
+tests/test_w728_g1_learning_security.py::test_c1_shadow_blocked_from_level4_q80b[4-True] PASSED [  6%]
+tests/test_w728_g1_learning_security.py::test_c1_shadow_blocked_from_level4_q80b[5-True] PASSED [  8%]
+tests/test_w728_g1_learning_security.py::test_c1_canary_blocked_from_level4_q80b[3-False] PASSED [ 10%]
+tests/test_w728_g1_learning_security.py::test_c1_canary_blocked_from_level4_q80b[4-True] PASSED [ 11%]
+tests/test_w728_g1_learning_security.py::test_c1_canary_blocked_from_level4_q80b[5-True] PASSED [ 13%]
+tests/test_w728_g1_learning_security.py::test_c1_promote_blocked_from_level4_q80c[3-False] PASSED [ 15%]
+tests/test_w728_g1_learning_security.py::test_c1_promote_blocked_from_level4_q80c[4-True] PASSED [ 16%]
+tests/test_w728_g1_learning_security.py::test_c1_promote_blocked_from_level4_q80c[5-True] PASSED [ 18%]
+tests/test_w728_g1_learning_security.py::test_c1_create_session_blocked_from_level4[3-False] PASSED [ 20%]
+tests/test_w728_g1_learning_security.py::test_c1_create_session_blocked_from_level4[4-True] PASSED [ 22%]
+tests/test_w728_g1_learning_security.py::test_c1_create_session_blocked_from_level4[5-True] PASSED [ 23%]
+tests/test_w728_g1_learning_security.py::test_c1_issue_certificate_blocked_from_level3[2-False] PASSED [ 25%]
+tests/test_w728_g1_learning_security.py::test_c1_issue_certificate_blocked_from_level3[3-True] PASSED [ 27%]
+tests/test_w728_g1_learning_security.py::test_c1_issue_certificate_blocked_from_level3[5-True] PASSED [ 28%]
+tests/test_w728_g1_learning_security.py::test_c1_check_rate_and_expiry_never_blocked PASSED [ 30%]
+tests/test_w728_g1_learning_security.py::test_c2_surface_crosses_with_named_action[LearningCycle-collect_experiences-record_curriculum_step-ACTION_COLLECT_EXPERIENCES] PASSED [ 32%]
+tests/test_w728_g1_learning_security.py::test_c2_surface_crosses_with_named_action[LearningCycle-complete_training-release_agent-ACTION_COMPLETE_TRAINING] PASSED [ 33%]
+tests/test_w728_g1_learning_security.py::test_c2_surface_crosses_with_named_action[ModelPromotionCycle-start_shadow-invoke_model-ACTION_START_SHADOW] PASSED [ 35%]
+tests/test_w728_g1_learning_security.py::test_c2_surface_crosses_with_named_action[ModelPromotionCycle-start_canary-invoke_model-ACTION_START_CANARY] PASSED [ 37%]
+tests/test_w728_g1_learning_security.py::test_c2_surface_crosses_with_named_action[ModelPromotionCycle-promote_beta_to_alpha-activate_agent-ACTION_PROMOTE_BETA] PASSED [ 38%]
+tests/test_w728_g1_learning_security.py::test_c2_surface_crosses_with_named_action[RBACSystem-create_session-execute_task-ACTION_CREATE_SESSION] PASSED [ 40%]
+tests/test_w728_g1_learning_security.py::test_c2_surface_crosses_with_named_action[RateLimiter-check_rate-log_isolated_action-ACTION_CHECK_RATE] PASSED [ 42%]
+tests/test_w728_g1_learning_security.py::test_c2_surface_crosses_with_named_action[TLSCertManager-issue_certificate-issue_certificate-ACTION_ISSUE_CERTIFICATE] PASSED [ 44%]
+tests/test_w728_g1_learning_security.py::test_c2_surface_crosses_with_named_action[TLSCertManager-verify_certificate-log_isolated_action-ACTION_VERIFY_CERTIFICATE] PASSED [ 45%]
+tests/test_w728_g1_learning_security.py::test_c2_promote_declares_and_applies_two_effects PASSED [ 47%]
+tests/test_w728_g1_learning_security.py::test_c2_read_and_reject_paths_return_without_crossing PASSED [ 49%]
+tests/test_w728_g1_learning_security.py::test_c2_create_session_token_never_enters_boundary_metadata PASSED [ 50%]
+tests/test_w728_g1_learning_security.py::test_c3_mutation_guard_call_literally_in_public_body[LearningCycle-collect_experiences-record_curriculum_step-ACTION_COLLECT_EXPERIENCES] PASSED [ 52%]
+tests/test_w728_g1_learning_security.py::test_c3_mutation_guard_call_literally_in_public_body[LearningCycle-complete_training-release_agent-ACTION_COMPLETE_TRAINING] PASSED [ 54%]
+tests/test_w728_g1_learning_security.py::test_c3_mutation_guard_call_literally_in_public_body[ModelPromotionCycle-start_shadow-invoke_model-ACTION_START_SHADOW] PASSED [ 55%]
+tests/test_w728_g1_learning_security.py::test_c3_mutation_guard_call_literally_in_public_body[ModelPromotionCycle-start_canary-invoke_model-ACTION_START_CANARY] PASSED [ 57%]
+tests/test_w728_g1_learning_security.py::test_c3_mutation_guard_call_literally_in_public_body[ModelPromotionCycle-promote_beta_to_alpha-activate_agent-ACTION_PROMOTE_BETA] PASSED [ 59%]
+tests/test_w728_g1_learning_security.py::test_c3_mutation_guard_call_literally_in_public_body[RBACSystem-create_session-execute_task-ACTION_CREATE_SESSION] PASSED [ 61%]
+tests/test_w728_g1_learning_security.py::test_c3_mutation_guard_call_literally_in_public_body[RateLimiter-check_rate-log_isolated_action-ACTION_CHECK_RATE] PASSED [ 62%]
+tests/test_w728_g1_learning_security.py::test_c3_mutation_guard_call_literally_in_public_body[TLSCertManager-issue_certificate-issue_certificate-ACTION_ISSUE_CERTIFICATE] PASSED [ 64%]
+tests/test_w728_g1_learning_security.py::test_c3_mutation_guard_call_literally_in_public_body[TLSCertManager-verify_certificate-log_isolated_action-ACTION_VERIFY_CERTIFICATE] PASSED [ 66%]
+tests/test_w728_g1_learning_security.py::test_c3_held_surfaces_untouched_q80a PASSED [ 67%]
+tests/test_w728_g1_learning_security.py::test_c4_collect_replay_one_row PASSED [ 69%]
+tests/test_w728_g1_learning_security.py::test_c4_complete_replay_one_row PASSED [ 71%]
+tests/test_w728_g1_learning_security.py::test_c4_shadow_replay_no_second_pair PASSED [ 72%]
+tests/test_w728_g1_learning_security.py::test_c4_canary_replay_no_second_write PASSED [ 74%]
+tests/test_w728_g1_learning_security.py::test_c4_promote_replay_no_double_rows PASSED [ 76%]
+tests/test_w728_g1_learning_security.py::test_c4_check_rate_replay_count_unchanged PASSED [ 77%]
+tests/test_w728_g1_learning_security.py::test_c4_issue_certificate_replay_one_row PASSED [ 79%]
+tests/test_w728_g1_learning_security.py::test_c4_verify_second_call_reads_without_crossing PASSED [ 81%]
+tests/test_w728_g1_learning_security.py::test_c4_create_session_two_calls_two_distinct_sessions PASSED [ 83%]
+tests/test_w728_g1_learning_security.py::test_c5_collect_failure_deletes_row PASSED [ 84%]
+tests/test_w728_g1_learning_security.py::test_c5_complete_failure_restores_run PASSED [ 86%]
+tests/test_w728_g1_learning_security.py::test_c5_shadow_failure_restores_beta PASSED [ 88%]
+tests/test_w728_g1_learning_security.py::test_c5_canary_failure_restores_beta PASSED [ 89%]
+tests/test_w728_g1_learning_security.py::test_c5_promote_failure_restores_both_rows PASSED [ 91%]
+tests/test_w728_g1_learning_security.py::test_c5_create_session_failure_deletes_row PASSED [ 93%]
+tests/test_w728_g1_learning_security.py::test_c5_check_rate_failure_restores_created_row PASSED [ 94%]
+tests/test_w728_g1_learning_security.py::test_c5_check_rate_failure_restores_counter PASSED [ 96%]
+tests/test_w728_g1_learning_security.py::test_c5_issue_certificate_failure_deletes_row PASSED [ 98%]
+tests/test_w728_g1_learning_security.py::test_c5_verify_expiry_failure_restores_active PASSED [100%]
+
+============================== 59 passed in 2.81s ==============================

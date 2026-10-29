@@ -4,6 +4,7 @@ AMOS-Federation Phase 16 — Production Security
 النطاق: services/governance/security
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-15
+آخر تعديل: 2026-10-29 (W-728 — عبورُ أربعةِ أسطحٍ الحدَّ السياديَّ · G1 § 9.10)
 
 المتطلبات:
   16.1: RBAC — أدوار وصلاحيات
@@ -31,8 +32,31 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from amos_federation.common.database import get_database_url
 from amos_federation.common.persistent import PersistentAuditStore
 from amos_federation.common.principal import DEFAULT_TENANT
+from amos_federation.services.executive_core.sovereignty_bridge import (
+    ConstitutionalAuthorizer,
+    compensator,
+    declared_effect,
+    operation_key,
+)
 
 _logger = logging.getLogger(__name__)
+
+# ── أفعالُ العبورِ (G1 § 2.2 · تصميمُ § 9.10 · W-728) ─────────────────────────
+#: `create_session` — صفُّ جلسةٍ (ممنوعٌ عندَ ≥4 · `execute_task`).
+ACTION_CREATE_SESSION = "execute_task"
+#: `check_rate` — رصدٌ لا منع: `log_isolated_action` ليسَ في KILL_SWITCH_BLOCKS.
+ACTION_CHECK_RATE = "log_isolated_action"
+#: `issue_certificate` — منحُ ثقةٍ (ممنوعٌ عندَ ≥3 · إضافةُ G1).
+ACTION_ISSUE_CERTIFICATE = "issue_certificate"
+#: `verify_certificate` — إقفالُ مسارِ الانتهاءِ رصدًا لا منعًا (مسارُ الكتابةِ وحدَه).
+ACTION_VERIFY_CERTIFICATE = "log_isolated_action"
+#: `store_secret` لا يُعبَرُ — دَينٌ معلَّقٌ بقرارِ المالكِ (§ 9.1): القبوُ يُحفظُ
+#: كما هو ولا يُنزَلُ إلى فعلٍ أخفّ.
+
+SESSION_SCOPE = "security.session"
+RATE_SCOPE = "security.rate"
+CERT_ISSUE_SCOPE = "security.cert.issue"
+CERT_EXPIRE_SCOPE = "security.cert.expire"
 
 
 class SecurityBase(DeclarativeBase):
@@ -146,7 +170,7 @@ DEFAULT_ROLES = [
 class RBACSystem:
     """16.1: Role-Based Access Control."""
 
-    def __init__(self) -> None:
+    def __init__(self, authorizer: ConstitutionalAuthorizer | None = None) -> None:
         self._engine = create_engine(
             get_database_url(),
             connect_args={"check_same_thread": False}
@@ -157,6 +181,14 @@ class RBACSystem:
         self._migrate_session_tenant()
         self._Session = sessionmaker(bind=self._engine, autoflush=False, expire_on_commit=False)
         self._init_roles()
+        self._authorizer = authorizer
+
+    @property
+    def authorizer(self) -> ConstitutionalAuthorizer:
+        """المُصرِّحُ السياديُّ بالفاعلِ التنفيذيِّ الافتراضيّ — يُبنى عندَ أوّلِ حاجة (G1)."""
+        if self._authorizer is None:
+            self._authorizer = ConstitutionalAuthorizer()
+        return self._authorizer
 
     def _migrate_session_tenant(self) -> None:
         """R6.1: أضف `security_sessions.tenant_id` إلى جدول قائم إن غاب.
@@ -224,6 +256,7 @@ class RBACSystem:
         ip: str = "",
         *,
         tenant_id: str | None = None,
+        operation_id: str | None = None,
     ) -> dict[str, Any]:
         """إنشاء جلسة مستخدم.
 
@@ -231,34 +264,84 @@ class RBACSystem:
             tenant_id: مستأجر الجلسة. يُملأ عند المصادقة من مصدر موثوق
                 (سجلّ المستخدمين أو مُوفّر الهوية)، لا من جسم طلب تسجيل الدخول.
                 وغيابه يعني `default` تحديدًا، لا «أيّ مستأجر».
+            operation_id: معرِّفُ العمليةِ عندَ الإرسالِ المتكرَّر (G1 § 9.10 · W-728).
+
+        عبورٌ سياديٌّ (G1 § 9.10 · W-728): `execute_task` ممنوعٌ عندَ ≥4.
+        بصمةُ الجلسةِ (أولُ 16 حرفًا من SHA-256 للرمز) هي الهدفَ والمفتاح —
+        والرمزُ نفسُه لا يدخلُ الهدفَ ولا الأثرَ ولا المفتاحَ ولا سجلَّ الذرّيّة.
         """
         session = self._Session()
         try:
             role = session.query(RoleModel).filter(RoleModel.role_id == role_id).first()
             if not role:
                 return {"error": "role_not_found"}
-            token = hashlib.sha256(f"{username}:{role_id}:{uuid.uuid4().hex}".encode()).hexdigest()
-            from datetime import timedelta
+            role_level = role.level
+        finally:
+            session.close()
 
-            user_session = UserSessionModel(
-                session_token=token,
-                username=username,
-                role_id=role_id,
-                ip_address=ip,
-                tenant_id=(tenant_id or DEFAULT_TENANT),
-                expires_at=datetime.now(UTC) + timedelta(hours=24),
-            )
-            session.add(user_session)
-            session.commit()
+        token = hashlib.sha256(f"{username}:{role_id}:{uuid.uuid4().hex}".encode()).hexdigest()
+        from datetime import timedelta
+
+        expires_at = datetime.now(UTC) + timedelta(hours=24)
+        fingerprint = hashlib.sha256(token.encode()).hexdigest()[:16]
+        effect = declared_effect("CREATE", f"session:{fingerprint}", f"{username}:{role_id}")
+
+        def _apply(_effect: Any) -> None:
+            session = self._Session()
+            try:
+                session.add(
+                    UserSessionModel(
+                        session_token=token,
+                        username=username,
+                        role_id=role_id,
+                        ip_address=ip,
+                        tenant_id=(tenant_id or DEFAULT_TENANT),
+                        expires_at=expires_at,
+                    )
+                )
+                session.commit()
+            finally:
+                session.close()
+
+        def _undo() -> None:
+            session = self._Session()
+            try:
+                row = (
+                    session.query(UserSessionModel)
+                    .filter(UserSessionModel.session_token == token)
+                    .first()
+                )
+                if row:
+                    session.delete(row)
+                    session.commit()
+            finally:
+                session.close()
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_CREATE_SESSION,
+            f"session:{fingerprint}",
+            declared_effects=(effect,),
+            operation_key=operation_key(SESSION_SCOPE, fingerprint),
+            compensators=(compensator(effect.signature, _undo, "حذفُ صفِّ الجلسة"),),
+            applier=_apply,
+        )
+        if guarded.is_replay:
             return {
                 "session_token": token,
                 "username": username,
                 "role_id": role_id,
-                "level": role.level,
+                "level": role_level,
                 "tenant_id": (tenant_id or DEFAULT_TENANT),
+                "replayed": True,
             }
-        finally:
-            session.close()
+
+        return {
+            "session_token": token,
+            "username": username,
+            "role_id": role_id,
+            "level": role_level,
+            "tenant_id": (tenant_id or DEFAULT_TENANT),
+        }
 
     def check_permission(self, session_token: str, permission: str) -> bool:
         """فحص صلاحية — والجلسة المنتهية لا صلاحية لها.
@@ -386,7 +469,7 @@ class SecretVault:
 class RateLimiter:
     """16.4: Rate Limiting — منع الإفراط في الطلبات."""
 
-    def __init__(self) -> None:
+    def __init__(self, authorizer: ConstitutionalAuthorizer | None = None) -> None:
         self._engine = create_engine(
             get_database_url(),
             connect_args={"check_same_thread": False}
@@ -395,11 +478,30 @@ class RateLimiter:
         )
         SecurityBase.metadata.create_all(self._engine)
         self._Session = sessionmaker(bind=self._engine, autoflush=False, expire_on_commit=False)
+        self._authorizer = authorizer
+
+    @property
+    def authorizer(self) -> ConstitutionalAuthorizer:
+        """المُصرِّحُ السياديُّ بالفاعلِ التنفيذيِّ الافتراضيّ — يُبنى عندَ أوّلِ حاجة (G1)."""
+        if self._authorizer is None:
+            self._authorizer = ConstitutionalAuthorizer()
+        return self._authorizer
 
     def check_rate(
-        self, identifier: str, endpoint: str, max_requests: int = 100, window_minutes: int = 1
+        self,
+        identifier: str,
+        endpoint: str,
+        max_requests: int = 100,
+        window_minutes: int = 1,
+        operation_id: str | None = None,
     ) -> dict[str, Any]:
-        """فحص معدل الطلبات."""
+        """فحص معدل الطلبات.
+
+        عبورٌ سياديٌّ (G1 § 9.10 · W-728): `log_isolated_action` رصدٌ لا منع —
+        يكتبُ في مسارَي الكتابةِ (الزيادةُ · إنشاءُ الصفِّ) وحدَهما، ورفضُ
+        تجاوُزِ السقفِ يقرأُ ويعودُ **بلا عبورٍ ولا كتابةٍ**. فحصُ الحدِّ ثمَّ
+        الزيادةُ غيرُ ذرّيٍّ تحتَ التزامنِ كما اليوم — الحدُّ لا يغيِّرُ ذلك.
+        """
         session = self._Session()
         try:
             from datetime import timedelta
@@ -414,33 +516,104 @@ class RateLimiter:
                 )
                 .first()
             )
-
-            if record:
-                if record.request_count >= max_requests:
-                    return {"allowed": False, "count": record.request_count, "max": max_requests}
-                record.request_count += 1
-                record.last_request = datetime.now(UTC)
-                session.commit()
-                return {"allowed": True, "count": record.request_count, "max": max_requests}
-            else:
-                session.add(
-                    RateLimitModel(
-                        identifier=identifier,
-                        endpoint=endpoint,
-                        request_count=1,
-                        window_start=datetime.now(UTC),
-                    )
-                )
-                session.commit()
-                return {"allowed": True, "count": 1, "max": max_requests}
+            if record is not None and record.request_count >= max_requests:
+                return {"allowed": False, "count": record.request_count, "max": max_requests}
+            existed = record is not None
+            previous_count = record.request_count if record is not None else 0
         finally:
             session.close()
+
+        op = operation_id or uuid.uuid4().hex[:8]
+        effect = declared_effect(
+            "WRITE",
+            f"rate:{identifier}/{endpoint}/count@{op}",
+            "زيادةُ العدّادِ أو إنشاءُ صفِّ النافذة",
+        )
+        captured: list[int] = []
+
+        def _apply(_effect: Any) -> None:
+            session = self._Session()
+            try:
+                from datetime import timedelta
+
+                window_start = datetime.now(UTC) - timedelta(minutes=window_minutes)
+                row = (
+                    session.query(RateLimitModel)
+                    .filter(
+                        RateLimitModel.identifier == identifier,
+                        RateLimitModel.endpoint == endpoint,
+                        RateLimitModel.window_start >= window_start,
+                    )
+                    .first()
+                )
+                if row is not None:
+                    row.request_count += 1
+                    row.last_request = datetime.now(UTC)
+                    session.commit()
+                    captured.append(row.request_count)
+                else:
+                    session.add(
+                        RateLimitModel(
+                            identifier=identifier,
+                            endpoint=endpoint,
+                            request_count=1,
+                            window_start=datetime.now(UTC),
+                        )
+                    )
+                    session.commit()
+                    captured.append(1)
+            finally:
+                session.close()
+
+        def _undo() -> None:
+            session = self._Session()
+            try:
+                row = (
+                    session.query(RateLimitModel)
+                    .filter(
+                        RateLimitModel.identifier == identifier,
+                        RateLimitModel.endpoint == endpoint,
+                    )
+                    .first()
+                )
+                if row is None:
+                    return
+                if existed:
+                    row.request_count = previous_count
+                    session.commit()
+                else:
+                    session.delete(row)
+                    session.commit()
+            finally:
+                session.close()
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_CHECK_RATE,
+            f"rate:{identifier}/{endpoint}",
+            declared_effects=(effect,),
+            operation_key=operation_key(RATE_SCOPE, f"{identifier}/{endpoint}.{op}"),
+            compensators=(compensator(effect.signature, _undo, "إعادةُ العدّادِ إلى لقطتِه"),),
+            applier=_apply,
+        )
+        if guarded.is_replay:
+            return {
+                "allowed": True,
+                "count": captured[0] if captured else 1,
+                "max": max_requests,
+                "replayed": True,
+            }
+
+        return {
+            "allowed": True,
+            "count": captured[0] if captured else 1,
+            "max": max_requests,
+        }
 
 
 class TLSCertManager:
     """16.3: TLS Certificate Management."""
 
-    def __init__(self) -> None:
+    def __init__(self, authorizer: ConstitutionalAuthorizer | None = None) -> None:
         self._engine = create_engine(
             get_database_url(),
             connect_args={"check_same_thread": False}
@@ -449,33 +622,88 @@ class TLSCertManager:
         )
         SecurityBase.metadata.create_all(self._engine)
         self._Session = sessionmaker(bind=self._engine, autoflush=False, expire_on_commit=False)
+        self._authorizer = authorizer
 
-    def issue_certificate(self, common_name: str, validity_days: int = 365) -> dict[str, Any]:
+    @property
+    def authorizer(self) -> ConstitutionalAuthorizer:
+        """المُصرِّحُ السياديُّ بالفاعلِ التنفيذيِّ الافتراضيّ — يُبنى عندَ أوّلِ حاجة (G1)."""
+        if self._authorizer is None:
+            self._authorizer = ConstitutionalAuthorizer()
+        return self._authorizer
+
+    def issue_certificate(
+        self, common_name: str, validity_days: int = 365, operation_id: str | None = None
+    ) -> dict[str, Any]:
+        """إصدارُ شهادةٍ — عبورٌ سياديٌّ (G1 § 9.10 · W-728): `issue_certificate`
+        منحُ ثقةٍ ممنوعٌ عندَ ≥3، ومعرِّفُ الشهادةِ يُشتقُّ من `operation_id`
+        إن جاء (سابقةُ assign_agent) ليكونَ الإصدارُ المكرَّرُ إعادةً لا صفًّا ثانيًا.
+        """
         from datetime import timedelta
 
-        cert_id = f"cert-{uuid.uuid4().hex[:10]}"
+        cert_id = operation_id or f"cert-{uuid.uuid4().hex[:10]}"
         cert_hash = hashlib.sha256(f"{common_name}:{cert_id}".encode()).hexdigest()
-        session = self._Session()
-        try:
-            cert = TLSCertificateModel(
-                cert_id=cert_id,
-                common_name=common_name,
-                cert_hash=cert_hash,
-                valid_until=datetime.now(UTC) + timedelta(days=validity_days),
-            )
-            session.add(cert)
-            session.commit()
-            audit = PersistentAuditStore()
-            audit.append("security.cert_issued", "system", {"cert_id": cert_id, "cn": common_name})
+        valid_until = datetime.now(UTC) + timedelta(days=validity_days)
+        effect = declared_effect("CREATE", f"cert:{cert_id}", f"cn: {common_name}")
+
+        def _apply(_effect: Any) -> None:
+            session = self._Session()
+            try:
+                cert = TLSCertificateModel(
+                    cert_id=cert_id,
+                    common_name=common_name,
+                    cert_hash=cert_hash,
+                    valid_until=valid_until,
+                )
+                session.add(cert)
+                session.commit()
+                audit = PersistentAuditStore()
+                audit.append(
+                    "security.cert_issued", "system", {"cert_id": cert_id, "cn": common_name}
+                )
+            finally:
+                session.close()
+
+        def _undo() -> None:
+            session = self._Session()
+            try:
+                row = (
+                    session.query(TLSCertificateModel)
+                    .filter(TLSCertificateModel.cert_id == cert_id)
+                    .first()
+                )
+                if row:
+                    session.delete(row)
+                    session.commit()
+            finally:
+                session.close()
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_ISSUE_CERTIFICATE,
+            f"cert:{cert_id}",
+            declared_effects=(effect,),
+            operation_key=operation_key(CERT_ISSUE_SCOPE, cert_id),
+            compensators=(compensator(effect.signature, _undo, "حذفُ صفِّ الشهادة"),),
+            applier=_apply,
+        )
+        if guarded.is_replay:
             return {
                 "cert_id": cert_id,
                 "common_name": common_name,
-                "valid_until": str(cert.valid_until),
+                "valid_until": str(valid_until),
+                "replayed": True,
             }
-        finally:
-            session.close()
+
+        return {
+            "cert_id": cert_id,
+            "common_name": common_name,
+            "valid_until": str(valid_until),
+        }
 
     def verify_certificate(self, cert_id: str) -> dict[str, Any]:
+        """تحقُّقُ شهادةٍ — مساراتُ القراءةِ (سليمة · منتهيةٌ سلفًا · مجهولة)
+        لا تعبرُ؛ ومسارُ الانتهاءِ وحدَهُ يعبُرُ بأثرٍ معلنٍ ومعوِّضٍ يعيدُ
+        الحالةَ إلى «active» (G1 § 9.10 · W-728).
+        """
         session = self._Session()
         try:
             cert = (
@@ -487,17 +715,62 @@ class TLSCertManager:
                 return {"valid": False, "reason": "not_found"}
             if cert.status != "active":
                 return {"valid": False, "reason": cert.status}
+            common_name = cert.common_name
             if cert.valid_until:
                 valid_until = cert.valid_until
                 if valid_until.tzinfo is None:
                     valid_until = valid_until.replace(tzinfo=UTC)
-                if datetime.now(UTC) > valid_until:
-                    cert.status = "expired"
-                    session.commit()
-                    return {"valid": False, "reason": "expired"}
-            return {"valid": True, "cert_id": cert_id, "common_name": cert.common_name}
+                expired = datetime.now(UTC) > valid_until
+            else:
+                expired = False
         finally:
             session.close()
+        if not expired:
+            return {"valid": True, "cert_id": cert_id, "common_name": common_name}
+
+        effect = declared_effect("WRITE", f"cert:{cert_id}", "status.active->expired")
+
+        def _apply(_effect: Any) -> None:
+            session = self._Session()
+            try:
+                row = (
+                    session.query(TLSCertificateModel)
+                    .filter(TLSCertificateModel.cert_id == cert_id)
+                    .first()
+                )
+                if row is None or row.status != "active":
+                    raise RuntimeError("انكسارٌ داخلَ المُطبِّق — تبدَّلَ ما بُنيَ عليه الأثر")
+                row.status = "expired"
+                session.commit()
+            finally:
+                session.close()
+
+        def _undo() -> None:
+            session = self._Session()
+            try:
+                row = (
+                    session.query(TLSCertificateModel)
+                    .filter(TLSCertificateModel.cert_id == cert_id)
+                    .first()
+                )
+                if row is not None:
+                    row.status = "active"
+                    session.commit()
+            finally:
+                session.close()
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_VERIFY_CERTIFICATE,
+            f"cert:{cert_id}",
+            declared_effects=(effect,),
+            operation_key=operation_key(CERT_EXPIRE_SCOPE, cert_id),
+            compensators=(compensator(effect.signature, _undo, "إرجاعُ حالةِ الشهادةِ إلى active"),),
+            applier=_apply,
+        )
+        if guarded.is_replay:
+            return {"valid": False, "reason": "expired", "replayed": True}
+
+        return {"valid": False, "reason": "expired"}
 
 
 # Singletons

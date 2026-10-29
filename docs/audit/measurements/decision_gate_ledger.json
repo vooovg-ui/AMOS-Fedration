@@ -301,6 +301,22 @@
    "kind": "work_drift",
    "reason": "W-724: G1 expansion — 6 surfaces guarded (real burn 6 · correction 0) · D-4 110→104",
    "recorded_at": "2026-10-29T04:59:18+00:00"
+  },
+  {
+   "debt": 95,
+   "sovereign": 85,
+   "closed_legacy": 7,
+   "write_sites_total": 261,
+   "git_head": "202b5423",
+   "waves": {
+    "W1": 11,
+    "W2": 34,
+    "W3": 50
+   },
+   "decision": "W-728",
+   "kind": "work_drift",
+   "reason": "دفعةُ G1 الرابعةُ (§ 9.10): حرقٌ حقيقيٌّ 9 أسطحٍ في learning_cycle وsecurity (D-4 104 ← 95 · مطابقُ إسقاطِ التصميمِ) — والمواضعُ الثمانيةَ عشرةَ الزائدةُ (243 ← 261) مُطبِّقاتٌ وكُتّابٌ خاصّةٌ داخلَ الأسطحِ المحروسةِ لا تُحصى في الدَّينِ (سابقةُ W-724)",
+   "recorded_at": "2026-10-29T10:08:40+00:00"
   }
  ]
 }

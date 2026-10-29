@@ -274,7 +274,13 @@ def test_bridge_actor_is_declared_parameter_defaulting_to_executive() -> None:
 
 # ── 4. مواضعُ بناءِ المُصرِّحِ: ثلاثةَ عشرَ تُعلِنُ فاعلَها وأربعةٌ تتَّكِلُ على الافتراض ──
 def test_production_authorizer_sites_split_eight_declared_four_defaulted() -> None:
-    """(محدّثة في W-699 · شِفرةُ E1/WI-119 النصفُ الثاني · بقرارِ Q-73): المُصرِّحُ
+    """(محدّثة في W-728 · شِفرةُ G1/WI-120 الدفعة 4 · تصميمُ § 9.10): الافتراضيّةُ
+    تسعٌ بعدَ أن كانت أربعًا — المُفوِّضاتُ الكسولاتُ الخمسُ الجديدةُ
+    في learning_cycle.py (LearningCycle · ModelPromotionCycle) وsecurity.py
+    (RBACSystem · RateLimiter · TLSCertManager) على نمطِ W-723 نفسِه
+    (property مؤجِّلةٌ تبني المُصرِّحَ عندَ أوّلِ حاجة) — تحديثُ المُثبَّتِ بالمقيسِ لا
+    تخفيفُ فحصٍ (سابقةُ W-699/W-696/W-676/W-640/W-625/W-617/W-593/W-402).
+    (محدّثة في W-699 · شِفرةُ E1/WI-119 النصفُ الثاني · بقرارِ Q-73): المُصرِّحُ
     الثانيَ عشرَ والثالثَ عشرَ المُعلِنَانِ فاعلَهُ — المُفوِّضانِ الكسولانِ في
     agent_runtime/health.py وagent_runtime/population.py (AGENT_RUNTIME_ACTOR=
     "EXECUTIVE" · بمفاتيحِ مُصرِّحٍ فرديّةٍ على نمطِ W-532 · أسطحُ agent_runtime
@@ -303,7 +309,7 @@ def test_production_authorizer_sites_split_eight_declared_four_defaulted() -> No
     الأربعُ كما هي. (وكانت خمسةً بعدَ WI-082 · W-402.)"""
     sites = _authorizer_construction_sites()
     assert len(sites["declared"]) == 13, sites["declared"]
-    assert len(sites["defaulted"]) == 4, sites["defaulted"]
+    assert len(sites["defaulted"]) == 9, sites["defaulted"]
     assert sorted(Path(p.split(":")[0]).name for p in sites["declared"]) == [
         "agent_identity.py",
         "canary.py",
@@ -321,6 +327,11 @@ def test_production_authorizer_sites_split_eight_declared_four_defaulted() -> No
     ], sites["declared"]
     assert sorted(Path(p.split(":")[0]).name for p in sites["defaulted"]) == [
         "engine.py",
+        "learning_cycle.py",
+        "learning_cycle.py",
+        "security.py",
+        "security.py",
+        "security.py",
         "sovereignty_bridge.py",
         "state_runtime.py",
         "subsystem_boundary.py",

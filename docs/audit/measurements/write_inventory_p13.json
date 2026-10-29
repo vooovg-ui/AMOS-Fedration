@@ -1,7 +1,7 @@
 {
  "$comment": "الهدف: جردُ مواضعِ الكتابةِ في المستودعِ وتصنيفُ ما عبرَ الحدَّ السّياديَّ وما لم يعبُر— مُخرَجُ tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039).",
  "summary": {
-  "write_sites_total": 243,
+  "write_sites_total": 261,
   "by_area": {
    "core": {
     "public": 1,
@@ -15,8 +15,8 @@
    },
    "services": {
     "public": 159,
-    "sovereign": 76,
-    "non_sovereign": 82
+    "sovereign": 85,
+    "non_sovereign": 73
    },
    "tools": {
     "public": 1,
@@ -25,23 +25,22 @@
    }
   },
   "public_write_operations": 182,
-  "sovereign_write_operations": 76,
+  "sovereign_write_operations": 85,
   "closed_legacy_paths": 7,
-  "non_sovereign_write_operations": 104,
+  "non_sovereign_write_operations": 95,
   "non_sovereign_by_file": {
    "federal/executive/services/src/amos_federation/services/national_economy/service.py": 16,
    "federal/executive/services/src/amos_federation/common/persistent.py": 13,
    "federal/executive/services/src/amos_federation/services/federal_state/service.py": 10,
    "federal/executive/services/src/amos_federation/services/governance/treasury.py": 9,
    "federal/executive/services/src/amos_federation/services/royal/main.py": 9,
-   "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py": 7,
    "federal/executive/services/src/amos_federation/services/state_treasury/service.py": 7,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py": 6,
-   "federal/executive/services/src/amos_federation/services/governance/security.py": 5,
    "federal/executive/services/src/amos_federation/common/database.py": 4,
    "federal/executive/services/src/amos_federation/common/durable_event_bus.py": 2,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py": 2,
    "federal/executive/services/src/amos_federation/services/governance/expansion.py": 2,
+   "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py": 2,
    "federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py": 2,
    "federal/executive/services/src/amos_federation/services/training/persistent_registry.py": 2,
    "federal/executive/services/src/amos_federation/common/event_bus.py": 1,
@@ -49,6 +48,7 @@
    "federal/executive/services/src/amos_federation/services/api_gateway/store.py": 1,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py": 1,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py": 1,
+   "federal/executive/services/src/amos_federation/services/governance/security.py": 1,
    "federal/executive/services/src/amos_federation/services/governance/system_life.py": 1,
    "federal/executive/services/src/amos_federation/services/government_services/service.py": 1,
    "tools/migrations/r4_unify_agent_identity.py": 1
@@ -1786,14 +1786,69 @@
   {
    "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
    "owner": "LearningCycle",
-   "function": "collect_experiences",
+   "function": "_apply",
    "ordinal": 0,
-   "public": true,
+   "public": false,
    "writes": [
     "add()",
     "commit()"
    ],
    "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "LearningCycle",
+   "function": "_apply",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "LearningCycle",
+   "function": "_undo",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()",
+    "delete()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "LearningCycle",
+   "function": "_undo",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "LearningCycle",
+   "function": "collect_experiences",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()",
+    "delete()"
+   ],
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": []
   },
@@ -1806,7 +1861,7 @@
    "writes": [
     "commit()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": []
   },
@@ -1818,6 +1873,45 @@
    "public": true,
    "writes": [
     "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "ModelPromotionCycle",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "ModelPromotionCycle",
+   "function": "_apply",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "ModelPromotionCycle",
+   "function": "_apply",
+   "ordinal": 2,
+   "public": false,
+   "writes": [
     "commit()"
    ],
    "guarded": false,
@@ -1841,13 +1935,52 @@
   {
    "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
    "owner": "ModelPromotionCycle",
+   "function": "_undo",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "ModelPromotionCycle",
+   "function": "_undo",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "ModelPromotionCycle",
+   "function": "_undo",
+   "ordinal": 2,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "ModelPromotionCycle",
    "function": "promote_beta_to_alpha",
    "ordinal": 0,
    "public": true,
    "writes": [
     "commit()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": []
   },
@@ -1860,7 +1993,7 @@
    "writes": [
     "commit()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": []
   },
@@ -1871,6 +2004,20 @@
    "ordinal": 0,
    "public": true,
    "writes": [
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "RBACSystem",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
     "commit()"
    ],
    "guarded": false,
@@ -1907,12 +2054,55 @@
   {
    "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
    "owner": "RBACSystem",
+   "function": "_undo",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()",
+    "delete()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "RBACSystem",
    "function": "create_session",
    "ordinal": 0,
    "public": true,
    "writes": [
     "add()",
+    "commit()",
+    "delete()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "RateLimiter",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
     "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "RateLimiter",
+   "function": "_undo",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()",
+    "delete()"
    ],
    "guarded": false,
    "closed_legacy": false,
@@ -1926,9 +2116,10 @@
    "public": true,
    "writes": [
     "add()",
-    "commit()"
+    "commit()",
+    "delete()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": []
   },
@@ -1949,14 +2140,69 @@
   {
    "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
    "owner": "TLSCertManager",
-   "function": "issue_certificate",
+   "function": "_apply",
    "ordinal": 0,
-   "public": true,
+   "public": false,
    "writes": [
     "add()",
     "commit()"
    ],
    "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "TLSCertManager",
+   "function": "_apply",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "TLSCertManager",
+   "function": "_undo",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()",
+    "delete()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "TLSCertManager",
+   "function": "_undo",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/security.py",
+   "owner": "TLSCertManager",
+   "function": "issue_certificate",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()",
+    "delete()"
+   ],
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": []
   },
@@ -1969,7 +2215,7 @@
    "writes": [
     "commit()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": []
   },

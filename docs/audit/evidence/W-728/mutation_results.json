@@ -1,0 +1,79 @@
+{
+  "$comment": "حملةُ طفرةِ أسطحِ W-728 (G1 الدفعة 4 · learning_cycle + security): لكلِّ سطحٍ من التسعةِ خطُّ أساسٍ ناجحٌ ثمَّ نزعُ نداءِ الحدِّ (مُطبِّقٌ مباشرٌ بلا عبور) يُسقِطُ تأكيدَ الدليلِ تحديدًا. المولِّد: docs/audit/evidence/W-728/mutation_campaign.py",
+  "cases": [
+    {
+      "verb": "record_curriculum_step",
+      "surface": "learning_cycle.LearningCycle.collect_experiences",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: لم يُعبَرِ الحدُّ السياديُّ أصلًا"
+    },
+    {
+      "verb": "release_agent",
+      "surface": "learning_cycle.LearningCycle.complete_training",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: لم يُعبَرِ الحدُّ السياديُّ أصلًا"
+    },
+    {
+      "verb": "invoke_model",
+      "surface": "learning_cycle.ModelPromotionCycle.start_shadow",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: لم يُعبَرِ الحدُّ السياديُّ أصلًا"
+    },
+    {
+      "verb": "invoke_model",
+      "surface": "learning_cycle.ModelPromotionCycle.start_canary",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: لم يُعبَرِ الحدُّ السياديُّ أصلًا"
+    },
+    {
+      "verb": "activate_agent",
+      "surface": "learning_cycle.ModelPromotionCycle.promote_beta_to_alpha",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: لم يُعبَرِ الحدُّ السياديُّ أصلًا"
+    },
+    {
+      "verb": "execute_task",
+      "surface": "security.RBACSystem.create_session",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: لم يُعبَرِ الحدُّ السياديُّ أصلًا"
+    },
+    {
+      "verb": "log_isolated_action",
+      "surface": "security.RateLimiter.check_rate",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: لم يُعبَرِ الحدُّ السياديُّ أصلًا"
+    },
+    {
+      "verb": "issue_certificate",
+      "surface": "security.TLSCertManager.issue_certificate",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: لم يُعبَرِ الحدُّ السياديُّ أصلًا"
+    },
+    {
+      "verb": "log_isolated_action",
+      "surface": "security.TLSCertManager.verify_certificate",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: لم يُعبَرِ الحدُّ السياديُّ أصلًا"
+    }
+  ],
+  "killed_on_evidence": 9,
+  "total": 9
+}

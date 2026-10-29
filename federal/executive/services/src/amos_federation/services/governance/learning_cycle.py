@@ -4,6 +4,7 @@ AMOS-Federation Phase 14-15 — Learning Loop + Evaluation + Alpha/Beta/Gamma
 النطاق: services/governance/learning_cycle
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-15
+آخر تعديل: 2026-10-29 (W-728 — عبورُ خمسةِ أسطحٍ الحدَّ السياديَّ · G1 § 9.10)
 
 المتطلبات:
   14.1-14.4: Data Collector من Experience Replay + تصنيف + إزالة تكرار + Data BOM
@@ -23,6 +24,34 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from amos_federation.common.database import get_database_url
 from amos_federation.common.persistent import PersistentAuditStore
+from amos_federation.services.executive_core.sovereignty_bridge import (
+    ConstitutionalAuthorizer,
+    compensator,
+    declared_effect,
+    operation_key,
+)
+
+# ── أفعالُ العبورِ (G1 § 2.2 · تصميمُ § 9.10 · W-728) ─────────────────────────
+#: `collect_experiences` — صفُّ مجموعةِ بياناتِ التعلّم (ممنوعٌ عندَ ≥1).
+ACTION_COLLECT_EXPERIENCES = "record_curriculum_step"
+#: `complete_training` — إتمامُ دورةِ تدريب. `release_agent` ليسَ في
+#: KILL_SWITCH_BLOCKS عندَ أيِّ مستوى (اتجاهُ Q-78): يُنفَّذُ عمودُ الفعلِ.
+ACTION_COMPLETE_TRAINING = "release_agent"
+#: `start_shadow` و`start_canary` — `invoke_model` ممنوعٌ عندَ ≥4 لا ≥1 كما في
+#: جدولِ § 2.2 — يُرفَعُ للمالكِ Q-80ب (§ 9.10.3).
+ACTION_START_SHADOW = "invoke_model"
+ACTION_START_CANARY = "invoke_model"
+#: `promote_beta_to_alpha` — ترقيةٌ على القدرة: `activate_agent` ممنوعٌ عندَ ≥4 (Q-80ج).
+ACTION_PROMOTE_BETA = "activate_agent"
+#: `start_training` و`evaluate_model` لا يُعبَرانِ: `train_model` محكومٌ بشريًّا
+#: (R-001-1 · HUMAN_GATED_ACTIONS) ولا قناةَ موافقةٍ في الجسر — دَينٌ معلَّقٌ بقرارِ
+#: المالكِ Q-80أ (§ 9.10.3).
+
+DATASET_SCOPE = "learning.dataset"
+TRAINING_COMPLETE_SCOPE = "learning.training.complete"
+SHADOW_SCOPE = "learning.shadow"
+CANARY_SCOPE = "learning.canary"
+PROMOTE_SCOPE = "learning.promote"
 
 
 class LearningBase(DeclarativeBase):
@@ -105,7 +134,7 @@ class ModelVersionModel(LearningBase):
 class LearningCycle:
     """14: حلقة التعلم الحقيقية."""
 
-    def __init__(self) -> None:
+    def __init__(self, authorizer: ConstitutionalAuthorizer | None = None) -> None:
         self._engine = create_engine(
             get_database_url(),
             connect_args={"check_same_thread": False}
@@ -114,10 +143,25 @@ class LearningCycle:
         )
         LearningBase.metadata.create_all(self._engine)
         self._Session = sessionmaker(bind=self._engine, autoflush=False, expire_on_commit=False)
+        self._authorizer = authorizer
 
-    def collect_experiences(self, experiences: list[dict[str, Any]]) -> dict[str, Any]:
-        """14.1: تجميع خبرات حقيقية من Experience Replay."""
-        dataset_id = f"dataset-{uuid.uuid4().hex[:10]}"
+    @property
+    def authorizer(self) -> ConstitutionalAuthorizer:
+        """المُصرِّحُ السياديُّ بالفاعلِ التنفيذيِّ الافتراضيّ — يُبنى عندَ أوّلِ حاجة (G1)."""
+        if self._authorizer is None:
+            self._authorizer = ConstitutionalAuthorizer()
+        return self._authorizer
+
+    def collect_experiences(
+        self, experiences: list[dict[str, Any]], operation_id: str | None = None
+    ) -> dict[str, Any]:
+        """14.1: تجميع خبرات حقيقية من Experience Replay.
+
+        عبورٌ سياديٌّ (G1 § 9.10 · W-728): فعلٌ معلنٌ واحدٌ ومعوّضٌ يعكسُه،
+        ومعرِّفُ المجموعةِ يُشتقُّ من `operation_id` إن جاء ليكونَ الإرسالُ
+        المكرَّرُ إعادةً لا صفًّا ثانيًا (سابقةُ submit_output).
+        """
+        dataset_id = operation_id or f"dataset-{uuid.uuid4().hex[:10]}"
         success = [e for e in experiences if e.get("outcome", {}).get("success", True)]
         failure = [e for e in experiences if not e.get("outcome", {}).get("success", True)]
         gap = [e for e in experiences if e.get("type") == "gap"]
@@ -145,28 +189,56 @@ class LearningCycle:
         }
         bom_hash = hashlib.sha256(json.dumps(bom, sort_keys=True).encode()).hexdigest()
 
-        session = self._Session()
-        try:
-            dataset = ExperienceDatasetModel(
-                dataset_id=dataset_id,
-                source="experience_replay",
-                total_samples=len(deduped),
-                success_samples=len(success),
-                failure_samples=len(failure),
-                gap_samples=len(gap),
-                deduplicated="true",
-                bom_hash=bom_hash,
-            )
-            session.add(dataset)
-            session.commit()
+        effect = declared_effect("CREATE", f"dataset:{dataset_id}", f"عيّنات: {len(deduped)}")
 
-            audit = PersistentAuditStore()
-            audit.append(
-                "learning.dataset_created",
-                "system",
-                {"dataset_id": dataset_id, "samples": len(deduped)},
-            )
+        def _apply(_effect: Any) -> None:
+            session = self._Session()
+            try:
+                dataset = ExperienceDatasetModel(
+                    dataset_id=dataset_id,
+                    source="experience_replay",
+                    total_samples=len(deduped),
+                    success_samples=len(success),
+                    failure_samples=len(failure),
+                    gap_samples=len(gap),
+                    deduplicated="true",
+                    bom_hash=bom_hash,
+                )
+                session.add(dataset)
+                session.commit()
 
+                audit = PersistentAuditStore()
+                audit.append(
+                    "learning.dataset_created",
+                    "system",
+                    {"dataset_id": dataset_id, "samples": len(deduped)},
+                )
+            finally:
+                session.close()
+
+        def _undo() -> None:
+            session = self._Session()
+            try:
+                row = (
+                    session.query(ExperienceDatasetModel)
+                    .filter(ExperienceDatasetModel.dataset_id == dataset_id)
+                    .first()
+                )
+                if row:
+                    session.delete(row)
+                    session.commit()
+            finally:
+                session.close()
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_COLLECT_EXPERIENCES,
+            f"dataset:{dataset_id}",
+            declared_effects=(effect,),
+            operation_key=operation_key(DATASET_SCOPE, dataset_id),
+            compensators=(compensator(effect.signature, _undo, "حذفُ صفِّ مجموعةِ البيانات"),),
+            applier=_apply,
+        )
+        if guarded.is_replay:
             return {
                 "dataset_id": dataset_id,
                 "total_samples": len(deduped),
@@ -175,9 +247,18 @@ class LearningCycle:
                 "gap": len(gap),
                 "deduplicated": True,
                 "bom_hash": bom_hash,
+                "replayed": True,
             }
-        finally:
-            session.close()
+
+        return {
+            "dataset_id": dataset_id,
+            "total_samples": len(deduped),
+            "success": len(success),
+            "failure": len(failure),
+            "gap": len(gap),
+            "deduplicated": True,
+            "bom_hash": bom_hash,
+        }
 
     def start_training(self, dataset_id: str, model_name: str = "amos-alpha") -> dict[str, Any]:
         """14.5: بدء تدريب LoRA."""
@@ -209,55 +290,133 @@ class LearningCycle:
         finally:
             session.close()
 
-    def complete_training(self, run_id: str, final_loss: float, epochs: int = 3) -> dict[str, Any]:
-        """14.5-14.9: إكمال التدريب."""
+    def complete_training(
+        self,
+        run_id: str,
+        final_loss: float,
+        epochs: int = 3,
+        operation_id: str | None = None,
+    ) -> dict[str, Any]:
+        """14.5-14.9: إكمال التدريب.
+
+        عبورٌ سياديٌّ (G1 § 9.10 · W-728): قراءةٌ مسبقةٌ للقيدِ — الرفضُ القارئُ
+        يعودُ كما اليوم بلا عبور — ثمَّ أثرٌ معلنٌ ومعوّضٌ يُعيدُ الصفَّ إلى
+        لقطتِه، والمُطبِّقُ يُعيدُ القراءةَ ويرفضُ إن تبدَّلَ ما بُنيَ عليه الأثر.
+        """
         session = self._Session()
         try:
             run = session.query(TrainingRunModel).filter(TrainingRunModel.run_id == run_id).first()
             if not run:
                 return {"error": "run_not_found"}
-
-            # 14.9: فحص عتبات التوقف
+            previous = {
+                "status": run.status,
+                "final_loss": run.final_loss,
+                "epochs_completed": run.epochs_completed,
+                "artifact_path": run.artifact_path,
+                "model_card": run.model_card,
+                "knowledge_injection": run.knowledge_injection,
+                "stopped_reason": run.stopped_reason,
+                "completed_at": run.completed_at,
+            }
             initial = float(run.initial_loss or "0")
-            improvement = initial - final_loss
-            stopped_reason = None
-            if improvement < 0.01:
-                stopped_reason = "no_improvement"
-            elif final_loss < 0.1:
-                stopped_reason = "converged"
+        finally:
+            session.close()
 
-            run.status = "completed" if not stopped_reason else "stopped"
-            run.final_loss = str(final_loss)
-            run.epochs_completed = epochs
-            run.artifact_path = f"/models/lora/{run_id}.bin"  # 14.6
-            run.model_card = json.dumps(
-                {  # 14.7
-                    "model_name": run.model_name,
-                    "dataset_id": run.dataset_id,
-                    "initial_loss": initial,
-                    "final_loss": final_loss,
-                    "epochs": epochs,
-                    "improvement": improvement,
-                    "trained_at": datetime.now(UTC).isoformat(),
-                }
-            )
-            run.knowledge_injection = "true"  # 14.8
-            run.stopped_reason = stopped_reason
-            run.completed_at = datetime.now(UTC)
-            session.commit()
+        # 14.9: فحص عتبات التوقف
+        improvement = initial - final_loss
+        stopped_reason = None
+        if improvement < 0.01:
+            stopped_reason = "no_improvement"
+        elif final_loss < 0.1:
+            stopped_reason = "converged"
 
+        new_status = "completed" if not stopped_reason else "stopped"
+        op = operation_id or uuid.uuid4().hex[:8]
+        effect = declared_effect(
+            "WRITE",
+            f"training:{run_id}/status.{previous['status']}->{new_status}@{op}",
+            f"إتمامُ دورةِ التدريبِ «{run_id}» بخسارةٍ نهائيّةٍ {final_loss}",
+        )
+
+        def _apply(_effect: Any) -> None:
+            session = self._Session()
+            try:
+                row = (
+                    session.query(TrainingRunModel)
+                    .filter(TrainingRunModel.run_id == run_id)
+                    .first()
+                )
+                if row is None or row.status != previous["status"]:
+                    raise RuntimeError("انكسارٌ داخلَ المُطبِّق — تبدَّلَ ما بُنيَ عليه الأثر")
+                row.status = new_status
+                row.final_loss = str(final_loss)
+                row.epochs_completed = epochs
+                row.artifact_path = f"/models/lora/{run_id}.bin"  # 14.6
+                row.model_card = json.dumps(
+                    {  # 14.7
+                        "model_name": row.model_name,
+                        "dataset_id": row.dataset_id,
+                        "initial_loss": initial,
+                        "final_loss": final_loss,
+                        "epochs": epochs,
+                        "improvement": improvement,
+                        "trained_at": datetime.now(UTC).isoformat(),
+                    }
+                )
+                row.knowledge_injection = "true"  # 14.8
+                row.stopped_reason = stopped_reason
+                row.completed_at = datetime.now(UTC)
+                session.commit()
+            finally:
+                session.close()
+
+        def _undo() -> None:
+            session = self._Session()
+            try:
+                row = (
+                    session.query(TrainingRunModel)
+                    .filter(TrainingRunModel.run_id == run_id)
+                    .first()
+                )
+                if row is None:
+                    return
+                for key, value in previous.items():
+                    setattr(row, key, value)
+                session.commit()
+            finally:
+                session.close()
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_COMPLETE_TRAINING,
+            f"training:{run_id}",
+            declared_effects=(effect,),
+            operation_key=operation_key(TRAINING_COMPLETE_SCOPE, f"{run_id}.{op}"),
+            compensators=(compensator(effect.signature, _undo, "إعادةُ صفِّ التدريبِ إلى لقطتِه"),),
+            applier=_apply,
+        )
+        if guarded.is_replay:
             return {
                 "run_id": run_id,
-                "status": run.status,
+                "status": new_status,
                 "final_loss": final_loss,
                 "epochs": epochs,
                 "improvement": improvement,
-                "artifact_path": run.artifact_path,
+                "artifact_path": f"/models/lora/{run_id}.bin",
                 "knowledge_injection": True,
                 "stopped_reason": stopped_reason,
+                "replayed": True,
             }
-        finally:
-            session.close()
+
+        return {
+            "run_id": run_id,
+            "status": new_status,
+            "final_loss": final_loss,
+            "epochs": epochs,
+            "improvement": improvement,
+            "artifact_path": f"/models/lora/{run_id}.bin",
+            "knowledge_injection": True,
+            "stopped_reason": stopped_reason,
+        }
 
 
 class EvaluationSystem:
@@ -339,7 +498,7 @@ class EvaluationSystem:
 class ModelPromotionCycle:
     """15.7-15.13: دورة Alpha/Beta/Gamma الكاملة."""
 
-    def __init__(self) -> None:
+    def __init__(self, authorizer: ConstitutionalAuthorizer | None = None) -> None:
         self._engine = create_engine(
             get_database_url(),
             connect_args={"check_same_thread": False}
@@ -349,6 +508,14 @@ class ModelPromotionCycle:
         LearningBase.metadata.create_all(self._engine)
         self._Session = sessionmaker(bind=self._engine, autoflush=False, expire_on_commit=False)
         self._init_tracks()
+        self._authorizer = authorizer
+
+    @property
+    def authorizer(self) -> ConstitutionalAuthorizer:
+        """المُصرِّحُ السياديُّ بالفاعلِ التنفيذيِّ الافتراضيّ — يُبنى عندَ أوّلِ حاجة (G1)."""
+        if self._authorizer is None:
+            self._authorizer = ConstitutionalAuthorizer()
+        return self._authorizer
 
     def _init_tracks(self) -> None:
         """15.7: تهيئة مسارات Alpha/Beta/Gamma."""
@@ -372,8 +539,15 @@ class ModelPromotionCycle:
         finally:
             session.close()
 
-    def start_shadow(self, alpha_id: str, beta_id: str) -> dict[str, Any]:
-        """15.9: Shadow Testing بين Alpha و Beta."""
+    def start_shadow(
+        self, alpha_id: str, beta_id: str, operation_id: str | None = None
+    ) -> dict[str, Any]:
+        """15.9: Shadow Testing بين Alpha و Beta.
+
+        عبورٌ سياديٌّ (G1 § 9.10 · W-728): `invoke_model` ممنوعٌ عندَ ≥4 لا ≥1
+        كما في جدولِ § 2.2 — يُرفَعُ للمالكِ Q-80ب. الرفضُ القارئُ (غائبٌ)
+        يعودُ كما اليوم بلا عبور.
+        """
         session = self._Session()
         try:
             alpha = (
@@ -388,24 +562,87 @@ class ModelPromotionCycle:
             )
             if not alpha or not beta:
                 return {"error": "model_not_found"}
-
-            beta.status = "shadow"
-            pairs = json.loads(beta.shadow_pairs or "[]")
-            pairs.append(
-                {"alpha": alpha_id, "beta": beta_id, "started": datetime.now(UTC).isoformat()}
-            )
-            beta.shadow_pairs = json.dumps(pairs)
-            session.commit()
-
-            audit = PersistentAuditStore()
-            audit.append("model.shadow_started", "system", {"alpha": alpha_id, "beta": beta_id})
-
-            return {"alpha_id": alpha_id, "beta_id": beta_id, "status": "shadow"}
+            previous_status = beta.status
+            previous_pairs = beta.shadow_pairs
         finally:
             session.close()
 
-    def start_canary(self, beta_id: str, percentage: int = 5) -> dict[str, Any]:
-        """15.11: Canary Deployment."""
+        op = operation_id or uuid.uuid4().hex[:8]
+        effect = declared_effect(
+            "WRITE",
+            f"model:{beta_id}/status.{previous_status}->shadow@{op}",
+            f"بدءُ اختبارِ الظلِّ بينَ «{alpha_id}» و«{beta_id}»",
+        )
+
+        def _apply(_effect: Any) -> None:
+            session = self._Session()
+            try:
+                row = (
+                    session.query(ModelVersionModel)
+                    .filter(ModelVersionModel.version_id == beta_id)
+                    .first()
+                )
+                if row is None or row.status != previous_status:
+                    raise RuntimeError("انكسارٌ داخلَ المُطبِّق — تبدَّلَ ما بُنيَ عليه الأثر")
+                row.status = "shadow"
+                pairs = json.loads(row.shadow_pairs or "[]")
+                pairs.append(
+                    {
+                        "alpha": alpha_id,
+                        "beta": beta_id,
+                        "started": datetime.now(UTC).isoformat(),
+                    }
+                )
+                row.shadow_pairs = json.dumps(pairs)
+                session.commit()
+
+                audit = PersistentAuditStore()
+                audit.append("model.shadow_started", "system", {"alpha": alpha_id, "beta": beta_id})
+            finally:
+                session.close()
+
+        def _undo() -> None:
+            session = self._Session()
+            try:
+                row = (
+                    session.query(ModelVersionModel)
+                    .filter(ModelVersionModel.version_id == beta_id)
+                    .first()
+                )
+                if row is None:
+                    return
+                row.status = previous_status
+                row.shadow_pairs = previous_pairs
+                session.commit()
+            finally:
+                session.close()
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_START_SHADOW,
+            f"model:{beta_id}",
+            declared_effects=(effect,),
+            operation_key=operation_key(SHADOW_SCOPE, f"{beta_id}.{op}"),
+            compensators=(compensator(effect.signature, _undo, "إرجاعُ حالةِ النسخةِ وزوجِ الظلّ"),),
+            applier=_apply,
+        )
+        if guarded.is_replay:
+            return {
+                "alpha_id": alpha_id,
+                "beta_id": beta_id,
+                "status": "shadow",
+                "replayed": True,
+            }
+
+        return {"alpha_id": alpha_id, "beta_id": beta_id, "status": "shadow"}
+
+    def start_canary(
+        self, beta_id: str, percentage: int = 5, operation_id: str | None = None
+    ) -> dict[str, Any]:
+        """15.11: Canary Deployment.
+
+        عبورٌ سياديٌّ (G1 § 9.10 · W-728): `invoke_model` ممنوعٌ عندَ ≥4 لا ≥1
+        (Q-80ب)، والمعوِّضُ يُعيدُ الحالةَ والنسبةَ المئويّةَ إلى لقطتِهما.
+        """
         session = self._Session()
         try:
             beta = (
@@ -415,16 +652,77 @@ class ModelPromotionCycle:
             )
             if not beta:
                 return {"error": "model_not_found"}
-            beta.status = "canary"
-            beta.canary_percentage = percentage
-            session.commit()
-
-            return {"beta_id": beta_id, "status": "canary", "percentage": percentage}
+            previous_status = beta.status
+            previous_percentage = beta.canary_percentage
         finally:
             session.close()
 
-    def promote_beta_to_alpha(self, beta_id: str, approved_by: str = "") -> dict[str, Any]:
-        """15.12: ترقية Beta إلى Alpha."""
+        op = operation_id or uuid.uuid4().hex[:8]
+        effect = declared_effect(
+            "WRITE",
+            f"model:{beta_id}/status.{previous_status}->canary@{op}",
+            f"بدءُ نشرِ الكناري لـ«{beta_id}» بنسبةِ {percentage}%",
+        )
+
+        def _apply(_effect: Any) -> None:
+            session = self._Session()
+            try:
+                row = (
+                    session.query(ModelVersionModel)
+                    .filter(ModelVersionModel.version_id == beta_id)
+                    .first()
+                )
+                if row is None or row.status != previous_status:
+                    raise RuntimeError("انكسارٌ داخلَ المُطبِّق — تبدَّلَ ما بُنيَ عليه الأثر")
+                row.status = "canary"
+                row.canary_percentage = percentage
+                session.commit()
+            finally:
+                session.close()
+
+        def _undo() -> None:
+            session = self._Session()
+            try:
+                row = (
+                    session.query(ModelVersionModel)
+                    .filter(ModelVersionModel.version_id == beta_id)
+                    .first()
+                )
+                if row is None:
+                    return
+                row.status = previous_status
+                row.canary_percentage = previous_percentage
+                session.commit()
+            finally:
+                session.close()
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_START_CANARY,
+            f"model:{beta_id}",
+            declared_effects=(effect,),
+            operation_key=operation_key(CANARY_SCOPE, f"{beta_id}.{op}"),
+            compensators=(compensator(effect.signature, _undo, "إرجاعُ حالةِ النسخةِ ونسبةِ الكناري"),),
+            applier=_apply,
+        )
+        if guarded.is_replay:
+            return {
+                "beta_id": beta_id,
+                "status": "canary",
+                "percentage": percentage,
+                "replayed": True,
+            }
+
+        return {"beta_id": beta_id, "status": "canary", "percentage": percentage}
+
+    def promote_beta_to_alpha(
+        self, beta_id: str, approved_by: str = "", operation_id: str | None = None
+    ) -> dict[str, Any]:
+        """15.12: ترقية Beta إلى Alpha.
+
+        عبورٌ سياديٌّ بأثرين معلنينِ (G1 § 9.10 · W-728): البيتا تُرقَّى والألفا
+        النشطُ يُحالُ للتقاعد — والمُطبِّقُ يُستدعى لكلِّ أثرٍ على حدة، والمعوِّضُ
+        يُعيدُ اللقطتينِ معًا.
+        """
         session = self._Session()
         try:
             beta = (
@@ -434,40 +732,131 @@ class ModelPromotionCycle:
             )
             if not beta:
                 return {"error": "model_not_found"}
-
-            # إحالة Alpha القديم للتقاعد
+            beta_previous = {
+                "track": beta.track,
+                "status": beta.status,
+                "promoted_at": beta.promoted_at,
+            }
             old_alpha = (
                 session.query(ModelVersionModel)
                 .filter(ModelVersionModel.track == "alpha", ModelVersionModel.status == "active")
+                .order_by(ModelVersionModel.version_id)
                 .first()
             )
-            if old_alpha:
-                old_alpha.status = "retired"
+            old_alpha_id = old_alpha.version_id if old_alpha else None
+        finally:
+            session.close()
 
-            # ترقية Beta
-            beta.track = "alpha"
-            beta.status = "promoted"
-            beta.promoted_at = datetime.now(UTC)
-            session.commit()
-
-            audit = PersistentAuditStore()
-            audit.append(
-                "model.promoted",
-                approved_by or "system",
-                {
-                    "beta_id": beta_id,
-                    "promoted_to": "alpha",
-                },
+        op = operation_id or uuid.uuid4().hex[:8]
+        # أثرانِ معلنانِ تحتَ هدفِ الترقيةِ نفسِه (نمطُ retire_agent: الآثارُ
+        # مساراتٌ فرعيّةٌ تحتَ الهدفِ المأذونِ به — والاستيداعُ يُسمّي الألفا
+        # القديمَ في مسارِهِ صراحةً).
+        effects = [
+            declared_effect(
+                "WRITE",
+                f"model:{beta_id}/track.{beta_previous['track']}->alpha@{op}",
+                f"ترقيةُ النسخةِ «{beta_id}» إلى مسارِ ألفا",
             )
+        ]
+        if old_alpha_id is not None:
+            effects.append(
+                declared_effect(
+                    "WRITE",
+                    f"model:{beta_id}/retire.{old_alpha_id}@{op}",
+                    f"إحالةُ الألفا النشطِ «{old_alpha_id}» للتقاعد",
+                )
+            )
+        promoted_at = datetime.now(UTC)
 
+        def _apply(effect: Any) -> None:
+            session = self._Session()
+            try:
+                if effect is effects[0]:
+                    row = (
+                        session.query(ModelVersionModel)
+                        .filter(ModelVersionModel.version_id == beta_id)
+                        .first()
+                    )
+                    if (
+                        row is None
+                        or row.track != beta_previous["track"]
+                        or row.status != beta_previous["status"]
+                    ):
+                        raise RuntimeError("انكسارٌ داخلَ المُطبِّق — تبدَّلَ ما بُنيَ عليه الأثر")
+                    row.track = "alpha"
+                    row.status = "promoted"
+                    row.promoted_at = promoted_at
+                    session.commit()
+
+                    audit = PersistentAuditStore()
+                    audit.append(
+                        "model.promoted",
+                        approved_by or "system",
+                        {"beta_id": beta_id, "promoted_to": "alpha"},
+                    )
+                else:
+                    row = (
+                        session.query(ModelVersionModel)
+                        .filter(ModelVersionModel.version_id == old_alpha_id)
+                        .first()
+                    )
+                    if row is None or row.status != "active":
+                        raise RuntimeError("انكسارٌ داخلَ المُطبِّق — تبدَّلَ ما بُنيَ عليه الأثر")
+                    row.status = "retired"
+                    session.commit()
+            finally:
+                session.close()
+
+        def _undo() -> None:
+            session = self._Session()
+            try:
+                row = (
+                    session.query(ModelVersionModel)
+                    .filter(ModelVersionModel.version_id == beta_id)
+                    .first()
+                )
+                if row is not None:
+                    row.track = beta_previous["track"]
+                    row.status = beta_previous["status"]
+                    row.promoted_at = beta_previous["promoted_at"]
+                if old_alpha_id is not None:
+                    alpha_row = (
+                        session.query(ModelVersionModel)
+                        .filter(ModelVersionModel.version_id == old_alpha_id)
+                        .first()
+                    )
+                    if alpha_row is not None:
+                        alpha_row.status = "active"
+                session.commit()
+            finally:
+                session.close()
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_PROMOTE_BETA,
+            f"model:{beta_id}",
+            declared_effects=tuple(effects),
+            operation_key=operation_key(PROMOTE_SCOPE, f"{beta_id}.{op}"),
+            compensators=tuple(
+                compensator(e.signature, _undo, "إرجاعُ الترقيةِ وإعادةُ تنشيطِ الألفا")
+                for e in effects
+            ),
+            applier=_apply,
+        )
+        if guarded.is_replay:
             return {
                 "beta_id": beta_id,
                 "promoted_to": "alpha",
-                "promoted_at": beta.promoted_at.isoformat(),
+                "promoted_at": promoted_at.isoformat(),
                 "approved_by": approved_by,
+                "replayed": True,
             }
-        finally:
-            session.close()
+
+        return {
+            "beta_id": beta_id,
+            "promoted_to": "alpha",
+            "promoted_at": promoted_at.isoformat(),
+            "approved_by": approved_by,
+        }
 
     def list_versions(self) -> list[dict[str, Any]]:
         """قائمة كل إصدارات النماذج."""
