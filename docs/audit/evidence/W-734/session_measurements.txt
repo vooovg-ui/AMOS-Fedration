@@ -1,0 +1,10 @@
+# قياساتُ جلسةِ W-734 خامًا (2026-10-29)
+$ sha256sum directive29_verbatim.txt
+280f44a7102bdcc60d698894887c80364b81d55a51cbea8aba1e16c3a5496811  directive29_verbatim.txt
+$ sha256sum (سطرُ BLOCKING_REMARKS: السطرُ 947 من حكمِ المقعدِ)
+b06197b428c7f2f1e324686377216ae567ca607eced61d2760a65e82870ce161
+$ python tools/governance/check_work_governance.py --self-check | grep -v POST_MERGE | tail -1
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+$ python tools/governance/check_work_governance.py --today 2026-11-02 | grep -v POST_MERGE | tail -1
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
