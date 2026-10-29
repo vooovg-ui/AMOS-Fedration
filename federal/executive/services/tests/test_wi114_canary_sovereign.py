@@ -27,8 +27,8 @@ from amos_federation.services.executive_core.sovereignty_bridge import (
 )
 from amos_federation.services.governance import canary
 from amos_federation.services.governance.main import app
-
 from tests.conftest import king_approval
+
 from .per_test_auth import PerTestAuthHeaders
 
 if TYPE_CHECKING:

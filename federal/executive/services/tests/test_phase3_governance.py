@@ -5,6 +5,7 @@ AMOS-Federation Phase 3 — Governance Foundation Tests
 """
 
 import pytest
+
 from tests.conftest import king_approval
 
 

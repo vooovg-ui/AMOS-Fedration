@@ -17,9 +17,9 @@ from amos_federation.services.governance.treasury import (
     Treasury,
     run_economic_cycle,
 )
+from tests.conftest import king_approval
 
 from .per_test_auth import PerTestAuthHeaders
-from tests.conftest import king_approval
 
 AUTH_HEADERS = PerTestAuthHeaders(
     "tester",

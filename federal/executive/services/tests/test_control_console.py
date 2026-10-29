@@ -11,9 +11,9 @@ from fastapi.testclient import TestClient
 
 from amos_federation.services.agent_runtime.population import get_population_registry
 from amos_federation.services.control_console.main import app
+from tests.conftest import king_approval
 
 from .per_test_auth import PerTestAuthHeaders
-from tests.conftest import king_approval
 
 AUTH_HEADERS = PerTestAuthHeaders(
     "tester",

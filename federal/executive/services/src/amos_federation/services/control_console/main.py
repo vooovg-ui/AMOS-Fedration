@@ -214,6 +214,8 @@ async def reset_kill_switch(
     from amos_federation.services.executive_core.sovereignty_bridge import KingApproval
     from amos_federation.services.governance.canary import (
         ACTION_LOWER_KILL_SWITCH,
+    )
+    from amos_federation.services.governance.canary import (
         reset_kill_switch as _reset,
     )
 

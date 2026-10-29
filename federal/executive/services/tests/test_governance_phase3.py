@@ -22,9 +22,9 @@ from amos_federation.services.governance.policy_engine import (
     RegoRule,
     get_policy_engine,
 )
+from tests.conftest import king_approval
 
 from .per_test_auth import PerTestAuthHeaders
-from tests.conftest import king_approval
 
 AUTH_HEADERS = PerTestAuthHeaders(
     "tester",

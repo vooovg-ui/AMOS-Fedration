@@ -1,5 +1,5 @@
-# الحزمةُ الكاملةُ بعدَ شِفرةِ السطحينِ 2 و4 (W-740) — الأمر:
-# cd federal/executive/services && ../../.venv/bin/python -m pytest tests/ -q
+# الحزمةُ الكاملةُ بعدَ شِفرةِ السطحينِ 2 و4 (W-740) — القياسُ النهائيُّ بعدَ إصلاحِ تنسيقِ ruff (تغييراتُ تنسيقٍ فقط)
+# الأمر: cd federal/executive/services && /home/user/workspace/amos/.venv/bin/python -m pytest tests/ -q
 /home/user/workspace/amos/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
 The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
 
@@ -128,5 +128,13 @@ tests/test_wi115_nesting_compensator_frame.py .                          [ 99%]
 tests/test_wi115_reversed_replay.py ..                                   [ 99%]
 tests/test_wi117_king_guard_routes.py ..........                         [100%]
 
+=============================== warnings summary ===============================
+../../../.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /home/user/workspace/amos/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
 
-=========== 1802 passed, 53 skipped, 1 warning in 484.84s (0:08:04) ============
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========== 1802 passed, 53 skipped, 1 warning in 823.19s (0:13:43) ============
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.85s. Error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused

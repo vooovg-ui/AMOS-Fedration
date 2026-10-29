@@ -113,6 +113,18 @@ def _headers() -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
 
+def _king_headers() -> dict[str, str]:
+    """ترويسةُ ملكٍ — كتابةُ الترقيةِ محروسةٌ بـ`require_king` منذَ W-689.
+
+    المسبارُ يقيسُ بقاءَ السطحِ بعدَ إعادةِ التشغيلِ لا تفويضَه، فالرمزُ
+    الملكيُّ هنا أداةُ قياسٍ لا صلاحيةٌ تُمنحُ: الحارسُ على المسارِ باقٍ.
+    """
+    from amos_federation.common.auth import ROLE_KING, create_access_token
+
+    token = create_access_token("restart_probe_king", ["*"], role=ROLE_KING)
+    return {"Authorization": f"Bearer {token}"}
+
+
 def _sample_experiences() -> list[dict[str, Any]]:
     """خبرتانِ تكفيانِ لإنشاءِ مجموعةِ بياناتٍ صالحة."""
     return [
@@ -287,7 +299,7 @@ def _read_kill_switch(key: str) -> dict[str, Any]:
 def _write_promotion() -> dict[str, Any]:
     client, _ = _client("governance")
     resp = client.post(
-        "/v1/promotions", headers=_headers(), json={"model_id": "probe-model"}
+        "/v1/promotions", headers=_king_headers(), json={"model_id": "probe-model"}
     )
     resp.raise_for_status()
     return {"key": resp.json()["promotion_id"]}
@@ -320,7 +332,7 @@ def _read_canary(key: str) -> dict[str, Any]:
 def _write_audit() -> dict[str, Any]:
     """شاهدُ الضبطِ الأوّلُ: سجلُّ التدقيقِ متسلسلُ التجزئةِ في قاعدةِ البيانات."""
     client, _ = _client("governance")
-    client.post("/v1/promotions", headers=_headers(), json={"model_id": "probe-audit"})
+    client.post("/v1/promotions", headers=_king_headers(), json={"model_id": "probe-audit"})
     resp = client.get("/v1/audit", headers=_headers())
     resp.raise_for_status()
     return {"key": "audit", "extra": {"entries_before": len(resp.json() or [])}}

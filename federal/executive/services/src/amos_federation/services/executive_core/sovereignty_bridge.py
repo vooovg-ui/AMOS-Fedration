@@ -137,7 +137,7 @@ class KingApproval:
     issued_for: str  # الفعلُ الذي صُدِرَ الدليلُ لأجلِه
 
     @classmethod
-    def from_verified_claims(cls, token_data: dict[str, Any], action: str) -> "KingApproval":
+    def from_verified_claims(cls, token_data: dict[str, Any], action: str) -> KingApproval:
         """ابنِ الدليلَ من مطالباتِ رمزٍ تحقَّقَ منها `require_king` — لا من غيرِه.
 
         إعادةُ فحصِ الدورِ دفاعٌ ثانٍ صريحٌ: الدالّةُ ترفعُ ما ليسَ دورُهُ ملكًا
@@ -176,7 +176,7 @@ class SovereignAuthorizer(Protocol):
         metadata: dict[str, Any] | None = None,
         judicial_action: Any | None = None,
         royal_decree: Any | None = None,
-        human_approval: "KingApproval | None" = None,
+        human_approval: KingApproval | None = None,
     ) -> GuardedResult: ...
 
     def review_only(
@@ -184,7 +184,7 @@ class SovereignAuthorizer(Protocol):
         action: str,
         target: str,
         metadata: dict[str, Any] | None = None,
-        human_approval: "KingApproval | None" = None,
+        human_approval: KingApproval | None = None,
     ) -> AuthorityEvidence: ...
 
 
@@ -342,7 +342,7 @@ class ConstitutionalAuthorizer:
         action: str,
         target: str,
         metadata: dict[str, Any] | None,
-        human_approval: "KingApproval | None" = None,
+        human_approval: KingApproval | None = None,
     ):
         self._ensure_core_importable()
         from core.constitutional_engine.model import ActionRequest, Branch
@@ -427,7 +427,7 @@ class ConstitutionalAuthorizer:
         metadata: dict[str, Any] | None = None,
         judicial_action: Any | None = None,
         royal_decree: Any | None = None,
-        human_approval: "KingApproval | None" = None,
+        human_approval: KingApproval | None = None,
     ) -> GuardedResult:
         """نفِّذْ عبر حدِّ التنفيذِ السياديّ — أو لا تنفُذ.
 
@@ -500,7 +500,7 @@ class ConstitutionalAuthorizer:
         target: str,
         declared_effects: tuple[Any, ...],
         metadata: dict[str, Any] | None = None,
-        human_approval: "KingApproval | None" = None,
+        human_approval: KingApproval | None = None,
     ) -> Any:
         """اطلب إذن إنفاذ موقّعًا بدل أن تُنفّذ بنفسك.
 
@@ -537,7 +537,7 @@ class ConstitutionalAuthorizer:
         action: str,
         target: str,
         metadata: dict[str, Any] | None = None,
-        human_approval: "KingApproval | None" = None,
+        human_approval: KingApproval | None = None,
     ) -> AuthorityEvidence:
         """حكم دستوري بلا تنفيذ — يُستخدَم لتقييم مهمّة قبل قبولها."""
         verdict = self._gateway.review(self._request(action, target, metadata, human_approval))

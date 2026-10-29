@@ -21,9 +21,9 @@ from amos_federation.services.governance.federation import (
     PromotionSystem,
     SupremeOversight,
 )
+from tests.conftest import king_approval
 
 from .per_test_auth import PerTestAuthHeaders
-from tests.conftest import king_approval
 
 AUTH_HEADERS = PerTestAuthHeaders(
     "tester",
