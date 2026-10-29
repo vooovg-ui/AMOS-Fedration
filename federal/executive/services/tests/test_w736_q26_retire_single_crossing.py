@@ -63,7 +63,13 @@ class LateLevelAuthorizer(ConstitutionalAuthorizer):
         super().__init__(**kwargs)
         self.level, self.after, self.n = level, after, 0
 
-    def _request(self, action: str, target: str, metadata: dict[str, Any] | None = None, human_approval: Any = None) -> Any:
+    def _request(
+        self,
+        action: str,
+        target: str,
+        metadata: dict[str, Any] | None = None,
+        human_approval: Any = None,
+    ) -> Any:
         request = super()._request(action, target, metadata, human_approval)
         self.n += 1
         level = self.level if self.n > self.after else 0

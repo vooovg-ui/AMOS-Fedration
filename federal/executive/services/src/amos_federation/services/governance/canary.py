@@ -501,9 +501,7 @@ def check_gate(
             target,
             declared_effects=(effect,),
             applier=_apply,
-            operation_key=operation_key(
-                PROMOTION_GATE_SCOPE, f"{promotion_id}:{gate_name}:{now}"
-            ),
+            operation_key=operation_key(PROMOTION_GATE_SCOPE, f"{promotion_id}:{gate_name}:{now}"),
             compensators=(
                 compensator(
                     effect.signature,
