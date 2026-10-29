@@ -19,12 +19,13 @@
 |---|---:|
 | الأقاليم المفحوصة | 12 |
 | الأقاليم بحالة PROVEN | 0 |
-| إجمالي المخالفات | 61 |
-| ملفات بلا ترويسة هوية (المادة 009) | 0 |
+| إجمالي المخالفات | 62 |
+| ملفات بلا ترويسة هوية (المادة 009) | 1 |
 | ملفات تعذّرت قراءتها (لم تُقَس) | 0 |
 | ملفات تعذّر تحليلها نحويًا (لم تُفحَص نحويًا) | 0 |
 | منها CRITICAL | 2 |
 | منها HIGH | 59 |
+| منها MEDIUM | 1 |
 
 ### توزيع المخالفات حسب النوع
 
@@ -32,6 +33,7 @@
 |---|---:|---|
 | IN_MEMORY_STORE | 59 | مخزن ذاكرة يُستخدم بديلًا عن تخزين دائم |
 | HARDCODED_TRUTH | 2 | قيمة ثابتة تُقدَّم كحقيقة تشغيلية بدل قاعدة البيانات |
+| SILENT_FALLBACK | 1 | استثناء يُبتلع بلا تسجيل ولا رفع |
 
 ---
 
@@ -69,7 +71,7 @@
 | `tools/` | 43 | 57 | 2 | 18587 | 12 | 0 | unspecified=12 |
 | `interfaces/` | 14 | 2 | 0 | 38 | 4 | 0 | unspecified=4 |
 | `runtime/` | 20 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
-| `docs/` | 609 | 40 | 0 | 4271 | 7 | 0 | unspecified=7 |
+| `docs/` | 613 | 41 | 0 | 4472 | 7 | 1 | unspecified=7 |
 | `ops/` | 38 | 2 | 0 | 38 | 12 | 0 | unspecified=12 |
 | `tests/` | 14 | 116 | 0 | 30308 | 5 | 0 | unspecified=5 |
 
@@ -147,6 +149,12 @@
 | `federal/executive/services/tests/test_training.py:85` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
 | `federal/executive/services/tests/test_training.py:97` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
 | `federal/executive/services/tests/test_training.py:109` | IN_MEMORY_STORE | HIGH | مخزن ذاكرة `InMemoryDataPipeline` يُستخدم كمصدر حقيقة |
+
+### MEDIUM (1)
+
+| الموقع | النوع | الخطورة | التفصيل |
+|---|---|---|---|
+| `docs/audit/evidence/W-741/raw/g1_probe.py:248` | SILENT_FALLBACK | MEDIUM | استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة |
 
 ### إعلاناتُ «ليست سرًّا» الصريحة (7)
 

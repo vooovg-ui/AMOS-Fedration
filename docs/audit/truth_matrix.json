@@ -391,10 +391,10 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 609,
-      "py_files": 40,
+      "md_files": 613,
+      "py_files": 41,
       "yaml_files": 0,
-      "code_lines": 4271,
+      "code_lines": 4472,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -407,7 +407,7 @@
       "observed_hits": 2,
       "api_routes": 0,
       "test_refs": 207,
-      "identity_violations": 0,
+      "identity_violations": 1,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
       "deployment_evidence": "ABSENT",
@@ -430,7 +430,7 @@
         "TEST_NAME_MENTIONS": 207
       },
       "maturity": "IMPLEMENTED",
-      "findings_count": 0
+      "findings_count": 1
     },
     "ops": {
       "domain": "ops",
@@ -526,6 +526,13 @@
       "line": 15,
       "detail": "`AGENTS` بيانات ثابتة بديلة عن قاعدة البيانات",
       "severity": "CRITICAL"
+    },
+    {
+      "kind": "SILENT_FALLBACK",
+      "path": "docs/audit/evidence/W-741/raw/g1_probe.py",
+      "line": 248,
+      "detail": "استثناء يُبتلع بلا تسجيل ولا رفع — يخفي فشل مصدر الحقيقة",
+      "severity": "MEDIUM"
     },
     {
       "kind": "IN_MEMORY_STORE",
@@ -988,16 +995,18 @@
   "summary": {
     "domains_total": 12,
     "domains_proven": 0,
-    "findings_total": 61,
-    "identity_violations": 0,
+    "findings_total": 62,
+    "identity_violations": 1,
     "unreadable_files": 0,
     "unparsable_files": 0,
     "by_severity": {
       "CRITICAL": 2,
+      "MEDIUM": 1,
       "HIGH": 59
     },
     "by_kind": {
       "HARDCODED_TRUTH": 2,
+      "SILENT_FALLBACK": 1,
       "IN_MEMORY_STORE": 59
     },
     "evidence_state": "READ"
