@@ -1,0 +1,19 @@
+# قياساتُ جلسةِ الإطلاقِ (خامٌّ · قيدُ W-732 — الجولةُ الواحدةُ D28: WI-120 + WI-116)
+
+$ git -C /home/user/workspace/amos rev-parse origin/main
+1babe7735b50bc1948682399db2e84b8bb9ff996
+
+$ git -C /home/user/workspace/amos rev-parse HEAD (رأسُ فرعِ الجولةِ بعدَ انتقالَي W-730/W-731)
+4ac0ab3fb859b853048e1b5c403a975db354567b
+
+$ .venv/bin/python tools/governance/check_work_governance.py --self-check | tail -1
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+$ .venv/bin/python tools/governance/truth_audit.py --ratchet | tail -1
+[RATCHET] ثابت عند 61 مخالفة.
+
+$ .venv/bin/python tools/governance/state_document_drift.py --root . | tail -2 (قبلَ تصحيحِ الكتيّبِ في هذا القيدِ)
+  ✗ STATE_DOC_BEHIND: «docs/PROJECT_HANDBOOK.md» أحدثُ ما تذكرُه «W-729» (السطرُ 12) وأحدثُ قيدٍ في § 8 «W-731» — متأخِّرةٌ **2 قيدًا**، فمن يبدأُ منها يقرأُ ماضيًا حالةً.
+  ✗ STATE_DOC_FIELD_BEHIND: «docs/PROJECT_HANDBOOK.md:12» حقلُها المُعلَنُ «تاريخ آخر تعديل» يقولُ «W-729» وأحدثُ قيدٍ في § 8 «W-731» — **2 قيدًا** تأخُّرًا في موضعِ الدعوى نفسِه، ولو ذُكِرَ الأحدثُ في مكانٍ آخرَ من الوثيقةِ.
+
+# عقدةُ الجولةِ تُعرَّفُ بالأمرِ 1 منَ الإحاطاتِ (آخرُ التزامٍ يعدلُ council_briefs/) — تُقاسُ عندَ كلِّ مقعدٍ من استنساخِه
