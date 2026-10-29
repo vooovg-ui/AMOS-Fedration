@@ -572,7 +572,7 @@
   "module_stores": [
     {
       "path": "federal/executive/services/src/amos_federation/services/governance/canary.py",
-      "line": 537,
+      "line": 535,
       "variable": "_canary_deployments",
       "mutations": 1,
       "declared_as": "WIRED_VOLATILE"
