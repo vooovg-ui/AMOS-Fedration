@@ -1,0 +1,7 @@
+create_batch/enroll_batch	spawn_population	DENY SovereigntyViolation R-001-1 · DENY — 1 مخالفة دستورية:
+employ_batch	dispatch_agent	PERMIT
+graduate_batch	release_agent	PERMIT
+retire_agent	contain_agent	PERMIT
+take_exam	record_curriculum_step	PERMIT
+approve_output	activate_agent	PERMIT
+submit_output	create_task	PERMIT
