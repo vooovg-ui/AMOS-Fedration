@@ -1,0 +1,37 @@
+== جردُ الكتاباتِ الإنتاجيّة ==
+  جذرُ القياس            : .
+  مواضعُ كتابةٍ (كلُّها)   : 243
+  عمليّاتٌ عامّةٌ مُغيِّرة   : 182
+  منها تعبرُ الحدَّ        : 76
+  مساراتٌ قديمةٌ مُغلَقة    : 7
+  **لا تعبرُ الحدَّ**       : 104
+  التوزيعُ على المناطق (عامّة / سياديّة / متجاوزة):
+    core                1 /   0 /    0
+    service_common     21 /   0 /   21
+    services          159 /  76 /   82
+    tools               1 /   0 /    1
+  التوزيعُ على الملفّات:
+      16  federal/executive/services/src/amos_federation/services/national_economy/service.py
+      13  federal/executive/services/src/amos_federation/common/persistent.py
+      10  federal/executive/services/src/amos_federation/services/federal_state/service.py
+       9  federal/executive/services/src/amos_federation/services/governance/treasury.py
+       9  federal/executive/services/src/amos_federation/services/royal/main.py
+       7  federal/executive/services/src/amos_federation/services/governance/learning_cycle.py
+       7  federal/executive/services/src/amos_federation/services/state_treasury/service.py
+       6  federal/executive/services/src/amos_federation/services/federal_judiciary/service.py
+       5  federal/executive/services/src/amos_federation/services/governance/security.py
+       4  federal/executive/services/src/amos_federation/common/database.py
+       2  federal/executive/services/src/amos_federation/common/durable_event_bus.py
+       2  federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py
+       2  federal/executive/services/src/amos_federation/services/governance/expansion.py
+       2  federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py
+       2  federal/executive/services/src/amos_federation/services/training/persistent_registry.py
+       1  federal/executive/services/src/amos_federation/common/event_bus.py
+       1  federal/executive/services/src/amos_federation/common/events.py
+       1  federal/executive/services/src/amos_federation/services/api_gateway/store.py
+       1  federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py
+       1  federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py
+       1  federal/executive/services/src/amos_federation/services/governance/system_life.py
+       1  federal/executive/services/src/amos_federation/services/government_services/service.py
+       1  tools/migrations/r4_unify_agent_identity.py
+  التفصيلُ محفوظٌ في: docs/audit/evidence/W-724/inventory_after_w724.json

@@ -285,6 +285,22 @@
    "kind": "work_drift",
    "reason": "حرقُ G1 دفعةُ state_runtime وsystem_life (W-723 · WI-120 · بقرارِ المالكِ في التوجيهِ 27 · D28): أحدَ عشرَ سطحًا عبرتِ الحدَّ — state_runtime: register_state (مرسومٌ ملكيٌّ · Q-13) وsuspend_state وreactivate_state (سجلُّ إيقافٍ محكومٍ · Q-14) وassign_agent وsend_message · system_life: bootstrap وhealth_check وself_heal (بشرطِه) وgraceful_shutdown وcreate_backup وlaunch_checklist · restore_backup دَينٌ (D28 (أ)) — الدَّينُ 121 ← 110 · السياديّةُ 59 ← 70 · مواضعُ الكتابةِ 235 ← 240 · الحمولةُ في evidence/W-723/inventory_after_w723.json",
    "recorded_at": "2026-10-28T20:40:36+00:00"
+  },
+  {
+   "debt": 104,
+   "sovereign": 76,
+   "closed_legacy": 7,
+   "write_sites_total": 243,
+   "git_head": "62123614",
+   "waves": {
+    "W1": 11,
+    "W2": 34,
+    "W3": 59
+   },
+   "decision": "W-724",
+   "kind": "work_drift",
+   "reason": "W-724: G1 expansion — 6 surfaces guarded (real burn 6 · correction 0) · D-4 110→104",
+   "recorded_at": "2026-10-29T04:59:18+00:00"
   }
  ]
 }

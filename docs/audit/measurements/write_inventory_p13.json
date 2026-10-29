@@ -1,7 +1,7 @@
 {
  "$comment": "الهدف: جردُ مواضعِ الكتابةِ في المستودعِ وتصنيفُ ما عبرَ الحدَّ السّياديَّ وما لم يعبُر— مُخرَجُ tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039).",
  "summary": {
-  "write_sites_total": 240,
+  "write_sites_total": 243,
   "by_area": {
    "core": {
     "public": 1,
@@ -15,8 +15,8 @@
    },
    "services": {
     "public": 159,
-    "sovereign": 70,
-    "non_sovereign": 88
+    "sovereign": 76,
+    "non_sovereign": 82
    },
    "tools": {
     "public": 1,
@@ -25,16 +25,15 @@
    }
   },
   "public_write_operations": 182,
-  "sovereign_write_operations": 70,
+  "sovereign_write_operations": 76,
   "closed_legacy_paths": 7,
-  "non_sovereign_write_operations": 110,
+  "non_sovereign_write_operations": 104,
   "non_sovereign_by_file": {
    "federal/executive/services/src/amos_federation/services/national_economy/service.py": 16,
    "federal/executive/services/src/amos_federation/common/persistent.py": 13,
    "federal/executive/services/src/amos_federation/services/federal_state/service.py": 10,
    "federal/executive/services/src/amos_federation/services/governance/treasury.py": 9,
    "federal/executive/services/src/amos_federation/services/royal/main.py": 9,
-   "federal/executive/services/src/amos_federation/services/governance/expansion.py": 8,
    "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py": 7,
    "federal/executive/services/src/amos_federation/services/state_treasury/service.py": 7,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py": 6,
@@ -42,6 +41,7 @@
    "federal/executive/services/src/amos_federation/common/database.py": 4,
    "federal/executive/services/src/amos_federation/common/durable_event_bus.py": 2,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py": 2,
+   "federal/executive/services/src/amos_federation/services/governance/expansion.py": 2,
    "federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py": 2,
    "federal/executive/services/src/amos_federation/services/training/persistent_registry.py": 2,
    "federal/executive/services/src/amos_federation/common/event_bus.py": 1,
@@ -1115,12 +1115,12 @@
    "function": "employ_batch",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_set_batch_column"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
@@ -1141,7 +1141,21 @@
    "function": "graduate_batch",
    "ordinal": 0,
    "public": true,
+   "writes": [],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_set_batch_column"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
+   "owner": "RetirementSystem",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
    "writes": [
+    "add()",
     "commit()"
    ],
    "guarded": false,
@@ -1154,6 +1168,24 @@
    "function": "retire_agent",
    "ordinal": 0,
    "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_delete_rows",
+    "_set_batch_column",
+    "_set_output"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
+   "owner": "SpecializationProgram",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
    "writes": [
     "add()",
     "commit()"
@@ -1172,6 +1204,22 @@
     "add()",
     "commit()"
    ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_delete_rows"
+   ]
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
+   "owner": "University",
+   "function": "_apply",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
    "guarded": false,
    "closed_legacy": false,
    "writes_via": []
@@ -1182,12 +1230,12 @@
    "function": "approve_output",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_set_output"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
@@ -1199,9 +1247,11 @@
     "add()",
     "commit()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_delete_rows"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/governance/factories.py",

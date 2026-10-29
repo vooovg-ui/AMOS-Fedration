@@ -1,0 +1,9 @@
+expansion.py	PopulationExpansion.create_batch	guarded=False
+expansion.py	PopulationExpansion.employ_batch	guarded=True
+expansion.py	PopulationExpansion.enroll_batch	guarded=False
+expansion.py	PopulationExpansion.graduate_batch	guarded=True
+expansion.py	RetirementSystem.retire_agent	guarded=True
+expansion.py	SpecializationProgram.take_exam	guarded=True
+expansion.py	University.approve_output	guarded=True
+expansion.py	University.submit_output	guarded=True
+system_life.py	SystemLifecycle.graceful_shutdown	guarded=True
