@@ -1,0 +1,56 @@
+# الهدف: أوامرُ قياسِ تصميمِ M1 ومخرجُها خامًا (W-739 · WI-122) — HEAD 4e18ffa6cfd24da7a8d0c93c33d7700ce35b3c90
+
+$ rg -n 'def (execute_decision_disbursement|disburse|reverse_transaction|_existing_idempotent)\b|self\.disburse\(' federal/executive/services/src/amos_federation/services/state_treasury/service.py
+835:    def _existing_idempotent(
+1321:    def disburse(
+1460:    def execute_decision_disbursement(
+1514:        result = self.disburse(
+1529:    def reverse_transaction(
+EXIT 0
+
+$ rg -n 'def enforce_ruling_via_treasury|treasury\.disburse\(' federal/executive/services/src/amos_federation/services/federal_judiciary/service.py
+1012:    def enforce_ruling_via_treasury(
+1046:            transaction = treasury.disburse(
+EXIT 0
+
+$ rg -n 'treasury\.disburse\(|_execute_via_core\(' federal/executive/services/src/amos_federation/services/national_economy/service.py federal/executive/services/src/amos_federation/services/federal_state/service.py
+federal/executive/services/src/amos_federation/services/federal_state/service.py:1099:        result = treasury.disburse(
+federal/executive/services/src/amos_federation/services/national_economy/service.py:619:    def _execute_via_core(
+federal/executive/services/src/amos_federation/services/national_economy/service.py:1047:        task, operation_record = self._execute_via_core(
+federal/executive/services/src/amos_federation/services/national_economy/service.py:1442:        transaction = treasury.disburse(
+federal/executive/services/src/amos_federation/services/national_economy/service.py:1759:        transaction = treasury.disburse(
+federal/executive/services/src/amos_federation/services/national_economy/service.py:2257:        task, operation_record = self._execute_via_core(
+EXIT 0
+
+$ rg -n 'existing.status == "reversed"' federal/executive/services/src/amos_federation/services/state_treasury/service.py
+854:        if existing is not None and existing.status == "reversed":
+EXIT 0
+
+$ rg -n -A5 '^NESTED_SOVEREIGN_EXEMPTIONS' core/sovereignty/enforcement_boundary.py
+128:NESTED_SOVEREIGN_EXEMPTIONS: Final[frozenset[tuple[str, str]]] = frozenset(
+129-    {
+130-        ("gov.case.open", "task.submit"),
+131-        ("gov.case.open", "task.cancel"),
+132-    }
+133-)
+EXIT 0
+
+$ rg -n 'raise NestedSovereignCallError' core/sovereignty/enforcement_boundary.py
+378:            raise NestedSovereignCallError(
+EXIT 0
+
+$ rg -c 'guard_declared' federal/executive/services/src/amos_federation/services/national_economy/service.py federal/executive/services/src/amos_federation/services/federal_state/service.py federal/executive/services/src/amos_federation/services/state_treasury/service.py
+EXIT 1
+
+$ rg -n 'resolve_money_delegation\(' federal/executive/services/src/amos_federation/services/national_economy/service.py federal/executive/services/src/amos_federation/services/state_treasury/service.py
+federal/executive/services/src/amos_federation/services/national_economy/service.py:1296:        resolve_money_delegation(
+federal/executive/services/src/amos_federation/services/national_economy/service.py:1720:        resolve_money_delegation("economy.transfer.execute", entrypoint="execute_transfer")
+federal/executive/services/src/amos_federation/services/state_treasury/service.py:873:        resolve_money_delegation("treasury.establish", entrypoint="establish_treasury")
+federal/executive/services/src/amos_federation/services/state_treasury/service.py:932:        resolve_money_delegation("treasury.account.open", entrypoint="open_account")
+federal/executive/services/src/amos_federation/services/state_treasury/service.py:1018:        resolve_money_delegation("treasury.budget.create", entrypoint="create_budget")
+federal/executive/services/src/amos_federation/services/state_treasury/service.py:1483:        resolve_money_delegation(
+EXIT 0
+
+$ python3 -c "import json;d=json.load(open('docs/audit/measurements/write_inventory_p13.json'));print(d['summary']['sovereign_write_operations'], d['summary']['write_sites_total'])"
+85 260
+EXIT 0

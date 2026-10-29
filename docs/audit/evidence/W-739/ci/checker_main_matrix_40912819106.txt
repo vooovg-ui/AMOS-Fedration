@@ -1,0 +1,8 @@
+$ .venv/bin/python tools/governance/ci_verdict_readability.py --from-json docs/audit/evidence/W-739/ci/main_matrix_40912819106_jobs.json --require-readable --expect-sha 62f8a8970ffd964fe960189a75354c3adf16f63e
+[CI VERDICT] مقروئيّةُ الحكمِ تُقاسُ بالخطواتِ لا بالنتيجة
+  تشغيلٌ 40912819106: READABLE · نُفِّذَت 1/1 وظيفةً (لم يُسنَدْ عاملٌ لـ0 · مُتخطًّى 0 · مشكوكٌ 0)
+[CI VERDICT] ✓ كلُّ التشغيلاتِ (1) نُفِّذَت خطواتُها — فـ`conclusion` يُقرأُ حكمًا.
+
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+[CI VERDICT] ✓ كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — فالدمجُ جائزٌ إجرائيًّا.
+EXIT=0
