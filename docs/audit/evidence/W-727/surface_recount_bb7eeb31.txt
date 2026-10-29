@@ -1,0 +1,11 @@
+أسطحُ الحوكمةِ العامّةُ المفتوحةُ: 24
+  expansion.py: 2 — create_batch · enroll_batch
+  learning_cycle.py: 7 — collect_experiences · complete_training · evaluate_model · promote_beta_to_alpha · start_canary · start_shadow · start_training
+  security.py: 5 — check_rate · create_session · issue_certificate · store_secret · verify_certificate
+  system_life.py: 1 — restore_backup
+  treasury.py: 9 — allocate_budget · charge_model_invoke · charge_retraining · charge_storage · generate_financial_report · process_real_costs · reward_quality_report · reward_successful_training · reward_task_completion
+المستثنى: treasury ⇒ M1 = 9 · دَينٌ (store_secret/restore_backup) = 2
+المتبقّي لـ G1 = 13
+  دفعة state_runtime+system_life: 0
+  دفعة expansion: 2
+  دفعة learning_cycle+security: 11

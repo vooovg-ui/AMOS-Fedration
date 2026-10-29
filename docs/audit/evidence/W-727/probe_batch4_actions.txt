@@ -1,0 +1,12 @@
+السطح	الفعل	تنفيذيّ؟	محجوزٌ بشريًّا؟	أدنى مستوى منع	القرارُ بفاعلٍ تنفيذيّ
+collect_experiences	record_curriculum_step	True	False	>=1	PERMIT
+start_training	train_model	False	True	>=1	DENY SovereigntyViolation · DENY — 1 مخالفة دستورية:
+complete_training	release_agent	True	False	لا منع	PERMIT
+evaluate_model	train_model	False	True	>=1	DENY SovereigntyViolation · DENY — 1 مخالفة دستورية:
+start_shadow	invoke_model	False	False	>=4	PERMIT
+start_canary	invoke_model	False	False	>=4	PERMIT
+promote_beta_to_alpha	activate_agent	True	False	>=4	PERMIT
+create_session	execute_task	True	False	>=4	PERMIT
+check_rate	log_isolated_action	True	False	لا منع	PERMIT
+issue_certificate	issue_certificate	True	False	>=3	PERMIT
+verify_certificate	log_isolated_action	True	False	لا منع	PERMIT
