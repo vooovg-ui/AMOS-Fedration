@@ -1219,14 +1219,18 @@ class RetirementSystem(_GovernedSurface):
     def retire_agent(
         self, agent_id: str, reason: str = "health_failure", *, operation_id: str | None = None
     ) -> dict[str, Any]:
-        """تقاعد وكيل — يربط بـ agents/lifecycle/retirement.md و death.md · عبرَ الحدِّ (W-724).
+        """تقاعد وكيل — يربط بـ agents/lifecycle/retirement.md و death.md · عبرَ الحدِّ (W-724 · W-736).
 
-        G1 § 9.9.5 (Q-26): قراءةُ اللقطةِ والحالةِ السابقةِ (كانونًا ومرآةً) قبلَ الحدّ، ثمَّ
-        التحقّقُ المسبقُ (`contain_agent`)، ثمَّ `update_state(..., "retired")` بعبورَيه، ثمَّ
-        عبورُ سجلِّ التقاعد. ومعوِّضُ السجلِّ يحذفُه **ويُعيدُ الوكيلَ إلى حالتِه السابقة**.
+        G1 § 9.9.8 (Q-26 · DISC-141 · يُصوِّبُ § 9.9.5): **عبورٌ واحدٌ يعلنُ كلَّ آثارِ التقاعد** —
+        انتقالُ الكانونِ ثمَّ صفُّ المرآةِ ثمَّ سجلُّ التقاعد — بنوًى خاصّةٍ لا تعبرُ بنفسِها (نمطُ Q-9
+        «الخارجيُّ يعلنُ كلَّ الآثار»)، ولكلِّ أثرٍ معوِّضُه. فرفضٌ متأخِّرٌ أو فشلُ أيِّ أثرٍ بعدَ سابقِه
+        يُعيدُ الوكيلَ إلى حالتِه السابقةِ كانونًا ومرآةً ولا يتركُ سجلًّا. لا `update_state` ولا
+        `set_lifecycle_state` العلنيّانِ هنا (كانا عبورَينِ خارجَ عبورِ السجلّ — الثغرةُ المقيسة).
         """
         from amos_federation.services.agent_runtime.population import (
+            ACTION_UPDATE_POPULATION_STATE,
             _restore_population_snapshot_core,
+            _update_population_row_core,
         )
         from amos_federation.services.executive_core.agent_identity import (
             _set_lifecycle_state_core,
@@ -1271,20 +1275,45 @@ class RetirementSystem(_GovernedSurface):
         key = operation_key(RETIRE_SCOPE, f"{agent_id}/{reason}.{op}")
         if _already_succeeded(self.authorizer, key):
             return {"agent_id": agent_id, "reason": reason, "replayed": True, "operation_id": op}
-        effect = declared_effect(
+
+        # الآثارُ الثلاثةُ بترتيبِ التطبيق (§ 9.9.8 (3)). الكانونيُّ يُحذَفُ إن كانَ غائبًا أو
+        # «retired» أصلًا (سابقةُ «العمليّةُ الفارغةُ لا تُقاس» في `set_lifecycle_state`).
+        canonical_moves = canonical_previous is not None and canonical_previous != "retired"
+        canonical_effect = declared_effect(
+            "WRITE",
+            f"{target}/lifecycle.{canonical_previous}->retired@{op}",
+            f"انتقالُ دورةِ حياةِ «{agent_id}» {canonical_previous} → retired في الحقلِ الكانونيّ",
+        )
+        mirror_effect = declared_effect(
+            "WRITE",
+            f"{target}/population.state.{previous_state}->retired@{op}",
+            f"تحديثُ صفِّ السكّانِ (المرآةِ) للوكيلِ «{agent_id}» إلى «retired»",
+        )
+        record_effect = declared_effect(
             "CREATE",
             f"{target}/retirement.{reason}.{previous_state}@{op}",
             f"سجلُّ تقاعدِ الوكيلِ «{agent_id}» (السببُ: {reason} · السابقُ: {previous_state})",
         )
-        # التحقّقُ المسبقُ قبلَ أيِّ كتابة (§ 9.9.4 (1)).
-        self.authorizer.request_permit(ACTION_RETIRE_AGENT, target, declared_effects=(effect,))
+        effects = ((canonical_effect,) if canonical_moves else ()) + (mirror_effect, record_effect)
 
-        # تحديث حالة الوكيل — عبورا `update_state` (الكانونُ والمرآة) متعاقبانِ قبلَ عبورِ السجلّ.
-        registry.update_state(agent_id, "retired", authorizer=self.authorizer)
+        # التحقّقُ المسبقُ قبلَ أيِّ كتابة (§ 9.9.8 (2)): فعلُ السطحِ أوّلًا، ثمَّ فعلُ كتابةِ المرآةِ
+        # المحجوزُ منَ المستوى 3 — يحفظُ رفضَ ≥3 المقيسَ في W-724 نظيفًا قبلَ أيِّ أثر.
+        self.authorizer.request_permit(ACTION_RETIRE_AGENT, target, declared_effects=effects)
+        self.authorizer.request_permit(
+            ACTION_UPDATE_POPULATION_STATE,
+            f"population:{agent_id}",
+            declared_effects=(
+                declared_effect(
+                    "WRITE",
+                    f"population:{agent_id}/state.{previous_state}->retired@{op}",
+                    f"تحديثُ صفِّ السكّانِ (المرآةِ) للوكيلِ «{agent_id}» إلى «retired»",
+                ),
+            ),
+        )
 
         created: list[int] = []
 
-        def _apply(_effect: Any) -> None:
+        def _create_record() -> None:
             session = self._Session()
             try:
                 record = RetirementRecordModel(
@@ -1299,8 +1328,23 @@ class RetirementSystem(_GovernedSurface):
             finally:
                 session.close()
 
-        def _restore_agent() -> None:
-            # نوًى خاصّةٌ مُعيَّنةٌ بتصميمِ § 9.9.5 — لا `royal/main.py:restore_agent` (K1).
+        def _apply(effect: Any) -> None:
+            # نوًى خاصّةٌ لا تعبرُ بنفسِها — كاشفُ التعشيشِ يبقى صامتًا (§ 9.9.8 (3)).
+            if effect.signature == canonical_effect.signature:
+                _set_lifecycle_state_core(agent_id, "retired")
+            elif effect.signature == mirror_effect.signature:
+                _update_population_row_core(registry, agent_id, new_state="retired", extras={})
+            elif effect.signature == record_effect.signature:
+                _create_record()
+            else:  # pragma: no cover — لا أثرَ غيرَ مُعلَن
+                raise RuntimeError(f"أثرٌ غيرُ مُعلَنٍ في retire_agent: {effect.signature}")
+
+        def _restore_canonical() -> None:
+            if canonical_moves:
+                _set_lifecycle_state_core(agent_id, str(canonical_previous))
+
+        def _restore_mirror() -> None:
+            # نوًى خاصّةٌ مُعيَّنةٌ بالتصميم — لا `royal/main.py:restore_agent` (K1).
             _restore_population_snapshot_core(
                 registry,
                 agent_id,
@@ -1308,12 +1352,28 @@ class RetirementSystem(_GovernedSurface):
                 previous_graduated_at=previous_graduated_at,
                 previous_extra={},
             )
-            if canonical_previous is not None and canonical_previous != "retired":
-                _set_lifecycle_state_core(agent_id, canonical_previous)
+
+        def _delete_record() -> None:
+            _delete_rows(self._Session, RetirementRecordModel, created)
 
         def _undo() -> None:
-            _delete_rows(self._Session, RetirementRecordModel, created)
-            _restore_agent()
+            _delete_record()
+            _restore_mirror()
+            _restore_canonical()
+
+        compensators = [
+            compensator(mirror_effect.signature, _restore_mirror, "إرجاعُ لقطةِ صفِّ السكّان"),
+            compensator(record_effect.signature, _delete_record, "حذفُ سجلِّ التقاعد"),
+        ]
+        if canonical_moves:
+            compensators.insert(
+                0,
+                compensator(
+                    canonical_effect.signature,
+                    _restore_canonical,
+                    "إرجاعُ الحالةِ الكانونيّةِ السابقة",
+                ),
+            )
 
         from core.sovereignty.compensation import CompensationRequired
 
@@ -1321,20 +1381,18 @@ class RetirementSystem(_GovernedSurface):
             guarded = self.authorizer.guard_declared(
                 ACTION_RETIRE_AGENT,
                 target,
-                declared_effects=(effect,),
+                declared_effects=effects,
                 applier=_apply,
                 operation_key=key,
-                compensators=(
-                    compensator(effect.signature, _undo, "حذفُ سجلِّ التقاعدِ وإعادةُ الوكيلِ إلى حالتِه"),
-                ),
+                compensators=tuple(compensators),
                 metadata={"agent_id": agent_id, "reason": reason, "previous": previous_state},
             )
         except CompensationRequired:
-            # المعوِّضُ وقعَ فعلًا من الحدِّ — لا تعويضَ ثانٍ.
+            # الحدُّ عكسَ ما طُبِّقَ وعادَ بمعوِّضاتِه (§ 9.9.8 (4)) — لا تعويضَ ثانٍ.
             raise
         except Exception as exc:
-            # فشلٌ بلا تشغيلِ المعوِّض (داخلَ المُطبِّقِ أو رفضٌ متأخِّر): يُعوِّضُ السطحُ
-            # الأثرينِ بنفسِه ثمَّ يُعيدُ رفعَ الانكسار (سابقةُ `update_state` · § 9.9.5).
+            # رفضٌ أو فشلٌ بلا أثرٍ مُتتبَّعٍ (مثلًا انكسارُ أوّلِ نواةٍ): إرجاعٌ آمنٌ إلى القيمِ
+            # السابقةِ نفسِها ثمَّ يُعادُ رفعُ الانكسار.
             try:
                 _undo()
             except Exception as restore_exc:

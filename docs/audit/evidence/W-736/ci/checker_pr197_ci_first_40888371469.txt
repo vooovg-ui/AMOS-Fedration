@@ -1,0 +1,12 @@
+$ .venv/bin/python tools/governance/ci_verdict_readability.py --from-json docs/audit/evidence/W-736/ci/pr197_ci_first_40888371469_jobs.json --require-readable --expect-sha 849955063bfc9854c397c7d99ac43377b8208023
+[CI VERDICT] مقروئيّةُ الحكمِ تُقاسُ بالخطواتِ لا بالنتيجة
+  تشغيلٌ 40888371469: READABLE · نُفِّذَت 13/13 وظيفةً (لم يُسنَدْ عاملٌ لـ0 · مُتخطًّى 0 · مشكوكٌ 0)
+[CI VERDICT] ✓ كلُّ التشغيلاتِ (1) نُفِّذَت خطواتُها — فـ`conclusion` يُقرأُ حكمًا.
+
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+  ✗ تشغيلٌ 40888371469 · وظيفةٌ «Work Governance (الخارطةُ الحاكمة — لا عملَ غيرُ مُسجَّل)»: conclusion='failure' — مقروءٌ **لكنّه ليس أخضرَ** فلا يُدمَجُ.
+  ✗ تشغيلٌ 40888371469 · وظيفةٌ «Truth Audit (E0 — Ratchet Gate)»: conclusion='failure' — مقروءٌ **لكنّه ليس أخضرَ** فلا يُدمَجُ.
+  ✗ تشغيلٌ 40888371469 · وظيفةٌ «Identity Law (E3 — بوابات المادة التاسعة)»: conclusion='failure' — مقروءٌ **لكنّه ليس أخضرَ** فلا يُدمَجُ.
+  ✗ تشغيلٌ 40888371469 · وظيفةٌ «Cross-System Suites (E2.2-G — SQLite + PostgreSQL)»: conclusion='failure' — مقروءٌ **لكنّه ليس أخضرَ** فلا يُدمَجُ.
+[CI VERDICT] ✗ بوّابةُ الدمجِ مُسقِطةٌ — الدفعُ إلى `main` لا يجوزُ حتى يزولَ السببُ المذكورُ أعلاه.
+EXIT=1

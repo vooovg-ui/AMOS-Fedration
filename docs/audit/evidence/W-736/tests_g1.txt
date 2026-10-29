@@ -1,0 +1,2 @@
+$ cd federal/executive/services && ../../../.venv/bin/python -m pytest -q -p no:cacheprovider tests/test_w736_q26_retire_single_crossing.py tests/test_w724_g1_expansion.py tests/test_w723_g1_state_runtime_system_life.py tests/test_w728_g1_learning_security.py tests/test_w699_agent_runtime_crossing.py
+======================= 216 passed in 123.14s (0:02:03) ========================

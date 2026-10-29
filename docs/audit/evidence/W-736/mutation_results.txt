@@ -1,0 +1,9 @@
+$ .venv/bin/python docs/audit/evidence/W-736/mutation_canonical_compensator.py
+sha256(expansion.py) قبلَ: 71d5eb4a88b5c7b792b3032ca2aa085b8f4c3e3dab6a49c342b3058a3bdae667
+BASELINE  test_3a_mirror_failure_after_canonical_restores_canonical: rc=0 · ============================== 1 passed in 1.55s ===============================
+BASELINE  test_3b_record_failure_after_canonical_and_mirror_restores_both: rc=0 · ============================== 1 passed in 1.52s ===============================
+MUTANT    test_3a_mirror_failure_after_canonical_restores_canonical: rc=1 · ============================== 1 failed in 1.52s =============================== → KILLED
+MUTANT    test_3b_record_failure_after_canonical_and_mirror_restores_both: rc=1 · ============================== 1 failed in 1.56s =============================== → KILLED
+sha256(expansion.py) بعدَ: 71d5eb4a88b5c7b792b3032ca2aa085b8f4c3e3dab6a49c342b3058a3bdae667 · مطابقٌ
+MUTATION SUMMARY: tests=2 killed=2
+EXIT=0

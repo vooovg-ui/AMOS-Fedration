@@ -1,7 +1,7 @@
 {
  "$comment": "الهدف: جردُ مواضعِ الكتابةِ في المستودعِ وتصنيفُ ما عبرَ الحدَّ السّياديَّ وما لم يعبُر— مُخرَجُ tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039).",
  "summary": {
-  "write_sites_total": 261,
+  "write_sites_total": 260,
   "by_area": {
    "core": {
     "public": 1,
@@ -1151,20 +1151,6 @@
   {
    "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
    "owner": "RetirementSystem",
-   "function": "_apply",
-   "ordinal": 0,
-   "public": false,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
-   "closed_legacy": false,
-   "writes_via": []
-  },
-  {
-   "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
-   "owner": "RetirementSystem",
    "function": "retire_agent",
    "ordinal": 0,
    "public": true,
@@ -1175,6 +1161,7 @@
    "guarded": true,
    "closed_legacy": false,
    "writes_via": [
+    "_create_record",
     "_delete_rows",
     "_set_batch_column",
     "_set_output"

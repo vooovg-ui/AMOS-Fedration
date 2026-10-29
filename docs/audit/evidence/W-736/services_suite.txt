@@ -1,0 +1,5 @@
+$ cd federal/executive/services && ../../../.venv/bin/python -m pytest -q -p no:cacheprovider
+collected 1843 items
+=========== 1790 passed, 53 skipped, 1 warning in 1198.13s (0:19:58) ===========
+EXIT=0
+# قبلَ W-736: 1768 passed + 53 skipped · الفرقُ +22 = فحوصُ test_w736
