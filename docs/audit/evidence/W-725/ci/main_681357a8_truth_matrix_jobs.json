@@ -1,0 +1,98 @@
+{
+ "$comment": "الهدف: حِملُ وظائفِ تشغيلِ مصفوفةِ الحقيقةِ على main بعدَ دمجِ W-724 (التشغيلُ 40822931798 على العقدةِ 681357a8) — يُقرأُ حكمُهُ بالفاحصِ ci_verdict_readability.py --from-json --require-readable --expect-sha 681357a89bc0a7568fea6d821b6fff06d952365d (واجبُ N+1 لدفعةِ W-724 · دفعةُ W-725). المادةُ التاسعة.",
+ "total_count": 1,
+ "jobs": [
+  {
+   "id": 123279281982,
+   "run_id": 40822931798,
+   "workflow_name": "مصفوفةُ الحقيقةِ المولَّدة",
+   "head_branch": "main",
+   "run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/runs/40822931798",
+   "run_attempt": 1,
+   "node_id": "CR_kwDOURQm-88AAAActASPPg",
+   "head_sha": "681357a89bc0a7568fea6d821b6fff06d952365d",
+   "url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/actions/jobs/123279281982",
+   "html_url": "https://github.com/vooovg-ui/AMOS-Fedration/actions/runs/40822931798/job/123279281982",
+   "status": "completed",
+   "conclusion": "success",
+   "created_at": "2026-10-29T05:21:33Z",
+   "started_at": "2026-10-29T05:21:36Z",
+   "completed_at": "2026-10-29T05:21:52Z",
+   "name": "Truth Matrix Regeneration",
+   "steps": [
+    {
+     "name": "Set up job",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 1,
+     "started_at": "2026-10-29T05:21:37Z",
+     "completed_at": "2026-10-29T05:21:38Z"
+    },
+    {
+     "name": "Run actions/checkout@v4",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 2,
+     "started_at": "2026-10-29T05:21:38Z",
+     "completed_at": "2026-10-29T05:21:43Z"
+    },
+    {
+     "name": "Run actions/setup-python@v5",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 3,
+     "started_at": "2026-10-29T05:21:43Z",
+     "completed_at": "2026-10-29T05:21:43Z"
+    },
+    {
+     "name": "إعادةُ توليدِ المصفوفةِ وحارسُ عدمِ التراجع",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 4,
+     "started_at": "2026-10-29T05:21:43Z",
+     "completed_at": "2026-10-29T05:21:49Z"
+    },
+    {
+     "name": "دفعُ الخرجِ المولَّدِ إن تغيَّر",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 5,
+     "started_at": "2026-10-29T05:21:49Z",
+     "completed_at": "2026-10-29T05:21:49Z"
+    },
+    {
+     "name": "Post Run actions/setup-python@v5",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 9,
+     "started_at": "2026-10-29T05:21:49Z",
+     "completed_at": "2026-10-29T05:21:49Z"
+    },
+    {
+     "name": "Post Run actions/checkout@v4",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 10,
+     "started_at": "2026-10-29T05:21:49Z",
+     "completed_at": "2026-10-29T05:21:50Z"
+    },
+    {
+     "name": "Complete job",
+     "status": "completed",
+     "conclusion": "success",
+     "number": 11,
+     "started_at": "2026-10-29T05:21:50Z",
+     "completed_at": "2026-10-29T05:21:50Z"
+    }
+   ],
+   "check_run_url": "https://api.github.com/repos/vooovg-ui/AMOS-Fedration/check-runs/123279281982",
+   "labels": [
+    "ubuntu-latest"
+   ],
+   "runner_id": 1000008303,
+   "runner_name": "GitHub Actions 1000008303",
+   "runner_group_id": 0,
+   "runner_group_name": "GitHub Actions"
+  }
+ ]
+}
