@@ -4,6 +4,7 @@ AMOS-Federation Population Expansion + Universities + Retirement (Phase 11)
 النطاق: services/governance/expansion
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-15
+آخر تعديل: 2026-10-29 (W-724 — عبورُ ستّةِ أسطحٍ الحدَّ السياديَّ · G1 § 9.9)
 """
 
 import hashlib
@@ -32,6 +33,83 @@ from amos_federation.services.agent_runtime.population import (
     get_population_registry,
     get_school,
 )
+from amos_federation.services.executive_core.sovereignty_bridge import (
+    ConstitutionalAuthorizer,
+    compensator,
+    declared_effect,
+    get_authorizer,
+    operation_key,
+)
+
+# ── أفعالُ العبورِ (G1 § 2.2 · تصميمُ § 9.9.4 · W-724) ─────────────────────────
+#: `take_exam` — صفُّ نتيجةِ اختبارِ تخصّص (ممنوعٌ عندَ ≥1).
+ACTION_TAKE_EXAM = "record_curriculum_step"
+#: `submit_output` — صفُّ مخرجٍ جامعيّ (ممنوعٌ عندَ ≥4).
+ACTION_SUBMIT_OUTPUT = "create_task"
+#: `approve_output` — اعتمادُ مخرج (ممنوعٌ عندَ ≥4).
+ACTION_APPROVE_OUTPUT = "activate_agent"
+#: `employ_batch` — عددُ الموظَّفين في الدفعة (ممنوعٌ عندَ ≥3).
+ACTION_EMPLOY_BATCH = "dispatch_agent"
+#: `graduate_batch` — عددُ الخرّيجين. `release_agent` ليسَ في KILL_SWITCH_BLOCKS عندَ أيِّ
+#: مستوى وجدولُ § 2.2 يقولُ «4»: يُنفَّذُ عمودُ الفعلِ ويُرفَعُ للمالكِ Q-78 (§ 9.9.3).
+ACTION_GRADUATE_BATCH = "release_agent"
+#: `retire_agent` — سجلُّ تقاعد · احتواءٌ لا يُمنَع (Q-26).
+ACTION_RETIRE_AGENT = "contain_agent"
+#: `create_batch` و`enroll_batch` لا يُعبَرانِ: `spawn_population` محكومٌ بشريًّا (R-001-1)
+#: ولا قناةَ موافقةٍ في الجسر — دَينٌ معلَّقٌ بقرارِ المالكِ Q-77 (§ 9.9.2).
+
+EXAM_SCOPE = "expansion.exam"
+OUTPUT_SUBMIT_SCOPE = "expansion.output.submit"
+OUTPUT_APPROVE_SCOPE = "expansion.output.approve"
+BATCH_EMPLOY_SCOPE = "expansion.batch.employ"
+BATCH_GRADUATE_SCOPE = "expansion.batch.graduate"
+RETIRE_SCOPE = "expansion.retire"
+
+
+class _GovernedSurface:
+    """مُصرِّحٌ محقونٌ أو افتراضيٌّ عبرَ `get_authorizer()` — لا موضعَ بناءٍ جديد (سابقةُ W-723)."""
+
+    _authorizer: ConstitutionalAuthorizer | None = None
+
+    @property
+    def authorizer(self) -> ConstitutionalAuthorizer:
+        if self._authorizer is None:
+            self._authorizer = get_authorizer()
+        return self._authorizer
+
+
+def _already_succeeded(authorizer: ConstitutionalAuthorizer, key: Any) -> bool:
+    """هل نجحَ عبورُ هذا المفتاحِ من قبل؟ — قراءةٌ قبلَ الحدِّ تمنعُ إعادةَ العبوراتِ الداخليّة."""
+    from core.sovereignty.idempotency import OperationStatus
+
+    prior = authorizer.boundary.idempotency_ledger.get(key)
+    return prior is not None and prior.status == OperationStatus.SUCCEEDED
+
+
+def _delete_rows(session_factory: Any, model: Any, ids: list[int]) -> None:
+    """حذفُ الصفوفِ التي أنشأها المُطبِّقُ بمعرِّفاتِها الملتقَطة — عكسٌ حقيقيٌّ لـCREATE."""
+    if not ids:
+        return
+    session = session_factory()
+    try:
+        session.query(model).filter(model.id.in_(ids)).delete(synchronize_session=False)
+        session.commit()
+    finally:
+        session.close()
+
+
+def _set_batch_column(session_factory: Any, batch_id: str, column: str, value: int) -> None:
+    """كاتبُ عمودِ عددٍ في صفِّ الدفعة — يستعملُه المُطبِّقُ والمعوِّض."""
+    session = session_factory()
+    try:
+        batch = session.execute(
+            select(ExpansionBatchModel).where(ExpansionBatchModel.batch_id == batch_id).limit(1)
+        ).scalar_one_or_none()
+        if batch is not None:
+            setattr(batch, column, value)
+            session.commit()
+    finally:
+        session.close()
 
 
 class _ExpansionBase(DeclarativeBase):
@@ -349,10 +427,11 @@ UNIVERSITY_RESEARCH_TOPICS = {
 # === Population Expansion ===
 
 
-class PopulationExpansion:
+class PopulationExpansion(_GovernedSurface):
     """التوسع السكاني التدريجي عبر المدرسة بدفعات."""
 
-    def __init__(self) -> None:
+    def __init__(self, authorizer: ConstitutionalAuthorizer | None = None) -> None:
+        self._authorizer = authorizer
         self._ensure_tables()
 
     def _ensure_tables(self) -> None:
@@ -427,83 +506,169 @@ class PopulationExpansion:
         finally:
             session.close()
 
-    def graduate_batch(
-        self, batch_id: str, scores: list[list[int]] | None = None
-    ) -> dict[str, Any]:
-        """تخرير دفعة عبر المدرسة — يتطلب ≥85% متوسط."""
+    def _batch_snapshot(self, batch_id: str) -> dict[str, Any] | None:
+        """قراءةُ صفِّ الدفعةِ قبلَ الحدّ — لقطةٌ يُبنى منها المفتاحُ والمعوِّض."""
         session = self._Session()
         try:
             batch = session.execute(
                 select(ExpansionBatchModel).where(ExpansionBatchModel.batch_id == batch_id).limit(1)
             ).scalar_one_or_none()
-            if not batch:
-                return {"error": "batch_not_found"}
+            if batch is None:
+                return None
+            return {
+                "category": batch.category,
+                "min_score": batch.min_score,
+                "graduated": int(batch.graduated or 0),
+                "employed": int(batch.employed or 0),
+            }
+        finally:
+            session.close()
 
-            # جلب الوكلاء المسجلين في هذه الفئة
-            registry = get_population_registry()
-            agents = registry.list_agents(
-                category=FULL_POPULATION_CATEGORIES.get(batch.category, {}).get(
-                    "category", "reserve"
-                )
-            )
+    def graduate_batch(
+        self,
+        batch_id: str,
+        scores: list[list[int]] | None = None,
+        *,
+        operation_id: str | None = None,
+    ) -> dict[str, Any]:
+        """تخرير دفعة عبر المدرسة — يتطلب ≥85% متوسط · عبرَ الحدِّ (G1 § 9.9.4 · W-724).
 
-            school = get_school()
-            graduated = 0
-            failed = 0
+        تحقّقٌ مسبقٌ قبلَ أيِّ كتابة، ثمَّ خطواتُ المنهجِ (كلٌّ بعبورِه)، ثمَّ عبورُ صفِّ الدفعة.
+        والعمليّةُ المركّبةُ ليست ذرّيّةً كلُّها (§ 9.9.6 (1)).
+        """
+        snap = self._batch_snapshot(batch_id)
+        if snap is None:
+            return {"error": "batch_not_found"}
+        previous = snap["graduated"]
+        op = operation_id or f"graduate-{uuid.uuid4().hex[:12]}"
+        target = f"batch:{batch_id}"
+        key = operation_key(BATCH_GRADUATE_SCOPE, f"{batch_id}.{op}")
+        if _already_succeeded(self.authorizer, key):
+            return {"batch_id": batch_id, "replayed": True, "operation_id": op}
+        permit_effect = declared_effect(
+            "WRITE",
+            f"{target}/graduated.{previous}@{op}",
+            f"تحديثُ عددِ خرّيجي الدفعةِ «{batch_id}» (السابقُ: {previous})",
+        )
+        # التحقّقُ المسبقُ على فعلِ السطحِ نفسِه — رفضٌ نظيفٌ قبلَ أيِّ كتابة (§ 9.9.4 (1)).
+        self.authorizer.request_permit(
+            ACTION_GRADUATE_BATCH, target, declared_effects=(permit_effect,)
+        )
 
-            for i, agent in enumerate(agents):
-                agent_scores = scores[i] if scores and i < len(scores) else [85, 85, 85, 90, 85, 90]
-                result = school.run_full_curriculum(agent["agent_id"], agent_scores)
-                if result["graduation"]["graduated"]:
-                    avg = result["graduation"]["avg_score"]
-                    if avg >= batch.min_score:
-                        graduated += 1
-                    else:
-                        failed += 1
+        # جلب الوكلاء المسجلين في هذه الفئة
+        registry = get_population_registry()
+        agents = registry.list_agents(
+            category=FULL_POPULATION_CATEGORIES.get(snap["category"], {}).get("category", "reserve")
+        )
+        school = get_school()
+        graduated = 0
+        failed = 0
+        for i, agent in enumerate(agents):
+            agent_scores = scores[i] if scores and i < len(scores) else [85, 85, 85, 90, 85, 90]
+            result = school.run_full_curriculum(agent["agent_id"], agent_scores)
+            if result["graduation"]["graduated"]:
+                avg = result["graduation"]["avg_score"]
+                if avg >= snap["min_score"]:
+                    graduated += 1
                 else:
                     failed += 1
+            else:
+                failed += 1
 
-            batch.graduated = graduated
-            session.commit()
-        finally:
-            session.close()
+        effect = declared_effect(
+            "WRITE",
+            f"{target}/graduated.{previous}->{graduated}@{op}",
+            f"عددُ خرّيجي الدفعةِ «{batch_id}»: {previous} ← {graduated}",
+        )
 
-        return {"batch_id": batch_id, "graduated": graduated, "failed": failed}
+        def _apply(_effect: Any) -> None:
+            _set_batch_column(self._Session, batch_id, "graduated", graduated)
 
-    def employ_batch(self, batch_id: str) -> dict[str, Any]:
-        """توظيف خريجي الدفعة — يتطلب فحص صحي أولاً (المرحلة 8)."""
+        def _undo() -> None:
+            _set_batch_column(self._Session, batch_id, "graduated", previous)
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_GRADUATE_BATCH,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=key,
+            compensators=(compensator(effect.signature, _undo, "إرجاعُ عددِ الخرّيجين السابق"),),
+            metadata={"batch_id": batch_id, "previous_graduated": previous},
+        )
+        if guarded.is_replay:
+            return {"batch_id": batch_id, "replayed": True, "operation_id": op}
+        return {"batch_id": batch_id, "graduated": graduated, "failed": failed, "operation_id": op}
+
+    def employ_batch(self, batch_id: str, *, operation_id: str | None = None) -> dict[str, Any]:
+        """توظيف خريجي الدفعة — يتطلب فحص صحي أولاً (المرحلة 8) · عبرَ الحدِّ (W-724).
+
+        تحقّقٌ مسبقٌ (`dispatch_agent` · ممنوعٌ عندَ ≥3) قبلَ أيِّ كتابة، ثمَّ الفحصُ الصحّيُّ
+        وتحديثُ الحالةِ (كلٌّ بعبورِه)، ثمَّ عبورُ صفِّ الدفعة (§ 9.9.4).
+        """
         from amos_federation.services.agent_runtime.health import get_health_checker
 
-        session = self._Session()
-        try:
-            batch = session.execute(
-                select(ExpansionBatchModel).where(ExpansionBatchModel.batch_id == batch_id).limit(1)
-            ).scalar_one_or_none()
-            if not batch:
-                return {"error": "batch_not_found"}
+        snap = self._batch_snapshot(batch_id)
+        if snap is None:
+            return {"error": "batch_not_found"}
+        previous = snap["employed"]
+        op = operation_id or f"employ-{uuid.uuid4().hex[:12]}"
+        target = f"batch:{batch_id}"
+        key = operation_key(BATCH_EMPLOY_SCOPE, f"{batch_id}.{op}")
+        if _already_succeeded(self.authorizer, key):
+            return {"batch_id": batch_id, "replayed": True, "operation_id": op}
+        permit_effect = declared_effect(
+            "WRITE",
+            f"{target}/employed.{previous}@{op}",
+            f"تحديثُ عددِ موظَّفي الدفعةِ «{batch_id}» (السابقُ: {previous})",
+        )
+        self.authorizer.request_permit(
+            ACTION_EMPLOY_BATCH, target, declared_effects=(permit_effect,)
+        )
 
-            registry = get_population_registry()
-            health_checker = get_health_checker()
-            cat_spec = FULL_POPULATION_CATEGORIES.get(batch.category, {})
-            agents = registry.list_agents(category=cat_spec.get("category", "reserve"))
+        registry = get_population_registry()
+        health_checker = get_health_checker()
+        cat_spec = FULL_POPULATION_CATEGORIES.get(snap["category"], {})
+        agents = registry.list_agents(category=cat_spec.get("category", "reserve"))
 
-            employed = 0
-            health_failed = 0
-            for agent in agents:
-                if agent["state"] != "employed":
-                    continue
-                # فحص صحي أولي (المرحلة 8)
-                health_result = health_checker.check_agent(agent["agent_id"])
-                if health_result.get("status") in ("healthy", "degraded"):
-                    registry.update_state(agent["agent_id"], "active")
-                    employed += 1
-                else:
-                    health_failed += 1
+        employed = 0
+        health_failed = 0
+        for agent in agents:
+            if agent["state"] != "employed":
+                continue
+            # فحص صحي أولي (المرحلة 8) — عبورٌ داخليٌّ متعاقبٌ لا متداخل
+            health_result = health_checker.check_agent(
+                agent["agent_id"], authorizer=self.authorizer
+            )
+            if health_result.get("status") in ("healthy", "degraded"):
+                registry.update_state(agent["agent_id"], "active", authorizer=self.authorizer)
+                employed += 1
+            else:
+                health_failed += 1
 
-            batch.employed = employed
-            session.commit()
-        finally:
-            session.close()
+        effect = declared_effect(
+            "WRITE",
+            f"{target}/employed.{previous}->{employed}@{op}",
+            f"عددُ موظَّفي الدفعةِ «{batch_id}»: {previous} ← {employed}",
+        )
+
+        def _apply(_effect: Any) -> None:
+            _set_batch_column(self._Session, batch_id, "employed", employed)
+
+        def _undo() -> None:
+            _set_batch_column(self._Session, batch_id, "employed", previous)
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_EMPLOY_BATCH,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=key,
+            compensators=(compensator(effect.signature, _undo, "إرجاعُ عددِ الموظَّفين السابق"),),
+            metadata={"batch_id": batch_id, "previous_employed": previous},
+        )
+        if guarded.is_replay:
+            return {"batch_id": batch_id, "replayed": True, "operation_id": op}
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -514,7 +679,12 @@ class PopulationExpansion:
                 "employed": employed,
             },
         )
-        return {"batch_id": batch_id, "employed": employed, "health_failed": health_failed}
+        return {
+            "batch_id": batch_id,
+            "employed": employed,
+            "health_failed": health_failed,
+            "operation_id": op,
+        }
 
     def run_full_expansion(self, batch_size: int = 50) -> dict[str, Any]:
         """التوسع الكامل — دفعات تدريجية لكل الفئات."""
@@ -593,10 +763,11 @@ class PopulationExpansion:
 # === Specialization (11.2) ===
 
 
-class SpecializationProgram:
+class SpecializationProgram(_GovernedSurface):
     """مسار التخصص — مالي، قانوني، علمي، صحي، ثقافي، صناعي."""
 
-    def __init__(self) -> None:
+    def __init__(self, authorizer: ConstitutionalAuthorizer | None = None) -> None:
+        self._authorizer = authorizer
         self._ensure_tables()
 
     def _ensure_tables(self) -> None:
@@ -652,27 +823,63 @@ class SpecializationProgram:
             "curriculum": SPECIALIZATION_TRACKS[track]["curriculum"],
         }
 
-    def take_exam(self, agent_id: str, track: str, score: float, notes: str = "") -> dict[str, Any]:
-        """اختبار التخصص — يجب اجتيازه قبل التوظيف في الولاية."""
+    def take_exam(
+        self,
+        agent_id: str,
+        track: str,
+        score: float,
+        notes: str = "",
+        *,
+        operation_id: str | None = None,
+    ) -> dict[str, Any]:
+        """اختبار التخصص — يجب اجتيازه قبل التوظيف في الولاية · عبرَ الحدِّ (W-724).
+
+        `record_curriculum_step` (ممنوعٌ عندَ ≥1) · الأثرُ صفُّ النتيجةِ وحدَه · المعوِّضُ حذفُه.
+        """
         if track not in SPECIALIZATION_TRACKS:
             return {"error": "unknown_track"}
 
         threshold = SPECIALIZATION_TRACKS[track]["exam_threshold"]
         passed = score >= threshold
+        exam_id = operation_id or f"exam-{uuid.uuid4().hex[:12]}"
+        target = f"exam:{exam_id}"
+        effect = declared_effect(
+            "CREATE",
+            f"{target}/row",
+            f"صفُّ نتيجةِ اختبارِ «{track}» للوكيل «{agent_id}» بدرجة {score}",
+        )
+        created: list[int] = []
 
-        session = self._Session()
-        try:
-            result = SpecializationResultModel(
-                agent_id=agent_id,
-                track=track,
-                exam_score=score,
-                passed=passed,
-                notes=notes,
-            )
-            session.add(result)
-            session.commit()
-        finally:
-            session.close()
+        def _apply(_effect: Any) -> None:
+            session = self._Session()
+            try:
+                result = SpecializationResultModel(
+                    agent_id=agent_id,
+                    track=track,
+                    exam_score=score,
+                    passed=passed,
+                    notes=notes,
+                )
+                session.add(result)
+                session.commit()
+                created.append(int(result.id))
+            finally:
+                session.close()
+
+        def _undo() -> None:
+            _delete_rows(self._Session, SpecializationResultModel, created)
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_TAKE_EXAM,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(EXAM_SCOPE, exam_id),
+            compensators=(compensator(effect.signature, _undo, "حذفُ صفِّ نتيجةِ الاختبار"),),
+            metadata={"agent_id": agent_id, "track": track, "score": score},
+        )
+        if guarded.is_replay:
+            return {"agent_id": agent_id, "track": track, "replayed": True, "operation_id": exam_id}
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -692,6 +899,7 @@ class SpecializationProgram:
             "score": score,
             "threshold": threshold,
             "passed": passed,
+            "operation_id": exam_id,
         }
 
     def get_agent_specialization(self, agent_id: str) -> dict[str, Any]:
@@ -746,10 +954,11 @@ class SpecializationProgram:
 # === University (11.3) ===
 
 
-class University:
+class University(_GovernedSurface):
     """الجامعة — البحث والتطوير."""
 
-    def __init__(self) -> None:
+    def __init__(self, authorizer: ConstitutionalAuthorizer | None = None) -> None:
+        self._authorizer = authorizer
         self._ensure_tables()
 
     def _ensure_tables(self) -> None:
@@ -772,33 +981,59 @@ class University:
         track: str,
         content: str,
         quality_score: float = 0.0,
+        *,
+        operation_id: str | None = None,
     ) -> dict[str, Any]:
-        """تقديم مخرج جامعي — ورقة، أداة، منهج."""
+        """تقديم مخرج جامعي — ورقة، أداة، منهج · عبرَ الحدِّ (`create_task` · ممنوعٌ عندَ ≥4)."""
         if output_type not in ("paper", "tool", "method"):
             return {"error": "invalid_output_type"}
         if track not in SPECIALIZATION_TRACKS:
             return {"error": "unknown_track"}
 
-        output_id = f"uni-{uuid.uuid4().hex[:8]}"
+        output_id = operation_id or f"uni-{uuid.uuid4().hex[:8]}"
         content_hash = hashlib.sha256(content.encode()).hexdigest()
+        target = f"output:{output_id}"
+        effect = declared_effect(
+            "CREATE",
+            f"{target}/row.{content_hash[:16]}",
+            f"صفُّ مخرجٍ جامعيٍّ «{output_type}» بعنوان «{title}» من «{author_agent_id}»",
+        )
+        created: list[int] = []
 
-        session = self._Session()
-        try:
-            output = UniversityOutputModel(
-                output_id=output_id,
-                output_type=output_type,
-                title=title,
-                author_agent_id=author_agent_id,
-                track=track,
-                abstract=content[:500],
-                content_hash=content_hash,
-                quality_score=quality_score,
-                approved=False,
-            )
-            session.add(output)
-            session.commit()
-        finally:
-            session.close()
+        def _apply(_effect: Any) -> None:
+            session = self._Session()
+            try:
+                output = UniversityOutputModel(
+                    output_id=output_id,
+                    output_type=output_type,
+                    title=title,
+                    author_agent_id=author_agent_id,
+                    track=track,
+                    abstract=content[:500],
+                    content_hash=content_hash,
+                    quality_score=quality_score,
+                    approved=False,
+                )
+                session.add(output)
+                session.commit()
+                created.append(int(output.id))
+            finally:
+                session.close()
+
+        def _undo() -> None:
+            _delete_rows(self._Session, UniversityOutputModel, created)
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_SUBMIT_OUTPUT,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(OUTPUT_SUBMIT_SCOPE, output_id),
+            compensators=(compensator(effect.signature, _undo, "حذفُ صفِّ المخرج"),),
+            metadata={"output_id": output_id, "type": output_type, "track": track},
+        )
+        if guarded.is_replay:
+            return {"output_id": output_id, "replayed": True}
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -820,8 +1055,7 @@ class University:
             "content_hash": content_hash,
         }
 
-    def approve_output(self, output_id: str, quality_score: float = 0.0) -> dict[str, Any]:
-        """اعتماد مخرج جامعي."""
+    def _output_snapshot(self, output_id: str) -> tuple[bool, float] | None:
         session = self._Session()
         try:
             output = session.execute(
@@ -829,13 +1063,62 @@ class University:
                 .where(UniversityOutputModel.output_id == output_id)
                 .limit(1)
             ).scalar_one_or_none()
-            if not output:
-                return {"error": "not_found"}
-            output.approved = True
-            output.quality_score = quality_score
-            session.commit()
+            if output is None:
+                return None
+            return bool(output.approved), float(output.quality_score or 0.0)
         finally:
             session.close()
+
+    def _set_output(self, output_id: str, approved: bool, quality_score: float) -> None:
+        session = self._Session()
+        try:
+            output = session.execute(
+                select(UniversityOutputModel)
+                .where(UniversityOutputModel.output_id == output_id)
+                .limit(1)
+            ).scalar_one_or_none()
+            if output is not None:
+                output.approved = approved
+                output.quality_score = quality_score
+                session.commit()
+        finally:
+            session.close()
+
+    def approve_output(
+        self, output_id: str, quality_score: float = 0.0, *, operation_id: str | None = None
+    ) -> dict[str, Any]:
+        """اعتماد مخرج جامعي · عبرَ الحدِّ (`activate_agent` · ممنوعٌ عندَ ≥4) · المعوِّضُ اللقطة."""
+        snapshot = self._output_snapshot(output_id)
+        if snapshot is None:
+            return {"error": "not_found"}
+        prev_approved, prev_quality = snapshot
+        op = operation_id or f"approve-{uuid.uuid4().hex[:12]}"
+        target = f"output:{output_id}"
+        effect = declared_effect(
+            "WRITE",
+            f"{target}/approved.{prev_approved}:{prev_quality}->True:{quality_score}@{op}",
+            f"اعتمادُ المخرجِ «{output_id}» بجودة {quality_score}",
+        )
+
+        def _apply(_effect: Any) -> None:
+            self._set_output(output_id, True, quality_score)
+
+        def _undo() -> None:
+            self._set_output(output_id, prev_approved, prev_quality)
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_APPROVE_OUTPUT,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(
+                OUTPUT_APPROVE_SCOPE, f"{output_id}/q={quality_score}.{op}"
+            ),
+            compensators=(compensator(effect.signature, _undo, "إرجاعُ لقطةِ الاعتمادِ السابقة"),),
+            metadata={"output_id": output_id, "previous_approved": prev_approved},
+        )
+        if guarded.is_replay:
+            return {"output_id": output_id, "approved": True, "replayed": True}
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -918,10 +1201,11 @@ class University:
 # === Retirement (11.4) ===
 
 
-class RetirementSystem:
+class RetirementSystem(_GovernedSurface):
     """نظام التقاعد والأرشفة."""
 
-    def __init__(self) -> None:
+    def __init__(self, authorizer: ConstitutionalAuthorizer | None = None) -> None:
+        self._authorizer = authorizer
         self._ensure_tables()
 
     def _ensure_tables(self) -> None:
@@ -932,8 +1216,23 @@ class RetirementSystem:
         self._engine = engine
         self._Session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
-    def retire_agent(self, agent_id: str, reason: str = "health_failure") -> dict[str, Any]:
-        """تقاعد وكيل — يربط بـ agents/lifecycle/retirement.md و death.md."""
+    def retire_agent(
+        self, agent_id: str, reason: str = "health_failure", *, operation_id: str | None = None
+    ) -> dict[str, Any]:
+        """تقاعد وكيل — يربط بـ agents/lifecycle/retirement.md و death.md · عبرَ الحدِّ (W-724).
+
+        G1 § 9.9.5 (Q-26): قراءةُ اللقطةِ والحالةِ السابقةِ (كانونًا ومرآةً) قبلَ الحدّ، ثمَّ
+        التحقّقُ المسبقُ (`contain_agent`)، ثمَّ `update_state(..., "retired")` بعبورَيه، ثمَّ
+        عبورُ سجلِّ التقاعد. ومعوِّضُ السجلِّ يحذفُه **ويُعيدُ الوكيلَ إلى حالتِه السابقة**.
+        """
+        from amos_federation.services.agent_runtime.population import (
+            _restore_population_snapshot_core,
+        )
+        from amos_federation.services.executive_core.agent_identity import (
+            _set_lifecycle_state_core,
+            get_identity,
+        )
+
         registry = get_population_registry()
         agent = registry.get_agent(agent_id)
         if not agent:
@@ -960,21 +1259,95 @@ class RetirementSystem:
                 effect="health_failures=0 تعني «لم يُقرأْ» لا «لا إخفاقات»",
             )
 
-        session = self._Session()
-        try:
-            record = RetirementRecordModel(
-                agent_id=agent_id,
-                reason=reason,
-                health_failures=health_failures,
-                archived_data=archived,
-            )
-            session.add(record)
-            session.commit()
-        finally:
-            session.close()
+        # لقطةُ الحالةِ السابقةِ قبلَ الحدِّ — يُبنى منها المعوِّضُ لا من قراءةٍ لاحقة.
+        profile = registry._profile(agent_id)
+        previous_state = profile.state if profile is not None else ""
+        previous_graduated_at = profile.graduated_at if profile is not None else None
+        identity = get_identity(agent_id)
+        canonical_previous = identity.lifecycle_state if identity is not None else None
 
-        # تحديث حالة الوكيل
-        registry.update_state(agent_id, "retired")
+        op = operation_id or f"retire-{uuid.uuid4().hex[:12]}"
+        target = f"agent:{agent_id}"
+        key = operation_key(RETIRE_SCOPE, f"{agent_id}/{reason}.{op}")
+        if _already_succeeded(self.authorizer, key):
+            return {"agent_id": agent_id, "reason": reason, "replayed": True, "operation_id": op}
+        effect = declared_effect(
+            "CREATE",
+            f"{target}/retirement.{reason}.{previous_state}@{op}",
+            f"سجلُّ تقاعدِ الوكيلِ «{agent_id}» (السببُ: {reason} · السابقُ: {previous_state})",
+        )
+        # التحقّقُ المسبقُ قبلَ أيِّ كتابة (§ 9.9.4 (1)).
+        self.authorizer.request_permit(ACTION_RETIRE_AGENT, target, declared_effects=(effect,))
+
+        # تحديث حالة الوكيل — عبورا `update_state` (الكانونُ والمرآة) متعاقبانِ قبلَ عبورِ السجلّ.
+        registry.update_state(agent_id, "retired", authorizer=self.authorizer)
+
+        created: list[int] = []
+
+        def _apply(_effect: Any) -> None:
+            session = self._Session()
+            try:
+                record = RetirementRecordModel(
+                    agent_id=agent_id,
+                    reason=reason,
+                    health_failures=health_failures,
+                    archived_data=archived,
+                )
+                session.add(record)
+                session.commit()
+                created.append(int(record.id))
+            finally:
+                session.close()
+
+        def _restore_agent() -> None:
+            # نوًى خاصّةٌ مُعيَّنةٌ بتصميمِ § 9.9.5 — لا `royal/main.py:restore_agent` (K1).
+            _restore_population_snapshot_core(
+                registry,
+                agent_id,
+                previous_state=previous_state,
+                previous_graduated_at=previous_graduated_at,
+                previous_extra={},
+            )
+            if canonical_previous is not None and canonical_previous != "retired":
+                _set_lifecycle_state_core(agent_id, canonical_previous)
+
+        def _undo() -> None:
+            _delete_rows(self._Session, RetirementRecordModel, created)
+            _restore_agent()
+
+        from core.sovereignty.compensation import CompensationRequired
+
+        try:
+            guarded = self.authorizer.guard_declared(
+                ACTION_RETIRE_AGENT,
+                target,
+                declared_effects=(effect,),
+                applier=_apply,
+                operation_key=key,
+                compensators=(
+                    compensator(effect.signature, _undo, "حذفُ سجلِّ التقاعدِ وإعادةُ الوكيلِ إلى حالتِه"),
+                ),
+                metadata={"agent_id": agent_id, "reason": reason, "previous": previous_state},
+            )
+        except CompensationRequired:
+            # المعوِّضُ وقعَ فعلًا من الحدِّ — لا تعويضَ ثانٍ.
+            raise
+        except Exception as exc:
+            # فشلٌ بلا تشغيلِ المعوِّض (داخلَ المُطبِّقِ أو رفضٌ متأخِّر): يُعوِّضُ السطحُ
+            # الأثرينِ بنفسِه ثمَّ يُعيدُ رفعَ الانكسار (سابقةُ `update_state` · § 9.9.5).
+            try:
+                _undo()
+            except Exception as restore_exc:
+                structlog.get_logger().error(
+                    "expansion.retire_restore_failed",
+                    agent_id=agent_id,
+                    reason=f"{type(restore_exc).__name__}: {restore_exc}",
+                    effect="الوكيلُ لم يُعَدْ إلى حالتِه السابقة — لا تُدَّعى الإعادة",
+                )
+                raise restore_exc from exc
+            raise
+        if guarded.is_replay:
+            return {"agent_id": agent_id, "reason": reason, "replayed": True, "operation_id": op}
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -993,6 +1366,7 @@ class RetirementSystem:
             "health_failures": health_failures,
             "archived": True,
             "retired_at": datetime.now(UTC).isoformat(),
+            "operation_id": op,
         }
 
     def get_retired_agents(self) -> list[dict[str, Any]]:

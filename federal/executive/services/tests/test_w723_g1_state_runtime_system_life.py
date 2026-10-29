@@ -368,14 +368,13 @@ def test_c1_send_message_blocked_at_level4_no_row(runtime: StateRuntime) -> None
     ("surface", "event_type", "action"),
     [
         ("bootstrap", "bootstrap", "orchestrate"),
-        ("graceful_shutdown", "shutdown", "orchestrate"),  # Q-76: المقيسُ لا المكتوب
-        ("launch_checklist", "launch", "orchestrate"),  # Q-76: المقيسُ لا المكتوب
+        ("launch_checklist", "launch", "orchestrate"),  # Q-76 ① (D29 · W-724)
     ],
 )
 def test_c1_orchestrate_surfaces_blocked_at_level4_no_event(
     surface: str, event_type: str, action: str
 ) -> None:
-    """Q-76 (G1 § 9.8.3): `orchestrate` ∈ KILL_SWITCH_BLOCKS[4] — يُثبَّتُ المقيسُ ويُرفَعُ للمالك."""
+    """`orchestrate` ∈ KILL_SWITCH_BLOCKS[4] — bootstrap وlaunch_checklist (Q-76 ① · D29 · W-724)."""
     life = SystemLifecycle(authorizer=KillSwitchAuthorizer(4))
     before = _count(life, SystemEventModel, event_type=event_type)
     with pytest.raises(_violation(), match=action):
@@ -391,8 +390,9 @@ def test_c1_self_heal_blocked_at_level4_state_untouched(runtime: StateRuntime) -
     assert runtime.get_state(automatic)["status"] == "suspended"
 
 
-@pytest.mark.parametrize("surface", ["health_check", "create_backup"])
+@pytest.mark.parametrize("surface", ["health_check", "create_backup", "graceful_shutdown"])
 def test_c1_monitoring_and_recovery_never_blocked(surface: str) -> None:
+    """graceful_shutdown بقرارِ Q-76 ② (D29 · W-724): الإيقافُ النظاميُّ لا يُمنَعُ حتى عندَ المستوى 5."""
     life = SystemLifecycle(authorizer=KillSwitchAuthorizer(5))
     out = getattr(life, surface)()
     assert out.get("event_id") or out.get("backup_id")
@@ -433,7 +433,7 @@ SURFACES = [
     (SystemLifecycle, "bootstrap", "orchestrate", "ACTION_ORCHESTRATE"),
     (SystemLifecycle, "health_check", "run_health_check", "ACTION_HEALTH_CHECK"),
     (SystemLifecycle, "self_heal", "self_heal", "ACTION_SELF_HEAL"),
-    (SystemLifecycle, "graceful_shutdown", "orchestrate", "ACTION_ORCHESTRATE"),
+    (SystemLifecycle, "graceful_shutdown", "graceful_shutdown", "ACTION_GRACEFUL_SHUTDOWN"),
     (SystemLifecycle, "create_backup", "create_backup", "ACTION_CREATE_BACKUP"),
     (SystemLifecycle, "launch_checklist", "orchestrate", "ACTION_ORCHESTRATE"),
 ]

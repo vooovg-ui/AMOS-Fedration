@@ -80,6 +80,10 @@ EXECUTIVE_ACTIONS = frozenset(
         "issue_certificate",
         "create_backup",
         "self_heal",
+        # ── Q-76 ② (OWNER-DECISIONS-D29 · W-724): الإيقافُ النظاميُّ أداةُ احتواءٍ — اسمٌ
+        # تنفيذيٌّ جديدٌ لا يدخلُ KILL_SWITCH_BLOCKS عندَ أيِّ مستوى (سابقةُ suspend_state)،
+        # وlaunch_checklist باقٍ على orchestrate (①). توسيعٌ مضيِّقٌ على سابقةِ Q-18.
+        "graceful_shutdown",
     }
 )
 # معجمُ المالِ الدستوريّ — القرارُ السياديُّ Q-18 · الخيارُ 2 (2026-08-21).

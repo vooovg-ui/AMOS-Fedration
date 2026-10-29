@@ -35,9 +35,11 @@ from amos_federation.services.executive_core.sovereignty_bridge import (
 )
 
 # ── G1 الدفعة 2 (W-723): أفعالُ الأسطحِ الستّةِ من جدولِ G1 § 2 بنصِّه ──────
-#: `bootstrap` · `graceful_shutdown` · `launch_checklist` — `orchestrate` (ممنوعٌ عندَ ≥4).
-#: وتعارضُ عمودِ القاطعِ للأخيرينِ مرفوعٌ للمالكِ Q-76 (G1 § 9.8.3) لا محسومٌ هنا.
+#: `bootstrap` · `launch_checklist` — `orchestrate` (ممنوعٌ عندَ ≥4 · Q-76 ① لـlaunch_checklist).
 ACTION_ORCHESTRATE = "orchestrate"
+#: `graceful_shutdown` — اسمٌ جديدٌ بقرارِ Q-76 ② (OWNER-DECISIONS-D29 · W-724): أداةُ احتواءٍ
+#: لا يمنعُها القاطعُ عندَ أيِّ مستوى.
+ACTION_GRACEFUL_SHUTDOWN = "graceful_shutdown"
 #: `health_check` — رصدٌ لا يُمنَع.
 ACTION_HEALTH_CHECK = "run_health_check"
 #: `self_heal` — اسمٌ جديدٌ (W-722) ممنوعٌ عندَ ≥4.
@@ -465,8 +467,8 @@ class SystemLifecycle:
             audit_event="system.shutdown",
             audit_payload={"reason": reason},
         )
-        # `orchestrate` ممنوعٌ عندَ ≥4 خلافًا لعمودِ القاطعِ «بلا منعٍ» — Q-76 (G1 § 9.8.3).
-        self.authorizer.guard_declared(ACTION_ORCHESTRATE, "system:shutdown", **contract)
+        # `graceful_shutdown` لا يمنعُه القاطعُ عندَ أيِّ مستوى — Q-76 ② (D29 · W-724).
+        self.authorizer.guard_declared(ACTION_GRACEFUL_SHUTDOWN, "system:shutdown", **contract)
 
         return {
             "event_id": event_id,
@@ -630,7 +632,7 @@ class SystemLifecycle:
             "success" if all_passed else "warning",
             {"checks": checks},
         )
-        # `orchestrate` ممنوعٌ عندَ ≥4 خلافًا لعمودِ القاطعِ «رصدٌ» — Q-76 (G1 § 9.8.3).
+        # `orchestrate` ممنوعٌ عندَ ≥4 — Q-76 ① (D29 · W-724): لا إطلاقَ أثناءَ توقّفٍ طارئ.
         self.authorizer.guard_declared(ACTION_ORCHESTRATE, "system:launch", **contract)
 
         return {

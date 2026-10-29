@@ -1,0 +1,55 @@
+{
+  "$comment": "حملةُ طفرةِ أسطحِ W-724 (G1 الدفعة 3 · expansion): لكلِّ سطحٍ خطُّ أساسٍ ناجحٌ ثمَّ نزعُ نداءِ الحدِّ (مُطبِّقٌ مباشرٌ بلا عبور) يُسقِطُ تأكيدَ الدليلِ تحديدًا. المولِّد: docs/audit/evidence/W-724/mutation_campaign.py",
+  "cases": [
+    {
+      "verb": "record_curriculum_step",
+      "surface": "SpecializationProgram.take_exam",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: لم يُعبَرِ الحدُّ السياديُّ أصلًا"
+    },
+    {
+      "verb": "create_task",
+      "surface": "University.submit_output",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: لم يُعبَرِ الحدُّ السياديُّ أصلًا"
+    },
+    {
+      "verb": "activate_agent",
+      "surface": "University.approve_output",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: لم يُعبَرِ الحدُّ السياديُّ أصلًا"
+    },
+    {
+      "verb": "dispatch_agent",
+      "surface": "PopulationExpansion.employ_batch",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: assert 'run_health_check' == 'dispatch_agent'"
+    },
+    {
+      "verb": "release_agent",
+      "surface": "PopulationExpansion.graduate_batch",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: لم يُعبَرِ الحدُّ السياديُّ أصلًا"
+    },
+    {
+      "verb": "contain_agent",
+      "surface": "RetirementSystem.retire_agent",
+      "test": "test_c2_surface_crosses_with_named_action",
+      "baseline_without_mutation": "passed",
+      "mutant_outcome": "failed_on_evidence",
+      "failing_assertion": "E   AssertionError: assert 'update_population_state' == 'contain_agent'"
+    }
+  ],
+  "killed_on_evidence": 6,
+  "total": 6
+}

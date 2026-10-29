@@ -1,0 +1,6 @@
+
+tests/constitutional/test_g1_vocabulary.py:82: AssertionError
+=========================== short test summary info ============================
+FAILED tests/constitutional/test_g1_vocabulary.py::test_g1v_2_other_branches_are_denied_by_r003_1[graceful_shutdown-executive]
+FAILED tests/constitutional/test_g1_vocabulary.py::test_g1v_3_each_name_belongs_to_exactly_one_vocabulary
+2 failed, 17 passed in 2.61s

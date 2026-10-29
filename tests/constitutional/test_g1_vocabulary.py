@@ -5,7 +5,7 @@
 النطاق: core/constitutional_engine/rules.py — المعجم وحده، لا سلوك جديد.
 المالك: tests/constitutional/
 تاريخ الإنشاء: 2026-10-28
-تاريخ آخر تعديل: 2026-10-28
+تاريخ آخر تعديل: 2026-10-29 (W-724 — graceful_shutdown بقرارِ Q-76 ②: حصرٌ تنفيذيٌّ لا يمنعُه القاطعُ عندَ أيِّ مستوى · وlaunch_checklist ① على orchestrate يُمنَعُ عندَ ≥4)
 """
 
 from __future__ import annotations
@@ -39,6 +39,8 @@ NEW_NAMES = {
     "issue_certificate": Branch.EXECUTIVE,
     "create_backup": Branch.EXECUTIVE,
     "self_heal": Branch.EXECUTIVE,
+    # Q-76 ② (OWNER-DECISIONS-D29 · W-724)
+    "graceful_shutdown": Branch.EXECUTIVE,
     "suspend_policy": Branch.LEGISLATIVE,
     "vote": Branch.LEGISLATIVE,
 }
@@ -105,14 +107,32 @@ def test_g1v_5_kill_switch_blocks_at_and_above_level(action: str, level: int) ->
         assert blocked is (current >= level), (action, current, verdict.explain())
 
 
-def test_g1v_6_create_backup_is_never_blocked_by_kill_switch() -> None:
+@pytest.mark.parametrize("action", ["create_backup", "graceful_shutdown"])
+def test_g1v_6_recovery_tools_are_never_blocked_by_kill_switch(action: str) -> None:
+    """create_backup (G1 § 2.2) وgraceful_shutdown (Q-76 ②): أداتا احتواءٍ لا يمنعُهما القاطع."""
+    assert all(action not in blocked for blocked in KILL_SWITCH_BLOCKS.values()), action
     for current in range(0, 6):
         verdict = ENGINE.evaluate(
             ActionRequest(
                 actor=Branch.EXECUTIVE,
-                action="create_backup",
+                action=action,
                 target="probe/g1",
                 kill_switch_level=current,
             )
         )
-        assert "R-008-2" not in _rule_ids(verdict), current
+        assert verdict.decision is Decision.ALLOW, (action, current, verdict.explain())
+        assert "R-008-2" not in _rule_ids(verdict), (action, current)
+
+
+def test_g1v_7_launch_checklist_stays_on_orchestrate_blocked_at_four() -> None:
+    """Q-76 ①: launch_checklist باقٍ على orchestrate فيُمنَعُ عندَ المستوى 4 فأعلى."""
+    for current in range(0, 6):
+        verdict = ENGINE.evaluate(
+            ActionRequest(
+                actor=Branch.EXECUTIVE,
+                action="orchestrate",
+                target="system:launch",
+                kill_switch_level=current,
+            )
+        )
+        assert ("R-008-2" in _rule_ids(verdict)) is (current >= 4), current
