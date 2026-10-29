@@ -15,7 +15,10 @@ from amos_federation.common.auth import require_auth, require_king
 from amos_federation.common.persistent import PersistentAuditStore
 from amos_federation.common.registry import SERVICES
 from amos_federation.common.service import create_service_app
+from amos_federation.services.executive_core.sovereignty_bridge import KingApproval
 from amos_federation.services.governance.canary import (
+    ACTION_LOWER_KILL_SWITCH,
+    ACTION_PROMOTE_MODEL,
     check_gate,
     create_canary,
     create_promotion,
@@ -146,11 +149,13 @@ async def activate_kill_switch(
 
 @router.post("/system/kill-switch/reset", response_model=dict)
 async def reset_kill_switch_endpoint(
-    _: Annotated[dict[str, object], Depends(require_king)],
+    token_data: Annotated[dict[str, object], Depends(require_king)],
 ) -> dict[str, Any]:
-    """إعادة ضبط مفتاح الإيقاف."""
-    result = reset_kill_switch()
-    _append_audit("kill_switch_reset", "system", result)
+    """إعادة ضبط مفتاح الإيقاف — الخفضُ يعبرُ الحدَّ بدليلِ الملكِ من الرمزِ نفسِه (WI-114 السطح 2)."""
+    result = reset_kill_switch(
+        KingApproval.from_verified_claims(token_data, ACTION_LOWER_KILL_SWITCH)
+    )
+    _append_audit("kill_switch_reset", str(token_data.get("sub", "")), result)
     return result
 
 
@@ -200,11 +205,17 @@ async def get_promotion_endpoint(
 async def check_gate_endpoint(
     promotion_id: str,
     request: GateCheckRequest,
-    _: Annotated[dict[str, object], Depends(require_king)],
+    token_data: Annotated[dict[str, object], Depends(require_king)],
 ) -> dict[str, Any]:
-    """فحص بوابة ترقية."""
+    """فحص بوابة ترقية — البوابةُ الأخيرةُ تعبرُ بدليلِ الملكِ من الرمزِ (WI-114 السطح 4)."""
     try:
-        result = check_gate(promotion_id, request.gate_name, request.passed, request.notes)
+        result = check_gate(
+            promotion_id,
+            request.gate_name,
+            request.passed,
+            request.notes,
+            approval=KingApproval.from_verified_claims(token_data, ACTION_PROMOTE_MODEL),
+        )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     _append_audit(

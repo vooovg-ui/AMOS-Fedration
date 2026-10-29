@@ -5,6 +5,7 @@ AMOS-Federation Phase 3 — Governance Foundation Tests
 """
 
 import pytest
+from tests.conftest import king_approval
 
 
 class TestAuditHashChain:
@@ -172,7 +173,7 @@ class TestKillSwitch:
 
         result = activate_kill_switch("alert", "test alert", "test_admin")
         assert result["level"] == "alert"
-        reset_kill_switch()
+        reset_kill_switch(king_approval())
 
     def test_activate_degraded(self):
         """3.4: تفعيل مستوى degraded."""
@@ -183,7 +184,7 @@ class TestKillSwitch:
 
         result = activate_kill_switch("degraded", "test degraded", "test_admin")
         assert result["level"] == "degraded"
-        reset_kill_switch()
+        reset_kill_switch(king_approval())
 
     def test_activate_halt(self):
         """3.4: تفعيل مستوى halt."""
@@ -194,7 +195,7 @@ class TestKillSwitch:
 
         result = activate_kill_switch("halt", "test halt", "test_admin")
         assert result["level"] == "halt"
-        reset_kill_switch()
+        reset_kill_switch(king_approval())
 
     def test_invalid_level_rejected(self):
         """3.4: مستوى غير صالح مرفوض."""
@@ -212,7 +213,7 @@ class TestKillSwitch:
         )
 
         activate_kill_switch("halt", "test", "test")
-        reset_kill_switch()
+        reset_kill_switch(king_approval())
         status = get_system_status()
         assert status["level"] == "normal"
 
@@ -226,7 +227,7 @@ class TestKillSwitch:
 
         activate_kill_switch("halt", "test", "test")
         assert is_system_halted()
-        reset_kill_switch()
+        reset_kill_switch(king_approval())
         assert not is_system_halted()
 
     def test_is_execution_blocked_in_halt(self):
@@ -239,7 +240,7 @@ class TestKillSwitch:
 
         activate_kill_switch("halt", "test", "test")
         assert is_execution_blocked()
-        reset_kill_switch()
+        reset_kill_switch(king_approval())
         assert not is_execution_blocked()
 
     def test_is_execution_blocked_in_degraded(self):
@@ -253,7 +254,7 @@ class TestKillSwitch:
         activate_kill_switch("degraded", "test", "test")
         assert is_execution_blocked("python_execute")
         assert not is_execution_blocked("chart_generate")
-        reset_kill_switch()
+        reset_kill_switch(king_approval())
 
     def test_all_four_levels_exist(self):
         """3.4: كل المستويات الأربعة موجودة."""

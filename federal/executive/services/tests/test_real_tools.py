@@ -16,14 +16,15 @@ from amos_federation.services.tool_registry.sandbox import (
     ToolSandbox,
     execute_tool_with_governance,
 )
+from tests.conftest import king_approval
 
 
 @pytest.fixture(autouse=True)
 def cleanup_kill_switch():
     """إعادة ضبط Kill Switch قبل وبعد كل اختبار."""
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
     yield
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
 
 
 # === 4.2: python_execute ===

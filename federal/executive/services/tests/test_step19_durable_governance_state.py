@@ -97,7 +97,7 @@ def test_halt_still_blocks_execution_after_restart(db_path: Path) -> None:
 def test_reset_is_the_only_way_back_to_normal(db_path: Path) -> None:
     """الرفعُ فعلٌ صريحٌ — والنتيجةُ تنجو هي أيضًا لئلّا يعودَ الإيقافُ من نفسِه."""
     _run_in_fresh_process(db_path, "canary.activate_kill_switch('halt', 'ثمّ يُرفَعُ', 'step19')")
-    lifted = _run_in_fresh_process(db_path, "canary.reset_kill_switch()")
+    lifted = _run_in_fresh_process(db_path, "canary.reset_kill_switch(canary.KingApproval.from_verified_claims({'role': 'king', 'sub': 'test-king'}, 'lower_kill_switch'))")
     assert isinstance(lifted, dict) and lifted["level"] == "normal"
 
     after = _run_in_fresh_process(db_path, "canary.get_system_status()")
@@ -122,7 +122,7 @@ def test_human_approval_of_a_promotion_survives_a_restart(db_path: Path) -> None
 
     approved = _run_in_fresh_process(
         db_path,
-        f"canary.check_gate({promotion_id!r}, 'human_approval', True, 'أذِنَ المالك')",
+        f"canary.check_gate({promotion_id!r}, 'human_approval', True, 'أذِنَ المالك', canary.KingApproval.from_verified_claims({{'role': 'king', 'sub': 'test-king'}}, 'promote_model'))",
     )
     assert isinstance(approved, dict)
     assert approved["gates"]["human_approval"]["status"] == "passed"
@@ -139,7 +139,7 @@ def test_a_failed_gate_stays_failed_after_restart(db_path: Path) -> None:
     created = _run_in_fresh_process(db_path, "canary.create_promotion('step19-fail')")
     assert isinstance(created, dict)
     promotion_id = created["promotion_id"]
-    _run_in_fresh_process(db_path, f"canary.check_gate({promotion_id!r}, 'canary', False, 'سقطَت')")
+    _run_in_fresh_process(db_path, f"canary.check_gate({promotion_id!r}, 'canary', False, 'سقطَت', canary.KingApproval.from_verified_claims({{'role': 'king', 'sub': 'test-king'}}, 'promote_model'))")
 
     read = _run_in_fresh_process(db_path, f"canary.get_promotion({promotion_id!r})")
     assert isinstance(read, dict)

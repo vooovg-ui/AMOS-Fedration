@@ -22,6 +22,7 @@ from amos_federation.services.governance.expansion import (
 )
 
 from .per_test_auth import PerTestAuthHeaders
+from tests.conftest import king_approval
 
 AUTH_HEADERS = PerTestAuthHeaders(
     "tester",
@@ -41,7 +42,7 @@ def seed_and_clean():
     from amos_federation.services.governance.canary import reset_kill_switch
     from amos_federation.services.governance.expansion import _ExpansionBase
 
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
     url = get_database_url()
     connect_args = {"check_same_thread": False} if url.startswith("sqlite") else {}
     engine = create_engine(url, connect_args=connect_args)
@@ -71,7 +72,7 @@ def seed_and_clean():
         session.commit()
     finally:
         session.close()
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
 
 
 # === 11.1: Population expansion ===

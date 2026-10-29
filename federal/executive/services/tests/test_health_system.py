@@ -23,6 +23,7 @@ from amos_federation.services.agent_runtime.population import get_population_reg
 from amos_federation.services.control_console.main import app
 
 from .per_test_auth import PerTestAuthHeaders
+from tests.conftest import king_approval
 
 AUTH_HEADERS = PerTestAuthHeaders(
     "tester",
@@ -47,7 +48,7 @@ def seed_and_clean():
     )
     from amos_federation.services.governance.canary import reset_kill_switch
 
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
     registry = get_population_registry()
     registry.seed_initial_population()
     yield
@@ -59,7 +60,7 @@ def seed_and_clean():
         session.commit()
     finally:
         session.close()
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
 
 
 # === 8.1: Periodic health check ===

@@ -1,0 +1,10 @@
+# الطفرة (أ): إسقاطُ تمريرِ human_approval في guard_declared — يُتوقعُ سقوطُ فحوصِ الملكِ
+FAILED tests/test_wi114_canary_sovereign.py::test_two_raises_in_the_same_second_both_cross
+FAILED tests/test_wi114_canary_sovereign.py::test_kill_switch_compensator_restores_previous_snapshot
+FAILED tests/test_wi114_canary_sovereign.py::test_http_king_reset_crosses_with_evidence_tags
+FAILED tests/test_wi114_canary_sovereign.py::test_http_king_final_gate_promotes_with_evidence_tags
+FAILED tests/test_wi114_canary_sovereign.py::test_direct_king_approval_crosses_both_surfaces
+FAILED tests/test_wi114_canary_sovereign.py::test_surface4_compensator_restores_gates_and_status
+=================== 6 failed, 20 passed, 1 warning in 3.38s ====================
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.97s. Error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused

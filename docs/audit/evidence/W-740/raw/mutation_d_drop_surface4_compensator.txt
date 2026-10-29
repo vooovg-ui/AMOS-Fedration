@@ -1,0 +1,9 @@
+# الطفرة (د): إسقاطُ معوِّضِ السطحِ 4 في check_gate — يُتوقعُ سقوطُ فحصِ فشلِ الأثر
+FAILED tests/test_wi114_canary_sovereign.py::test_http_king_final_gate_promotes_with_evidence_tags
+FAILED tests/test_wi114_canary_sovereign.py::test_direct_final_gate_without_approval_refused_r001_1_row_unchanged
+FAILED tests/test_wi114_canary_sovereign.py::test_direct_nonfinal_gate_is_free_action_without_evidence
+FAILED tests/test_wi114_canary_sovereign.py::test_direct_king_approval_crosses_both_surfaces
+FAILED tests/test_wi114_canary_sovereign.py::test_surface4_compensator_restores_gates_and_status
+=================== 5 failed, 21 passed, 1 warning in 4.01s ====================
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.05s. Error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused

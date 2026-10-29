@@ -24,6 +24,7 @@ from amos_federation.services.governance.policy_engine import (
 )
 
 from .per_test_auth import PerTestAuthHeaders
+from tests.conftest import king_approval
 
 AUTH_HEADERS = PerTestAuthHeaders(
     "tester",
@@ -189,27 +190,27 @@ def test_policy_engine_check_tool_via_api() -> None:
 
 def test_kill_switch_halt_blocks_all() -> None:
     """في وضع halt، كل التنفيذ محجوب."""
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
     activate_kill_switch("halt", "اختبار إيقاف", "tester")
     assert is_system_halted() is True
     assert is_execution_blocked() is True
     assert is_execution_blocked("chart_generate") is True
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
 
 
 def test_kill_switch_degraded_blocks_dangerous() -> None:
     """في وضع degraded، الأدوات الخطيرة محجوبة فقط."""
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
     activate_kill_switch("degraded", "اختبار تدهور", "tester")
     assert is_execution_blocked("python_execute") is True
     assert is_execution_blocked("sql_query") is True
     assert is_execution_blocked("chart_generate") is False
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
 
 
 def test_kill_switch_normal_allows_all() -> None:
     """في وضع normal، كل شيء مسموح."""
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
     assert is_execution_blocked("python_execute") is False
     assert is_execution_blocked("chart_generate") is False
 
@@ -218,7 +219,7 @@ def test_kill_switch_enforce_raises_on_halt() -> None:
     """enforce_kill_switch يرمي استثناء في halt."""
     from fastapi import HTTPException
 
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
     activate_kill_switch("halt", "اختبار", "tester")
     try:
         enforce_kill_switch("python_execute")
@@ -227,14 +228,14 @@ def test_kill_switch_enforce_raises_on_halt() -> None:
         assert e.status_code == 503
         assert "system_halted" in e.detail["error"]
     finally:
-        reset_kill_switch()
+        reset_kill_switch(king_approval())
 
 
 def test_kill_switch_enforce_raises_on_degraded_dangerous() -> None:
     """enforce_kill_switch يرمي استثناء في degraded للأدوات الخطيرة."""
     from fastapi import HTTPException
 
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
     activate_kill_switch("degraded", "اختبار", "tester")
     try:
         enforce_kill_switch("sql_query")
@@ -243,12 +244,12 @@ def test_kill_switch_enforce_raises_on_degraded_dangerous() -> None:
         assert e.status_code == 503
         assert "system_degraded" in e.detail["error"]
     finally:
-        reset_kill_switch()
+        reset_kill_switch(king_approval())
 
 
 def test_kill_switch_enforce_allows_normal() -> None:
     """enforce_kill_switch يسمح في normal."""
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
     result = enforce_kill_switch("python_execute")
     assert result["allowed"] is True
 
@@ -257,17 +258,17 @@ def test_kill_switch_publishes_event() -> None:
     """تفعيل Kill Switch ينشر حدث."""
     from amos_federation.common.event_bus import get_event_bus
 
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
     bus = get_event_bus()
     initial_count = bus.count("amos_federation.policy.checked")
     activate_kill_switch("alert", "اختبار حدث", "tester")
     assert bus.count("amos_federation.policy.checked") > initial_count
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
 
 
 def test_kill_switch_via_api() -> None:
     """تفعيل Kill Switch عبر API."""
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
     resp = client.post(
         "/v1/system/kill-switch",
         headers=AUTH_HEADERS,
@@ -275,18 +276,18 @@ def test_kill_switch_via_api() -> None:
     )
     assert resp.status_code == 200
     assert resp.json()["level"] == "alert"
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
 
 
 def test_kill_switch_policy_engine_integration() -> None:
     """Kill Switch halt يجعل Policy Engine يرفض كل شيء."""
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
     activate_kill_switch("halt", "اختبار تكامل", "tester")
     engine = get_policy_engine()
     result = engine.evaluate_tool_access("chart_generate", "user", "halt")
     assert result["allowed"] is False
     assert "kill_switch_halt" in result["denied_by"]
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
 
 
 def test_kill_switch_levels_order() -> None:

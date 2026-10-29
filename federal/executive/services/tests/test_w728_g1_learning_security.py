@@ -67,8 +67,8 @@ class KillSwitchAuthorizer(RecordingAuthorizer):
         super().__init__(**kwargs)
         self._level = level
 
-    def _request(self, action: str, target: str, metadata: dict[str, Any] | None = None) -> Any:
-        request = super()._request(action, target, metadata)
+    def _request(self, action: str, target: str, metadata: dict[str, Any] | None = None, human_approval: Any = None) -> Any:
+        request = super()._request(action, target, metadata, human_approval)
         return dataclasses.replace(request, kill_switch_level=self._level)
 
 

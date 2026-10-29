@@ -128,7 +128,7 @@ def test_activate_kill_switch() -> None:
     assert resp.json()["reason"] == "اختبار طارئ"
 
 
-def test_reset_kill_switch() -> None:
+def test_reset_kill_switch_endpoint() -> None:
     """إعادة ضبط مفتاح الإيقاف (حارسٌ ملكيٌّ — WI-117)."""
     client.post(
         "/v1/system/kill-switch",

@@ -13,6 +13,7 @@ from amos_federation.services.agent_runtime.population import get_population_reg
 from amos_federation.services.control_console.main import app
 
 from .per_test_auth import PerTestAuthHeaders
+from tests.conftest import king_approval
 
 AUTH_HEADERS = PerTestAuthHeaders(
     "tester",
@@ -38,11 +39,11 @@ def seed_data():
     """بذر بيانات حقيقية قبل الاختبارات."""
     from amos_federation.services.governance.canary import reset_kill_switch
 
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
     registry = get_population_registry()
     registry.seed_initial_population()
     yield
-    reset_kill_switch()
+    reset_kill_switch(king_approval())
 
 
 # === 7.1: Dashboard shows real data ===

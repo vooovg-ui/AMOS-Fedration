@@ -4,7 +4,7 @@ AMOS-Federation Kill Switch + Promotion Gates + Canary Controller
 النطاق: governance (canary)
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-15
-تاريخ آخر تعديل: 2026-10-25 (W-675 — WI-114 السطحانِ 1 و3 يعبرانِ الحدَّ السياديّ)
+تاريخ آخر تعديل: 2026-10-29 (W-740 — WI-114 السطحانِ 2 و4 يعبرانِ الحدَّ بدليلِ الملكِ بتصميمِ W-737)
 """
 
 import uuid
@@ -15,6 +15,7 @@ from fastapi import HTTPException
 
 from amos_federation.services.executive_core.sovereignty_bridge import (
     ConstitutionalAuthorizer,
+    KingApproval,
     _core_sovereignty,
     compensator,
     declared_effect,
@@ -23,9 +24,10 @@ from amos_federation.services.executive_core.sovereignty_bridge import (
 
 # === عبورُ الحدِّ السياديِّ (WI-114 · A1(أ) · تصميمُ docs/audit/A1A_CANARY_CROSSING_DESIGN.md § 3.3) ===
 #
-# السطحانِ 1 و3 وحدَهما (التوجيهُ 23 § 2: «WI-114 السطحين 1 و3: الشفرة الآن»). والسطحانِ 2
-# (`reset_kill_switch`) و4 (`check_gate` حينَ تنقلُ النتيجةُ إلى `promoted`) **خارجَ هذه الشِّفرة**
-# حتّى يُنفَّذَ قرارُ D25-1 بشروطِه (أ)/(ب)/(ج).
+# الأسطحُ الأربعةُ الآنَ تعبرُ الحدَّ: السطحانِ 1 و3 (W-675) والسطحانِ 2 (`reset_kill_switch`)
+# و4 (`check_gate` حينَ تنقلُ النتيجةُ إلى `promoted`) بتصميمِ W-737 (A1A § 7) بعدَ
+# قرارِ D25-1 بشروطِه (أ) دليلُ الموافقةِ عبرَ الجسرِ و(ب) لا توقيعَ ولا حرجيّةَ من
+# الجسرِ و(ج) معروضٌ على المالكِ لا مفترضٌ (§ 7.7 · Q-82 · § 7.8).
 #
 #: فاعلُ العبورِ فرعٌ دستوريٌّ ثابتٌ في الوحدة (سابقةُ D1 في `national_registry.REGISTRY_ACTOR`
 #: و`factories.FACTORY_ACTOR`) — لأنَّ الجسرَ لا يقبلُ إلّا `Branch` (`sovereignty_bridge._request`).
@@ -44,9 +46,19 @@ ACTION_LOWER_KILL_SWITCH = "lower_kill_switch"
 #: طلبُ ترقيةٍ لا ترقية — فعلٌ حرٌّ ALLOW (مسبارُ W-675)؛ و`promote_model` يبقى للانتقالِ إلى
 #: `promoted` وحدَه (السطحُ 4 · بعدَ D25-1).
 ACTION_REQUEST_PROMOTION = "request_promotion"
+#: الترقيةُ إلى `promoted` — فعلُ المعجمِ المحروسُ بـR-001-1 (`human_approved`
+#: إلزاميّ · A1A § 7.4): البوابةُ الأخيرةُ حينَ تجتازُها الترقيةُ كلُّها لا تُكتبُ
+#: إلا بدليلِ ملكٍ من `require_king`، والرفضُ ذرّيّ فلا تُحفَظُ نتيجةٌ ولا حالة.
+ACTION_PROMOTE_MODEL = "promote_model"
+#: تسجيلُ بوابةٍ غيرِ أخيرةٍ (اجتيازًا أو فشلًا) — فعلٌ حرٌّ خارجَ المعجمِ (مسبارُ
+#: W-737: ALLOW مقيسًا بلا موافقةٍ) فلا يحملُ دليلًا ولا يُطلبُ منه.
+ACTION_RECORD_PROMOTION_GATE = "record_promotion_gate"
 
 KILL_SWITCH_SCOPE = "governance.kill_switch.activate"
 PROMOTION_REQUEST_SCOPE = "governance.promotion.request"
+#: نطاقُ مفتاحِ ذرّيّةِ فحصِ البواباتِ — النداءُ الواحدُ عمليّةٌ واحدةٌ (الطابعُ
+#: في القيمةِ) فإعادةُ الفحصِ بعدَ رفضٍ مشروعةٌ لا تُستبدَلُ بإعادةٍ صامتةٍ.
+PROMOTION_GATE_SCOPE = "governance.promotion.gate"
 SYSTEM_STATE_TARGET = "governance/system_state"
 
 _CANARY_AUTHORIZER: ConstitutionalAuthorizer | None = None
@@ -84,6 +96,27 @@ def reset_canary_authorizer() -> None:
     """أفرِغِ المُصرِّحَ المحفوظَ — للاختباراتِ التي تبدّلُ الفاعلَ أو موضعَ السجلّ."""
     global _CANARY_AUTHORIZER
     _CANARY_AUTHORIZER = None
+
+
+class PromotionRefusedError(HTTPException):
+    """رفضَ الحدُّ السياديُّ كتابةَ بوّابةِ الترقيةِ (`SovereigntyViolation`) — لم يُكتب شيء ⇒ 403.
+
+    صنفٌ مُسمًّى على سابقةِ `KillSwitchRefusedError` في الوحدةِ نفسِها: الجسرُ لا
+    يُعيدُ تصديرَ صنفِ البوّابةِ، والرفضُ الدستوريُّ ليس فشلًا تقنيًّا يُبتلَع. وذريّةُ
+    الرفضِ بيدِ الحدِّ نفسِه: المُطبِّقُ لا يُستدعى قبلَ حكمِ ALLOW فتبقى البوّاباتُ
+    والحالةُ كما كانتا.
+    """
+
+    def __init__(self, verb: str, explanation: str) -> None:
+        self.verb = verb
+        super().__init__(
+            status_code=403,
+            detail={
+                "error": "sovereign_refusal",
+                "action": verb,
+                "message": f"«{verb}» مرفوضٌ عندَ الحدِّ السياديّ: {explanation}",
+            },
+        )
 
 
 # === Kill Switch ===
@@ -224,9 +257,58 @@ def activate_kill_switch(level: str, reason: str, activated_by: str) -> dict[str
     return state
 
 
-def reset_kill_switch() -> dict[str, Any]:
-    """إعادة ضبط مفتاح الإيقاف — الرفعُ فعلٌ صريحٌ لا نتيجةُ إقلاع."""
-    return _system_state_store().reset()
+def reset_kill_switch(approval: KingApproval | None) -> dict[str, Any]:
+    """إعادة ضبط مفتاح الإيقاف — عبورٌ واحدٌ بفعلِ الخفضِ المحروسِ (WI-114 السطح 2 · A1A § 7.3).
+
+    المعاملُ إلزاميٌّ موضعيًّا (لا قيمةَ افتراضيّةَ تُخفي النسيان): الخفضُ فعلُ
+    المعجمِ `lower_kill_switch` المحروسُ بـR-008-3 فلا يُكتبُ شيءٌ عندَ الرفض
+    (`KillSwitchRefusedError` · 403 كالسطح 1)، والدليلُ يصلُ الطلبَ من المسارِ
+    (`require_king` ثم `KingApproval.from_verified_claims`) لا يُبنى هنا. والخفضُ
+    المُقنَّعُ عبرَ التفعيلِ يبقى مرفوضًا — مسارُ التفعيلِ بلا دليلِ ملكٍ.
+    """
+    store = _system_state_store()
+    before = store.get()
+    # مُعرِّفُ استدعاءٍ في الهدفِ (سابقةُ السطح 1): تكرارُ الخفضِ مشروعٌ فلا مفتاحَ
+    # طبيعيَّ يُعادُ عليه، ومعرِّفُ الإذنِ بالثانيةِ يمنعُ تصادمَ خفضَينِ في ثانيةٍ.
+    nonce = uuid.uuid4().hex
+    target = f"{SYSTEM_STATE_TARGET}/{nonce}"
+    effect = declared_effect(
+        "WRITE",
+        target,
+        f"زرُّ التوقّفِ «{before['level']}» → «normal» بدليلِ ملكٍ من «require_king»",
+    )
+
+    def _apply(_effect: Any) -> dict[str, Any]:
+        return store.reset()
+
+    def _restore() -> None:
+        # عكسٌ باللقطةِ السابقةِ (سابقةُ السطح 1): `activated_at` يُعادُ ختمُه لا يُستعاد.
+        if before["level"] == "normal":
+            store.reset()
+        else:
+            store.set_level(before["level"], before["reason"], before["activated_by"])
+
+    violation = _core_sovereignty("gateway").SovereigntyViolation
+    try:
+        guarded = _canary_authorizer().guard_declared(
+            ACTION_LOWER_KILL_SWITCH,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(KILL_SWITCH_SCOPE, nonce),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    _restore,
+                    "استعادةُ مستوى الزرِّ وسببِه وفاعلِه كما كانت قبلَ الخفض",
+                ),
+            ),
+            metadata={"level_before": before["level"], "level_requested": "normal"},
+            human_approval=approval,
+        )
+    except violation as exc:
+        raise KillSwitchRefusedError(ACTION_LOWER_KILL_SWITCH, str(exc)) from exc
+    return guarded.value
 
 
 def is_system_halted() -> bool:
@@ -351,8 +433,22 @@ def create_promotion(model_id: str, requested_by: str | None = None) -> dict[str
     return dict(guarded.value)
 
 
-def check_gate(promotion_id: str, gate_name: str, passed: bool, notes: str = "") -> dict[str, Any]:
-    """فحص بوابة ترقية."""
+def check_gate(
+    promotion_id: str,
+    gate_name: str,
+    passed: bool,
+    notes: str = "",
+    approval: KingApproval | None = None,
+) -> dict[str, Any]:
+    """فحص بوابة ترقية — عبورٌ واحدٌ لكلِّ نداءٍ (WI-114 السطح 4 · A1A § 7.4).
+
+    الفعلُ بحسبِ الانتقالِ المحسوبِ قبلَ الحدّ: انتقالٌ إلى `promoted` ⇒ فعلُ
+    المعجمِ `promote_model` المحروسُ بـR-001-1 بدليلِ الملكِ، ورفضُه ذرّيّ فلا
+    تُحفَظُ نتيجةُ البوابةِ الأخيرةِ ولا الحالةُ ويُعادُ النداءُ بدليلِ الملكِ ·
+    غيرُه (اجتيازُ بوّابةٍ غيرِ أخيرةٍ أو فشلٌ) ⇒ الفعلُ الحرُّ
+    `record_promotion_gate` بلا موافقةٍ (ALLOW مقيسًا). والمعوِّضُ يعيدُ البواباتِ
+    والحالةَ كما كانتا.
+    """
     store = _promotion_store()
     promo = store.get(promotion_id)
     if promo is None:
@@ -360,9 +456,10 @@ def check_gate(promotion_id: str, gate_name: str, passed: bool, notes: str = "")
     gates = dict(promo["gates"])
     if gate_name not in gates:
         raise ValueError(f"بوابة غير صالحة: {gate_name}")
+    now = datetime.now(UTC).isoformat()
     gates[gate_name] = {
         "status": "passed" if passed else "failed",
-        "checked_at": datetime.now(UTC).isoformat(),
+        "checked_at": now,
         "notes": notes,
     }
     status = promo["status"]
@@ -372,10 +469,54 @@ def check_gate(promotion_id: str, gate_name: str, passed: bool, notes: str = "")
     # إذا اجتازت كل البوابات
     elif all(g["status"] == "passed" for g in gates.values()):
         status = "promoted"
-    updated = store.save_gates(promotion_id, gates, status, datetime.now(UTC).isoformat())
-    if updated is None:
-        raise ValueError(f"ترقية غير موجودة: {promotion_id}")
-    return updated
+    # الفعلُ بحسبِ الانتقالِ المحسوبِ قبلَ الحدّ (A1A § 7.4)
+    verb = ACTION_PROMOTE_MODEL if status == "promoted" else ACTION_RECORD_PROMOTION_GATE
+    # هدفُ الطلبِ والأثرِ هوَ البوّابةُ داخلَ الترقيةِ (ابنٌ لها في نطاقِ العقدِ):
+    # بصمةُ الطلبِ تُحسَبُ من الفعلِ والهدفِ (engine.fingerprint) فبدونِ تمييزِ
+    # البوّابةِ تشتركُ بواباتُ الترقيةِ الواحدةِ في بصمةٍ واحدةٍ فيُرفَضُ الثاني
+    # كإعادةِ تصريحٍ — وكلُّ بوّابةٍ عمليّةٌ مستقلّةٌ لا شطرٌ من عمليّةٍ واحدة.
+    # (انحرافٌ مُعلَنٌ عن حرفيّةِ § 7.4 «WRITE governance/promotions/<id>»: الأثرُ
+    # على ابنِ الترقيةِ لا الترقيةِ العارية، والكتابةُ نفسُها بواباتٌ وحالةٌ كما
+    # في التصميمِ — قيدُهُ في قيدِ W-740.)
+    target = f"governance/promotions/{promotion_id}/gates/{gate_name}"
+    effect = declared_effect(
+        "WRITE",
+        target,
+        f"بوّابةُ «{gate_name}» («{gates[gate_name]['status']}») وبوّاباتُ ترقيةِ «{promotion_id}» وحالتُها «{status}»",
+    )
+    before_gates = dict(promo["gates"])
+    before_status = promo["status"]
+    before_updated = promo["updated_at"]
+
+    def _apply(_effect: Any) -> dict[str, Any]:
+        return store.save_gates(promotion_id, gates, status, now)
+
+    def _restore() -> None:
+        store.save_gates(promotion_id, before_gates, before_status, before_updated)
+
+    violation = _core_sovereignty("gateway").SovereigntyViolation
+    try:
+        guarded = _canary_authorizer().guard_declared(
+            verb,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(
+                PROMOTION_GATE_SCOPE, f"{promotion_id}:{gate_name}:{now}"
+            ),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    _restore,
+                    "استعادةُ بواباتِ الترقيةِ وحالتِها كما كانتا قبلَ الكتابة",
+                ),
+            ),
+            metadata={"promotion_id": promotion_id, "gate_name": gate_name, "passed": passed},
+            human_approval=approval if verb == ACTION_PROMOTE_MODEL else None,
+        )
+    except violation as exc:
+        raise PromotionRefusedError(verb, str(exc)) from exc
+    return dict(guarded.value)
 
 
 def get_promotion(promotion_id: str) -> dict[str, Any] | None:

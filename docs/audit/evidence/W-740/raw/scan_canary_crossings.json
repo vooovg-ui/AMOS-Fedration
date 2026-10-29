@@ -1,0 +1,78 @@
+{
+ "$comment": "الهدف: مخرجُ فحصِ العبوراتِ المتعاقبةِ لأسطحِ canary الأربعةِ (W-740) — max ≥ 2 = عبوراتٌ متعاقبةٌ خارجَ عبورٍ واحد",
+ "surfaces": {
+  "canary.activate_kill_switch": {
+   "calls": 14,
+   "max_crossings_per_call": 1,
+   "sequences": {
+    "activate_kill_switch@governance/system_state/60c8ff3e2fe34b9189aa1272d8d61f73": 1,
+    "activate_kill_switch@governance/system_state/2cd39cca052c408f86c9b663b98ec97c": 1,
+    "activate_kill_switch@governance/system_state/471d463c40f34dd0818b23129225641d": 1,
+    "activate_kill_switch@governance/system_state/001bbfe279554971bb9273e805a239b5": 1,
+    "lower_kill_switch@governance/system_state/71a7d6627f8f4768b8ababe130c034ce": 1,
+    "activate_kill_switch@governance/system_state/f8aa5870ffbf49b49c2516980c71e5d5": 1,
+    "lower_kill_switch@governance/system_state/8aa2a5fd4cae47ac9f7bf25119d52d79": 1,
+    "activate_kill_switch@governance/system_state/c48d6366d6ac42248922d1bc32c38c10": 1,
+    "activate_kill_switch@governance/system_state/4735167ffa93416f81af8cb8e254ba79": 1,
+    "activate_kill_switch@governance/system_state/85056c5a5b62416682c56680233d8bcd": 1,
+    "activate_kill_switch@governance/system_state/9001050cedc3477597f8a7d2ef596f4b": 1,
+    "activate_kill_switch@governance/system_state/4cbce8c5a54e441d8603c93b30ba08fe": 1,
+    "activate_kill_switch@governance/system_state/6dbe584758344aeca2ba2c536297c328": 1,
+    "activate_kill_switch@governance/system_state/cbba1167f113435db934968846347744": 1
+   }
+  },
+  "canary.check_gate": {
+   "calls": 16,
+   "max_crossings_per_call": 1,
+   "sequences": {
+    "record_promotion_gate@governance/promotions/promo-86ead403-2794-4a0c-bbbf-b675f42a10bb/gates/evaluation": 1,
+    "record_promotion_gate@governance/promotions/promo-86ead403-2794-4a0c-bbbf-b675f42a10bb/gates/shadow": 1,
+    "record_promotion_gate@governance/promotions/promo-86ead403-2794-4a0c-bbbf-b675f42a10bb/gates/canary": 1,
+    "record_promotion_gate@governance/promotions/promo-86ead403-2794-4a0c-bbbf-b675f42a10bb/gates/human_approval": 1,
+    "promote_model@governance/promotions/promo-86ead403-2794-4a0c-bbbf-b675f42a10bb/gates/activation": 1,
+    "record_promotion_gate@governance/promotions/promo-2882c38e-1e25-4b90-a85d-d12a5084e9d1/gates/evaluation": 1,
+    "record_promotion_gate@governance/promotions/promo-a93cf69f-86a9-4734-a3b5-d2f5f259a0a4/gates/evaluation": 1,
+    "record_promotion_gate@governance/promotions/promo-a93cf69f-86a9-4734-a3b5-d2f5f259a0a4/gates/shadow": 1,
+    "record_promotion_gate@governance/promotions/promo-a93cf69f-86a9-4734-a3b5-d2f5f259a0a4/gates/canary": 1,
+    "record_promotion_gate@governance/promotions/promo-a93cf69f-86a9-4734-a3b5-d2f5f259a0a4/gates/human_approval": 1,
+    "promote_model@governance/promotions/promo-a93cf69f-86a9-4734-a3b5-d2f5f259a0a4/gates/activation": 1,
+    "record_promotion_gate@governance/promotions/promo-34ad1749-6d97-462e-98c6-63fdef64d977/gates/evaluation": 1,
+    "record_promotion_gate@governance/promotions/promo-34ad1749-6d97-462e-98c6-63fdef64d977/gates/shadow": 1,
+    "record_promotion_gate@governance/promotions/promo-34ad1749-6d97-462e-98c6-63fdef64d977/gates/canary": 1,
+    "record_promotion_gate@governance/promotions/promo-34ad1749-6d97-462e-98c6-63fdef64d977/gates/human_approval": 1,
+    "promote_model@governance/promotions/promo-34ad1749-6d97-462e-98c6-63fdef64d977/gates/activation": 1
+   }
+  },
+  "canary.create_promotion": {
+   "calls": 7,
+   "max_crossings_per_call": 1,
+   "sequences": {
+    "request_promotion@governance/promotions/promo-b45904fd-1ca0-40e5-abe1-a911240fc45e": 1,
+    "promote_model@governance/promotions/promo-5c1502e1-b3a2-4445-bc64-f89f93c1c028": 1,
+    "request_promotion@governance/promotions/promo-0cffd9e6-aefb-4b48-8264-eb49363fdafc": 1,
+    "request_promotion@governance/promotions/promo-86ead403-2794-4a0c-bbbf-b675f42a10bb": 1,
+    "request_promotion@governance/promotions/promo-2882c38e-1e25-4b90-a85d-d12a5084e9d1": 1,
+    "request_promotion@governance/promotions/promo-a93cf69f-86a9-4734-a3b5-d2f5f259a0a4": 1,
+    "request_promotion@governance/promotions/promo-34ad1749-6d97-462e-98c6-63fdef64d977": 1
+   }
+  },
+  "canary.reset_kill_switch": {
+   "calls": 12,
+   "max_crossings_per_call": 1,
+   "sequences": {
+    "lower_kill_switch@governance/system_state/28ee1d0afee34e3caee19a2deb47efc9": 1,
+    "lower_kill_switch@governance/system_state/752e99c2d7e44b7fa9d1fb0dbe89f155": 1,
+    "lower_kill_switch@governance/system_state/e9207c59871d42ff829fbfe048739977": 1,
+    "lower_kill_switch@governance/system_state/2fd32fe9aa0b419d8ade61a4ec260c47": 1,
+    "lower_kill_switch@governance/system_state/4b65b249a7af4947aae5e86ec66bef3c": 1,
+    "lower_kill_switch@governance/system_state/121607859a1547d0b1fb973f61ad1d35": 1,
+    "lower_kill_switch@governance/system_state/cddb90e74fdc4d83baef983bed113cdb": 1,
+    "lower_kill_switch@governance/system_state/86e3213a91664842aee58ad2161df4e7": 1,
+    "lower_kill_switch@governance/system_state/809d06a507714652ba00d162ba8fa8ab": 1,
+    "lower_kill_switch@governance/system_state/b2339592ce42491ab245fe67ef640d83": 1,
+    "lower_kill_switch@governance/system_state/f8ec0547621745509edb5191e38f0d71": 1,
+    "lower_kill_switch@governance/system_state/86dfd5d8e0b442c9bd1413dda03d446e": 1
+   }
+  }
+ }
+}

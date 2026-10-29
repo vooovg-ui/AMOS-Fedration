@@ -81,8 +81,9 @@ class KillSwitchLevelAuthorizer(ConstitutionalAuthorizer):
         action: str,
         target: str,
         metadata: dict[str, Any] | None = None,
+        human_approval: Any = None,
     ) -> Any:
-        request = super()._request(action, target, metadata)
+        request = super()._request(action, target, metadata, human_approval)
         return dataclasses.replace(request, kill_switch_level=self._kill_switch_level)
 
 

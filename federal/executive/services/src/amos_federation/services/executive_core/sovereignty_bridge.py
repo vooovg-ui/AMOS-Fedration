@@ -118,6 +118,45 @@ class GuardedResult:
         return bool(getattr(self.outcome, "is_replay", False))
 
 
+@dataclass(frozen=True)
+class KingApproval:
+    """دليلُ موافقةِ الملكِ من رمزٍ تحقَّقَ منه حارسُ المسارِ (A1A § 7.2 · WI-114).
+
+    يُبنى بدالّةٍ واحدةٍ (`from_verified_claims`) لا يُنشَأ سواها: المصدرُ الأوّلُ
+    `require_king` عندَ المسارِ نفسِه، وهذه إعادةُ فحصٍ ثانيةٌ للدورِ — لا تحقّقَ
+    أصالةً (ذاك بيدِ توقيعِ Ed25519 في بندٍ مستقلٍّ). والدليلُ لا يمنحُ صلاحيةً
+    بنفسِه: يصلُ الطلبَ `human_approved=True` **فقط** إن صادفَ الفعلَ الذي صُدِرَ
+    لأجلِه (`issued_for == action`)، والباقي حكمُ المحرّكِ في المعجمِ المحروسِ
+    (`lower_kill_switch` بـR-008-3 · `promote_model` بـR-001-1) — فالمزوَّرُ
+    الشكلِ والمُسمّى لفعلٍ آخرَ يُرفَضُ كما يُرفَضُ الخالي.
+    """
+
+    source: str  # "require_king" — المسارُ الذي اعتمدَ الرمزَ
+    subject: str  # <sub> — صاحبُ الرمزِ كما أعلنَتهُ المطالباتُ
+    role: str  # "king"
+    issued_for: str  # الفعلُ الذي صُدِرَ الدليلُ لأجلِه
+
+    @classmethod
+    def from_verified_claims(cls, token_data: dict[str, Any], action: str) -> "KingApproval":
+        """ابنِ الدليلَ من مطالباتِ رمزٍ تحقَّقَ منها `require_king` — لا من غيرِه.
+
+        إعادةُ فحصِ الدورِ دفاعٌ ثانٍ صريحٌ: الدالّةُ ترفعُ ما ليسَ دورُهُ ملكًا
+        ولا تُصحِّحُ ولا تُخمِّنُ؛ والدالّةُ لا تأخذُ إلا ما أعادَهُ `require_king`
+        فلا يُقبَلُ `require_auth` مصدرًا.
+        """
+        if token_data.get("role") != "king":
+            raise SovereigntyUnavailableError(
+                f"مطالباتٌ دورُها «{token_data.get('role')}» وليستْ دورَ الملكِ — "
+                "لا يُبنى دليلُ موافقةٍ من غيرِ رمزٍ ملكيٍّ تحقَّقَ منه المسارُ"
+            )
+        return cls(
+            source="require_king",
+            subject=str(token_data.get("sub", "")),
+            role="king",
+            issued_for=action,
+        )
+
+
 class SovereignAuthorizer(Protocol):
     """الحدّ الذي تعتمد عليه النواة التنفيذية.
 
@@ -137,6 +176,7 @@ class SovereignAuthorizer(Protocol):
         metadata: dict[str, Any] | None = None,
         judicial_action: Any | None = None,
         royal_decree: Any | None = None,
+        human_approval: "KingApproval | None" = None,
     ) -> GuardedResult: ...
 
     def review_only(
@@ -144,6 +184,7 @@ class SovereignAuthorizer(Protocol):
         action: str,
         target: str,
         metadata: dict[str, Any] | None = None,
+        human_approval: "KingApproval | None" = None,
     ) -> AuthorityEvidence: ...
 
 
@@ -296,7 +337,13 @@ class ConstitutionalAuthorizer:
         )
 
     # ── بناء الطلب ────────────────────────────────────────────────────────
-    def _request(self, action: str, target: str, metadata: dict[str, Any] | None):
+    def _request(
+        self,
+        action: str,
+        target: str,
+        metadata: dict[str, Any] | None,
+        human_approval: "KingApproval | None" = None,
+    ):
         self._ensure_core_importable()
         from core.constitutional_engine.model import ActionRequest, Branch
 
@@ -308,12 +355,26 @@ class ConstitutionalAuthorizer:
             raise SovereigntyUnavailableError(
                 f"فاعلٌ غيرُ معروفٍ في الدستور «{self._actor}» — لا يُفترَضُ فرعٌ بديل"
             ) from exc
+        # دليلُ الملكِ (A1A § 7.2): لا يُقبَلُ إلا بالنوعِ نفسِهِ وبفعلٍ مطابِقٍ —
+        # فالمُزيَّفُ الشكلِ والمُسمّى لفعلٍ آخرَ يمرُّ هنا خاليًا كما لو لم يُبنَ،
+        # وحكمُهُ عندَ المحرّكِ في المعجمِ المحروسِ. والوسمانِ يدخلانِ بصمةَ الطلبِ.
+        human_approved = False
+        enriched = dict(metadata or {})
+        if (
+            human_approval is not None
+            and isinstance(human_approval, KingApproval)
+            and human_approval.issued_for == action
+        ):
+            human_approved = True
+            enriched["human_approval_source"] = human_approval.source
+            enriched["human_approval_subject"] = human_approval.subject
         return ActionRequest(
             actor=actor,
             action=action,
             target=target,
             channel=self._channel,
-            metadata=dict(metadata or {}),
+            metadata=enriched,
+            human_approved=human_approved,
         )
 
     @staticmethod
@@ -366,6 +427,7 @@ class ConstitutionalAuthorizer:
         metadata: dict[str, Any] | None = None,
         judicial_action: Any | None = None,
         royal_decree: Any | None = None,
+        human_approval: "KingApproval | None" = None,
     ) -> GuardedResult:
         """نفِّذْ عبر حدِّ التنفيذِ السياديّ — أو لا تنفُذ.
 
@@ -379,7 +441,7 @@ class ConstitutionalAuthorizer:
         `SovereigntyViolation` و`RoyalImpersonation` واستثناءاتُ الحدِّ كلُّها
         تُترك ترتفع كما هي: منعٌ دستوريٌّ ليس فشلًا تقنيًّا يُبتلع.
         """
-        request = self._request(action, target, metadata)
+        request = self._request(action, target, metadata, human_approval)
         if royal_decree is not None:
             # قناةُ المرسومِ (W-723 · G1 § 9.8.1): نقلٌ لا سلطة — الجسرُ لا يتحقّقُ
             # ولا يُقرِّر، و`classify` في البوابةِ يثبتُ الأصالةَ أو يرفعُ. ويُركَّبُ
@@ -438,6 +500,7 @@ class ConstitutionalAuthorizer:
         target: str,
         declared_effects: tuple[Any, ...],
         metadata: dict[str, Any] | None = None,
+        human_approval: "KingApproval | None" = None,
     ) -> Any:
         """اطلب إذن إنفاذ موقّعًا بدل أن تُنفّذ بنفسك.
 
@@ -445,7 +508,7 @@ class ConstitutionalAuthorizer:
         تصنعه، ثم تُسلّمه إلى موضع إنفاذ لا يملك بوابة.
         """
         return self._gateway.decide(
-            self._request(action, target, metadata),
+            self._request(action, target, metadata, human_approval),
             declared_effects=declared_effects,
         )
 
@@ -474,9 +537,10 @@ class ConstitutionalAuthorizer:
         action: str,
         target: str,
         metadata: dict[str, Any] | None = None,
+        human_approval: "KingApproval | None" = None,
     ) -> AuthorityEvidence:
         """حكم دستوري بلا تنفيذ — يُستخدَم لتقييم مهمّة قبل قبولها."""
-        verdict = self._gateway.review(self._request(action, target, metadata))
+        verdict = self._gateway.review(self._request(action, target, metadata, human_approval))
         return self._evidence_from_verdict(action, target, verdict)
 
 

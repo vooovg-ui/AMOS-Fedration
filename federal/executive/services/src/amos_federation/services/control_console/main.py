@@ -208,12 +208,16 @@ async def activate_kill_switch(
 
 @router.post("/kill-switch/reset", response_model=dict)
 async def reset_kill_switch(
-    _: Annotated[dict[str, object], Depends(require_king)],
+    token_data: Annotated[dict[str, object], Depends(require_king)],
 ) -> dict[str, Any]:
-    """إعادة ضبط Kill Switch (حارسٌ ملكيٌّ — WI-117)."""
-    from amos_federation.services.governance.canary import reset_kill_switch
+    """إعادة ضبط Kill Switch (حارسٌ ملكيٌّ — WI-117) — الخفضُ يعبرُ بدليلِ الملكِ (WI-114 السطح 2)."""
+    from amos_federation.services.executive_core.sovereignty_bridge import KingApproval
+    from amos_federation.services.governance.canary import (
+        ACTION_LOWER_KILL_SWITCH,
+        reset_kill_switch as _reset,
+    )
 
-    return reset_kill_switch()
+    return _reset(KingApproval.from_verified_claims(token_data, ACTION_LOWER_KILL_SWITCH))
 
 
 # === 7.5: Approval (placeholder — يكتمل في المرحلة 9) ===

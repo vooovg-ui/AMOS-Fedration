@@ -3,7 +3,7 @@
 # النطاق: federal/executive/services/tests
 # المالك: federal/executive/services
 # تاريخ الإنشاء: 2026-08-15
-# تاريخ آخر تعديل: 2026-10-23 (`W-625` · قرارُ المالكِ `Q-71` — عزلُ سجلِّ الذرّيّةِ لكلِّ فحصٍ)
+# تاريخ آخر تعديل: 2026-10-29 (`W-740` · WI-114 السطحانِ 2 و4 — بانيُ دليلِ الملكِ `king_approval` والتجهيزةُ ترفعُ الزرَّ عبرَه)
 
 """Pytest configuration for AMOS-Federation tests.
 
@@ -275,6 +275,21 @@ def pytest_sessionfinish(session, exitstatus):
     _cleanup_test_ledger(TEST_ARTIFACT_DIR)
 
 
+# ── بانيُ دليلِ الملكِ الواحدُ (A1A § 7.3 · WI-114 السطح 2 و4 · W-740) ─────────
+#
+# المثبِّتاتُ التي ترفعُ الزرَّ تحملُ الدليلَ صراحةً عبرَ هذا البانيِ وحدَه — لا
+# رقعةَ تُعفي ولا نداءَ لـ`store.reset()` مباشرةً. والدليلُ يُبنى من مطالباتٍ
+# ملكيّةٍ صريحةٍ كما كتبَهُ التصميمُ: `from_verified_claims({"role": "king",
+# "sub": "test-king"}, <الفعل>)`.
+
+
+def king_approval(action: str = "lower_kill_switch"):
+    """بانيُ دليلِ الملكِ للاختباراتِ — دالّةٌ واحدةٌ لا يُنشَأ الدليلُ سواها."""
+    from amos_federation.services.executive_core.sovereignty_bridge import KingApproval
+
+    return KingApproval.from_verified_claims({"role": "king", "sub": "test-king"}, action)
+
+
 # ── رفعُ الإيقافِ بينَ الاختباراتِ (W-031 · قرارُ المالكِ Q-39 أ) ─────────────
 # صارَ مستوى مفتاحِ الإيقافِ **دائمًا** في جدولِ `system_state`، وهذا هو المقصودُ:
 # إعادةُ التشغيلِ لا تُطفِئُ `halt`. وأثرُه على الحزمةِ حقيقيٌّ ويُعلَنُ لا يُخفى:
@@ -291,7 +306,7 @@ def _lift_durable_halt_after_each_test():
         from amos_federation.services.governance import canary
 
         if canary.get_system_status().get("level") != "normal":
-            canary.reset_kill_switch()
+            canary.reset_kill_switch(king_approval())
 
 
 # ── عزلُ سجلِّ الذرّيّةِ لكلِّ فحصٍ (R1 · W-625 · قرارُ المالكِ Q-71) ───────────
