@@ -1,0 +1,154 @@
+# قياساتُ تصميمِ السطحَين 2 و4 (WI-114 · D25-1) — على HEAD ad67494c15207423a4e5227c9b81003a850d24ec · كلُّ مقطعٍ: الأمرُ ثمَّ مخرجُه خامًا
+
+$ rg -n 'def reset_kill_switch|def check_gate|def _promotion_store|save_gates|\.reset\(\)|guard_declared|request_permit' federal/executive/services/src/amos_federation/services/governance/canary.py
+149:    return _canary_authorizer().guard_declared(
+199:            store.reset()
+227:def reset_kill_switch() -> dict[str, Any]:
+229:    return _system_state_store().reset()
+293:def _promotion_store() -> Any:
+310:    إلى `cancelled` بـ`save_gates` القائم. والحدُّ مُعلَن: يبقى صفٌّ مُبطَلٌ في الجدولِ بعدَ التعويض.
+332:        _promotion_store().save_gates(
+336:    guarded = _canary_authorizer().guard_declared(
+354:def check_gate(promotion_id: str, gate_name: str, passed: bool, notes: str = "") -> dict[str, Any]:
+375:    updated = store.save_gates(promotion_id, gates, status, datetime.now(UTC).isoformat())
+EXIT=0
+
+$ rg -n 'require_king|require_auth|reset_kill_switch\(|check_gate\(' federal/executive/services/src/amos_federation/services/governance/main.py
+14:from amos_federation.common.auth import require_auth, require_king
+108:    _: Annotated[dict[str, object], Depends(require_auth)],
+117:    _: Annotated[dict[str, object], Depends(require_auth)],
+130:    _: Annotated[dict[str, object], Depends(require_auth)],
+139:    _: Annotated[dict[str, object], Depends(require_auth)],
+149:    _: Annotated[dict[str, object], Depends(require_king)],
+152:    result = reset_kill_switch()
+170:    _: Annotated[dict[str, object], Depends(require_king)],
+180:    _: Annotated[dict[str, object], Depends(require_auth)],
+190:    _: Annotated[dict[str, object], Depends(require_auth)],
+203:    _: Annotated[dict[str, object], Depends(require_king)],
+207:        result = check_gate(promotion_id, request.gate_name, request.passed, request.notes)
+228:    _: Annotated[dict[str, object], Depends(require_auth)],
+238:    _: Annotated[dict[str, object], Depends(require_auth)],
+248:    _: Annotated[dict[str, object], Depends(require_auth)],
+261:    _: Annotated[dict[str, object], Depends(require_auth)],
+283:    _: Annotated[dict[str, object], Depends(require_auth)],
+299:    _: Annotated[dict[str, object], Depends(require_auth)],
+308:    _: Annotated[dict[str, object], Depends(require_auth)],
+319:    _: Annotated[dict[str, object], Depends(require_auth)],
+331:    _: Annotated[dict[str, object], Depends(require_auth)],
+342:    _: Annotated[dict[str, object], Depends(require_auth)],
+355:    _: Annotated[dict[str, object], Depends(require_auth)],
+363:    _: Annotated[dict[str, object], Depends(require_auth)],
+380:    _: Annotated[dict[str, object], Depends(require_auth)],
+EXIT=0
+
+$ rg -n 'def require_king' -A10 federal/executive/services/src/amos_federation/common/auth.py
+120:def require_king(
+121-    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_security)] = None,
+122-) -> dict[str, Any]:
+123-    """اعتماد يتطلب دور المالك/الملك فقط."""
+124-    token_data = require_auth(credentials)
+125-    if token_data.get("role") != ROLE_KING:
+126-        raise HTTPException(
+127-            status_code=status.HTTP_403_FORBIDDEN,
+128-            detail="هذا الإجراء يتطلب صلاحيات المالك/الملك",
+129-        )
+130-    return token_data
+EXIT=0
+
+$ rg -n 'human_approved|human_signature|criticality|approving_branches' core/constitutional_engine/model.py
+79:    human_approved: bool = False
+80:    human_signature: str | None = None       # توقيع Ed25519 (المادة الخامسة)
+81:    approving_branches: tuple[Branch, ...] = ()
+83:    criticality: str = "normal"              # normal | critical | fateful
+92:        return branch in self.approving_branches
+EXIT=0
+
+$ rg -n 'human_approved|human_signature|criticality' federal --type py
+federal/executive/services/src/amos_federation/services/governance/canary.py:40:#: الخفضُ — فعلُ المعجمِ المحروسُ بـR008-3 (`human_approved` إلزاميّ). يُوجَّهُ إليه كلُّ
+EXIT=0
+
+$ sed -n 299,317p federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py
+    def _request(self, action: str, target: str, metadata: dict[str, Any] | None):
+        self._ensure_core_importable()
+        from core.constitutional_engine.model import ActionRequest, Branch
+
+        try:
+            actor = Branch[self._actor] if isinstance(self._actor, str) else self._actor
+        except KeyError as exc:
+            # فاعلٌ لا وجودَ له في الدستورِ ليس خطأً يُصحَّحُ بافتراضٍ: الافتراضُ
+            # هنا يُنفِّذُ بصلاحيةِ فرعٍ لم يُقصَد. فالرفضُ صريحٌ قبلَ أيِّ طلب.
+            raise SovereigntyUnavailableError(
+                f"فاعلٌ غيرُ معروفٍ في الدستور «{self._actor}» — لا يُفترَضُ فرعٌ بديل"
+            ) from exc
+        return ActionRequest(
+            actor=actor,
+            action=action,
+            target=target,
+            channel=self._channel,
+            metadata=dict(metadata or {}),
+        )
+EXIT=0
+
+$ rg -n 'def _r003_3|def _r003_4|def _r008_2|def _r008_3|HUMAN_GATED_ACTIONS = ' -A4 core/constitutional_engine/rules.py
+171:HUMAN_GATED_ACTIONS = frozenset({
+172-    "promote_model", "replicate", "spawn_population", "launch_production",
+173-    "deploy_production", "self_modify", "train_model", "expand_state",
+174-})
+175-
+--
+382:def _r003_3(req: ActionRequest) -> str | None:
+383-    """مبدأ التوازن: كل قرار حرج يتطلب موافقة فرعين على الأقل."""
+384-    if req.criticality in {"critical", "fateful"}:
+385-        branch_approvals = {b for b in req.approving_branches if b in _FOUR_BRANCHES}
+386-        if len(branch_approvals) < 2:
+--
+395:def _r003_4(req: ActionRequest) -> str | None:
+396-    """القرارات المصيرية تتطلب موافقة بشرية موقعة."""
+397-    if req.criticality == "fateful" and not (req.human_approved and req.human_signature):
+398-        missing = "التوقيع الرقمي" if req.human_approved else "الموافقة البشرية الموقعة"
+399-        return f"قرار مصيري بلا {missing}. القرارات المصيرية تتطلب موافقة بشرية موقعة."
+--
+504:def _r008_2(req: ActionRequest) -> str | None:
+505-    """مستويات التوقف تُجمّد فئات الأفعال تصاعديًا."""
+506-    level = req.kill_switch_level
+507-    if level <= 0:
+508-        return None
+--
+520:def _r008_3(req: ActionRequest) -> str | None:
+521-    """إعادة التشغيل تتطلب موافقة صريحة."""
+522-    if req.action in {"restart", "restore_service", "lower_kill_switch"} and not req.human_approved:
+523-        return f"«{req.action}» بعد توقف طارئ يتطلب موافقة بشرية صريحة."
+524-    return None
+EXIT=0
+
+$ rg -c 'reset_kill_switch\(' -g '*.py' federal tests
+federal/executive/services/src/amos_federation/services/control_console/main.py:2
+federal/executive/services/src/amos_federation/services/governance/main.py:1
+federal/executive/services/src/amos_federation/services/governance/canary.py:1
+federal/executive/services/tests/test_health_system.py:2
+federal/executive/services/tests/test_federation.py:2
+federal/executive/services/tests/test_expansion.py:2
+federal/executive/services/tests/test_real_tools.py:2
+federal/executive/services/tests/test_phase3_governance.py:7
+federal/executive/services/tests/test_control_console.py:2
+federal/executive/services/tests/test_treasury.py:2
+federal/executive/services/tests/test_governance.py:1
+federal/executive/services/tests/test_step19_durable_governance_state.py:1
+federal/executive/services/tests/test_governance_phase3.py:16
+federal/executive/services/tests/conftest.py:1
+EXIT=0
+
+$ rg -c 'reset_kill_switch\(' -g '*.py' federal tests | awk -F: '{s+=$2} END {print s}'
+42
+EXIT=0
+
+$ rg -c 'check_gate\(' -g '*.py' federal tests
+federal/executive/services/src/amos_federation/services/governance/main.py:1
+federal/executive/services/src/amos_federation/services/governance/canary.py:1
+federal/executive/services/tests/test_step19_durable_governance_state.py:2
+EXIT=0
+
+$ rg -n 'def test_' federal/executive/services/tests/test_wi114_canary_sovereign.py | wc -l
+9
+EXIT=0
+
