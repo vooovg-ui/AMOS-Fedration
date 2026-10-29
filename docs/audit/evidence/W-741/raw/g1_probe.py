@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """مسبارُ مقعدِ claude_opus_5_5 لـWI-120 (جولةُ W-732) — يحاولُ كسرَ خواصِّ G1 المُدَّعاةِ.
 
+الهدف: قياسُ خواصِّ G1 (الذرّيّةُ تحتَ الرفضِ المتأخِّرِ · إسنادُ المراسيمِ · الكنسُ الذرّيُّ · حصرُ المنعِ) بمحاولاتِ كسرٍ لا تُغيِّرُ المستودعَ · المالك: Perplexity Computer (W-741) · النطاقُ: تشغيلٌ معزولٌ بقاعدةِ SQLite وسجلِّ ذرّيّةٍ مؤقّتَينِ.
+
 يُنادي المسارَ الإنتاجيَّ (StateRuntime · SystemLifecycle · RetirementSystem · ConstitutionalEngine)
 بقاعدةِ SQLite وسجلِّ ذرّيّةٍ مؤقّتَينِ داخلَ دليلِ المقعدِ. لا يمسُّ ملفًّا في المستودع.
-
-تكييفٌ واحدٌ مُفصَح (W-741 · 2026-10-30): إضافةُ `human_approval=None` إلى توقيعِ `LevelAuthorizer._request`
-بعدَ قناةِ الجسرِ في W-740 — بصمةُ الأصلِ 5583d191… (المودَعِ حرفيًّا في RAW [18] من حكمِ W-733) وبصمةُ هذه النسخةِ f4ae1aea….
 
 المحاولات:
   A  Q-14: إيقافٌ محكومٌ ثمَّ self_heal مكرّرًا — هل يُعيدُ الولايةَ؟ (ومعه ولايةٌ معلّقةٌ تلقائيًّا
@@ -39,6 +38,7 @@ os.environ["AMOS_EXECUTIVE_IDEMPOTENCY_LEDGER"] = str(ART / "ledger.jsonl")
 os.environ.setdefault("AMOS_JWT_SECRET", "probe_secret_at_least_32_characters_long")
 os.environ.setdefault("AMOS_CLAUDE_API_KEY", "probe_key_not_real")
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "federal" / "executive" / "services" / "src"))
 
 from amos_federation.services.executive_core.sovereignty_bridge import (  # noqa: E402
     ConstitutionalAuthorizer,
@@ -245,8 +245,8 @@ if __name__ == "__main__":
     for name, fn in (("A", probe_a), ("B", probe_b), ("C", probe_c), ("D", probe_d)):
         try:
             fn()
-        except Exception:  # noqa: BLE001
-            check(f"{name}! انكسارُ المسبارِ نفسِه", False, traceback.format_exc().strip().splitlines()[-1])
+        except Exception as e:  # noqa: BLE001 — تُرْفَع المعلومةُ إلى نتيجةِ الفحصِ لا تُبتَلَع
+            check(f"{name}! انكسارُ المسبارِ نفسِه", False, f"{type(e).__name__}: {e}")
     broken = [r for r in RESULTS if not r[1]]
     print(f"PROBE SUMMARY: checks={len(RESULTS)} broken={len(broken)}")
     sys.exit(1 if broken else 0)
