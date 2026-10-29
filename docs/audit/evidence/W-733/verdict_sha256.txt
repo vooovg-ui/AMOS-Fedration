@@ -1,0 +1,1 @@
+5d6dd32a0de71b6f418956ce8c507970b70a5a486aa1171303b47182f6f7baa9  verdicts/wi120/claude_opus_5_5/VERDICT.md (الجزءُ الحرفيُّ بعدَ الفاصلِ · 103233 بايتًا · مطابقٌ لملفِّ جذرِ المقعدِ council_w732/claude_opus_5_5/wi120/VERDICT.md)

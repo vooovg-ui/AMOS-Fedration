@@ -1,0 +1,40 @@
+# فحوصُ العزلِ بعدَ جولةِ WI-120 المُعلَّقةِ (البروتوكولُ § 2.6 · قيدُ W-733 · 2026-10-29)
+
+== 1) جذرُ المقعدِ: العقدةُ ونظافةُ الشجرةِ ==
+$ git -C /home/user/workspace/council_w732/claude_opus_5_5/wi120/repo rev-parse HEAD
+73379d69dee4db3771dda46728ddb11ecfa2d46d
+$ git -C /home/user/workspace/council_w732/claude_opus_5_5/wi120/repo status --short | wc -l
+0
+
+== 2) لا أمرَ يُسمّي مسارَ مقعدٍ آخر ==
+$ rg -o '/home/user/workspace/council_w732/[a-z0-9_]+' /home/user/workspace/council_w732/claude_opus_5_5/wi120/VERDICT.md | sort | uniq -c
+     56 /home/user/workspace/council_w732/claude_opus_5_5
+
+== 3) ملفّاتُ المقعدِ المؤقتةُ المُعلَنةُ خارجَ جذرِه (أعلنَها في ISOLATION_DECLARATION) ==
+$ ls /tmp/diag_retire.py /tmp/diag2.py
+ls: cannot access '/tmp/diag_retire.py': No such file or directory
+ls: cannot access '/tmp/diag2.py': No such file or directory
+(غيابُهما الآنَ مقيسٌ — المقعدُ أعلنَ كتابتَهما ثمَّ حذفَ diag2.py؛ لا يُعرَفُ مَن حذفَ diag_retire.py — غيرُ مقيس)
+
+== 4) المقاعدُ الأخرى في الجولةِ: لا حكمَ ==
+$ find /home/user/workspace/council_w732 -maxdepth 3 -type f | sort
+/home/user/workspace/council_w732/claude_opus_5_5/wi116/briefing.md
+/home/user/workspace/council_w732/claude_opus_5_5/wi120/VERDICT.md
+/home/user/workspace/council_w732/claude_opus_5_5/wi120/briefing.md
+/home/user/workspace/council_w732/claude_opus_5_5/wi120/cmds.json
+/home/user/workspace/council_w732/gemini_4_argon/wi116/briefing.md
+/home/user/workspace/council_w732/gemini_4_argon/wi120/briefing.md
+/home/user/workspace/council_w732/grok_4_7/wi116/briefing.md
+/home/user/workspace/council_w732/grok_4_7/wi120/briefing.md
+(gemini_4_argon/wi120: إحاطةٌ فقط بلا VERDICT.md — المقعدُ أُطلِقَ خطأً بالنموذجِ الافتراضيِّ (Claude Opus 5.5) بعدَ رفضِ gemini_4_argon، ثمَّ قُطِعَ؛ ليس مقعدًا صالحًا ولا حكمَ له · grok_4_7: إحاطتانِ فقط، لم يُطلَق)
+
+== 5) بصماتُ الإحاطاتِ في الجذورِ = المبصومةُ في W-732 ==
+$ sha256sum /home/user/workspace/council_w732/claude_opus_5_5/wi120/briefing.md docs/audit/evidence/W-732/council_briefs/wi120/briefing_claude_opus_5_5.md
+25b0f230f9b535ba7ec06db5eb43a759fafa427a163cdbaec77b1de74396547c  /home/user/workspace/council_w732/claude_opus_5_5/wi120/briefing.md
+25b0f230f9b535ba7ec06db5eb43a759fafa427a163cdbaec77b1de74396547c  docs/audit/evidence/W-732/council_briefs/wi120/briefing_claude_opus_5_5.md
+$ sha256sum /home/user/workspace/council_w732/gemini_4_argon/wi120/briefing.md docs/audit/evidence/W-732/council_briefs/wi120/briefing_gemini_4_argon.md
+d101d30d67d840cf6aa513a8fabef67a7a26b09ea85b9c670c74cc2827117aeb  /home/user/workspace/council_w732/gemini_4_argon/wi120/briefing.md
+d101d30d67d840cf6aa513a8fabef67a7a26b09ea85b9c670c74cc2827117aeb  docs/audit/evidence/W-732/council_briefs/wi120/briefing_gemini_4_argon.md
+$ sha256sum /home/user/workspace/council_w732/grok_4_7/wi120/briefing.md docs/audit/evidence/W-732/council_briefs/wi120/briefing_grok_4_7.md
+072f3ba4b7c5af70f4ebe4e527bf05a85a5ecaa36f17e1bd8c6ceda07d4107dc  /home/user/workspace/council_w732/grok_4_7/wi120/briefing.md
+072f3ba4b7c5af70f4ebe4e527bf05a85a5ecaa36f17e1bd8c6ceda07d4107dc  docs/audit/evidence/W-732/council_briefs/wi120/briefing_grok_4_7.md

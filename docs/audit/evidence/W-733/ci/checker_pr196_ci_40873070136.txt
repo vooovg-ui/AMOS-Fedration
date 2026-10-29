@@ -1,0 +1,8 @@
+$ python tools/governance/ci_verdict_readability.py --from-json docs/audit/evidence/W-733/ci/pr196_ci_40873070136_jobs.json --require-readable --expect-sha 73379d69dee4db3771dda46728ddb11ecfa2d46d
+[CI VERDICT] مقروئيّةُ الحكمِ تُقاسُ بالخطواتِ لا بالنتيجة
+  تشغيلٌ 40873070136: READABLE · نُفِّذَت 13/13 وظيفةً (لم يُسنَدْ عاملٌ لـ0 · مُتخطًّى 0 · مشكوكٌ 0)
+[CI VERDICT] ✓ كلُّ التشغيلاتِ (1) نُفِّذَت خطواتُها — فـ`conclusion` يُقرأُ حكمًا.
+
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+[CI VERDICT] ✓ كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — فالدمجُ جائزٌ إجرائيًّا.
+EXIT=0

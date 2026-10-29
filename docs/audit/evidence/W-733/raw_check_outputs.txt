@@ -1,0 +1,11 @@
+# مخرجاتُ الفاحصِ council_verdict_raw_check.py على حكمِ مقعدِ claude_opus_5_5 (جولةُ WI-120 · W-732) — من مستودعِ المنسِّقِ عندَ 73379d69 · قيدُ W-733 · 2026-10-29
+
+== claude_opus_5_5 / wi120 (جذرُ المقعدِ) ==
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/council_w732/claude_opus_5_5/wi120/VERDICT.md · أوامرُ 19 · كتلُ RAW 19
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
+
+== claude_opus_5_5 / wi120 (النسخةُ المودَعةُ) ==
+[RAW CHECK] ✓ مقبولٌ: /home/user/workspace/amos/docs/audit/evidence/W-733/verdicts/wi120/claude_opus_5_5/VERDICT.md · أوامرُ 19 · كتلُ RAW 19
+[RAW CHECK] ✓ 1/1 حكمًا مقروءًا يحملُ مخرجاتِ أوامرِه خامًا كاملةً
+EXIT=0
