@@ -1,0 +1,29 @@
+diff --git a/core/constitutional_engine/rules.py b/core/constitutional_engine/rules.py
+index f70e461c..4f073c5a 100644
+--- a/core/constitutional_engine/rules.py
++++ b/core/constitutional_engine/rules.py
+@@ -250,6 +250,7 @@ _BRANCH_EXCLUSIVE: dict[Branch, frozenset[str]] = {
+     Branch.TREASURY: TREASURY_ACTIONS,
+ }
+ _FOUR_BRANCHES = (Branch.EXECUTIVE, Branch.LEGISLATIVE, Branch.JUDICIAL, Branch.TREASURY)
++_NON_BRANCH_EXCLUDED = frozenset({Branch.AGENT, Branch.SYSTEM})
+ 
+ 
+ @dataclass(frozen=True)
+@@ -354,7 +355,15 @@ def _r002_2(req: ActionRequest) -> str | None:
+ # ===========================================================================
+ 
+ def _r003_1(req: ActionRequest) -> str | None:
+-    """اختصاص الفروع: لا فرع يمارس اختصاص فرع آخر."""
++    """اختصاص الفروع: لا فرع يمارس اختصاص فرع آخر — ولا يمارسه AGENT ولا SYSTEM (Q-68)."""
++    if req.actor in _NON_BRANCH_EXCLUDED:
++        for branch, actions in _BRANCH_EXCLUSIVE.items():
++            if req.action in actions:
++                return (
++                    f"الطرف «{req.actor.value}» خارج الفروع يمارس «{req.action}» وهو اختصاص حصري "
++                    f"للفرع «{branch.value}». الحصر يمنع ذلك (Q-68)."
++                )
++        return None
+     if req.actor not in _BRANCH_EXCLUSIVE:
+         return None
+     for branch, actions in _BRANCH_EXCLUSIVE.items():
