@@ -4,7 +4,7 @@ AMOS-Federation Population Projection + Agent School
 النطاق: services/agent_runtime/population
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-15
-تاريخ آخر تعديل: 2026-08-16
+تاريخ آخر تعديل: 2026-10-30 (W-741 · update_state عبورٌ واحدٌ بأثرين)
 
 R4: كان هذا الملفّ قبل اليوم سجل هوية مستقلًّا: يولّد `agent_id` بنفسه، ويحفظ
 الاسم والدور والصلاحيات والأدوات والحالة في `agent_population`، بمعزل عن جدول
@@ -49,7 +49,6 @@ from amos_federation.services.executive_core.agent_identity import (
     list_identities,
     new_agent_id,
     population_projection,
-    set_lifecycle_state,
 )
 from amos_federation.services.executive_core.sovereignty_bridge import (
     ConstitutionalAuthorizer,
@@ -368,27 +367,42 @@ class PopulationRegistry:
         authorizer: ConstitutionalAuthorizer | None = None,
         **extra,
     ) -> bool:
-        """تغيير دورة الحياة في الحقل الكانوني، مع مرآة توافُقية في جدول السكّان.
+        """تغيير دورة الحياة كانونًا ومرآةً في عبورٍ واحدٍ بأثرَينِ (WI-123 · Q-81(ب) · W-741).
 
-        تحقّقٌ مسبقٌ ثمَّ عبورانِ متعاقبانِ (W-699 · تصميمُ E1 § 2.2): الأثرُ
-        المُعلنُ لعبورِ هذا السطحِ هو كتابةُ صفِّ السكّانِ وحدَه (المرآة) بالفعلِ
-        «update_population_state» المحجوزِ منَ المستوى 3، والانتقالُ الكانونيُّ
-        يبقى عبرَ العبورِ العلنيِّ «set_lifecycle_state» بفعلِهِ الموجَّهِ
-        (contain_agent/activate_agent). والتحقّقُ المسبقُ بطلبِ إذنٍ على فعلِ
-        السطحِ نفسِهِ **قبلَ أيِّ كتابةٍ** يمنعُ الرفضَ المتأخِّرَ: فلا كتابةً
-        كانونيّةً تُلزَمُ ثمَّ تُرفَضُ المرآةُ (الصنفُ 1 منَ التصميمِ § 3) ولا
-        مرآةً تكذبُ بـ«active» والكانونُ محتوى.
+        G1 § 9.9.8 (نمطُ retire_agent · W-736): **عبورٌ واحدٌ يعلنُ الأثرَينِ** —
+        انتقالَ الكانونِ ثمَّ صفَّ المرآةِ — بنوًى خاصّةٍ لا تعبرُ بنفسِها، ولكلِّ
+        أثرٍ معوِّضُهُ. فرفضٌ متأخِّرٌ أو فشلُ أيِّ أثرٍ بعدَ سابقِهِ يُعيدُ الوكيلَ
+        إلى حالتِهِ السابقةِ كانونًا ومرآةً (صحةٌ موحَّدةٌ: مقبولةٌ أو معوَّضةٌ) —
+        وهذا يسدُّ نافذةَ DISC-142 (الرفضُ المتأخِّرُ لعبورِ المرآةِ بعدَ نجاحِ
+        عبورٍ كانونيٍّ منفصلٍ كانَ يتركُ الكانونَ منتقلًا).
+
+        التغييرُ الدلاليُّ المُعلَنُ (قرارُ المالكِ Q-81(ب) · تصميمُ
+        `E1_UPDATE_STATE_ONE_CROSSING_DESIGN.md` § 2.5): كتابةُ الكانونِ تنتقلُ
+        منَ العبورِ العلنيِّ «set_lifecycle_state» (بفعلِهِ الموجَّهِ) إلى عبورِ
+        هذا السطحِ الواحدِ بفعلِ `update_population_state` المحجوزِ منَ المستوى 3 —
+        فرفضُ ≥3 يمنعُ العمليةَ كلَّها قبلَ أيِّ كتابةٍ، ولا مفتاحَ كانونيًّا
+        منفصلًا بعدَ اليومِ: العمليةُ كلُّها تحتَ مفتاحِ `agents.population.state`.
+
+        والتحقُّقُ المسبقُ بطلبِ إذنٍ على فعلِ السطحِ نفسِهِ **قبلَ أيِّ كتابةٍ**
+        يبقى نظيفًا، ومفتاحُ الذرّيّةِ الواحدُ يغطّي الأثرَينِ معًا (إعادةُ
+        الإرسالِ الناجحةِ إعادةٌ واحدةٌ لا كتابةَ فيها كانونًا ومرآةً)، والمحاولةُ
+        بعدَ فشلٍ قابلٍ للإعادةٍ (عُوِّضَ كاملًا) تُعادُ على المفتاحِ نفسِهِ —
+        الترقيمُ في سجلِّ الذرّيّةِ لا في هويةِ العمليةِ.
         """
         actor_authorizer = authorizer if authorizer is not None else _default_authorizer()
         target = f"population:{agent_id}"
-        # لقطةُ الحقولِ السابقةِ (قراءةٌ قبلَ الحدِّ) — تُبنى منها بصمةُ الحمولةِ
-        # في المفتاحِ والموردِ، ويُبنى منها المعوّضُ (لا من قراءةٍ لاحقةٍ).
+        # لقطتا العالمِ قبلَ الحدِّ (قراءةٌ قبلَ الكتابةِ) — يُبنى منها المعوِّضُ
+        # لا من قراءةٍ لاحقةٍ: الكانونُ والمرآةُ معًا، بما فيهِ غيابُ الصفِّ نفسُهُ.
         profile = self._profile(agent_id)
         previous_state = profile.state if profile is not None else ""
         previous_graduated_at = profile.graduated_at if profile is not None else None
         previous_extra = {
             k: getattr(profile, k) for k in extra if profile is not None and hasattr(profile, k)
         }
+        canonical_identity = get_identity(agent_id)
+        canonical_previous = (
+            canonical_identity.lifecycle_state if canonical_identity is not None else None
+        )
         payload_fingerprint = hashlib.sha256(
             json.dumps(
                 {"state": new_state, **{k: _jsonable(v) for k, v in extra.items()}},
@@ -397,81 +411,76 @@ class PopulationRegistry:
             ).encode("utf-8")
         ).hexdigest()
 
-        # ناجحٌ أو غيابُ سجلٍّ يعنيانِ المحاولةَ الأولى فلا يتغيّرُ المفتاحُ.
-        from core.sovereignty.idempotency import OperationStatus
+        # لا وكيلَ أصلًا (لا هويةَ ولا صفَّ): عمليةٌ فارغةٌ لا تعبرُ ولا تُقاس.
+        if canonical_previous is None and profile is None:
+            return False
 
-        mirror_prior = actor_authorizer.boundary.idempotency_ledger.get(
-            operation_key(
-                "agents.population.state",
-                f"{agent_id}/{previous_state}->{new_state}.{payload_fingerprint[:16]}",
-            )
-        )
-        attempt_seq = (
-            len(mirror_prior.attempts)
-            if mirror_prior is not None and mirror_prior.status == OperationStatus.FAILED_RETRYABLE
-            else 0
-        )
-        composite_operation_id = f"{payload_fingerprint[:16]}.{attempt_seq}"
-
-        mirror_effect = declared_effect(
-            "WRITE",
-            f"{target}/state.{previous_state}->{new_state}.{payload_fingerprint[:16]}",
-            f"تحديثُ صفِّ السكّانِ (المرآةِ) للوكيلِ «{agent_id}» إلى «{new_state}»",
-        )
-
-        # التحقّقُ المسبقُ على فعلِ السطحِ نفسِهِ — رفضٌ نظيفٌ قبلَ أيِّ كتابةٍ
-        # (يرتفعُ SovereigntyViolation عندَ المستوى 3 وما فوقَ).
-        actor_authorizer.request_permit(
-            ACTION_UPDATE_POPULATION_STATE,
-            target,
-            declared_effects=(mirror_effect,),
-        )
-
-        # لقطةُ الحالةِ الكانونيّةِ قبلَ العبورِ الكانونيِّ — يحتاجها معوّضُ
-        # المرآةِ: إن نجحَ الكانونيُّ وفشلَتِ المرآةُ فلا يبقى الانتقالُ
-        # الكانونيُّ قائمًا والعمليةُ كلُّها فاشلةٌ (تعويضٌ منسَّقٌ · E1 § 2.3).
-        canonical_identity = get_identity(agent_id)
-        canonical_previous = (
-            canonical_identity.lifecycle_state if canonical_identity is not None else None
-        )
-
-        # هويةُ العمليةِ المركَّبةِ (تصميمُ E1 § 2.2): بصمةُ الحمولةِ المطلوبةِ +
-        # ترقيمُ المحاولةِ — «عمليةٌ جديدةٌ على الكيانِ نفسِهِ ⇒ مفتاحٌ جديدٌ» (§ 2.4):
-        # فإعادةُ إرسالِ التحديثِ نفسِهِ إعادةٌ واحدةٌ على المفتاحِ نفسِهِ، ومحاولةٌ
-        # لاحقةٌ بعدَ فشلٍ قابلٍ للإعادةِ (عُوّضَ أثرُها كاملًا) عمليةٌ جديدةٌ تُكمِلُ
-        # البدءَ ما بدأَهُ التعويضُ. المرجعُ سجلُّ عبورِ المرآةِ: محاولةٌ فاشلةٌ
-        # قابلةٌ للإعادةِ ترقّمُ محاولةً جديدةً (يتغيّرُ المفتاحُ الكانونيُّ)، وعبورٌ
-
-        # الانتقالُ الكانونيُّ عبرَ العبورِ العلنيِّ (فعلٌ موجَّهٌ · المستوى 4 للاستعادة).
-        canonical_updated = set_lifecycle_state(
-            agent_id,
-            new_state,
-            authorizer=actor_authorizer,
-            operation_id=composite_operation_id,
-        )
-
-        # العمليّةُ الفارغةُ لا تُقاسُ (سابقةُ `set_lifecycle_state` · تصميمُ E1
-        # § 2.4): إعادةُ إرسالِ تحديثٍ وقعَ فعلًا — الصفُّ يحملُ الحالةَ والقيمَ
-        # المطلوبةَ — لا عبورَ ولا كتابةً ولا مفتاحَ ذرّيّةٍ لما لم يقعْ، فلا
-        # يُبتلَعُ الانتقالُ إعادةً ولا تُكرَّرُ كتابتُهُ (الصنفُ 4).
+        # الأثرانِ بالترتيبِ (§ 9.9.8 (3)): الكانونيُّ يُحذَفُ منَ العقدِ إن كانَ
+        # فارغًا (سابقةُ «العمليةُ الفارغةُ لا تُقاس»)، والمرآةُ إن كانتِ العمليةُ
+        # مُطبَّقةً فعلًا (الصفُّ يحملُ الحالةَ والقيمَ المطلوبةَ) — إعادةُ إرسالٍ
+        # لا عبورَ فيها ولا كتابةً لما وقعَ فعلًا (الصنفُ 4).
+        canonical_moves = canonical_previous is not None and canonical_previous != new_state
         mirror_already_applied = (
             profile is not None
             and previous_state == new_state
             and all(str(getattr(profile, k, None)) == str(v) for k, v in extra.items())
         )
+        if not canonical_moves and mirror_already_applied:
+            return True
 
-        # عبورُ كتابةِ المرآةِ — الأثرُ المُعلنُ الوحيدُ لهذا السطحِ (تصميمُ E1 § 2.2).
-        if not mirror_already_applied:
+        canon_effect = declared_effect(
+            "WRITE",
+            f"{target}/lifecycle.{canonical_previous}->{new_state}.{payload_fingerprint[:16]}",
+            f"انتقالُ دورةِ حياةِ «{agent_id}» {canonical_previous} → {new_state} في الحقلِ الكانونيِّ",
+        )
+        mirror_effect = declared_effect(
+            "WRITE",
+            f"{target}/state.{previous_state}->{new_state}.{payload_fingerprint[:16]}",
+            f"تحديثُ صفِّ السكّانِ (المرآةِ) للوكيلِ «{agent_id}» إلى «{new_state}»",
+        )
+        effects = ((canon_effect,) if canonical_moves else ()) + (
+            () if mirror_already_applied else (mirror_effect,)
+        )
 
-            def _apply(_effect: Any) -> None:
+        # التحقُّقُ المسبقُ على فعلِ السطحِ نفسِهِ — رفضٌ نظيفٌ قبلَ أيِّ كتابةٍ
+        # (يرتفعُ SovereigntyViolation عندَ المستوى 3 وما فوقَ، فلا كتابةً كانونيًّا
+        # ولا مرآةً تُلزَمُ ثمَّ تُرفَضُ).
+        actor_authorizer.request_permit(
+            ACTION_UPDATE_POPULATION_STATE,
+            target,
+            declared_effects=effects,
+        )
+
+        def _apply(effect: Any) -> None:
+            # نوًى خاصّةٌ لا تعبرُ بنفسِها — كاشفُ التعشيشِ يبقى صامتًا (§ 9.9.8 (3)).
+            if effect.signature == canon_effect.signature and canonical_moves:
+                _set_lifecycle_state_core(agent_id, new_state)
+            elif effect.signature == mirror_effect.signature:
                 _update_population_row_core(
                     self,
                     agent_id,
                     new_state=new_state,
                     extras=extra,
                 )
+            else:  # pragma: no cover — لا أثرَ غيرَ مُعلَن
+                raise RuntimeError(f"أثرٌ غيرُ مُعلَنٍ في update_state: {effect.signature}")
 
-            def _compensate_mirror() -> None:
+        compensators: list[Any] = []
+        if canonical_moves:
+
+            def _restore_canonical() -> None:
+                _compensate_canonical_transition(agent_id, str(canonical_previous))
+
+            compensators.append(
+                compensator(
+                    canon_effect.signature,
+                    _restore_canonical,
+                    "إرجاعُ الانتقالِ الكانونيِّ إلى حالتِهِ السابقة",
+                )
+            )
+        if not mirror_already_applied:
+
+            def _restore_mirror() -> None:
                 _restore_population_snapshot_core(
                     self,
                     agent_id,
@@ -479,58 +488,52 @@ class PopulationRegistry:
                     previous_graduated_at=previous_graduated_at,
                     previous_extra=previous_extra,
                 )
-                # وتعويضُ الانتقالِ الكانونيِّ المرافقِ (نجحَ الكانونيُّ وفشلَتِ
-                # المرآةُ): عبورُ المرآةِ آخرُ العبورينِ، فمعوّضُهُ يعكِسُ أثرَهُ
-                # **وأثرَ العبورِ الكانونيِّ الذي نجحَ قبلَهُ** — وإلا بقيَ
-                # الكانونُ قد انتقلَ والعمليةُ كلُّها فاشلةٌ (E1 § 2.3:
-                # معوّضٌ لكلِّ أثرٍ مُعلنٍ في العمليةِ الواحدةِ).
-                if canonical_previous is not None and canonical_previous != new_state:
-                    _set_lifecycle_state_core(agent_id, canonical_previous)
 
-            try:
-                actor_authorizer.guard_declared(
-                    ACTION_UPDATE_POPULATION_STATE,
-                    target,
-                    declared_effects=(mirror_effect,),
-                    applier=_apply,
-                    operation_key=operation_key(
-                        "agents.population.state",
-                        f"{agent_id}/{previous_state}->{new_state}.{payload_fingerprint[:16]}",
-                    ),
-                    compensators=(
-                        compensator(
-                            mirror_effect.signature,
-                            _compensate_mirror,
-                            "إرجاعُ لقطةِ صفِّ السكّانِ وعكسُ الانتقالِ الكانونيِّ المرافقِ",
-                        ),
-                    ),
+            compensators.append(
+                compensator(
+                    mirror_effect.signature,
+                    _restore_mirror,
+                    "إرجاعُ لقطةِ صفِّ السكّان",
                 )
-            except Exception as exc:
-                # فشلَ عبورُ المرآةِ والحدُّ لم يُشغّلْ معوّضَهُ (أثرٌ واحدٌ لا
-                # يُتتبَّعُ مُطبَّقًا إلّا إذا عادَ مُطبِّقُهُ — والكاتبُ قد يكتبُ
-                # جزئيًّا ثمَّ يرفعُ، فيقعُ الأثرُ فعلًا دونَ تتبُّعٍ منَ الحدِّ):
-                # يُعوّضُ السطحُ بنفسِهِ **الأثرينِ معًا** (تعويضٌ منسَّقٌ · E1
-                # § 2.3): إرجاعُ لقطةِ صفِّ السكّانِ — استعادةٌ آمنةٌ وإن لم يقعِ
-                # الكتابُ (إرجاعُ الحالةِ إلى حالِها) وعكسٌ حقيقيٌّ إن وقعَ — وعكسُ
-                # الانتقالِ الكانونيِّ الذي نجحَ قبلَهُ، فلا يبقى الكانونُ قد
-                # انتقلَ والعمليةُ كلُّها فاشلةٌ. ثمَّ يُعادُ رفعُ الانكسارِ كما هو
-                # لا يُبتلَعُ.
-                from core.sovereignty.idempotency import IdempotencyError
+            )
 
-                if not isinstance(exc, IdempotencyError):
-                    raise
-                if profile is not None:
-                    _restore_population_snapshot_core(
-                        self,
-                        agent_id,
-                        previous_state=previous_state,
-                        previous_graduated_at=previous_graduated_at,
-                        previous_extra=previous_extra,
-                    )
-                if canonical_previous is not None and canonical_previous != new_state:
-                    _set_lifecycle_state_core(agent_id, canonical_previous)
-                raise
-        return canonical_updated or profile is not None
+        # عبورٌ واحدٌ للأثرَينِ — الحدُّ يرفضُ قبلَ أيِّ كتابةٍ، ويُعوِّضُ ما تتبّعَهُ
+        # مُطبَّقًا أثرًا أثرًا إن انكسرَ المُطبِّقُ بعدَ تطبيقِ بعضِها (تعويضٌ
+        # منسَّقٌ · § 9.9.8 (4)). والكاتبُ قد يكتبُ ثمَّ يرفعَ، فيقعُ الأثرُ فعلًا
+        # بلا تتبُّعٍ منَ الحدِّ (الأثرُ لا يُتتبَّعُ مُطبَّقًا إلّا إذا عادَ
+        # مُطبِّقُهُ) — فعندَ أيِّ وجهِ فشلٍ يُرجِعُ السطحُ القيمَ السابقةَ نفسَها
+        # بنفسِهِ (إرجاعٌ آمنٌ وإن لم يقعِ الكتابُ: إرجاعُ الحالةِ إلى حالِها —
+        # ولا تعويضًا ثانيًا لما عوّضَهُ الحدُّ فعلًا، فالإرجاعَ إلى القيمةِ نفسِها
+        # أُحاديُّ الأثرِ) ثمَّ يُعادُ رفعُ الانكسارِ كما هو — لا يُبتلَعُ شيءٌ.
+        try:
+            actor_authorizer.guard_declared(
+                ACTION_UPDATE_POPULATION_STATE,
+                target,
+                declared_effects=effects,
+                applier=_apply,
+                operation_key=operation_key(
+                    "agents.population.state",
+                    f"{agent_id}/{previous_state}->{new_state}.{payload_fingerprint[:16]}",
+                ),
+                compensators=tuple(compensators),
+                metadata={
+                    "agent_id": agent_id,
+                    "previous": previous_state,
+                    "canonical_previous": canonical_previous,
+                },
+            )
+        except Exception:
+            _restore_population_snapshot_core(
+                self,
+                agent_id,
+                previous_state=previous_state,
+                previous_graduated_at=previous_graduated_at,
+                previous_extra=previous_extra,
+            )
+            if canonical_moves:
+                _compensate_canonical_transition(agent_id, str(canonical_previous))
+            raise
+        return True
 
     def population_stats(self) -> dict[str, Any]:
         """إحصاءات السكّان مشتقّة من السجل الكانوني — لا عدّاد ثانٍ."""
@@ -1024,6 +1027,16 @@ def _restore_population_snapshot_core(
         session.commit()
     finally:
         session.close()
+
+
+def _compensate_canonical_transition(agent_id: str, canonical_previous: str) -> None:
+    """إرجاعُ الانتقالِ الكانونيِّ إلى حالتِهِ السابقةِ — معوّضُ الأثرِ الأولِ (WI-123).
+
+    نوًى خاصّةٌ مُعيَّنةٌ بالتصميمِ لا `royal/main.py:restore_agent` (K1) —
+    تُستدعى من معوّضِ عبورِ `update_state` عندَ فشلِ أثرٍ لاحقٍ بعدَ تطبيقِ
+    الانتقالِ الكانونيِّ، فيُعكَسُ إلى ما كانَ عليهِ قبلَ العبورِ.
+    """
+    _set_lifecycle_state_core(agent_id, canonical_previous)
 
 
 def _create_school_result_core(

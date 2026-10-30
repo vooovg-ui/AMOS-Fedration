@@ -326,7 +326,7 @@ def test_w699_2_population_register_agent_crosses_spawn() -> None:
 
 
 def test_w699_2_update_state_crosses_population_mirror() -> None:
-    """update_state: الانتقالُ الكانونيُّ ثمَّ عبورُ المرآةِ بفعلِ update_population_state."""
+    """update_state: عبورٌ واحدٌ بفعلِ update_population_state يعلنُ الأثرَينِ معًا (WI-123)."""
     registry = PopulationRegistry()
     # صفُّ الملفِّ التدريبيِّ عبرَ المسارِ المحروسِ نفسِهِ.
     registry.register_agent("وكيل تحديث", "executor", "cognitive_executor", agent_id="w699-upd")
@@ -336,9 +336,14 @@ def test_w699_2_update_state_crosses_population_mirror() -> None:
 
     assert updated is True
     evidence = _evidence(recorder)
-    # عبورُ السطحِ هو الأخيرُ (الكانونيُّ يقعُ أولًا بفعلِهِ الموجَّهِ).
+    # عبورٌ واحدٌ للسطحِ كُلِّهِ (الكانونُ والمرآةُ معًا) — لا عبورَ كانونيًّا منفصلًا.
     assert evidence["action"] == ACTION_UPDATE_POPULATION_STATE == "update_population_state"
     assert "agents.population.state" in recorder.results[-1].outcome.operation_key
+    from amos_federation.services.executive_core.agent_identity import require_identity
+
+    assert (
+        require_identity("w699-upd").lifecycle_state == "paused"
+    ), "الكانونُ لم ينتقلْ في العبورِ الواحدِ"
     from amos_federation.services.agent_runtime.population import AgentPopulationModel
 
     session = registry._Session()
@@ -508,8 +513,9 @@ def test_w699_1_level3_blocks_population_mirror_without_write() -> None:
 
 
 def test_w699_1_level4_blocks_mirror_restore_via_canonical() -> None:
-    """المستوى 4: تحديثُ السكّانِ إلى active يمنعُهُ العبورُ الكانونيُّ (activate_agent)
-    بعدَ نجاحِ تحقّقِ المرآةِ المسبقِ — فلا مرآةً تكذبُ بحالةٍ لم تقعْ."""
+    """المستوى 4: تحديثُ السكّانِ إلى active يُمنَعُ عندَ التحقُّقِ المسبقِ نفسِهِ —
+    فعلُ السطحِ (update_population_state) محجوزٌ منَ المستوى 3 تراكميًّا (WI-123:
+    الكانونُ نواةٌ داخلَ العبورِ الواحدِ فلا عبورَ كانونيًّا منفصلًا يُمنَعَ)."""
     registry = PopulationRegistry()
     registry.register_agent(
         "وكيل استعادة", "executor", "cognitive_executor", agent_id="w699-block-restore"
@@ -798,15 +804,15 @@ def test_w699_4_start_treatment_replay_executes_once() -> None:
 
 
 def test_w699_4_update_state_mirror_failure_compensates_canonical() -> None:
-    """فشلُ عبورِ المرآةِ بعدَ نجاحِ الكانونيِّ يعوِّضُ الأثرَينِ ثمَّ تقبلُ الإعادةَ.
+    """فشلُ أثرِ المرآةِ بعدَ تطبيقِ الكانونيِّ يعوِّضُ الأثرَينِ ثمَّ تقبلُ الإعادةَ (WI-123).
 
-    عبورُ المرآةِ آخرُ عبورَيِ العمليةِ، فإذا انكسرَ كاتبُها **بعدَ أن كتبَ
-    فعلًا** (لا قبلَ الكتابةِ) وجبَ أن يعوِّضَ معوِّضُهُ المنسَّقُ الأثرَينِ:
+    عبورٌ واحدٌ للأثرَينِ (§ 9.9.8 · WI-123): إذا انكسرَ مُطبِّقُ الأثرِ الثاني **بعدَ أن كتبَ
+    فعلًا** (لا قبلَ الكتابةِ) عوّضَ الحدُّ الأثرَينِ معًا بمعوّضَيهِ:
     إرجاعُ صفِّ السكّانِ **وعكسُ الانتقالِ الكانونيِّ الذي نجحَ قبلَهُ** — وإلا
     بقيَ الكانونُ قد انتقلَ والعمليةُ كلُّها فاشلةٌ (تعويضٌ منسَّقٌ · تصميمُ E1
     § 2.3). وبعدَ التعويضِ الكاملِ: إعادةُ الطلبِ نفسِهِ بالسجلِّ نفسِهِ — بلا
-    تصفيرِ الذرّيّةِ — محاولةٌ جديدةٌ (هويّةُ العمليةِ المركَّبةِ تُرقّمُ
-    المحاولةَ الفاشلةَ القابلةَ للإعادةِ فمفتاحُها جديدٌ) تنجحُ وتُتمُّ
+    تصفيرِ الذرّيّةِ — محاولةٌ جديدةٌ على المفتاحِ نفسِهِ (سجلُّ الذرّيّةِ يُرقّمُ
+    المحاولةَ الفاشلةَ القابلةَ للإعادةِ) تنجحُ وتُتمُّ
     الانتقالَ في الحقلينِ معًا: فالتعويضُ أعادَ الحالةَ الكانونيّةَ، وعبورُ
     المرآةِ الفاشلُ بقيَ مسجَّلًا فاشلًا قابلًا للإعادةِ — لا يُعادُ إنتاجُ
     تضاربِ الذرّيّةِ (IdentityLedgerDivergenceError) على عبورٍ نجحَ وعُوّضَ.
@@ -833,7 +839,7 @@ def test_w699_4_update_state_mirror_failure_compensates_canonical() -> None:
 
     population_mod._update_population_row_core = _poisoned
     try:
-        with pytest.raises(_idempotency_error()):
+        with pytest.raises(_compensation_required()):
             registry.update_state("w699-comp-mirror", "active", authorizer=recorder)
     finally:
         population_mod._update_population_row_core = original
@@ -884,6 +890,126 @@ def test_w699_4_update_state_mirror_failure_compensates_canonical() -> None:
     assert (
         require_identity("w699-comp-mirror").lifecycle_state == "active"
     ), "الحقلُ الكانونيُّ لم ينتقلْ بعدَ نجاحِ الإعادةِ"
+
+
+class _LateRefusalAuthorizer(ConstitutionalAuthorizer):
+    """يرفضُ الطلبَ الثاني فصاعدًا — طلبَ العبورِ بعدَ نجاحِ التحقُّقِ المسبقِ.
+
+    سيناريو المسبارِ C2 (مقعدُ claude_opus_5_5 · جولةُ W-732) نفسُهُ: التحقُّقُ
+    المسبقُ ينجحُ (الطلبُ الأول) ثمَّ يُرفَضُ العبورُ — فلا كتابةً كانونيًّا ولا
+    مرآةً (WI-123 · DISC-142).
+    """
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self._n = 0
+
+    def _request(
+        self,
+        action: str,
+        target: str,
+        metadata: dict[str, Any] | None = None,
+        human_approval: Any = None,
+    ) -> Any:
+        self._n += 1
+        request = super()._request(action, target, metadata, human_approval)
+        if self._n > 1:
+            return dataclasses.replace(request, kill_switch_level=3)
+        return request
+
+
+def test_w741_c2_late_refusal_after_precheck_is_atomic() -> None:
+    """C2 (WI-123 · DISC-142): رفضُ العبورِ بعدَ نجاحِ التحقُّقِ المسبقِ لا يتركُ أثرًا.
+
+    سيناريو مسبارِ C2 حرفيًّا: تحقُّقٌ مسبقٌ ناجحٌ ثمَّ عبورٌ مرفوضٌ (مستوى 3
+    يُحقَنُ بعدَ الطلبِ الأولِ). في العبورَينِ القديمَينِ كانَ الكانونُ ينتقلُ
+    أولًا ثمَّ يُرفَضُ عبورُ المرآةِ فيبقى الكانونُ منتقلًا (broken=1 المقيسُ على
+    main). في العبورِ الواحدِ يُرفَضُ العبورُ قبلَ تطبيقِ أيِّ أثرٍ — والوكيلُ
+    يعودُ بصحةٍ موحَّدةٍ كما كانَ كانونًا ومرآةً.
+    """
+    registry = PopulationRegistry()
+    registry.register_agent("وكيل C2", "executor", "cognitive_executor", agent_id="w741-c2")
+    registry.update_state("w741-c2", "employed")
+    from amos_federation.services.executive_core.agent_identity import require_identity
+
+    before_canon = require_identity("w741-c2").lifecycle_state
+    before_mirror = registry._profile("w741-c2").state
+    assert (before_canon, before_mirror) == ("employed", "employed")
+
+    authorizer = _LateRefusalAuthorizer(actor="EXECUTIVE")
+    with pytest.raises(_sovereignty_violation()):
+        registry.update_state("w741-c2", "retired", authorizer=authorizer)
+
+    assert (
+        require_identity("w741-c2").lifecycle_state == before_canon
+    ), "الكانونُ انتقلَ بعدَ رفضٍ متأخِّرٍ — انقسامُ الصحةِ (DISC-142)"
+    assert registry._profile("w741-c2").state == before_mirror, "المرآةُ كُتِبَتْ بعدَ رفضٍ متأخِّرٍ"
+
+
+def _w741_run_mirror_failure_scenario() -> None:
+    """سيناريو فشلِ الأثرِ الثاني بعدَ تطبيقِ الأولِ — يفشلُ على تأكيدِ الكانونِ إن
+    عُطِّلَ معوّضُ الأثرِ الأولِ (نقطةُ الطفرةِ المعلنةُ في تصميمِ WI-123)."""
+    _reset_runtime_tables()
+    registry = PopulationRegistry()
+    registry.register_agent("وكيل طفرة", "executor", "cognitive_executor", agent_id="w741-mut")
+    recorder = RecordingAuthorizer(actor="EXECUTIVE")
+    registry.update_state("w741-mut", "paused", authorizer=recorder)
+
+    from amos_federation.services.agent_runtime import population as population_mod
+    from amos_federation.services.executive_core.agent_identity import require_identity
+
+    original = population_mod._update_population_row_core
+
+    def _poisoned(*args: Any, **kwargs: Any) -> None:
+        # الكاتبُ المسمومُ يستدعي الكاتبَ الأصليَّ فعلًا (الكتابةُ تقعُ) ثمَّ يرفعُ
+        # الانكسارَ **بعدَ الكتابةِ الفعليةِ** — فالأثرُ واقعٌ والتعويضُ واجبٌ.
+        original(*args, **kwargs)
+        raise RuntimeError("انكسارٌ مُفتعَلٌ بعدَ كتابةِ المرآةِ")
+
+    population_mod._update_population_row_core = _poisoned
+    try:
+        with pytest.raises(_compensation_required()):
+            registry.update_state("w741-mut", "active", authorizer=recorder)
+    finally:
+        population_mod._update_population_row_core = original
+
+    assert (
+        require_identity("w741-mut").lifecycle_state == "paused"
+    ), "معوّضُ الأثرِ الأولِ لم يُرجِعِ الكانونَ إلى حالتِهِ السابقةِ"
+    row = registry._profile("w741-mut")
+    assert row is not None and row.state == "paused", "معوّضُ الأثرِ الثاني لم يُرجِعِ المرآةَ"
+
+
+def test_w741_mutation_disabled_canonical_restore_drops_compensation_test() -> None:
+    """طفرةُ WI-123 (توجيهُ المستشارِ 30 § 2): تعطيلُ معوّضِ الأثرِ الأولِ عندَ فشلِ
+    الأثرِ الثاني يُسقِطُ فحصَ التعويضِ — المعوّضُ ليسَ زينةً.
+
+    خطُّ الأساسِ أولًا: السيناريو ينجحُ بلا طفرةٍ (فأيُّ فشلٍ لاحقٍ سببُهُ الطفرةُ).
+    ثمَّ تُعطَّلُ `_compensate_canonical_transition` (معوّضُ الأثرِ الأولِ) ويُعادُ
+    السيناريو — فيجبُ أن يفشلَ على تأكيدِ إرجاعِ الكانونِ: فبدونَهُ يبقى الكانونُ
+    منتقلًا والعمليةُ كلُّها فاشلةٌ (انقسامُ الصحةِ الذي يُقيسُهُ المسبارُ).
+    """
+    from amos_federation.services.agent_runtime import population as population_mod
+
+    # خطُّ الأساسِ بلا طفرةٍ
+    _w741_run_mirror_failure_scenario()
+
+    # سجلُّ ذرّيّةٍ جديدٌ قبلَ إعادةِ السيناريو (قرارُ المالكِ Q-71 · نمطُ حرسِ
+    # الطفرةِ نفسِهُ): القاعدةُ والسجلُّ يُستبدلانِ كما يفعلُ التجهيزُ التلقائيُّ
+    # لكلِّ فحصٍ — وإلّا كانت إعادةُ السيناريو «إعادةً» لسجلِّ الأساسِ فلا يُكتَبَ
+    # شيءٌ أصلًا ولا يُقاسَ التعويضُ.
+    from tests.conftest import _fresh_test_idempotency_ledger
+
+    _fresh_test_idempotency_ledger()
+
+    # الطفرةُ: معوّضُ الأثرِ الأولِ معطَّلٌ (لا يُرجِعُ الكانونَ)
+    original = population_mod._compensate_canonical_transition
+    population_mod._compensate_canonical_transition = lambda agent_id, previous: None
+    try:
+        with pytest.raises(AssertionError):
+            _w741_run_mirror_failure_scenario()
+    finally:
+        population_mod._compensate_canonical_transition = original
 
 
 def test_w699_4_register_agent_second_effect_failure_restores_first() -> None:
@@ -1264,7 +1390,7 @@ def test_w699_5_mirror_failure_on_identity_without_population_row() -> None:
     registry = PopulationRegistry()
     population_mod._update_population_row_core = _poisoned
     try:
-        with pytest.raises(_idempotency_error()):
+        with pytest.raises(_compensation_required()):
             registry.update_state("w699-5-no-pop-mirror", "paused")
     finally:
         population_mod._update_population_row_core = original
