@@ -391,17 +391,17 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 644,
-      "py_files": 42,
+      "md_files": 645,
+      "py_files": 43,
       "yaml_files": 0,
-      "code_lines": 4670,
+      "code_lines": 4721,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
       },
       "has_readme": true,
       "real_source_hits": 23,
-      "fake_hits": 0,
+      "fake_hits": 1,
       "in_memory_hits": 0,
       "secret_hits": 0,
       "observed_hits": 2,
@@ -415,7 +415,7 @@
         "DOCUMENTED": true,
         "IMPLEMENTED": true,
         "REAL_SOURCE": true,
-        "FAKE_OR_CACHED": false,
+        "FAKE_OR_CACHED": true,
         "INTEGRATED": true,
         "TESTED": false,
         "SECURED": true,
@@ -430,7 +430,7 @@
         "TEST_NAME_MENTIONS": 207
       },
       "maturity": "IMPLEMENTED",
-      "findings_count": 0
+      "findings_count": 1
     },
     "ops": {
       "domain": "ops",
@@ -525,6 +525,13 @@
       "path": "agents/registry/imported_agents_data.py",
       "line": 15,
       "detail": "`AGENTS` بيانات ثابتة بديلة عن قاعدة البيانات",
+      "severity": "CRITICAL"
+    },
+    {
+      "kind": "HARDCODED_TRUTH",
+      "path": "docs/audit/evidence/W-749/probe_lexicon_actions.py",
+      "line": 28,
+      "detail": "`ROWS` بيانات ثابتة بديلة عن قاعدة البيانات",
       "severity": "CRITICAL"
     },
     {
@@ -988,16 +995,16 @@
   "summary": {
     "domains_total": 12,
     "domains_proven": 0,
-    "findings_total": 61,
+    "findings_total": 62,
     "identity_violations": 0,
     "unreadable_files": 0,
     "unparsable_files": 0,
     "by_severity": {
-      "CRITICAL": 2,
+      "CRITICAL": 3,
       "HIGH": 59
     },
     "by_kind": {
-      "HARDCODED_TRUTH": 2,
+      "HARDCODED_TRUTH": 3,
       "IN_MEMORY_STORE": 59
     },
     "evidence_state": "READ"

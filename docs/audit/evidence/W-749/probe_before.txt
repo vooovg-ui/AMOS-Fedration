@@ -1,0 +1,10 @@
+السطحُ	الفعلُ	EXECUTIVE بلا قاطع	مستوى المنع	محجوزٌ بشريًّا
+create_batch (Q-77 ②)	create_task	PERMIT	≥4	لا
+enroll_batch (Q-77 ②)	spawn_agent	PERMIT	≥3	لا
+graduate_batch (Q-78 ③)	activate_agent	PERMIT	≥4	لا
+complete_training (Q-78 ③)	activate_agent	PERMIT	≥4	لا
+evaluate_model (Q-80 ②)	record_curriculum_step	PERMIT	≥1	لا
+— مرجعٌ: اليومَ (graduate/complete)	release_agent	PERMIT	لا منعَ عندَ أيِّ مستوى	لا
+— مرجعٌ: § 2.2 الأصلُ (create/enroll)	spawn_population	DENY SovereigntyViolation R-001-1	≥2	نعم
+— مرجعٌ: § 2.2 الأصلُ (evaluate/start)	train_model	DENY SovereigntyViolation R-001-1	≥1	نعم
+— مرجعٌ: Q-76 (W-724)	graceful_shutdown	PERMIT	لا منعَ عندَ أيِّ مستوى	لا
