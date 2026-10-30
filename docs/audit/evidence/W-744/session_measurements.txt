@@ -1,0 +1,17 @@
+=== قياساتُ جلسةِ توليدِ الإحاطاتِ (2026-10-30) — خامًا كما أُخذتْ ===
+$ git log -1 --format='%H %s' origin/main
+97a294c6d6b0f515feec3d27f2c85c5931523369 W-741 (الشِّفرةُ): WI-123 (Q-81(ب)) — تحويلُ update_state عبورًا واحدًا بأثرين (نمطُ § 9.9.8) — الكانونُ والمرآةُ في عقدِ إذنٍ واحدٍ بمعوِّضٍ لكلِّ أثرٍ وحارسِ استرجاعٍ سطحيٍّ · مسبارُ C2 بعد: checks=30 broken=0 (قبل: broken=1) · D-4: 95/95 · طفرةُ إسقاطِ المعوِّضِ · حزمةُ الخدماتِ: 1804 نجحَت · 53 مُتخطّاة = 1857 · WI-123 RESERVED→IN_PROGRESS
+$ git rev-parse HEAD (w-744-a)
+17b83f42cbd8d2d3d3242ad50021fe3d11172a46
+$ git status --short | wc -l (ملفاتُ الجديدة/المعدلة قبلَ الالتزامِ)
+6
+$ .venv/bin/python tools/governance/truth_audit.py 2>&1 | tail -3
+  - IN_MEMORY_STORE: 59
+  - HARDCODED_TRUTH: 2
+[TRUTH AUDIT] كُتبت: /home/user/workspace/amos/docs/audit/TRUTH_MATRIX.md
+$ python3 tools/governance/check_work_governance.py --staged 2>&1 | tail -3 (قبلَ الإضافةِ — يُعادُ بعدَ git add)
+  CLAIM_CONFLICT: WI-120 وWI-123 يتقاطعانِ في «docs/audit/evidence/W-744» ↔ «docs/audit/evidence/W-744» — يُقسَمُ البندُ أو يُستلَم (THE_ROADMAP § 6.1)
+
+  القانونُ الملزم: docs/governance/work/THE_ROADMAP.md § 2 · § 6 · § 7
+$ git rev-list --count origin/main..HEAD
+2
