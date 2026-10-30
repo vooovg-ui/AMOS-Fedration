@@ -1,0 +1,23 @@
+1· أسماءٌ في البوّابةِ تحوي kill: لا شيء
+2· _r008_2 على create_task عندَ 0..5: [False, False, False, False, True, True] · السجلُّ قبل/بعد: 0 0
+3· عددُ الأفعالِ الممنوعةِ تراكميًّا عندَ كلِّ مستوى:
+   المستوى 1: 5
+   المستوى 2: 8
+   المستوى 3: 14
+   المستوى 4: 24
+   المستوى 5: 27
+4· مصفوفةُ «ما كانَ سيُمنَع» (X = يُمنَع) عندَ 0..5:
+   executive · create_task              ....XX
+   executive · record_curriculum_step   .XXXXX
+   executive · spawn_agent              ...XXX
+   executive · activate_agent           ....XX
+   executive · update_population_state  ...XXX
+   executive · orchestrate              ....XX
+   executive · run_health_check         ......
+   executive · contain_agent            ......
+   executive · release_agent            ......
+   executive · graceful_shutdown        ......
+   executive · create_backup            ......
+       human · lower_kill_switch        ......
+5· صفوفُ system_state قبلَ get(): 0 · المقروء: normal · بعدَه: 1
+الخلاصة: لا موضعَ للمصدرِ في البوّابة · _r008_2 نقيّة · get() يُنشئُ normal عندَ الغياب (مفتوح)
