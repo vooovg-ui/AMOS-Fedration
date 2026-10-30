@@ -4,7 +4,7 @@
 النطاق: القواعد المشتقة من المواد 001–010. كل قاعدة مربوطة برقم مادة وبند محدد — لا قاعدة يتيمة.
 المالك: core/constitutional_engine/
 تاريخ الإنشاء: 2026-08-16
-تاريخ آخر تعديل: 2026-08-16
+تاريخ آخر تعديل: 2026-10-30 (W-747 · WI-124 — Q-68 الخيارُ 1: R-003-1 تحصرُ أفعالَ الفروعِ الحصريّةَ عن AGENT وSYSTEM · Q68_AGENT_SYSTEM_EXCLUSIVE_DESIGN.md)
 
 قاعدة الصياغة: كل دالة قاعدة ترجع `None` عند الامتثال، أو نص سبب المخالفة عند الخرق.
 الافتراض الأصلي: المنع. لا تُضاف قاعدة تُوسّع الصلاحية — القواعد تُضيّق فقط.
@@ -250,6 +250,11 @@ _BRANCH_EXCLUSIVE: dict[Branch, frozenset[str]] = {
     Branch.TREASURY: TREASURY_ACTIONS,
 }
 _FOUR_BRANCHES = (Branch.EXECUTIVE, Branch.LEGISLATIVE, Branch.JUDICIAL, Branch.TREASURY)
+# Q-68 الخيارُ 1 (W-747 · WI-124): «الحصر: لا يمارس AGENT ولا SYSTEM أفعال الفروع الحصرية
+# (عدا مرسوم ملكي موقع كما هو اليوم)». مجموعةٌ مغلقةٌ بالاسمِ — لا «كلُّ من ليس فرعًا»: HUMAN
+# وSTATE وINSTITUTION وROYAL خارجَ نصِّ القرارِ فلا يُمسّون. والمرسومُ الموقَّعُ محفوظٌ بالبناء:
+# R-003-1 أثرُها للتاجِ ADVISORY فتُدرَجُ رأيًا لا منعًا في المسارِ السياديّ (engine.evaluate).
+_NON_BRANCH_EXCLUDED = frozenset({Branch.AGENT, Branch.SYSTEM})
 
 
 @dataclass(frozen=True)
@@ -354,7 +359,15 @@ def _r002_2(req: ActionRequest) -> str | None:
 # ===========================================================================
 
 def _r003_1(req: ActionRequest) -> str | None:
-    """اختصاص الفروع: لا فرع يمارس اختصاص فرع آخر."""
+    """اختصاص الفروع: لا فرع يمارس اختصاص فرع آخر — ولا يمارسه AGENT ولا SYSTEM (Q-68)."""
+    if req.actor in _NON_BRANCH_EXCLUDED:
+        for branch, actions in _BRANCH_EXCLUSIVE.items():
+            if req.action in actions:
+                return (
+                    f"الطرف «{req.actor.value}» خارج الفروع يمارس «{req.action}» وهو اختصاص حصري "
+                    f"للفرع «{branch.value}». الحصر يمنع ذلك (Q-68)."
+                )
+        return None
     if req.actor not in _BRANCH_EXCLUSIVE:
         return None
     for branch, actions in _BRANCH_EXCLUSIVE.items():
