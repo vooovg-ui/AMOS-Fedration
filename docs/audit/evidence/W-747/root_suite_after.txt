@@ -1,0 +1,3 @@
+FAILED tests/governance/test_w099_generated_artifact_freshness.py::test_الأثرُ_المُولَّدُ_في_المستودعِ_طازجٌ_لا_متقادمٌ
+FAILED tests/governance/test_w120_suite_size_claims.py::test_المستودعُ_نفسُه_لا_يحملُ_رقمَ_حزمةٍ_ميّتًا
+2 failed, 3074 passed, 1 skipped in 521.18s (0:08:41)
