@@ -1,0 +1,1 @@
+3076 passed, 1 skipped in 524.81s (0:08:44) — .venv/bin/python -m pytest tests/ -q -p no:cacheprovider -rf · 2026-10-30 · الشجرةُ النهائيّةُ لقيدِ W-750

@@ -4,11 +4,14 @@
        retire_agent تعبرُ الحدَّ بأفعالِ جدولِ G1 § 2.2 (تصميمُ § 9.9.4)، وأنَّ الرفضَ قبلَ أيِّ
        كتابةٍ (ولا عبورَ داخليًّا قبلَه في الأسطحِ المركّبة)، وأنَّ الإعادةَ لا تُكرِّر، وأنَّ
        المعوِّضَ عكسٌ حقيقيٌّ — ومنه إعادةُ الوكيلِ إلى حالتِه في retire_agent (Q-26 · § 9.9.5).
-النطاق: سلوكُ الأسطحِ الستّة وحدَه. create_batch وenroll_batch لا يُعبَرانِ (Q-77 · § 9.9.2).
+النطاق: سلوكُ الأسطحِ الستّة وحدَه. create_batch وenroll_batch يعبرانِ منذُ W-750 (Q-77 ②) وفحوصُهما
+        في test_w750_lexicon_batch.py · graduate_batch على activate_agent منذُ W-750 (Q-78 ③ · § 9.11).
         حقنُ مستوى القاطعِ في الطلبِ محاكاةٌ لحالتِه معلَنةٌ هنا (نمطُ WI-082 · E1)، لأنَّ الجسرَ
         لا يحقنُه في الإنتاج (DISC-099/WI-085) — فهذه الفحوصُ لا تُثبِتُ منعًا في الإنتاج.
 المالك: federal/executive/services — WI-120 (G1 · تصميمُ W-724 § 9.9).
 تاريخ الإنشاء: 2026-10-29 (W-724)
+تاريخ آخر تعديل: 2026-10-30 (W-750 — دفعةُ المعجم: فحصُ «لا منعَ عندَ 5» (Q-78) صارَ منعًا ≥4 · وفحصُ
+                 «لم يُمَسّا» (Q-77) صارَ «spawn_population لم يُنزَل»)
 
 أصنافُ الفحصِ الخمسةُ (G1 § 4): 1 الرفضُ قبلَ الكتابة · 2 النجاحُ عبرَ الحدّ ·
 3 طفرةٌ لكلِّ سطح · 4 الإعادةُ لا تُكرِّر · 5 المعوِّضُ على المسارِ الحقيقيّ.
@@ -198,14 +201,22 @@ def test_c1_employ_blocked_at_level3_before_any_inner_crossing() -> None:
     assert get_population_registry().get_agent(agent_id)["state"] == "employed"
 
 
-def test_c1_graduate_not_blocked_at_level5_q78_measured() -> None:
-    """Q-78: `release_agent` خارجَ KILL_SWITCH_BLOCKS — المقيسُ يُثبَّتُ ويُرفَعُ للمالك."""
+@pytest.mark.parametrize(("level", "blocked"), [(3, False), (4, True), (5, True)])
+def test_c1_graduate_blocked_from_level4_q78(level: int, blocked: bool) -> None:
+    """Q-78 ③ (W-750): `activate_agent` ممنوعٌ عندَ ≥4 — كانَ `release_agent` بلا منعٍ عندَ أيِّ مستوى."""
     _seed_agent()
-    ks = KillSwitchAuthorizer(5)
+    ks = KillSwitchAuthorizer(level)
     pe = PopulationExpansion(authorizer=ks)
-    out = pe.graduate_batch(_seed_batch(pe))
-    assert "error" not in out
-    assert _evidence(ks)["action"] == "release_agent"
+    batch_id = _seed_batch(pe)
+    if blocked:
+        with pytest.raises(_violation()):
+            pe.graduate_batch(batch_id)
+        assert ks.results == []
+        assert _batch(pe, batch_id).graduated == 0
+    else:
+        out = pe.graduate_batch(batch_id)
+        assert "error" not in out
+        assert _evidence(ks)["action"] == "activate_agent"
 
 
 def test_c1_retire_is_containment_crosses_at_level2_and_writes_record() -> None:
@@ -237,7 +248,7 @@ SURFACES = [
     (University, "submit_output", "create_task", "ACTION_SUBMIT_OUTPUT"),
     (University, "approve_output", "activate_agent", "ACTION_APPROVE_OUTPUT"),
     (PopulationExpansion, "employ_batch", "dispatch_agent", "ACTION_EMPLOY_BATCH"),
-    (PopulationExpansion, "graduate_batch", "release_agent", "ACTION_GRADUATE_BATCH"),
+    (PopulationExpansion, "graduate_batch", "activate_agent", "ACTION_GRADUATE_BATCH"),
     (RetirementSystem, "retire_agent", "contain_agent", "ACTION_RETIRE_AGENT"),
 ]
 
@@ -339,11 +350,14 @@ def test_c3_mutation_guard_call_literally_in_public_body(
     assert getattr(ex, const) == action
 
 
-def test_c3_create_and_enroll_batch_untouched_q77() -> None:
-    """create_batch وenroll_batch دَينٌ معلَّقٌ بـQ-77 — لم يُمَسّا ولم يُنزَلا إلى فعلٍ أخفّ."""
-    for name in ("create_batch", "enroll_batch"):
-        src = inspect.getsource(getattr(PopulationExpansion, name))
-        assert "guard_declared" not in src and "request_permit" not in src, name
+def test_c3_spawn_population_not_lowered_q77() -> None:
+    """Q-77 ② (W-750): السطحانِ يعبرانِ بفعلَين تنفيذيَّين — و`spawn_population` باقٍ محجوزًا بشريًّا."""
+    from core.constitutional_engine.rules import HUMAN_GATED_ACTIONS
+
+    assert "spawn_population" in HUMAN_GATED_ACTIONS
+    assert (ex.ACTION_CREATE_BATCH, ex.ACTION_ENROLL_BATCH) == ("create_task", "spawn_agent")
+    consts = [v for k, v in vars(ex).items() if k.startswith("ACTION_")]
+    assert "spawn_population" not in consts
 
 
 # ═════════════════════════════════════════════════════════════════════════════

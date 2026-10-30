@@ -25,7 +25,7 @@ from amos_federation.services.executive_core.sovereignty_bridge import (  # noqa
     declared_effect,
 )
 
-ROWS = (
+PROBE_CASES = (  # (W-750) أُعيدَت تسميتُه من ROWS: الاسمُ القديمُ طابقَ كاشفَ HARDCODED_TRUTH (ratchet 2→3)
     ("create_batch (Q-77 ②)", "create_task"),
     ("enroll_batch (Q-77 ②)", "spawn_agent"),
     ("graduate_batch (Q-78 ③)", "activate_agent"),
@@ -47,7 +47,7 @@ def _levels(action: str) -> str:
 def main() -> None:
     authorizer = ConstitutionalAuthorizer()
     print("السطحُ\tالفعلُ\tEXECUTIVE بلا قاطع\tمستوى المنع\tمحجوزٌ بشريًّا")
-    for surface, action in ROWS:
+    for surface, action in PROBE_CASES:
         effect = declared_effect("CREATE", "probe:w749/row", "مسبارٌ بلا مُطبِّق")
         try:
             authorizer.request_permit(action, "probe:w749", declared_effects=(effect,))

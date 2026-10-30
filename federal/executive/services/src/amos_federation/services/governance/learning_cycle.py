@@ -4,7 +4,8 @@ AMOS-Federation Phase 14-15 — Learning Loop + Evaluation + Alpha/Beta/Gamma
 النطاق: services/governance/learning_cycle
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-15
-آخر تعديل: 2026-10-29 (W-728 — عبورُ خمسةِ أسطحٍ الحدَّ السياديَّ · G1 § 9.10)
+آخر تعديل: 2026-10-30 (W-750 — دفعةُ المعجم: evaluate_model يعبرُ الحدَّ (Q-80 ②) ·
+  complete_training على activate_agent (Q-78 ③) · G1 § 9.11) · وقبله: 2026-10-29 (W-728 — عبورُ خمسةِ أسطحٍ · G1 § 9.10)
 
 المتطلبات:
   14.1-14.4: Data Collector من Experience Replay + تصنيف + إزالة تكرار + Data BOM
@@ -34,24 +35,26 @@ from amos_federation.services.executive_core.sovereignty_bridge import (
 # ── أفعالُ العبورِ (G1 § 2.2 · تصميمُ § 9.10 · W-728) ─────────────────────────
 #: `collect_experiences` — صفُّ مجموعةِ بياناتِ التعلّم (ممنوعٌ عندَ ≥1).
 ACTION_COLLECT_EXPERIENCES = "record_curriculum_step"
-#: `complete_training` — إتمامُ دورةِ تدريب. `release_agent` ليسَ في
-#: KILL_SWITCH_BLOCKS عندَ أيِّ مستوى (اتجاهُ Q-78): يُنفَّذُ عمودُ الفعلِ.
-ACTION_COMPLETE_TRAINING = "release_agent"
+#: `complete_training` — إتمامُ دورةِ تدريب (ممنوعٌ عندَ ≥4). كانَ `release_agent` (لا منعَ
+#: عندَ أيِّ مستوى) فحوَّلَه قرارُ المالكِ Q-78 ③ إلى `activate_agent` (G1 § 9.11 · W-750).
+ACTION_COMPLETE_TRAINING = "activate_agent"
 #: `start_shadow` و`start_canary` — `invoke_model` ممنوعٌ عندَ ≥4 لا ≥1 كما في
 #: جدولِ § 2.2 — يُرفَعُ للمالكِ Q-80ب (§ 9.10.3).
 ACTION_START_SHADOW = "invoke_model"
 ACTION_START_CANARY = "invoke_model"
 #: `promote_beta_to_alpha` — ترقيةٌ على القدرة: `activate_agent` ممنوعٌ عندَ ≥4 (Q-80ج).
 ACTION_PROMOTE_BETA = "activate_agent"
-#: `start_training` و`evaluate_model` لا يُعبَرانِ: `train_model` محكومٌ بشريًّا
-#: (R-001-1 · HUMAN_GATED_ACTIONS) ولا قناةَ موافقةٍ في الجسر — دَينٌ معلَّقٌ بقرارِ
-#: المالكِ Q-80أ (§ 9.10.3).
+#: `evaluate_model` — صفُّ نتيجةِ التقييم (ممنوعٌ عندَ ≥1) · قرارُ المالكِ Q-80 ② (G1 § 9.11 · W-750).
+ACTION_EVALUATE_MODEL = "record_curriculum_step"
+#: `start_training` لا يُعبَر: `train_model` محكومٌ بشريًّا (R-001-1 · HUMAN_GATED_ACTIONS)
+#: ولا قناةَ موافقةٍ في الجسر — دَينٌ باقٍ بقرارِ المالكِ Q-80 ① (لا يُنزَلُ الحجز).
 
 DATASET_SCOPE = "learning.dataset"
 TRAINING_COMPLETE_SCOPE = "learning.training.complete"
 SHADOW_SCOPE = "learning.shadow"
 CANARY_SCOPE = "learning.canary"
 PROMOTE_SCOPE = "learning.promote"
+EVAL_SCOPE = "learning.eval"
 
 
 class LearningBase(DeclarativeBase):
@@ -422,7 +425,8 @@ class LearningCycle:
 class EvaluationSystem:
     """15: التقييم والنقد."""
 
-    def __init__(self) -> None:
+    def __init__(self, authorizer: ConstitutionalAuthorizer | None = None) -> None:
+        self._authorizer = authorizer
         self._engine = create_engine(
             get_database_url(),
             connect_args={"check_same_thread": False}
@@ -432,6 +436,15 @@ class EvaluationSystem:
         LearningBase.metadata.create_all(self._engine)
         self._Session = sessionmaker(bind=self._engine, autoflush=False, expire_on_commit=False)
 
+    @property
+    def authorizer(self) -> ConstitutionalAuthorizer:
+        """مُصرِّحٌ محقونٌ أو المشتركُ عبرَ `get_authorizer()` — لا موضعَ بناءٍ جديد (سابقةُ W-723)."""
+        if self._authorizer is None:
+            from amos_federation.services.executive_core.sovereignty_bridge import get_authorizer
+
+            self._authorizer = get_authorizer()
+        return self._authorizer
+
     def evaluate_model(
         self,
         model_name: str,
@@ -439,33 +452,69 @@ class EvaluationSystem:
         score: int,
         safety: int = 100,
         critic_notes: str = "",
+        *,
+        operation_id: str | None = None,
     ) -> dict[str, Any]:
-        """15.1-15.6: تقييم نموذج."""
-        eval_id = f"eval-{uuid.uuid4().hex[:10]}"
-        session = self._Session()
-        try:
-            result = EvaluationResultModel(
-                eval_id=eval_id,
-                model_name=model_name,
-                benchmark_id=benchmark_id,
-                score=score,
-                regression_detected="false",
-                safety_score=safety,
-                critic_notes=critic_notes,
-            )
-            session.add(result)
-            session.commit()
+        """15.1-15.6: تقييم نموذج · عبرَ الحدِّ (Q-80 ② · G1 § 9.11 · W-750).
 
-            return {
-                "eval_id": eval_id,
-                "model_name": model_name,
-                "benchmark_id": benchmark_id,
-                "score": score,
-                "safety_score": safety,
-                "regression": False,
-            }
-        finally:
-            session.close()
+        `record_curriculum_step` (ممنوعٌ عندَ ≥1) · الأثرُ صفُّ النتيجةِ وحدَه · المعوِّضُ حذفُه.
+        """
+        eval_id = operation_id or f"eval-{uuid.uuid4().hex[:10]}"
+        target = f"eval:{eval_id}"
+        effect = declared_effect(
+            "CREATE",
+            f"{target}/row",
+            f"صفُّ تقييمِ النموذجِ «{model_name}» على «{benchmark_id}» بدرجة {score}",
+        )
+        result = {
+            "eval_id": eval_id,
+            "model_name": model_name,
+            "benchmark_id": benchmark_id,
+            "score": score,
+            "safety_score": safety,
+            "regression": False,
+        }
+
+        def _apply(_effect: Any) -> None:
+            session = self._Session()
+            try:
+                session.add(
+                    EvaluationResultModel(
+                        eval_id=eval_id,
+                        model_name=model_name,
+                        benchmark_id=benchmark_id,
+                        score=score,
+                        regression_detected="false",
+                        safety_score=safety,
+                        critic_notes=critic_notes,
+                    )
+                )
+                session.commit()
+            finally:
+                session.close()
+
+        def _undo() -> None:
+            session = self._Session()
+            try:
+                session.query(EvaluationResultModel).filter(
+                    EvaluationResultModel.eval_id == eval_id
+                ).delete(synchronize_session=False)
+                session.commit()
+            finally:
+                session.close()
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_EVALUATE_MODEL,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(EVAL_SCOPE, eval_id),
+            compensators=(compensator(effect.signature, _undo, "حذفُ صفِّ التقييم"),),
+            metadata={"model_name": model_name, "benchmark_id": benchmark_id, "score": score},
+        )
+        if guarded.is_replay:
+            return {**result, "replayed": True}
+        return result
 
     def check_regression(
         self, model_name: str, current_score: int, threshold: int = 80

@@ -19,7 +19,7 @@
       "secret_hits": 0,
       "observed_hits": 3,
       "api_routes": 0,
-      "test_refs": 626,
+      "test_refs": 628,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -40,7 +40,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 626
+        "TEST_NAME_MENTIONS": 628
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -91,9 +91,9 @@
     "federal": {
       "domain": "federal",
       "md_files": 60,
-      "py_files": 258,
+      "py_files": 259,
       "yaml_files": 3,
-      "code_lines": 77956,
+      "code_lines": 78302,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -105,7 +105,7 @@
       "secret_hits": 0,
       "observed_hits": 157,
       "api_routes": 182,
-      "test_refs": 258,
+      "test_refs": 260,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "PASS",
@@ -126,7 +126,7 @@
           "COVERAGE": "PASS",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 258
+        "TEST_NAME_MENTIONS": 260
       },
       "maturity": "UNIT_TESTED",
       "findings_count": 60
@@ -391,7 +391,7 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 645,
+      "md_files": 646,
       "py_files": 43,
       "yaml_files": 0,
       "code_lines": 4721,
@@ -401,7 +401,7 @@
       },
       "has_readme": true,
       "real_source_hits": 23,
-      "fake_hits": 1,
+      "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,
       "observed_hits": 2,
@@ -415,7 +415,7 @@
         "DOCUMENTED": true,
         "IMPLEMENTED": true,
         "REAL_SOURCE": true,
-        "FAKE_OR_CACHED": true,
+        "FAKE_OR_CACHED": false,
         "INTEGRATED": true,
         "TESTED": false,
         "SECURED": true,
@@ -430,7 +430,7 @@
         "TEST_NAME_MENTIONS": 207
       },
       "maturity": "IMPLEMENTED",
-      "findings_count": 1
+      "findings_count": 0
     },
     "ops": {
       "domain": "ops",
@@ -492,7 +492,7 @@
       "secret_hits": 0,
       "observed_hits": 4,
       "api_routes": 0,
-      "test_refs": 370,
+      "test_refs": 372,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -513,7 +513,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 370
+        "TEST_NAME_MENTIONS": 372
       },
       "maturity": "INTEGRATED",
       "findings_count": 0
@@ -525,13 +525,6 @@
       "path": "agents/registry/imported_agents_data.py",
       "line": 15,
       "detail": "`AGENTS` بيانات ثابتة بديلة عن قاعدة البيانات",
-      "severity": "CRITICAL"
-    },
-    {
-      "kind": "HARDCODED_TRUTH",
-      "path": "docs/audit/evidence/W-749/probe_lexicon_actions.py",
-      "line": 28,
-      "detail": "`ROWS` بيانات ثابتة بديلة عن قاعدة البيانات",
       "severity": "CRITICAL"
     },
     {
@@ -565,7 +558,7 @@
     {
       "kind": "HARDCODED_TRUTH",
       "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
-      "line": 187,
+      "line": 193,
       "detail": "`FULL_POPULATION_CATEGORIES` بيانات ثابتة بديلة عن قاعدة البيانات",
       "severity": "CRITICAL"
     },
@@ -995,16 +988,16 @@
   "summary": {
     "domains_total": 12,
     "domains_proven": 0,
-    "findings_total": 62,
+    "findings_total": 61,
     "identity_violations": 0,
     "unreadable_files": 0,
     "unparsable_files": 0,
     "by_severity": {
-      "CRITICAL": 3,
+      "CRITICAL": 2,
       "HIGH": 59
     },
     "by_kind": {
-      "HARDCODED_TRUTH": 3,
+      "HARDCODED_TRUTH": 2,
       "IN_MEMORY_STORE": 59
     },
     "evidence_state": "READ"

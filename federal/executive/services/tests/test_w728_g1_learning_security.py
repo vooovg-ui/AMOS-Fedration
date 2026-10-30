@@ -9,6 +9,10 @@
 1 الرفضُ قبلَ الكتابة (مستوى القاطعِ محقونٌ في الطلب) · 2 النجاحُ عبرَ الحدِّ
 بالفعلِ المسمّى · 3 طفرةٌ لكلِّ سطح · 4 الإعادةُ لا تُكرِّر · 5 المعوِّضُ على
 المسارِ الحقيقيّ.
+
+تاريخ آخر تعديل: 2026-10-30 (W-750 — دفعةُ المعجم: complete_training على activate_agent (Q-78 ③)
+فصارَ فحصُ «لا منعَ عندَ 5» منعًا ≥4 · evaluate_model يعبرُ منذُ W-750 (Q-80 ②) فخرجَ من
+فحصِ الأسطحِ المحجوزةِ إلى test_w750_lexicon_batch.py)
 """
 
 from __future__ import annotations
@@ -209,14 +213,20 @@ def test_c1_collect_blocked_at_level1_no_row() -> None:
     assert _count(cycle, lc.ExperienceDatasetModel, dataset_id=dataset_id) == 0
 
 
-def test_c1_complete_not_blocked_at_level5_q78_measured() -> None:
-    """Q-78: `release_agent` ليسَ في KILL_SWITCH_BLOCKS عندَ أيِّ مستوى — المقيسُ
-    يُثبَّتُ ويُرفَعُ للمالكِ."""
-    cycle = LearningCycle(authorizer=KillSwitchAuthorizer(5))
+@pytest.mark.parametrize(("level", "blocked"), [(3, False), (4, True), (5, True)])
+def test_c1_complete_blocked_from_level4_q78(level: int, blocked: bool) -> None:
+    """Q-78 ③ (W-750): `activate_agent` ممنوعٌ عندَ ≥4 — كانَ `release_agent` بلا منعٍ عندَ أيِّ مستوى."""
+    cycle = LearningCycle(authorizer=KillSwitchAuthorizer(level))
     run_id = _seed_run(cycle)
-    out = cycle.complete_training(run_id, 1.0, operation_id="w728-c1")
-    assert "error" not in out and out["status"] == "completed"
-    assert _evidence(cycle.authorizer)["action"] == "release_agent"  # type: ignore[union-attr]
+    op = f"w728-c1-{level}"
+    if blocked:
+        with pytest.raises(_violation()):
+            cycle.complete_training(run_id, 1.0, operation_id=op)
+        assert cycle.authorizer.results == []  # type: ignore[union-attr]
+    else:
+        out = cycle.complete_training(run_id, 1.0, operation_id=op)
+        assert "error" not in out and out["status"] == "completed"
+        assert _evidence(cycle.authorizer)["action"] == "activate_agent"  # type: ignore[union-attr]
 
 
 @pytest.mark.parametrize(("level", "blocked"), [(3, False), (4, True), (5, True)])
@@ -303,7 +313,7 @@ def test_c1_check_rate_and_expiry_never_blocked() -> None:
 # ═════════════════════════════════════════════════════════════════════════════
 SURFACES = [
     (LearningCycle, "collect_experiences", "record_curriculum_step", "ACTION_COLLECT_EXPERIENCES"),
-    (LearningCycle, "complete_training", "release_agent", "ACTION_COMPLETE_TRAINING"),
+    (LearningCycle, "complete_training", "activate_agent", "ACTION_COMPLETE_TRAINING"),
     (ModelPromotionCycle, "start_shadow", "invoke_model", "ACTION_START_SHADOW"),
     (ModelPromotionCycle, "start_canary", "invoke_model", "ACTION_START_CANARY"),
     (ModelPromotionCycle, "promote_beta_to_alpha", "activate_agent", "ACTION_PROMOTE_BETA"),
@@ -448,11 +458,10 @@ def test_c3_mutation_guard_call_literally_in_public_body(
 
 
 def test_c3_held_surfaces_untouched_q80a() -> None:
-    """`start_training` و`evaluate_model` و`store_secret` دَينٌ معلَّقٌ بـQ-80أ
-    و§ 9.1 — لم تُمَسَّ ولم تُنزَل إلى فعلٍ أخفّ."""
+    """`start_training` و`store_secret` دَينٌ معلَّقٌ بـQ-80 ① و§ 9.1 — لم يُمَسّا ولم يُنزَلا
+    إلى فعلٍ أخفّ (evaluate_model يعبرُ منذُ W-750 بقرارِ Q-80 ②)."""
     held = [
         (lc.LearningCycle, "start_training"),
-        (lc.EvaluationSystem, "evaluate_model"),
         (sec.SecretVault, "store_secret"),
     ]
     for owner, name in held:
