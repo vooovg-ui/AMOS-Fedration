@@ -1,0 +1,4 @@
+FAILED tests/governance/test_identity_law.py::test_the_repository_itself_conforms
+FAILED tests/governance/test_step13_identity_headers.py::test_identity_gate_reports_no_violation
+FAILED tests/governance/test_w099_generated_artifact_freshness.py::test_الأثرُ_المُولَّدُ_في_المستودعِ_طازجٌ_لا_متقادمٌ
+3 failed, 2790 passed, 1 skipped in 513.07s (0:08:33)
