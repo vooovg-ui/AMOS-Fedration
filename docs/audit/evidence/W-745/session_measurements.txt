@@ -1,0 +1,22 @@
+=== قياساتُ جلسةِ W-745 (2026-10-30) — خامًا كما أُخذتْ ===
+$ git log -1 --format='%H %s' origin/main
+be86196b... W-744-b: توثيقُ إعادةِ البناءِ فوقَ w-743-b + واجبُ N+1 (حكمُ CI للعقدةِ 1676c66a: أخضرُ مقروءٌ · تشغيلٌ 41002755962) + قيدُ التزامِ بوتِ المصفوفةِ الآليِّ على الفرعِ البعيدِ
+$ git rev-parse HEAD (w-745-q85-council-families · عند بدءِ العملِ = origin/main)
+be86196b...
+$ git ls-remote --heads origin | wc -l
+226
+$ gh pr list --state open --limit 10 (الملخصُ)
+5 مفتوحةٌ (73 · 71 · 70 · 69 · 55) — كلُّها مكدَّسةٌ قديمةٌ تنتظرُ قرارَ المالكِ (مُقيَّدةٌ سابقًا في السجلِّ) — لا تعارضَ معَ هذا القيدِ
+$ .venv/bin/python tools/governance/check_work_governance.py --self-check 2>&1 | tail -2
+  [WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+EXIT=0 (معَ إنذاراتِ POST_MERGE_NOT_CLOSED الإبلاغيةِ المعروفةِ — نافذةُ التزامٍ مشروعةٌ)
+$ .venv/bin/python tools/governance/check_work_governance.py --today 2026-11-03 2>&1 | tail -1
+  [WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+$ .venv/bin/python tools/governance/truth_audit.py 2>&1 | tail -3
+  - HARDCODED_TRUTH: 2
+[TRUTH AUDIT] كُتبت: /home/user/workspace/amos/docs/audit/TRUTH_MATRIX.md
+$ .venv/bin/python tools/governance/truth_audit.py --ratchet 2>&1 | tail -1
+[RATCHET] ثابت عند 61 مخالفة.
+$ .venv/bin/python tools/governance/state_document_drift.py 2>&1 | tail -1 (قبلَ تعديلِ وثائقِ الحالةِ)
+  ✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ (W-744).
+$ قياسُ توفرِ المقاعدِ (التفصيلُ في availability_measurement.txt): 8 إطلاقاتٍ فعليةٍ — كلُّها «isn't on this user's plan; the agent runs on Claude Opus 5.5»
