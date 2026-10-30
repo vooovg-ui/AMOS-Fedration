@@ -19,11 +19,11 @@
 |---|---:|
 | الأقاليم المفحوصة | 12 |
 | الأقاليم بحالة PROVEN | 0 |
-| إجمالي المخالفات | 61 |
+| إجمالي المخالفات | 62 |
 | ملفات بلا ترويسة هوية (المادة 009) | 0 |
 | ملفات تعذّرت قراءتها (لم تُقَس) | 0 |
 | ملفات تعذّر تحليلها نحويًا (لم تُفحَص نحويًا) | 0 |
-| منها CRITICAL | 2 |
+| منها CRITICAL | 3 |
 | منها HIGH | 59 |
 
 ### توزيع المخالفات حسب النوع
@@ -31,7 +31,7 @@
 | النوع | العدد | المعنى |
 |---|---:|---|
 | IN_MEMORY_STORE | 59 | مخزن ذاكرة يُستخدم بديلًا عن تخزين دائم |
-| HARDCODED_TRUTH | 2 | قيمة ثابتة تُقدَّم كحقيقة تشغيلية بدل قاعدة البيانات |
+| HARDCODED_TRUTH | 3 | قيمة ثابتة تُقدَّم كحقيقة تشغيلية بدل قاعدة البيانات |
 
 ---
 
@@ -48,7 +48,7 @@
 | `tools/` | ✅ | ✅ | ✅ | — | ✅ | ✅ | ✅ | ✅ | ❌ | **❌** | `INTEGRATED` |
 | `interfaces/` | ✅ | ❌ | ❌ | — | ❌ | ❌ | ✅ | ❌ | ❌ | **❌** | `SPECIFIED` |
 | `runtime/` | ✅ | ❌ | ❌ | — | ❌ | ❌ | ✅ | ❌ | ❌ | **❌** | `SPECIFIED` |
-| `docs/` | ✅ | ✅ | ✅ | — | ✅ | ❌ | ✅ | ✅ | ❌ | **❌** | `IMPLEMENTED` |
+| `docs/` | ✅ | ✅ | ✅ | ⚠️ | ✅ | ❌ | ✅ | ✅ | ❌ | **❌** | `IMPLEMENTED` |
 | `ops/` | ✅ | ❌ | ❌ | — | ❌ | ❌ | ✅ | ❌ | ❌ | **❌** | `SPECIFIED` |
 | `tests/` | ✅ | ✅ | ✅ | — | ✅ | ✅ | ✅ | ✅ | ❌ | **❌** | `INTEGRATED` |
 
@@ -69,7 +69,7 @@
 | `tools/` | 43 | 57 | 2 | 18587 | 12 | 0 | unspecified=12 |
 | `interfaces/` | 14 | 2 | 0 | 38 | 4 | 0 | unspecified=4 |
 | `runtime/` | 20 | 2 | 0 | 38 | 7 | 0 | unspecified=7 |
-| `docs/` | 644 | 42 | 0 | 4670 | 7 | 0 | unspecified=7 |
+| `docs/` | 645 | 43 | 0 | 4721 | 7 | 0 | unspecified=7 |
 | `ops/` | 38 | 2 | 0 | 38 | 12 | 0 | unspecified=12 |
 | `tests/` | 14 | 117 | 0 | 30377 | 5 | 0 | unspecified=5 |
 
@@ -77,11 +77,12 @@
 
 ## 4. سجل المخالفات بالأدلة
 
-### CRITICAL (2)
+### CRITICAL (3)
 
 | الموقع | النوع | الخطورة | التفصيل |
 |---|---|---|---|
 | `agents/registry/imported_agents_data.py:15` | HARDCODED_TRUTH | CRITICAL | `AGENTS` بيانات ثابتة بديلة عن قاعدة البيانات |
+| `docs/audit/evidence/W-749/probe_lexicon_actions.py:28` | HARDCODED_TRUTH | CRITICAL | `ROWS` بيانات ثابتة بديلة عن قاعدة البيانات |
 | `federal/executive/services/src/amos_federation/services/governance/expansion.py:187` | HARDCODED_TRUTH | CRITICAL | `FULL_POPULATION_CATEGORIES` بيانات ثابتة بديلة عن قاعدة البيانات |
 
 ### HIGH (59)

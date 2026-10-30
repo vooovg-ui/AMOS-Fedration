@@ -1,0 +1,6 @@
+عمليّاتٌ عامّةٌ مُغيِّرةٌ لا تعبرُ الحدَّ في ملفَّي الدفعة — tools/audit/sovereign_write_inventory.py --json
+العقدة: main e782bf95 + W-748 (لا شِفرةَ بعدَه) · قيدُ W-749 · 2026-10-30
+expansion.py	PopulationExpansion.create_batch
+expansion.py	PopulationExpansion.enroll_batch
+learning_cycle.py	EvaluationSystem.evaluate_model
+learning_cycle.py	LearningCycle.start_training
