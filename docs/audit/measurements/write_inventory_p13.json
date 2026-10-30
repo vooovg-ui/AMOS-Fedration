@@ -1,7 +1,7 @@
 {
  "$comment": "الهدف: جردُ مواضعِ الكتابةِ في المستودعِ وتصنيفُ ما عبرَ الحدَّ السّياديَّ وما لم يعبُر— مُخرَجُ tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039).",
  "summary": {
-  "write_sites_total": 260,
+  "write_sites_total": 263,
   "by_area": {
    "core": {
     "public": 1,
@@ -15,8 +15,8 @@
    },
    "services": {
     "public": 159,
-    "sovereign": 85,
-    "non_sovereign": 73
+    "sovereign": 88,
+    "non_sovereign": 70
    },
    "tools": {
     "public": 1,
@@ -25,9 +25,9 @@
    }
   },
   "public_write_operations": 182,
-  "sovereign_write_operations": 85,
+  "sovereign_write_operations": 88,
   "closed_legacy_paths": 7,
-  "non_sovereign_write_operations": 95,
+  "non_sovereign_write_operations": 92,
   "non_sovereign_by_file": {
    "federal/executive/services/src/amos_federation/services/national_economy/service.py": 16,
    "federal/executive/services/src/amos_federation/common/persistent.py": 13,
@@ -39,8 +39,6 @@
    "federal/executive/services/src/amos_federation/common/database.py": 4,
    "federal/executive/services/src/amos_federation/common/durable_event_bus.py": 2,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py": 2,
-   "federal/executive/services/src/amos_federation/services/governance/expansion.py": 2,
-   "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py": 2,
    "federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py": 2,
    "federal/executive/services/src/amos_federation/services/training/persistent_registry.py": 2,
    "federal/executive/services/src/amos_federation/common/event_bus.py": 1,
@@ -48,6 +46,7 @@
    "federal/executive/services/src/amos_federation/services/api_gateway/store.py": 1,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py": 1,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py": 1,
+   "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py": 1,
    "federal/executive/services/src/amos_federation/services/governance/security.py": 1,
    "federal/executive/services/src/amos_federation/services/governance/system_life.py": 1,
    "federal/executive/services/src/amos_federation/services/government_services/service.py": 1,
@@ -1098,9 +1097,9 @@
   {
    "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
    "owner": "PopulationExpansion",
-   "function": "create_batch",
+   "function": "_apply",
    "ordinal": 0,
-   "public": true,
+   "public": false,
    "writes": [
     "add()",
     "commit()"
@@ -1108,6 +1107,22 @@
    "guarded": false,
    "closed_legacy": false,
    "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
+   "owner": "PopulationExpansion",
+   "function": "create_batch",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_delete_rows"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
@@ -1128,12 +1143,12 @@
    "function": "enroll_batch",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_set_batch_column"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/governance/expansion.py",
@@ -1759,14 +1774,43 @@
   {
    "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
    "owner": "EvaluationSystem",
-   "function": "evaluate_model",
+   "function": "_apply",
    "ordinal": 0,
-   "public": true,
+   "public": false,
    "writes": [
     "add()",
     "commit()"
    ],
    "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "EvaluationSystem",
+   "function": "_undo",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()",
+    "delete()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/governance/learning_cycle.py",
+   "owner": "EvaluationSystem",
+   "function": "evaluate_model",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()",
+    "delete()"
+   ],
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": []
   },

@@ -317,6 +317,22 @@
    "kind": "work_drift",
    "reason": "دفعةُ G1 الرابعةُ (§ 9.10): حرقٌ حقيقيٌّ 9 أسطحٍ في learning_cycle وsecurity (D-4 104 ← 95 · مطابقُ إسقاطِ التصميمِ) — والمواضعُ الثمانيةَ عشرةَ الزائدةُ (243 ← 261) مُطبِّقاتٌ وكُتّابٌ خاصّةٌ داخلَ الأسطحِ المحروسةِ لا تُحصى في الدَّينِ (سابقةُ W-724)",
    "recorded_at": "2026-10-29T10:08:40+00:00"
+  },
+  {
+   "debt": 92,
+   "sovereign": 88,
+   "closed_legacy": 7,
+   "write_sites_total": 263,
+   "git_head": "a1a70f94",
+   "waves": {
+    "W1": 11,
+    "W2": 34,
+    "W3": 47
+   },
+   "decision": "W-750",
+   "kind": "work_drift",
+   "reason": "دفعةُ المعجم (G1 § 9.11 · Q-77 ② · Q-80 ②): حرقٌ حقيقيٌّ 3 أسطحٍ (create_batch · enroll_batch · evaluate_model) — D-4 95 ← 92 مطابقُ إسقاطِ تصميمِ W-749 · والمتبقّي في الملفَّين start_training (Q-80 ①) · وتحويلُ graduate_batch/complete_training إلى activate_agent (Q-78 ③) لا يُغيِّرُ العدّ",
+   "recorded_at": "2026-10-30T11:19:25+00:00"
   }
  ]
 }

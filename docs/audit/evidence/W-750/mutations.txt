@@ -1,0 +1,8 @@
+M1 graduate_batch يعودُ إلى release_agent: ======================== 7 failed, 123 passed in 21.42s ========================
+M2 complete_training يعودُ إلى release_agent: ======================== 5 failed, 125 passed in 20.76s ========================
+M3 enroll_batch بلا تحقّقٍ مسبق: ======================== 1 failed, 129 passed in 21.16s ========================
+M4 create_batch على فعلٍ أخفّ (log_isolated_action): ======================== 7 failed, 123 passed in 22.19s ========================
+M5 evaluate_model بلا معوِّضٍ فعّال: ======================== 1 failed, 129 passed in 22.70s ========================
+M6 enroll_batch بلا معوِّضٍ للعدّاد: ======================== 1 failed, 129 passed in 24.39s ========================
+بلا طفرة: ============================= 130 passed in 25.07s =============================
+ 2 files changed, 201 insertions(+), 84 deletions(-)
