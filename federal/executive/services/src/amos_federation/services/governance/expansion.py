@@ -4,7 +4,8 @@ AMOS-Federation Population Expansion + Universities + Retirement (Phase 11)
 النطاق: services/governance/expansion
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-15
-آخر تعديل: 2026-10-29 (W-724 — عبورُ ستّةِ أسطحٍ الحدَّ السياديَّ · G1 § 9.9)
+آخر تعديل: 2026-10-30 (W-750 — دفعةُ المعجم: create_batch وenroll_batch يعبرانِ الحدَّ (Q-77 ②) ·
+  graduate_batch على activate_agent (Q-78 ③) · G1 § 9.11) · وقبله: 2026-10-29 (W-724 — عبورُ ستّةِ أسطحٍ · G1 § 9.9)
 """
 
 import hashlib
@@ -50,19 +51,24 @@ ACTION_SUBMIT_OUTPUT = "create_task"
 ACTION_APPROVE_OUTPUT = "activate_agent"
 #: `employ_batch` — عددُ الموظَّفين في الدفعة (ممنوعٌ عندَ ≥3).
 ACTION_EMPLOY_BATCH = "dispatch_agent"
-#: `graduate_batch` — عددُ الخرّيجين. `release_agent` ليسَ في KILL_SWITCH_BLOCKS عندَ أيِّ
-#: مستوى وجدولُ § 2.2 يقولُ «4»: يُنفَّذُ عمودُ الفعلِ ويُرفَعُ للمالكِ Q-78 (§ 9.9.3).
-ACTION_GRADUATE_BATCH = "release_agent"
+#: `graduate_batch` — عددُ الخرّيجين (ممنوعٌ عندَ ≥4). كانَ `release_agent` (لا منعَ عندَ أيِّ
+#: مستوى) فحوَّلَه قرارُ المالكِ Q-78 ③ إلى `activate_agent` ليطابقَ جدولَ § 2.2 (G1 § 9.11 · W-750).
+ACTION_GRADUATE_BATCH = "activate_agent"
 #: `retire_agent` — سجلُّ تقاعد · احتواءٌ لا يُمنَع (Q-26).
 ACTION_RETIRE_AGENT = "contain_agent"
-#: `create_batch` و`enroll_batch` لا يُعبَرانِ: `spawn_population` محكومٌ بشريًّا (R-001-1)
-#: ولا قناةَ موافقةٍ في الجسر — دَينٌ معلَّقٌ بقرارِ المالكِ Q-77 (§ 9.9.2).
+#: `create_batch` — صفُّ الدفعة (ممنوعٌ عندَ ≥4) · قرارُ المالكِ Q-77 ② (G1 § 9.11 · W-750).
+ACTION_CREATE_BATCH = "create_task"
+#: `enroll_batch` — تسجيلُ الوكلاءِ وعدّادُ الدفعة (ممنوعٌ عندَ ≥3) · Q-77 ②.
+#: `spawn_population` المحكومُ بشريًّا (R-001-1) لا يُمَسُّ ولا يُنزَل: السطحُ يعبرُ بفعلٍ تنفيذيٍّ معلَن.
+ACTION_ENROLL_BATCH = "spawn_agent"
 
 EXAM_SCOPE = "expansion.exam"
 OUTPUT_SUBMIT_SCOPE = "expansion.output.submit"
 OUTPUT_APPROVE_SCOPE = "expansion.output.approve"
 BATCH_EMPLOY_SCOPE = "expansion.batch.employ"
 BATCH_GRADUATE_SCOPE = "expansion.batch.graduate"
+BATCH_CREATE_SCOPE = "expansion.batch.create"
+BATCH_ENROLL_SCOPE = "expansion.batch.enroll"
 RETIRE_SCOPE = "expansion.retire"
 
 
@@ -443,22 +449,55 @@ class PopulationExpansion(_GovernedSurface):
         self._Session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
     def create_batch(
-        self, category: str, target_count: int, min_score: float = 85.0
+        self,
+        category: str,
+        target_count: int,
+        min_score: float = 85.0,
+        *,
+        operation_id: str | None = None,
     ) -> dict[str, Any]:
-        """إنشاء دفعة توسع لفئة معينة."""
-        batch_id = f"batch-{uuid.uuid4().hex[:8]}"
-        session = self._Session()
-        try:
-            batch = ExpansionBatchModel(
-                batch_id=batch_id,
-                category=category,
-                target_count=target_count,
-                min_score=min_score,
-            )
-            session.add(batch)
-            session.commit()
-        finally:
-            session.close()
+        """إنشاء دفعة توسع لفئة معينة · عبرَ الحدِّ (Q-77 ② · G1 § 9.11 · W-750).
+
+        `create_task` (ممنوعٌ عندَ ≥4) · الأثرُ صفُّ الدفعةِ وحدَه · المعوِّضُ حذفُه.
+        """
+        batch_id = operation_id or f"batch-{uuid.uuid4().hex[:8]}"
+        target = f"batch:{batch_id}"
+        effect = declared_effect(
+            "CREATE",
+            f"{target}/row",
+            f"صفُّ دفعةِ توسّعٍ للفئةِ «{category}» بهدفِ {target_count}",
+        )
+        created: list[int] = []
+
+        def _apply(_effect: Any) -> None:
+            session = self._Session()
+            try:
+                batch = ExpansionBatchModel(
+                    batch_id=batch_id,
+                    category=category,
+                    target_count=target_count,
+                    min_score=min_score,
+                )
+                session.add(batch)
+                session.commit()
+                created.append(int(batch.id))
+            finally:
+                session.close()
+
+        def _undo() -> None:
+            _delete_rows(self._Session, ExpansionBatchModel, created)
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_CREATE_BATCH,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(BATCH_CREATE_SCOPE, batch_id),
+            compensators=(compensator(effect.signature, _undo, "حذفُ صفِّ الدفعة"),),
+            metadata={"category": category, "target_count": target_count},
+        )
+        if guarded.is_replay:
+            return {"batch_id": batch_id, "replayed": True}
 
         from amos_federation.common.event_bus import get_event_bus
 
@@ -472,39 +511,70 @@ class PopulationExpansion(_GovernedSurface):
         )
         return {"batch_id": batch_id, "category": category, "target_count": target_count}
 
-    def enroll_batch(self, batch_id: str, count: int) -> list[dict[str, Any]]:
-        """تسجيل وكلاء جدد في دفعة."""
-        session = self._Session()
-        try:
-            batch = session.execute(
-                select(ExpansionBatchModel).where(ExpansionBatchModel.batch_id == batch_id).limit(1)
-            ).scalar_one_or_none()
-            if not batch:
-                return []
+    def enroll_batch(
+        self, batch_id: str, count: int, *, operation_id: str | None = None
+    ) -> list[dict[str, Any]]:
+        """تسجيل وكلاء جدد في دفعة · عبرَ الحدِّ (Q-77 ② · G1 § 9.11 · W-750).
 
-            cat_key = batch.category
-            cat_spec = FULL_POPULATION_CATEGORIES.get(
-                cat_key, FULL_POPULATION_CATEGORIES["reserve"]
+        تحقّقٌ مسبقٌ (`spawn_agent` · ممنوعٌ عندَ ≥3) قبلَ أيِّ كتابة، ثمَّ تسجيلُ كلِّ وكيلٍ
+        بعبورِه (متعاقبٌ لا متداخل)، ثمَّ عبورُ عدّادِ الدفعة. ليست ذرّيّةً كلُّها (§ 9.9.6 (1)).
+        """
+        snap = self._batch_snapshot(batch_id)
+        if snap is None:
+            return []
+        previous = snap["enrolled"]
+        op = operation_id or f"enroll-{uuid.uuid4().hex[:12]}"
+        target = f"batch:{batch_id}"
+        key = operation_key(BATCH_ENROLL_SCOPE, f"{batch_id}.{op}")
+        if _already_succeeded(self.authorizer, key):
+            return []
+        permit_effect = declared_effect(
+            "WRITE",
+            f"{target}/enrolled.{previous}@{op}",
+            f"تسجيلُ {count} وكيلًا في الدفعةِ «{batch_id}» (السابقُ: {previous})",
+        )
+        self.authorizer.request_permit(
+            ACTION_ENROLL_BATCH, target, declared_effects=(permit_effect,)
+        )
+
+        cat_key = snap["category"]
+        cat_spec = FULL_POPULATION_CATEGORIES.get(cat_key, FULL_POPULATION_CATEGORIES["reserve"])
+        registry = get_population_registry()
+        enrolled: list[dict[str, Any]] = []
+        for i in range(count):
+            agent = registry.register_agent(
+                name=f"{cat_spec['role']} {previous + i + 1}",
+                role=cat_key,
+                category=cat_spec["category"],
+                permissions=cat_spec["permissions"],
+                allowed_tools=cat_spec["tools"],
+                authorizer=self.authorizer,
             )
-            registry = get_population_registry()
+            enrolled.append(agent)
 
-            enrolled = []
-            for i in range(count):
-                name = f"{cat_spec['role']} {batch.enrolled + i + 1}"
-                agent = registry.register_agent(
-                    name=name,
-                    role=cat_key,
-                    category=cat_spec["category"],
-                    permissions=cat_spec["permissions"],
-                    allowed_tools=cat_spec["tools"],
-                )
-                enrolled.append(agent)
+        new_value = previous + count
+        effect = declared_effect(
+            "WRITE",
+            f"{target}/enrolled.{previous}->{new_value}@{op}",
+            f"عددُ مسجَّلي الدفعةِ «{batch_id}»: {previous} ← {new_value}",
+        )
 
-            batch.enrolled += count
-            session.commit()
-            return enrolled
-        finally:
-            session.close()
+        def _apply(_effect: Any) -> None:
+            _set_batch_column(self._Session, batch_id, "enrolled", new_value)
+
+        def _undo() -> None:
+            _set_batch_column(self._Session, batch_id, "enrolled", previous)
+
+        self.authorizer.guard_declared(
+            ACTION_ENROLL_BATCH,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=key,
+            compensators=(compensator(effect.signature, _undo, "إرجاعُ عددِ المسجَّلين السابق"),),
+            metadata={"batch_id": batch_id, "previous_enrolled": previous},
+        )
+        return enrolled
 
     def _batch_snapshot(self, batch_id: str) -> dict[str, Any] | None:
         """قراءةُ صفِّ الدفعةِ قبلَ الحدّ — لقطةٌ يُبنى منها المفتاحُ والمعوِّض."""
@@ -518,6 +588,7 @@ class PopulationExpansion(_GovernedSurface):
             return {
                 "category": batch.category,
                 "min_score": batch.min_score,
+                "enrolled": int(batch.enrolled or 0),
                 "graduated": int(batch.graduated or 0),
                 "employed": int(batch.employed or 0),
             }
