@@ -1,0 +1,4 @@
+root suite (W-752 tree, before CLAIM_CONFLICT fix):
+1 failed, 3100 passed, 1 skipped in 698.52s
+the only failure: test_work_governance_gate self-call — CLAIM_CONFLICT WI-085/WI-114 on sovereignty_bridge.py; fixed by removing the path from WI-085 (gate then: no violation). That test was rerun after the fix (below).
+tests/governance/ after fix: 1404 passed in 492.90s

@@ -2,7 +2,7 @@
 
 المالك: core/sovereignty/ — التاج
 تاريخ الإنشاء: 2026-08-16
-تاريخ آخر تعديل: 2026-08-16
+تاريخ آخر تعديل: 2026-10-30 (W-752 — مراقبةُ زرِّ التوقّفِ بلا منع · WI-085 · Q-79)
 
 هذه الوحدة تُغلق الدين الأكبر في E1: كان المحرك يحكم ولا يمنع، لأن لا شيء كان
 مُلزَمًا بسؤاله. البوابة تجعل السؤال شرط التنفيذ لا خيارًا مجاورًا له.
@@ -31,6 +31,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 
@@ -68,8 +69,18 @@ from core.sovereignty.enforcement import (
     issue_permit,
 )
 from core.sovereignty.decree import DecreeRegistry, RoyalDecree
+from core.sovereignty.kill_switch_source import (
+    KillSwitchLevelSource,
+    KillSwitchObservation,
+    ObservationSink,
+    observe,
+)
 from core.sovereignty.prerogatives import is_royal_exclusive
 from core.sovereignty.security_events import SecurityEventKind, SecurityEventLog
+
+
+#: أعطالُ مراقبةِ زرِّ التوقّفِ (WI-085) تُسجَّلُ هنا — لا تُبتلَعُ صامتة.
+_kill_switch_log = logging.getLogger("core.sovereignty.kill_switch")
 
 T = TypeVar("T")
 
@@ -231,6 +242,12 @@ class SovereignGateway:
         # وهو عابرٌ مع العمليّة ولا يُحفَظ — حدٌّ مُعلَنٌ في القسم 30.
         self._permit_key = ed25519.Ed25519PrivateKey.generate()
         self._permits: list[str] = []
+        # WI-085 · المرحلةُ الأولى (Q-79 · W-752): مصدرُ مستوى زرِّ التوقّفِ وملاحظاتُه — **مراقبةٌ بلا منع**.
+        # لا مصدرَ مُسجَّلٌ ⇒ يُقرأُ 5 (غ1) ويُلاحَظُ ولا يُمنَع.
+        self._kill_switch_source: KillSwitchLevelSource | None = None
+        self._kill_switch_sink: ObservationSink | None = None
+        self._kill_switch_observations: list[KillSwitchObservation] = []
+        self._kill_switch_observation_errors = 0
 
     # ── الاستعلام ─────────────────────────────────────────────────────────
     @property
@@ -265,6 +282,39 @@ class SovereignGateway:
     def crown_status(self) -> str:
         return "provisioned" if crown_is_provisioned() else "unprovisioned"
 
+    # ── مراقبةُ زرِّ التوقّف (WI-085 · المرحلةُ الأولى · لا منع) ─────────────
+    def register_kill_switch_source(
+        self, source: KillSwitchLevelSource, sink: ObservationSink | None = None
+    ) -> None:
+        """سجِّلْ مصدرَ المستوى (ومُصرِّفًا اختياريًّا للملاحظات). يُسجِّلُه الفدراليُّ عندَ بناءِ البوّابة."""
+        self._kill_switch_source = source
+        self._kill_switch_sink = sink
+
+    @property
+    def kill_switch_observations(self) -> tuple[KillSwitchObservation, ...]:
+        """«ما كانَ سيُمنَع» في هذه الجلسة — للمراجعةِ قبلَ تفعيلِ المنع، لا للتعديل."""
+        return tuple(self._kill_switch_observations)
+
+    @property
+    def kill_switch_observation_errors(self) -> int:
+        """عددُ أعطالِ المراقبةِ نفسِها (المُصرِّفُ أو الحكم) — مكشوفٌ لا مبتلَعٌ صامتًا."""
+        return self._kill_switch_observation_errors
+
+    def _observe_kill_switch(self, request: ActionRequest, verdict: Verdict, path: str) -> None:
+        """لاحِظْ ولا تمنعْ: الحكمُ لا يتغيّرُ، وعطلُ المراقبةِ لا يُسقِطُ العبور (§ 10.3)."""
+        try:
+            observation = observe(request, verdict, path=path, source=self._kill_switch_source)
+            if observation is None:
+                return
+            self._kill_switch_observations.append(observation)
+            if self._kill_switch_sink is not None:
+                self._kill_switch_sink(observation)
+        except Exception:  # noqa: BLE001 — «بلا منع» نصُّ القرار: المراقبةُ لا تُسقِطُ تشغيلًا سليمًا
+            self._kill_switch_observation_errors += 1
+            _kill_switch_log.exception(
+                "عطلٌ في مراقبةِ زرِّ التوقّفِ على «%s» — العبورُ لم يتأثّر", request.action
+            )
+
     # ── التقييم ───────────────────────────────────────────────────────────
     def review(self, request: ActionRequest) -> Verdict:
         """حكم دستوري بلا تنفيذ. يُسجَّل في السجل الدستوري كأي حكم.
@@ -287,13 +337,17 @@ class SovereignGateway:
                     "يُراجَع كطرف تابع، ولا يُنفَّذ شيء."
                 ),
             )
-            return self._engine.evaluate(request)
-        return self._engine.evaluate(
+            verdict = self._engine.evaluate(request)
+            self._observe_kill_switch(request, verdict, "review")
+            return verdict
+        verdict = self._engine.evaluate(
             request,
             sovereign=classification.is_sovereign,
             decision_kind=classification.kind.value,
             authority_layer=classification.layer.name,
         )
+        self._observe_kill_switch(request, verdict, "review")
+        return verdict
 
     # ── التنفيذ ───────────────────────────────────────────────────────────
     def execute(
@@ -564,6 +618,7 @@ class SovereignGateway:
             decision_kind=classification.kind.value,
             authority_layer=classification.layer.name,
         )
+        self._observe_kill_switch(request, verdict, "sovereign")
 
         if isinstance(decree, RoyalDecree):
             self._decrees.consume(decree)
@@ -649,6 +704,7 @@ class SovereignGateway:
             decision_kind=classification.kind.value,
             authority_layer=classification.layer.name,
         )
+        self._observe_kill_switch(request, verdict, "subordinate")
 
         if not verdict.allowed:
             self._records.append(

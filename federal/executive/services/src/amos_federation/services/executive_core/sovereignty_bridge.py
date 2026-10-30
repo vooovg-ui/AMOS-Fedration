@@ -3,7 +3,7 @@
 النطاق: federal/executive/services — النواة التنفيذية
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-16
-تاريخ آخر تعديل: 2026-08-18
+تاريخ آخر تعديل: 2026-10-30 (W-752 — تسجيلُ مصدرِ مستوى زرِّ التوقّفِ في البوّابةِ المبنيّة · مراقبةٌ بلا منع · WI-085)
 
 الدَّين الذي تُغلقه هذه الوحدة (وُصف في E2.3-A):
 
@@ -264,7 +264,16 @@ class ConstitutionalAuthorizer:
             raise SovereigntyUnavailableError(
                 f"تعذّر استيراد البوابة السيادية، فلا تنفيذ: {exc}"
             ) from exc
-        return SovereignGateway()
+        gateway = SovereignGateway()
+        # WI-085 · المرحلةُ الأولى (Q-79 · W-752): مصدرُ المستوى من الجدولِ الدائمِ ومُصرِّفُ الملاحظات —
+        # **مراقبةٌ بلا منع**: البوّابةُ تُسجِّلُ «ما كانَ سيُمنَع» ولا يتغيّرُ حكمُها.
+        from amos_federation.services.executive_core.kill_switch_level_source import (
+            PersistentKillSwitchLevelSource,
+            log_observation,
+        )
+
+        gateway.register_kill_switch_source(PersistentKillSwitchLevelSource(), log_observation)
+        return gateway
 
     @property
     def gateway(self) -> Any:
