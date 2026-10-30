@@ -1,0 +1,16 @@
+مقتطفٌ من سجلِّ مهمّةِ Tests (123970576183) في التشغيلِ 41027958183 — أُخِذَ بـgh run view --log-failed
+tests/test_federation.py::test_promotion_status_all_passed PASSED        [ 22%]
+tests/test_federation.py::test_promotion_status_not_all_passed PASSED    [ 22%]
+tests/test_federation.py::test_gate_passed_publishes_event PASSED        [ 22%]
+tests/test_governance.py::test_check_gate_passed PASSED                  [ 24%]
+tests/test_governance.py::test_all_gates_passed_promotes PASSED          [ 24%]
+tests/test_population.py::test_school_graduation_all_passed PASSED       [ 47%]
+E   sqlite3.IntegrityError: UNIQUE constraint failed: agent_population.agent_id
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: agent_population.agent_id
+E   core.sovereignty.idempotency.IdempotencyError: العمليّةُ «agents.population.spawn:agent-695258af» فشلت: (sqlite3.IntegrityError) UNIQUE constraint failed: agent_population.agent_id
+E   core.sovereignty.compensation.CompensationRequired: العمليّةُ «agents.population.spawn:agent-695258af@attempt2» على العقد «EC-e0fdfbe0fda1fea9» فشلت (IdempotencyError: العمليّةُ «agents.population.spawn:agent-695258af» فشلت: (sqlite3.IntegrityError) UNIQUE constraint failed: agent_po
+ERROR tests/test_health_system.py::test_start_treatment_reset_context - core.sovereignty.compensation.CompensationRequired: العمليّةُ «agents.population.spawn:agent-695258af@attempt2» على العقد «EC-e0fdfbe0fda1fea9» فشلت (IdempotencyError: العمليّةُ «agents.population.spawn:agent-695258af» �
+======= 1802 passed, 54 skipped, 1 warning, 1 error in 295.52s (0:04:55) =======
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.90s. Error details: failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:4317: Failed to connect to remote host: Connection refused
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
