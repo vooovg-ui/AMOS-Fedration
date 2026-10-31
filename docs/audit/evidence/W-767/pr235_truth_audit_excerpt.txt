@@ -1,0 +1,2 @@
+2026-10-31T16:35:14.9131059Z ##[error]مصفوفة الحقيقة قديمة. شغّل truth_audit.py وادفع النتيجة.
+2026-10-31T16:35:14.9138873Z ##[error]Process completed with exit code 1.

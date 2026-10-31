@@ -1,0 +1,2 @@
+2026-10-31T16:08:36.7696286Z   ✗ OPEN_RECORD_WITHOUT_ANCHOR: DISC-149 (docs/governance/work/DISCOVERIES.md:161): قيدٌ مفتوحٌ بلا حرسٍ مذكورٍ ولا تاريخِ استحقاقٍ ولا إعلانِ أنَّه بيدِ المالكِ — فلا شيءَ يمنعُ اتِّساعَ عطبِه (`DISC-018`).
+2026-10-31T16:08:36.7705808Z ##[error]Process completed with exit code 1.
