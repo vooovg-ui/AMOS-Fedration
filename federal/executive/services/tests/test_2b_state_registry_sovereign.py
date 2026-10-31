@@ -476,25 +476,18 @@ class TestReplayProducesNoSecondEffect:
             assert result["replayed"] is False, "عُدَّت عمليّةٌ على هدفٍ آخرَ إعادةً."
             assert _status_of(code) == "suspended"
 
-    def test_permit_identity_has_one_second_granularity(self) -> None:
-        """**قيدٌ مكتشَفٌ لا إنجازٌ**: هويّةُ الإذنِ (1F) دقّتُها ثانيةٌ واحدة.
+    def test_permit_identity_is_unique_per_issue_not_per_second(self) -> None:
+        """هويّةُ الإذنِ (1F) فريدةٌ لكلِّ إصدارٍ لا لكلِّ ثانية — `Q-87` (7) · DISC-146.
 
-        قياسٌ **حتميٌّ** على النواةِ نفسِها لا رهنَ توقيتِ تشغيل:
+        كانَ هذا الفحصُ يُثبِتُ القيدَ القديم (`test_permit_identity_has_one_second_granularity`:
+        إذنانِ في الثانيةِ نفسِها إذنٌ واحد · Q-11). ونقضَ المالكُ ذلك الشطرَ صراحةً:
+        «يُشتق المعرّف من مفتاح العملية أو معرّف فريد، لا من الوقت». فاستُبدِلَ بنقيضِه
+        في W-762 تغييرَ عقدٍ بأمرٍ لا إضعافَ فحص، وبقيَ قياسُه حتميًّا:
 
-        - بصمةُ الأثرِ `kind:resource` — والتفصيلُ مُستثنًى بنصِّ المصدر، فأثرانِ
-          يختلفانِ في التفصيلِ وحدَه بصمتُهما واحدة.
-        - `contract_id = sha256(actor|action|target|fingerprint|بصماتُ الآثار)` —
-          فعقدانِ بمضمونٍ واحدٍ رقمُهما واحد.
-        - `permit_id = EP-{contract_id}-{ثانية}` — فالإذنانِ في الثانيةِ نفسِها
-          إذنٌ واحد، وسجلُّ الأذونِ المُستهلَكةِ يرفضُ الثاني.
-
-        الأثرُ في البرنامج: عمليّتانِ سياديّتانِ **مختلفتانِ** على الفاعلِ والفعلِ
-        والهدفِ والموردِ نفسِها في الثانيةِ نفسِها لا تمرّانِ معًا، ولو اختلفَ
-        مفتاحُ الذرّيّةِ (1H). وهو قيدٌ **قائمٌ منذ 2A** لا أحدثَته هجرةُ P1أ:
-        قِيسَ على `state_runtime.allocate_budget` فسلكَ السلوكَ نفسَه. ومُسجَّلٌ
-        قرارًا سياديًّا معلَّقًا (Q-11) في
-        `docs/audit/SOVEREIGN_DECISION_REGISTER.md`، لأنَّ تغييرَ هويّةِ الإذنِ
-        تغييرٌ في عقدِ 1F لا يجوزُ لمُنفِّذٍ أن يُقرِّرَه.
+        - بصمةُ الأثرِ `kind:resource` — فعقدانِ يختلفانِ في التفصيلِ وحدَه رقمُهما واحد
+          (لم يتغيّر).
+        - `permit_id = EP-{contract_id}-{uuid4}` — فالإذنانِ في الثانيةِ نفسِها **مختلفان**،
+          ولا يحوي أيٌّ منهما الطابعَ الزمنيّ.
         """
         from datetime import datetime
 
@@ -534,42 +527,35 @@ class TestReplayProducesNoSecondEffect:
             ).permit_id
             for contract in (first, second)
         ]
-        assert (
-            permits[0] == permits[1]
-        ), "اختلفَ الإذنانِ في الثانيةِ نفسِها — فالقيدُ المُوثَّقُ لم يعدْ قائمًا."
+        assert permits[0] != permits[1], "تطابقَ الإذنانِ في الثانيةِ نفسِها — عادَ DISC-146."
+        stamp = str(int(moment.timestamp()))
+        assert all(stamp not in p for p in permits), "عادَ الطابعُ الزمنيُّ إلى هويّةِ الإذن."
 
     def test_two_distinct_transitions_on_one_target_show_the_constraint(
         self,
         registry: tuple[StateRegistry, RecordingAuthorizer],
         institution: str,
     ) -> None:
-        """أثرُ القيدِ على المسارِ الإنتاجيّ — بفرعيهِ صريحينِ لا بأحدِهما.
+        """أثرُ زوالِ القيدِ على المسارِ الإنتاجيّ (W-762 · DISC-146).
 
-        الفرعُ الأوّلُ (إعادةٌ في الثانيةِ نفسِها): تُرفَضُ ولا يقعُ أثرٌ ثانٍ.
-        الفرعُ الثاني (ثانيةٌ جديدة): تمرُّ ويقعُ الأثر. وكِلا الفرعينِ مقيسٌ،
-        فلا يُثبَّتُ ادّعاءٌ يصحُّ بالتوقيتِ وحدَه — وهذا الخللُ بعينُه صُحِّحَ في
-        اختبارِ G-7 من 2A بعدَ أن تبيّنَ أنّه كان ينجحُ بالتوقيت.
+        كانَ الفحصُ يقبلُ فرعَين بحسبِ التوقيت: رفضٌ في الثانيةِ نفسِها (القيدُ القديم)
+        أو مرورٌ في ثانيةٍ جديدة. وبعدَ الإصلاحِ لا يتعلّقُ الحكمُ بالتوقيت: تمرُّ
+        العمليّةُ الثانيةُ ويقعُ أثرُها في كلِّ حال — وهو أشدُّ من الفحصِ القديم لا أضعف.
         """
-        from core.sovereignty.idempotency import IdempotencyError
-
+        # W-762 (`Q-87` 7 · DISC-146): كانَ للفحصِ فرعان (رفضٌ في الثانيةِ نفسِها ·
+        # مرورٌ في ثانيةٍ جديدة). وبعدَ الإصلاحِ لا اصطدامَ للإذنِ في أيِّ ثانية،
+        # فيُشترَطُ المرورُ وحدَه: عمليّتانِ مختلفتانِ على الهدفِ نفسِه تمرّانِ كلتاهما.
         service, _ = registry
         king = _context("king", _KING_PERMISSIONS)
         service.set_institution_status(
             context=king, code=institution, status="suspended", reason="أوّل"
         )
         assert _status_of(institution) == "suspended"
-        try:
-            second = service.set_institution_status(
-                context=king, code=institution, status="active", reason="ثانٍ"
-            )
-        except IdempotencyError as refusal:
-            assert "استُهلِك" in str(
-                refusal
-            ), "الرفضُ لم يكنْ لاستهلاكِ الإذن — فوصفُ القيدِ صارَ غيرَ صحيح."
-            assert _status_of(institution) == "suspended", "وقعَ أثرٌ رغمَ رفضِ الإذن."
-        else:
-            assert second["replayed"] is False
-            assert _status_of(institution) == "active"
+        second = service.set_institution_status(
+            context=king, code=institution, status="active", reason="ثانٍ"
+        )
+        assert second["replayed"] is False
+        assert _status_of(institution) == "active"
 
 
 # ═══════════════════════════════════════════════════════════════════════════

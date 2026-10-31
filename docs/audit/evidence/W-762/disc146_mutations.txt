@@ -1,0 +1,5 @@
+M1 إعادةُ المعرّفِ الزمنيّ: مقتولة · 3 failed, 3 passed in 0.17s · سقط: test_p1_two_permits_in_one_second_differ_and_carry_no_timestamp, test_p2_p4_same_second_retry_succeeds_exactly_once[P2], test_p2_p4_same_second_retry_succeeds_exactly_once[P4]
+M2 معرّفٌ ثابتٌ لكلِّ عقد: مقتولة · 3 failed, 3 passed in 0.17s · سقط: test_p1_two_permits_in_one_second_differ_and_carry_no_timestamp, test_p2_p4_same_second_retry_succeeds_exactly_once[P2], test_p2_p4_same_second_retry_succeeds_exactly_once[P4]
+M3a تعطيلُ is_consumed وحدَه: **حيّة** · 6 passed in 0.11s
+M3b تعطيلُ is_consumed وconsume معًا: مقتولة · 1 failed, 5 passed in 0.11s · سقط: test_p5_resubmitting_the_same_permit_is_rejected
+المجموع: 3/4 مقتولة · الملفُّ مُستعادٌ بايتًا: True
