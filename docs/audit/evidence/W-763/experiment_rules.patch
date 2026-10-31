@@ -1,0 +1,20 @@
+diff --git a/core/constitutional_engine/rules.py b/core/constitutional_engine/rules.py
+index 5dad3a14..d3ef42e7 100644
+--- a/core/constitutional_engine/rules.py
++++ b/core/constitutional_engine/rules.py
+@@ -360,7 +360,14 @@ def _r002_2(req: ActionRequest) -> str | None:
+ 
+ def _r003_1(req: ActionRequest) -> str | None:
+     """اختصاص الفروع: لا فرع يمارس اختصاص فرع آخر — ولا يمارسه AGENT ولا SYSTEM (Q-68)."""
+-    if req.actor in _NON_BRANCH_EXCLUDED:
++    # [تجربةُ قياسٍ مؤقّتة W-763 — لا تُدمَج]
++    _ex_all = frozenset().union(*_BRANCH_EXCLUSIVE.values())
++    if req.actor is Branch.ROYAL and req.royal_decree is None and req.action in _ex_all:
++        return "EXPERIMENT: ROYAL بلا مرسوم"
++    if req.actor is Branch.HUMAN and req.action in (_ex_all | NON_CONSTITUTIONAL_MONEY_ACTIONS):
++        if not (req.human_approved and req.metadata.get("human_approval_source")):
++            return "EXPERIMENT: HUMAN بلا موافقة موسومة"
++    if req.actor in _NON_BRANCH_EXCLUDED or req.actor in (Branch.STATE, Branch.INSTITUTION):
+         for branch, actions in _BRANCH_EXCLUSIVE.items():
+             if req.action in actions:
+                 return (

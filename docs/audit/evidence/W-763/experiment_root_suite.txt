@@ -1,0 +1,567 @@
+/home/user/workspace/amos/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+........................................................................ [  2%]
+........................................................................ [  4%]
+........................................................................ [  6%]
+........................................................................ [  9%]
+........................................................................ [ 11%]
+........................................................................ [ 13%]
+........................................................................ [ 16%]
+........................................................................ [ 18%]
+........................................................................ [ 20%]
+........................................................................ [ 23%]
+........................................................................ [ 25%]
+........................................................................ [ 27%]
+........................................................................ [ 30%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+........................................................................ [ 37%]
+......................................F................................. [ 39%]
+........................................................................ [ 41%]
+........................................................................ [ 44%]
+........................................................................ [ 46%]
+........................................................................ [ 48%]
+........................................................................ [ 51%]
+........................................................................ [ 53%]
+........................................................................ [ 55%]
+........................................................................ [ 58%]
+........................................................................ [ 60%]
+......................................................F................. [ 62%]
+........................................................................ [ 64%]
+........................................................................ [ 67%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 74%]
+.....................................s.................................. [ 76%]
+.......................F..F.......F..................................... [ 78%]
+........................................................................ [ 81%]
+........................................................................ [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 88%]
+........................................................................ [ 90%]
+........................................................................ [ 92%]
+........................................................................ [ 95%]
+........................................................................ [ 97%]
+.............................................F.......................... [ 99%]
+......                                                                   [100%]
+=================================== FAILURES ===================================
+__ test_issue_ruling_is_denied_for_the_default_actor_and_allowed_for_judicial __
+
+    def test_issue_ruling_is_denied_for_the_default_actor_and_allowed_for_judicial() -> (
+        None
+    ):
+        """الفخُّ المقيس: لو هاجرَ `issue_ruling` بالفاعلِ الافتراضيِّ لسقطَ بـR-003-1."""
+        verdicts = _engine_verdicts(["issue_ruling"], ["EXECUTIVE", "JUDICIAL", "ROYAL"])[
+            "issue_ruling"
+        ]
+        assert verdicts["EXECUTIVE"][0] == "DENY"
+        assert "R-003-1" in verdicts["EXECUTIVE"][1]
+        assert verdicts["JUDICIAL"][0] == "ALLOW"
+>       assert verdicts["ROYAL"][0] == "ALLOW"
+E       AssertionError: assert 'DENY' == 'ALLOW'
+E         
+E         - ALLOW
+E         + DENY
+
+tests/governance/test_q3_branch_declaration_surface.py:424: AssertionError
+_____________ test_الأثرُ_المُولَّدُ_في_المستودعِ_طازجٌ_لا_متقادمٌ _____________
+
+    def test_الأثرُ_المُولَّدُ_في_المستودعِ_طازجٌ_لا_متقادمٌ() -> None:
+        """عينُ ما حمَّرَ التشغيلَ 55 يُقاسُ هنا قبلَ الدفعِ — REAL_TREE_ON_PURPOSE."""
+        before = {rel: _digest(REPO_ROOT / rel) for rel in ARTIFACTS}
+    
+        result = subprocess.run(  # noqa: S603 — REAL_TREE_ON_PURPOSE: الحكمُ على المستودعِ الحقيقيِّ مقصودٌ
+            [sys.executable, str(TOOL_PATH), str(REPO_ROOT), "--check"],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    
+        after = {rel: _digest(REPO_ROOT / rel) for rel in ARTIFACTS}
+        assert before == after, (
+            "وجهُ `--check` كتبَ في الشجرةِ التي يحكُمُ عليها — "
+            "وحاكمٌ يكتُبُ ما يقيسُ لا يقيسُ شيئًا"
+        )
+>       assert result.returncode == 0, (
+            "الأثرُ المُولَّدُ في الشجرةِ متقادمٌ: أعِدْ توليدَه بـ"
+            "`python tools/governance/truth_audit.py` وادفعْه مع عملِك — "
+            "ولا يُخفَّفُ هذا الفحصُ ولا يُسكَتُ.\n"
+            f"{result.stdout}\n{result.stderr}"
+        )
+E       AssertionError: الأثرُ المُولَّدُ في الشجرةِ متقادمٌ: أعِدْ توليدَه بـ`python tools/governance/truth_audit.py` وادفعْه مع عملِك — ولا يُخفَّفُ هذا الفحصُ ولا يُسكَتُ.
+E         
+E         [FRESHNESS] ✗ الأثرُ المُولَّدُ في الشجرةِ متقادمٌ — أعِدْ توليدَه وادفعْه مع عملِك:
+E             docs/audit/TRUTH_MATRIX.md: المكتوبُ يخالفُ المُولَّدَ
+E             docs/audit/truth_matrix.json: المكتوبُ متقادمٌ في 1 حقلًا
+E               - domains.core.code_lines: المكتوبُ '15609' · المُولَّدُ '15615'
+E             الأمرُ: python tools/governance/truth_audit.py
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/user/workspace/amos/.venv/bin/python', '/home/user/workspace/amos/tools/governance/truth... domains.core.code_lines: المكتوبُ '15609' · المُولَّدُ '15615'\n    الأمرُ: python tools/governance/truth_audit.py\n").returncode
+
+tests/governance/test_w099_generated_artifact_freshness.py:128: AssertionError
+_______ Testالمُنادونالمُهجَّرون.test_التنفيذ_التابع_يمر_بكل_مراحل_الحد ________
+
+self = <test_enforcement_integration.Testالمُنادونالمُهجَّرون object at 0x7f19387baff0>
+بوابةُ_ولاية = <StateGateway layer=STATE>
+حالةُ_الدولة = {'state/province-A': 'ORIGINAL', 'notifications/citizen-1': 'NONE'}
+
+    def test_التنفيذ_التابع_يمر_بكل_مراحل_الحد(
+        self, بوابةُ_ولاية: StateGateway, حالةُ_الدولة: dict[str, str]
+    ) -> None:
+        """القياسُ على المراحلِ المُسجَّلة: ما مرَّ فعلًا لا ما كان مُخطَّطًا."""
+        أثر = _أثر()
+        مُستقبَل: list[SovereignEffect] = []
+>       حصيلة = بوابةُ_ولاية.execute_declared(
+            _طلب(),
+            declared_effects=(أثر,),
+            applier=_مُطبِّق(حالةُ_الدولة, مُستقبَل),
+            operation_key=_مفتاح("مرور-كامل"),
+            compensators=(_معوّض(حالةُ_الدولة, أثر),),
+        )
+
+tests/sovereignty/test_enforcement_integration.py:192: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/gateways.py:181: in execute_declared
+    return self.boundary.execute(
+core/sovereignty/enforcement_boundary.py:408: in execute
+    permit = self.gateway.decide(request, declared_effects=declared_effects)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core/sovereignty/gateway.py:527: in decide
+    self.execute(request, _إصدار)
+core/sovereignty/gateway.py:397: in execute
+    return self._execute_subordinate(request, executor, classification)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <core.sovereignty.gateway.SovereignGateway object at 0x7f1934cd2de0>
+request = ActionRequest(actor=<Branch.STATE: 'state'>, action='execute_task', target='state/province-A', human_approved=False, h...kill_switch_level=0, review_days=0, council_approval_pct=0.0, has_identity_header=True, royal_decree=None, metadata={})
+executor = <function SovereignGateway.decide.<locals>._إصدار at 0x7f19352c6d40>
+classification = AuthorityClassification(kind=<DecisionKind.STATE: 'STATE'>, layer=<AuthorityLayer.STATE: 2>, claimed_royal=False, auth...ty_verified=False, decree_id=None, reason='قرار تابع من طبقة «الولاية» — يُقيَّم دستوريًّا تقييمًا مُلزِمًا كالمعتاد.')
+
+    def _execute_subordinate(
+        self,
+        request: ActionRequest,
+        executor: Callable[[], T],
+        classification: AuthorityClassification,
+    ) -> T:
+        """تنفيذ قرار تابع — الدستور ملزِم ومانع، ولم يتخفَّف شيء هنا.
+    
+        أُضيفت خطوةٌ سابقةٌ للتقييم (1D): **هل بقي الاختصاصُ أصلًا؟** فإن سحبَ
+        الملكُ صلاحيةَ هذا الفاعلِ في هذا الفعلِ فلا معنى لتقييمِ فعلٍ لا يملكه:
+        يُرفَض رفضًا مُغلَقًا ويُسجَّل، ولا يُستدعى المُنفِّذ.
+        """
+        decree = request.royal_decree
+        decree_id = getattr(decree, "decree_id", None) if decree is not None else None
+    
+        withdrawn = self._grants.latest_for(request.actor.value, request.action)
+        if withdrawn is not None and withdrawn.is_withdrawn:
+            self._security.record(
+                SecurityEventKind.WITHDRAWN_AUTHORITY_USE,
+                actor=request.actor.value,
+                action=request.action,
+                target=request.target or "",
+                reason=(
+                    f"صلاحيةُ «{withdrawn.capability}» مسحوبةٌ بالمرسوم "
+                    f"«{withdrawn.decree_id}». الفعلُ يُمنَع قبل التقييم."
+                ),
+                decree_id=withdrawn.decree_id,
+            )
+            self._records.append(
+                ExecutionRecord(
+                    fingerprint="",
+                    action=request.action,
+                    actor=request.actor.value,
+                    decision="AUTHORITY_WITHDRAWN",
+                    completion=ExecutionCompletion.NOT_EXECUTED,
+                    ledger_entry_hash=None,
+                    decree_id=withdrawn.decree_id,
+                    decision_kind=classification.kind.value,
+                    authority_layer=classification.layer.name,
+                )
+            )
+            raise AuthorityWithdrawn(withdrawn)
+    
+        verdict = self._engine.evaluate(
+            request,
+            sovereign=False,
+            decision_kind=classification.kind.value,
+            authority_layer=classification.layer.name,
+        )
+        self._observe_kill_switch(request, verdict, "subordinate")
+    
+        if not verdict.allowed:
+            self._records.append(
+                ExecutionRecord(
+                    fingerprint=verdict.request_fingerprint,
+                    action=request.action,
+                    actor=request.actor.value,
+                    decision=verdict.decision.value,
+                    completion=ExecutionCompletion.NOT_EXECUTED,
+                    ledger_entry_hash=verdict.ledger_entry_hash,
+                    decree_id=decree_id,
+                    decision_kind=classification.kind.value,
+                    authority_layer=classification.layer.name,
+                )
+            )
+>           raise SovereigntyViolation(verdict)
+E           core.sovereignty.gateway.SovereigntyViolation: DENY — 1 مخالفة دستورية:
+E             [CRITICAL] A003 (المادة الثالثة — الفصل بين السلطات) · البند: الفروع الأربعة — الحدود · القاعدة R-003-1
+E                 السبب: الطرف «state» خارج الفروع يمارس «execute_task» وهو اختصاص حصري للفرع «executive». الحصر يمنع ذلك (Q-68).
+
+core/sovereignty/gateway.py:723: SovereigntyViolation
+______ Testالمُنادونالمُهجَّرون.test_الاعادة_تُعلَن_ولا_تُعَد_نجاحا_ثانيا ______
+
+self = <test_enforcement_integration.Testالمُنادونالمُهجَّرون object at 0x7f193871fbc0>
+بوابةُ_ولاية = <StateGateway layer=STATE>
+حالةُ_الدولة = {'state/province-A': 'ORIGINAL', 'notifications/citizen-1': 'NONE'}
+
+    def test_الاعادة_تُعلَن_ولا_تُعَد_نجاحا_ثانيا(
+        self, بوابةُ_ولاية: StateGateway, حالةُ_الدولة: dict[str, str]
+    ) -> None:
+        """المفتاحُ نفسُه مرّتين: الأثرُ يقعُ مرّةً، والثانيةُ تُعلِنُ نفسَها إعادةً."""
+        أثر = _أثر()
+        مُستقبَل: list[SovereignEffect] = []
+        وسائط = {
+            "declared_effects": (أثر,),
+            "applier": _مُطبِّق(حالةُ_الدولة, مُستقبَل),
+            "operation_key": _مفتاح("مرّةٌ-واحدة"),
+            "compensators": (_معوّض(حالةُ_الدولة, أثر),),
+        }
+>       أولى = بوابةُ_ولاية.execute_declared(_طلب(), **وسائط)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/sovereignty/test_enforcement_integration.py:240: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/gateways.py:181: in execute_declared
+    return self.boundary.execute(
+core/sovereignty/enforcement_boundary.py:408: in execute
+    permit = self.gateway.decide(request, declared_effects=declared_effects)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core/sovereignty/gateway.py:527: in decide
+    self.execute(request, _إصدار)
+core/sovereignty/gateway.py:397: in execute
+    return self._execute_subordinate(request, executor, classification)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <core.sovereignty.gateway.SovereignGateway object at 0x7f1934cd1790>
+request = ActionRequest(actor=<Branch.STATE: 'state'>, action='execute_task', target='state/province-A', human_approved=False, h...kill_switch_level=0, review_days=0, council_approval_pct=0.0, has_identity_header=True, royal_decree=None, metadata={})
+executor = <function SovereignGateway.decide.<locals>._إصدار at 0x7f1935208f40>
+classification = AuthorityClassification(kind=<DecisionKind.STATE: 'STATE'>, layer=<AuthorityLayer.STATE: 2>, claimed_royal=False, auth...ty_verified=False, decree_id=None, reason='قرار تابع من طبقة «الولاية» — يُقيَّم دستوريًّا تقييمًا مُلزِمًا كالمعتاد.')
+
+    def _execute_subordinate(
+        self,
+        request: ActionRequest,
+        executor: Callable[[], T],
+        classification: AuthorityClassification,
+    ) -> T:
+        """تنفيذ قرار تابع — الدستور ملزِم ومانع، ولم يتخفَّف شيء هنا.
+    
+        أُضيفت خطوةٌ سابقةٌ للتقييم (1D): **هل بقي الاختصاصُ أصلًا؟** فإن سحبَ
+        الملكُ صلاحيةَ هذا الفاعلِ في هذا الفعلِ فلا معنى لتقييمِ فعلٍ لا يملكه:
+        يُرفَض رفضًا مُغلَقًا ويُسجَّل، ولا يُستدعى المُنفِّذ.
+        """
+        decree = request.royal_decree
+        decree_id = getattr(decree, "decree_id", None) if decree is not None else None
+    
+        withdrawn = self._grants.latest_for(request.actor.value, request.action)
+        if withdrawn is not None and withdrawn.is_withdrawn:
+            self._security.record(
+                SecurityEventKind.WITHDRAWN_AUTHORITY_USE,
+                actor=request.actor.value,
+                action=request.action,
+                target=request.target or "",
+                reason=(
+                    f"صلاحيةُ «{withdrawn.capability}» مسحوبةٌ بالمرسوم "
+                    f"«{withdrawn.decree_id}». الفعلُ يُمنَع قبل التقييم."
+                ),
+                decree_id=withdrawn.decree_id,
+            )
+            self._records.append(
+                ExecutionRecord(
+                    fingerprint="",
+                    action=request.action,
+                    actor=request.actor.value,
+                    decision="AUTHORITY_WITHDRAWN",
+                    completion=ExecutionCompletion.NOT_EXECUTED,
+                    ledger_entry_hash=None,
+                    decree_id=withdrawn.decree_id,
+                    decision_kind=classification.kind.value,
+                    authority_layer=classification.layer.name,
+                )
+            )
+            raise AuthorityWithdrawn(withdrawn)
+    
+        verdict = self._engine.evaluate(
+            request,
+            sovereign=False,
+            decision_kind=classification.kind.value,
+            authority_layer=classification.layer.name,
+        )
+        self._observe_kill_switch(request, verdict, "subordinate")
+    
+        if not verdict.allowed:
+            self._records.append(
+                ExecutionRecord(
+                    fingerprint=verdict.request_fingerprint,
+                    action=request.action,
+                    actor=request.actor.value,
+                    decision=verdict.decision.value,
+                    completion=ExecutionCompletion.NOT_EXECUTED,
+                    ledger_entry_hash=verdict.ledger_entry_hash,
+                    decree_id=decree_id,
+                    decision_kind=classification.kind.value,
+                    authority_layer=classification.layer.name,
+                )
+            )
+>           raise SovereigntyViolation(verdict)
+E           core.sovereignty.gateway.SovereigntyViolation: DENY — 1 مخالفة دستورية:
+E             [CRITICAL] A003 (المادة الثالثة — الفصل بين السلطات) · البند: الفروع الأربعة — الحدود · القاعدة R-003-1
+E                 السبب: الطرف «state» خارج الفروع يمارس «execute_task» وهو اختصاص حصري للفرع «executive». الحصر يمنع ذلك (Q-68).
+
+core/sovereignty/gateway.py:723: SovereigntyViolation
+_ Testالأثرالخارجيّلايُسلَّممباشرة.test_الاثر_الخارجي_يُرتَّب_في_الصادر_ولا_يبلغ_المطبِّق _
+
+self = <test_enforcement_integration.Testالأثرالخارجيّلايُسلَّممباشرة object at 0x7f19387bacf0>
+بوابةُ_ولاية = <StateGateway layer=STATE>
+مزوّد = <test_enforcement_integration.مزوّدٌ_مُراقَب object at 0x7f193806fc80>
+
+    def test_الاثر_الخارجي_يُرتَّب_في_الصادر_ولا_يبلغ_المطبِّق(
+        self, بوابةُ_ولاية: StateGateway, مزوّد: مزوّدٌ_مُراقَب
+    ) -> None:
+        أثر = _أثر(EffectKind.EXTERNAL, NOTICE)
+        مُستقبَل: list[SovereignEffect] = []
+>       حصيلة = بوابةُ_ولاية.execute_declared(
+            _طلب(target=NOTICE),
+            declared_effects=(أثر,),
+            applier=lambda e: مُستقبَل.append(e),
+            operation_key=_مفتاح("خارجيّ"),
+            provider=مزوّد,
+            payload_of=lambda _e: EffectPayload(data={"نص": "إشعار"}, version=1),
+        )
+
+tests/sovereignty/test_enforcement_integration.py:371: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/gateways.py:181: in execute_declared
+    return self.boundary.execute(
+core/sovereignty/enforcement_boundary.py:408: in execute
+    permit = self.gateway.decide(request, declared_effects=declared_effects)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core/sovereignty/gateway.py:527: in decide
+    self.execute(request, _إصدار)
+core/sovereignty/gateway.py:397: in execute
+    return self._execute_subordinate(request, executor, classification)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <core.sovereignty.gateway.SovereignGateway object at 0x7f193806c8c0>
+request = ActionRequest(actor=<Branch.STATE: 'state'>, action='execute_task', target='notifications/citizen-1', human_approved=F...kill_switch_level=0, review_days=0, council_approval_pct=0.0, has_identity_header=True, royal_decree=None, metadata={})
+executor = <function SovereignGateway.decide.<locals>._إصدار at 0x7f1935209ee0>
+classification = AuthorityClassification(kind=<DecisionKind.STATE: 'STATE'>, layer=<AuthorityLayer.STATE: 2>, claimed_royal=False, auth...ty_verified=False, decree_id=None, reason='قرار تابع من طبقة «الولاية» — يُقيَّم دستوريًّا تقييمًا مُلزِمًا كالمعتاد.')
+
+    def _execute_subordinate(
+        self,
+        request: ActionRequest,
+        executor: Callable[[], T],
+        classification: AuthorityClassification,
+    ) -> T:
+        """تنفيذ قرار تابع — الدستور ملزِم ومانع، ولم يتخفَّف شيء هنا.
+    
+        أُضيفت خطوةٌ سابقةٌ للتقييم (1D): **هل بقي الاختصاصُ أصلًا؟** فإن سحبَ
+        الملكُ صلاحيةَ هذا الفاعلِ في هذا الفعلِ فلا معنى لتقييمِ فعلٍ لا يملكه:
+        يُرفَض رفضًا مُغلَقًا ويُسجَّل، ولا يُستدعى المُنفِّذ.
+        """
+        decree = request.royal_decree
+        decree_id = getattr(decree, "decree_id", None) if decree is not None else None
+    
+        withdrawn = self._grants.latest_for(request.actor.value, request.action)
+        if withdrawn is not None and withdrawn.is_withdrawn:
+            self._security.record(
+                SecurityEventKind.WITHDRAWN_AUTHORITY_USE,
+                actor=request.actor.value,
+                action=request.action,
+                target=request.target or "",
+                reason=(
+                    f"صلاحيةُ «{withdrawn.capability}» مسحوبةٌ بالمرسوم "
+                    f"«{withdrawn.decree_id}». الفعلُ يُمنَع قبل التقييم."
+                ),
+                decree_id=withdrawn.decree_id,
+            )
+            self._records.append(
+                ExecutionRecord(
+                    fingerprint="",
+                    action=request.action,
+                    actor=request.actor.value,
+                    decision="AUTHORITY_WITHDRAWN",
+                    completion=ExecutionCompletion.NOT_EXECUTED,
+                    ledger_entry_hash=None,
+                    decree_id=withdrawn.decree_id,
+                    decision_kind=classification.kind.value,
+                    authority_layer=classification.layer.name,
+                )
+            )
+            raise AuthorityWithdrawn(withdrawn)
+    
+        verdict = self._engine.evaluate(
+            request,
+            sovereign=False,
+            decision_kind=classification.kind.value,
+            authority_layer=classification.layer.name,
+        )
+        self._observe_kill_switch(request, verdict, "subordinate")
+    
+        if not verdict.allowed:
+            self._records.append(
+                ExecutionRecord(
+                    fingerprint=verdict.request_fingerprint,
+                    action=request.action,
+                    actor=request.actor.value,
+                    decision=verdict.decision.value,
+                    completion=ExecutionCompletion.NOT_EXECUTED,
+                    ledger_entry_hash=verdict.ledger_entry_hash,
+                    decree_id=decree_id,
+                    decision_kind=classification.kind.value,
+                    authority_layer=classification.layer.name,
+                )
+            )
+>           raise SovereigntyViolation(verdict)
+E           core.sovereignty.gateway.SovereigntyViolation: DENY — 1 مخالفة دستورية:
+E             [CRITICAL] A003 (المادة الثالثة — الفصل بين السلطات) · البند: الفروع الأربعة — الحدود · القاعدة R-003-1
+E                 السبب: الطرف «state» خارج الفروع يمارس «execute_task» وهو اختصاص حصري للفرع «executive». الحصر يمنع ذلك (Q-68).
+
+core/sovereignty/gateway.py:723: SovereigntyViolation
+______ Testتكامل_شامل.test_سلسلة_القرار_التابع_تسمح_بالسليم_وتمنع_المخالف ______
+
+self = <test_supreme_authority.Testتكامل_شامل object at 0x7f19384b4f50>
+بوابة = <core.sovereignty.gateway.SovereignGateway object at 0x7f193653c5c0>
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-86/test_سلسلة_القرار_التابع_تسمح_0')
+
+    def test_سلسلة_القرار_التابع_تسمح_بالسليم_وتمنع_المخالف(self, بوابة, tmp_path) -> None:
+        """هُجِّر في 1N إلى `execute_declared`: التمييزُ نفسُه، عبرَ الحدِّ لا بجانبِه.
+    
+        الأثرُ يُعلَن قبلَ وقوعِه ومعوّضُه مربوط، فما كان يُقاسُ على قيمةِ إرجاعٍ
+        صار يُقاسُ على الحالةِ نفسِها — وهو قياسٌ أصدق.
+        """
+        # سجلُّ الأذونِ يُعلَنُ موضعُه صراحةً كسجلِّ الذرّيّة: حدٌّ يُعلِنُ بعضَ
+        # مواضِعِه ويتركُ بعضَها يهبِطُ إلى الافتراضيِّ كان يكتبُ `royal/authority/`
+        # `CONSUMED_PERMITS.json` داخلَ الشجرةِ المُتعقَّبة — وقد قيس (O-1N-1).
+        حدّ = SovereignExecutionBoundary(
+            gateway=بوابة,
+            idempotency_ledger=IdempotencyLedger(path=tmp_path / "ذرّيّة.json"),
+            consumed_permits=ConsumedPermitLedger(path=tmp_path / "أذون.json"),
+        )
+        بوابة_ولاية = StateGateway(بوابة, boundary=حدّ)
+        نُفذ: list[str] = []
+        أثر = SovereignEffect(kind=EffectKind.WRITE, resource="ولاية-أ")
+        معوّض = (Compensator(effect_signature=أثر.signature, apply=lambda: None),)
+    
+>       حصيلة = بوابة_ولاية.execute_declared(
+            ActionRequest(actor=Branch.STATE, action="execute_task", target="ولاية-أ"),
+            declared_effects=(أثر,),
+            applier=lambda _أثر: نُفذ.append("سليم"),
+            operation_key=IdempotencyKey(scope="اختبار.تابع", value="سليم"),
+            compensators=معوّض,
+        )
+
+tests/sovereignty/test_supreme_authority.py:366: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/sovereignty/gateways.py:181: in execute_declared
+    return self.boundary.execute(
+core/sovereignty/enforcement_boundary.py:408: in execute
+    permit = self.gateway.decide(request, declared_effects=declared_effects)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core/sovereignty/gateway.py:527: in decide
+    self.execute(request, _إصدار)
+core/sovereignty/gateway.py:397: in execute
+    return self._execute_subordinate(request, executor, classification)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <core.sovereignty.gateway.SovereignGateway object at 0x7f193653c5c0>
+request = ActionRequest(actor=<Branch.STATE: 'state'>, action='execute_task', target='ولاية-أ', human_approved=False, human_sign...kill_switch_level=0, review_days=0, council_approval_pct=0.0, has_identity_header=True, royal_decree=None, metadata={})
+executor = <function SovereignGateway.decide.<locals>._إصدار at 0x7f19365a37e0>
+classification = AuthorityClassification(kind=<DecisionKind.STATE: 'STATE'>, layer=<AuthorityLayer.STATE: 2>, claimed_royal=False, auth...ty_verified=False, decree_id=None, reason='قرار تابع من طبقة «الولاية» — يُقيَّم دستوريًّا تقييمًا مُلزِمًا كالمعتاد.')
+
+    def _execute_subordinate(
+        self,
+        request: ActionRequest,
+        executor: Callable[[], T],
+        classification: AuthorityClassification,
+    ) -> T:
+        """تنفيذ قرار تابع — الدستور ملزِم ومانع، ولم يتخفَّف شيء هنا.
+    
+        أُضيفت خطوةٌ سابقةٌ للتقييم (1D): **هل بقي الاختصاصُ أصلًا؟** فإن سحبَ
+        الملكُ صلاحيةَ هذا الفاعلِ في هذا الفعلِ فلا معنى لتقييمِ فعلٍ لا يملكه:
+        يُرفَض رفضًا مُغلَقًا ويُسجَّل، ولا يُستدعى المُنفِّذ.
+        """
+        decree = request.royal_decree
+        decree_id = getattr(decree, "decree_id", None) if decree is not None else None
+    
+        withdrawn = self._grants.latest_for(request.actor.value, request.action)
+        if withdrawn is not None and withdrawn.is_withdrawn:
+            self._security.record(
+                SecurityEventKind.WITHDRAWN_AUTHORITY_USE,
+                actor=request.actor.value,
+                action=request.action,
+                target=request.target or "",
+                reason=(
+                    f"صلاحيةُ «{withdrawn.capability}» مسحوبةٌ بالمرسوم "
+                    f"«{withdrawn.decree_id}». الفعلُ يُمنَع قبل التقييم."
+                ),
+                decree_id=withdrawn.decree_id,
+            )
+            self._records.append(
+                ExecutionRecord(
+                    fingerprint="",
+                    action=request.action,
+                    actor=request.actor.value,
+                    decision="AUTHORITY_WITHDRAWN",
+                    completion=ExecutionCompletion.NOT_EXECUTED,
+                    ledger_entry_hash=None,
+                    decree_id=withdrawn.decree_id,
+                    decision_kind=classification.kind.value,
+                    authority_layer=classification.layer.name,
+                )
+            )
+            raise AuthorityWithdrawn(withdrawn)
+    
+        verdict = self._engine.evaluate(
+            request,
+            sovereign=False,
+            decision_kind=classification.kind.value,
+            authority_layer=classification.layer.name,
+        )
+        self._observe_kill_switch(request, verdict, "subordinate")
+    
+        if not verdict.allowed:
+            self._records.append(
+                ExecutionRecord(
+                    fingerprint=verdict.request_fingerprint,
+                    action=request.action,
+                    actor=request.actor.value,
+                    decision=verdict.decision.value,
+                    completion=ExecutionCompletion.NOT_EXECUTED,
+                    ledger_entry_hash=verdict.ledger_entry_hash,
+                    decree_id=decree_id,
+                    decision_kind=classification.kind.value,
+                    authority_layer=classification.layer.name,
+                )
+            )
+>           raise SovereigntyViolation(verdict)
+E           core.sovereignty.gateway.SovereigntyViolation: DENY — 1 مخالفة دستورية:
+E             [CRITICAL] A003 (المادة الثالثة — الفصل بين السلطات) · البند: الفروع الأربعة — الحدود · القاعدة R-003-1
+E                 السبب: الطرف «state» خارج الفروع يمارس «execute_task» وهو اختصاص حصري للفرع «executive». الحصر يمنع ذلك (Q-68).
+
+core/sovereignty/gateway.py:723: SovereigntyViolation
+=========================== short test summary info ============================
+FAILED tests/governance/test_q3_branch_declaration_surface.py::test_issue_ruling_is_denied_for_the_default_actor_and_allowed_for_judicial
+FAILED tests/governance/test_w099_generated_artifact_freshness.py::test_الأثرُ_المُولَّدُ_في_المستودعِ_طازجٌ_لا_متقادمٌ
+FAILED tests/sovereignty/test_enforcement_integration.py::Testالمُنادونالمُهجَّرون::test_التنفيذ_التابع_يمر_بكل_مراحل_الحد
+FAILED tests/sovereignty/test_enforcement_integration.py::Testالمُنادونالمُهجَّرون::test_الاعادة_تُعلَن_ولا_تُعَد_نجاحا_ثانيا
+FAILED tests/sovereignty/test_enforcement_integration.py::Testالأثرالخارجيّلايُسلَّممباشرة::test_الاثر_الخارجي_يُرتَّب_في_الصادر_ولا_يبلغ_المطبِّق
+FAILED tests/sovereignty/test_supreme_authority.py::Testتكامل_شامل::test_سلسلة_القرار_التابع_تسمح_بالسليم_وتمنع_المخالف
+6 failed, 3095 passed, 1 skipped in 683.80s (0:11:23)

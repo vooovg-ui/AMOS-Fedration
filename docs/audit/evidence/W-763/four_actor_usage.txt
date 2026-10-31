@@ -1,0 +1,44 @@
+ملفّاتُ الإنتاجِ المفحوصة: 265
+
+Branch.HUMAN: 3 موضعًا
+  core/constitutional_engine/rules.py:522
+  core/sovereignty/authority.py:135
+  core/sovereignty/authority.py:143
+
+Branch.STATE: 1 موضعًا
+  core/sovereignty/authority.py:148
+
+Branch.INSTITUTION: 1 موضعًا
+  core/sovereignty/authority.py:149
+
+Branch.ROYAL: 13 موضعًا
+  core/constitutional_engine/rules.py:568
+  core/constitutional_engine/rules.py:587
+  core/constitutional_engine/rules.py:600
+  core/constitutional_engine/rules.py:656
+  core/constitutional_engine/rules.py:716
+  core/constitutional_engine/rules.py:751
+  core/sovereignty/authority.py:135
+  core/sovereignty/authority.py:142
+  core/sovereignty/authority.py:216
+  core/sovereignty/authority_grants.py:309
+  tools/sovereignty/prove_supreme_authority.py:79
+  tools/sovereignty/prove_supreme_authority.py:128
+  tools/sovereignty/prove_supreme_authority.py:131
+
+بناءٌ ديناميكيٌّ للفاعل (Branch[...] / Branch(...) / choices من Branch): 13
+  core/constitutional_engine/cli.py:85: actor=Branch(args.actor),
+  core/constitutional_engine/cli.py:90: approving_branches=tuple(Branch(b) for b in (args.approvals or [])),
+  core/constitutional_engine/cli.py:120: ev.add_argument("--actor", required=True, choices=[b.value for b in Branch])
+  core/constitutional_engine/cli.py:125: ev.add_argument("--approvals", nargs="*", choices=[b.value for b in Branch])
+  core/constitutional_engine/model.py:20: class Branch(str, Enum):
+  core/sovereignty/cli.py:242: actor=Branch(args.actor),
+  core/sovereignty/cli.py:322: p.add_argument("--actor", required=True, choices=[b.value for b in Branch])
+  federal/executive/services/src/amos_federation/services/executive_core/sovereignty_bridge.py:360: actor = Branch[self._actor] if isinstance(self._actor, str) else self._actor
+  federal/executive/services/src/amos_federation/services/governance/federation.py:1655: _executive_branch = ExecutiveBranch()
+  federal/executive/services/src/amos_federation/services/governance/federation.py:1662: _legislative_branch = LegislativeBranch()
+  federal/executive/services/src/amos_federation/services/governance/federation.py:1669: _judicial_branch = JudicialBranch()
+  tools/audit/judicial_gate_probe.py:60: req = ActionRequest(actor=Branch[actor], action=action, target="probe/judiciary")
+  tools/audit/treasury_gate_probe.py:60: req = ActionRequest(actor=Branch[actor], action=action, target="probe/treasury")
+
+اسمُ HUMAN/STATE/INSTITUTION نصًّا قربَ actor/branch: 0
