@@ -54,6 +54,12 @@ AMOS-Federation Executive Core — Money Authority
 Q-19 أثبتَ أنَّ **أربعةً** من عشرةِ مواضعِ تحريكِ المالِ تمرُّ بـ`_authorize_money`،
 والستّةَ الباقيةَ لا تمرُّ به. فالمفروضُ دستوريًّا بعدَ هذا العملِ أربعةٌ لا عشرة،
 وتوسيعُ النطاقِ إلى الستّةِ مسألةٌ سياديّةٌ مُقيَّدةٌ بـ**Q-32** لا تُحسَمُ اجتهادًا.
+
+ملاحظةٌ مؤرَّخةٌ (W-757 · 2026-10-31 · M1 الدفعة 1): العدُّ أعلاه عدُّ **طبقةِ التخويل**
+(`_authorize_money`) وما زالَ أربعةً كما هو. وصارت عمليّاتُ الخزانةِ الستُّ الذرّيّةُ
+(التأسيسُ · الحساب · الموازنة · التخصيص · التمويل · الصرف) **تعبرُ الحدَّ السياديَّ**
+بالدوالِّ أدناه، فيُسألُ المُحرِّكُ عن كلٍّ منها عندَ العبورِ بفاعلِ التفويض — طبقةٌ ثانيةٌ
+لا تُغيِّرُ عدَّ الأولى. و`reverse_transaction` ومُغلِّفا المالِ والمركّباتُ لم تعبُرْ بعد.
 """
 
 from __future__ import annotations
@@ -62,9 +68,18 @@ from typing import TYPE_CHECKING, Any
 
 from amos_federation.common.money_delegation import resolve_money_delegation
 
-from .sovereignty_bridge import AuthorityEvidence, ConstitutionalAuthorizer
+from .sovereignty_bridge import (
+    AuthorityEvidence,
+    ConstitutionalAuthorizer,
+    _core_sovereignty,
+    compensator,
+    declared_effect,
+    operation_key,
+)
 
 if TYPE_CHECKING:  # pragma: no cover — للتوثيقِ لا للتشغيل
+    from collections.abc import Callable
+
     from amos_federation.common.money_delegation import MoneyDelegation
 
 ALLOWED_DECISION = "ALLOW"
@@ -93,21 +108,34 @@ class ConstitutionalMoneyDenialError(PermissionError):  # noqa: N818 — رفض�
 
 
 _SHARED_GATEWAY: Any | None = None
+_CROSSING_GATEWAY: Any | None = None
+_CROSSING_BOUNDARY: Any | None = None
+"""الآلةُ المحفوظةُ بلا فاعل: بوّابةُ المراجعةِ وحدَها (كما كانت) · وبوّابةُ العبورِ وحدُّه (M1).
+منفصلتانِ عمدًا — انظرْ ملاحظةَ M1 أدناه."""
 
 
-def _authorizer_for(actor: str) -> ConstitutionalAuthorizer:
-    """مُصرِّحٌ جديدٌ بفاعلٍ مُعلَنٍ، على بوّابةٍ واحدةٍ محفوظةٍ بلا فاعل.
+def _authorizer_for(actor: str, *, slot: str = "review") -> ConstitutionalAuthorizer:
+    """مُصرِّحٌ جديدٌ بفاعلٍ مُعلَنٍ، على آلةٍ واحدةٍ محفوظةٍ بلا فاعلٍ لكلِّ مَصرِف.
 
-    أوّلُ نداءٍ يبني البوّابةَ ويحفظُها من المُصرِّحِ نفسِه (فلا جسرَ ثانيًا ولا
+    أوّلُ نداءٍ يبني الآلةَ ويحفظُها من المُصرِّحِ نفسِه (فلا جسرَ ثانيًا ولا
     استعمالَ لواجهةٍ خاصّة)، وما بعدَه يبني مُصرِّحًا جديدًا فوقَها. والمُصرِّحُ
-    **لا يُحفَظُ أبدًا**: حفظُه هو عينُ سابقةِ 2A.
+    **لا يُحفَظُ أبدًا**: حفظُه هو عينُ سابقةِ 2A. ومَصرِفُ «review» يحفظُ البوّابةَ وحدَها
+    (سلوكُه قبلَ M1 حرفًا)؛ ومَصرِفُ «crossing» يحفظُ الحدَّ أيضًا، لأنَّ بناءَه يُعيدُ قراءةَ
+    سجلِّ الذرّيّةِ كاملًا عندَ كلِّ نداء. (W-757: موضعا البناءِ هما هما — لا موضعَ ثالث.)
     """
-    global _SHARED_GATEWAY
-    if _SHARED_GATEWAY is None:
+    global _SHARED_GATEWAY, _CROSSING_GATEWAY, _CROSSING_BOUNDARY
+    crossing = slot == "crossing"
+    gateway = _CROSSING_GATEWAY if crossing else _SHARED_GATEWAY
+    if gateway is None:
         first = ConstitutionalAuthorizer(actor=actor)
-        _SHARED_GATEWAY = first.gateway
+        if crossing:
+            _CROSSING_GATEWAY, _CROSSING_BOUNDARY = first.gateway, first.boundary
+        else:
+            _SHARED_GATEWAY = first.gateway
         return first
-    return ConstitutionalAuthorizer(actor=actor, gateway=_SHARED_GATEWAY)
+    return ConstitutionalAuthorizer(
+        actor=actor, gateway=gateway, boundary=_CROSSING_BOUNDARY if crossing else None
+    )
 
 
 def require_constitutional_money_authority(
@@ -155,8 +183,123 @@ def require_constitutional_money_authority(
     return evidence
 
 
+# ── M1 (W-757 · M1_MONEY_CROSSING_DESIGN.md § 2.7 الدفعة 1 · § 2.9): العبورُ الواحد ──────
+#
+# النقطةُ الواحدةُ نفسُها (Q-31) تبني عبورَ المالِ أيضًا، فلا تستوردُ الخزانةُ جسرًا ولا تبني
+# مُصرِّحًا (حرسُ Q-31/Q-19 قائمٌ كما هو). والقاعدةُ نفسُها: **الآلةُ تُحفَظُ والفاعلُ لا**.
+# فللعبورِ بوّابةٌ وحدٌّ محفوظانِ بلا فاعل — **منفصلانِ** عن بوّابةِ المراجعةِ أعلاه، لأنَّ
+# `guard_declared` يقرأُ دليلَه من آخرِ سجلٍّ في بوّابتِه، والمراجعةُ داخلَ المُطبِّقِ
+# (`_authorize_money`) كانت ستُلحِقُ سجلَّها بعدَ حكمِ العبورِ فيُقرأُ دليلًا له — والمُصرِّحُ
+# يُبنى **عندَ كلِّ نداءٍ** من `delegation.actor`. والحدُّ يُحفَظُ لأنَّ بناءَه يُعيدُ قراءةَ
+# سجلِّ الذرّيّةِ كاملًا، وهو بلا فاعلٍ كالبوّابة (`SovereignExecutionBoundary(gateway,
+# idempotency_ledger, consumed_permits)`). والبناءُ في `_authorizer_for` نفسِه (مَصرِفُ
+# «crossing») — فلا موضعَ بناءٍ جديدًا للمُصرِّح (حرسُ Q-3 · 13 مُعلِنًا كما هو).
+
+
+def _crossing_authorizer_for(actor: str) -> ConstitutionalAuthorizer:
+    """مُصرِّحُ عبورٍ جديدٌ بفاعلٍ مُعلَن، على بوّابةٍ وحدٍّ محفوظَينِ بلا فاعلٍ (مَصرِفُ «crossing»)."""
+    return _authorizer_for(actor, slot="crossing")
+
+
+def money_crossing_contract(
+    *,
+    operation: str,
+    entrypoint: str,
+    target: str,
+    effect_kind: str,
+    detail: str,
+    key_value: str,
+    apply: Callable[[], Any],
+    undo: Callable[[Any], None],
+    undo_description: str,
+    metadata: dict[str, Any],
+    authorizer_factory: Callable[[str], Any] | None = None,
+) -> dict[str, Any]:
+    """عقدُ عبورٍ واحدٍ لعمليّةِ مالٍ ذرّيّة — يُبنى هنا، **ويعبرُ في جسدِ العمليّةِ العامّة**.
+
+    العبورُ نفسُه (`guard_declared(`) يقعُ في المُنادي: الإعلانُ مسؤوليّةُ العمليّة
+    (`sovereign_write_inventory.py` § «تعبرُ الحدّ»)، وهذا يجمعُ ما تُعلِنُه.
+
+    - **الفاعلُ والفعلُ من جدولِ التفويض**: لا فاعلَ مُثبَّتًا ولا فعلَ يُخترَع، والجدولُ
+      يرفعُ لعمليّةٍ أو مدخلٍ غيرِ مُعلَن (Q-19).
+    - **أثرٌ واحدٌ مُعلَنٌ قبلَ وقوعِه** محصورٌ في الهدف، ومعوِّضٌ مُعلَنٌ له (1I). والحركةُ
+      وسندُها وأثرُ التدقيقِ والحدثِ تقعُ في **معاملةٍ واحدة**، فإعلانُها أثرَين يجعلُ الثانيَ
+      مُطبِّقًا فارغًا يدّعي ما لم يفعل — فأُعلِنَت أثرًا واحدًا (§ 2.9 · انحرافٌ مُعلَنٌ عن § 2.8).
+    - `authorizer_factory` مَنفذُ حقنٍ للفحوصِ وحدَها؛ يُعطى الفاعلَ المُعلَنَ لا غيرَه.
+    """
+    delegation = resolve_money_delegation(operation, entrypoint=entrypoint)
+    effect = declared_effect(effect_kind, target, detail)
+    applied: dict[str, Any] = {}
+
+    def _apply(_effect: Any) -> Any:
+        result = apply()
+        applied["result"] = result
+        return result
+
+    build = authorizer_factory if authorizer_factory is not None else _crossing_authorizer_for
+    return {
+        "authorizer": build(delegation.actor),
+        "actor": delegation.actor,
+        "action": delegation.constitutional_action,
+        "target": target,
+        "declared_effects": (effect,),
+        "applier": _apply,
+        "operation_key": operation_key(f"state_treasury.{entrypoint}", key_value),
+        "compensators": (
+            compensator(effect.signature, lambda: undo(applied.get("result")), undo_description),
+        ),
+        "metadata": {
+            **metadata,
+            "money_operation": delegation.operation,
+            "entrypoint": delegation.entrypoint,
+            "delegation_actor": delegation.actor,
+            "delegation_basis": delegation.basis,
+        },
+    }
+
+
+def money_crossing_kwargs(contract: dict[str, Any]) -> dict[str, Any]:
+    """ما يُمرَّرُ إلى `guard_declared` من العقد — بلا المُصرِّحِ والفعلِ والهدف."""
+    return {
+        key: contract[key]
+        for key in ("declared_effects", "applier", "operation_key", "compensators", "metadata")
+    }
+
+
+def settle_money_crossing(cross: Callable[[], Any], contract: dict[str, Any]) -> Any:
+    """نفِّذِ العبورَ الذي سمّته العمليّةُ العامّة، وأعِدْ ما يراه المُنادي.
+
+    **الفحوصُ المقفولةُ تبقى داخلَ المُطبِّق**: نقلُها قبلَ العبورِ يفصلُ القراءةَ عن الكتابةِ
+    فيفتحُ سباقَ تجاوزِ الحدِّ على PostgreSQL. فخطأُ النطاقِ يقعُ داخلَ المُطبِّقِ قبلَ أيِّ أثر،
+    فيلفُّه سجلُّ الذرّيّةِ (1H) في `IdempotencyError` بعدَ أن يُسجِّلَه فشلًا قابلًا للإعادة.
+    ويُعادُ رفعُ **السببِ الأصليِّ نفسِه** بسلسلتِه — فلا يتغيّرُ عقدُ الأخطاءِ للمُنادين ولا
+    يُبتلَعُ شيء. ولا يُفَكُّ إلّا اللفُّ الدقيقُ (`type is IdempotencyError` ذو سبب)، والسببُ
+    يُرفَعُ أيًّا كان: خطأَ نطاقٍ أو رفضًا سياديًّا من داخلِ التنفيذ (مثلُ `PermitReplayError`
+    لطلبٍ مُكرَّرٍ في الثانيةِ نفسِها — مقيسٌ في W-757). وأخطاءُ الذرّيّةِ بلا سبب (تعارضُ
+    مفتاح · قيدُ التنفيذ) تمرُّ كما هي.
+    """
+    idempotency_error = _core_sovereignty("idempotency").IdempotencyError
+    try:
+        guarded = cross()
+    except Exception as exc:
+        if type(exc) is idempotency_error and exc.__cause__ is not None:
+            raise exc.__cause__ from exc
+        raise
+    if guarded.is_replay:
+        # إعادةٌ لمفتاحٍ مُثبَّت: لا أثرَ ثانيًا ولا حدثَ ثانيًا — يُقال «أُعيد».
+        return {
+            "replayed": True,
+            "operation_key": guarded.outcome.operation_key,
+            "target": contract["target"],
+        }
+    return guarded.value
+
+
 __all__ = [
     "ALLOWED_DECISION",
     "ConstitutionalMoneyDenialError",
+    "money_crossing_contract",
+    "money_crossing_kwargs",
     "require_constitutional_money_authority",
+    "settle_money_crossing",
 ]
