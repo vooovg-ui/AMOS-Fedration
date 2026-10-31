@@ -1,0 +1,50 @@
+# الأمر: rg production callers (src + tools; tests مستبعَدة) — W-758
+== record_domain_trace\(
+federal/executive/services/src/amos_federation/services/state_registry/service.py:331:        return record_domain_trace(context, action, subject, entity)
+federal/executive/services/src/amos_federation/services/state_registry/trace.py:43:def record_domain_trace(
+federal/executive/services/src/amos_federation/services/federal_state/service.py:257:        trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/federal_state/service.py:302:        trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/federal_state/service.py:385:        trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/federal_state/service.py:464:        trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/federal_state/service.py:565:        trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/federal_state/service.py:624:        trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/federal_state/service.py:741:        trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/federal_state/service.py:858:        trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/federal_state/service.py:948:        trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/national_registry/service.py:294:        return record_domain_trace(context, action, subject, entity)
+federal/executive/services/src/amos_federation/services/national_economy/service.py:333:        return record_domain_trace(
+federal/executive/services/src/amos_federation/services/state_treasury/service.py:959:            trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/state_treasury/service.py:1081:            trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/state_treasury/service.py:1201:            trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/state_treasury/service.py:1331:            trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/state_treasury/service.py:1490:            trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/state_treasury/service.py:1691:            trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/state_treasury/service.py:1886:        trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/federal_judiciary/service.py:140:        return record_domain_trace(context, action, subject, entity)
+federal/executive/services/src/amos_federation/services/government_services/service.py:582:            trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/government_services/service.py:684:            trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/government_services/service.py:879:            trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/government_services/service.py:993:            trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/government_services/service.py:1079:        trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/government_services/service.py:1258:            trace = record_domain_trace(
+federal/executive/services/src/amos_federation/services/government_services/service.py:1423:            trace = record_domain_trace(
+== with_db\b
+federal/executive/services/src/amos_federation/common/database.py:463:def with_db(func):
+== db_cursor\(
+federal/executive/services/src/amos_federation/common/events.py:168:        with db_cursor() as cur:
+federal/executive/services/src/amos_federation/common/events.py:265:            with db_cursor() as cur:
+federal/executive/services/src/amos_federation/common/events.py:330:            with db_cursor() as cur:
+federal/executive/services/src/amos_federation/common/database.py:491:# قاعدة واحدة لكل الكود الذي يستخدم db_cursor():
+federal/executive/services/src/amos_federation/common/database.py:564:def db_cursor():
+federal/executive/services/src/amos_federation/common/database.py:639:    with db_cursor() as cur:
+federal/executive/services/src/amos_federation/common/database.py:645:    with db_cursor() as cur:
+== ensure_added_columns\(
+federal/executive/services/src/amos_federation/common/database.py:422:def ensure_added_columns() -> list[str]:
+federal/executive/services/src/amos_federation/common/database.py:451:    ensure_added_columns()
+== \.ack\(
+== PersistentTaskStore
+federal/executive/services/src/amos_federation/services/executive_core/repository.py:8:`PersistentTaskStore.update_status` القائم يكتب الحالة الجديدة بلا شرط: يقرأ
+tools/governance/restart_survival_probe.py:467:    """شاهدُ الضبطِ الثاني: المهامُّ في `PersistentTaskStore` فيجبُ أن تنجو."""
+federal/executive/services/src/amos_federation/common/persistent.py:291:class PersistentTaskStore:
+== _system_state_store\(\)\.get\(
+federal/executive/services/src/amos_federation/services/governance/canary.py:156:    return _system_state_store().get()
