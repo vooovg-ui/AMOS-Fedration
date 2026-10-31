@@ -52,6 +52,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -253,7 +254,12 @@ def issue_permit(
         )
     moment = (now or datetime.now(timezone.utc)).replace(microsecond=0)
     غير_موقَّع = EnforcementPermit(
-        permit_id=f"EP-{contract.contract_id[3:]}-{int(moment.timestamp())}",
+        # DISC-146 · Q-87 (7): المعرّفُ فريدٌ لكلِّ إصدارٍ لا مشتقٌّ من الوقت. كانَ
+        # `EP-{العقد}-{الثانية}` فتصطدمُ إعادةٌ مشروعةٌ في الثانيةِ نفسِها بإذنِ
+        # المحاولةِ الأولى المُستهلَك. وحمايةُ الإعادةِ بعدَ أثرٍ مُثبَّتٍ (Q-12)
+        # في سجلِّ الذرّيّة (`FAILED_FINAL`) لا هنا · ومنعُ إعادةِ تقديمِ الإذنِ
+        # نفسِه في `ConsumedPermitLedger` بلا تغيير.
+        permit_id=f"EP-{contract.contract_id[3:]}-{uuid.uuid4().hex}",
         actor=contract.actor,
         action=contract.action,
         target=contract.target,

@@ -1,0 +1,153 @@
+/home/user/workspace/amos/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+........................................................................ [  2%]
+........................................................................ [  4%]
+........................................................................ [  6%]
+........................................................................ [  9%]
+........................................................................ [ 11%]
+........................................................................ [ 13%]
+........................................................................ [ 16%]
+........................................................................ [ 18%]
+........................................................................ [ 20%]
+........................................................................ [ 23%]
+........................................................................ [ 25%]
+........................................................................ [ 27%]
+........................................................................ [ 30%]
+........................................................................ [ 32%]
+.................................................F...................... [ 34%]
+........................................................................ [ 37%]
+........................................................................ [ 39%]
+........................................................................ [ 41%]
+........................................................................ [ 44%]
+........................................................................ [ 46%]
+........................................................................ [ 48%]
+........................................................................ [ 50%]
+........................................................................ [ 53%]
+........................................................................ [ 55%]
+........................................................................ [ 57%]
+........................................................................ [ 60%]
+......................................................F................. [ 62%]
+..............F............F............................................ [ 64%]
+........................................................................ [ 67%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 74%]
+.....................................s.................................. [ 76%]
+........................................................................ [ 78%]
+........................................................................ [ 81%]
+........................................................................ [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 88%]
+........................................................................ [ 90%]
+........................................................................ [ 92%]
+........................................................................ [ 94%]
+........................................................................ [ 97%]
+........................................................................ [ 99%]
+............                                                             [100%]
+=================================== FAILURES ===================================
+_____________________ test_the_repository_itself_conforms ______________________
+
+    def test_the_repository_itself_conforms() -> None:
+        """المستودع الحقيقي — لا نسخة تجريبية — يمتثل للمادة التاسعة."""
+        r = subprocess.run(
+            [sys.executable, str(TOOLS / "check_repository_identity.py"),
+             str(REPO_ROOT), "--quiet"],
+            capture_output=True, text=True, timeout=180, check=False,
+        )
+>       assert r.returncode == 0, f"المستودع مخالف:\n{r.stdout}\n{r.stderr}"
+E       AssertionError: المستودع مخالف:
+E         فحص هوية المستودع (المادة التاسعة): /home/user/workspace/amos
+E         ==============================================================
+E         
+E         فشل: 1 مخالفة هوية
+E           - MISSING_README: 1
+E         
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/user/workspace/amos/.venv/bin/python', '/home/user/workspace/amos/tools/governance/check...===========================================================\n\nفشل: 1 مخالفة هوية\n  - MISSING_README: 1\n', stderr='').returncode
+
+tests/governance/test_identity_law.py:276: AssertionError
+_____________ test_الأثرُ_المُولَّدُ_في_المستودعِ_طازجٌ_لا_متقادمٌ _____________
+
+    def test_الأثرُ_المُولَّدُ_في_المستودعِ_طازجٌ_لا_متقادمٌ() -> None:
+        """عينُ ما حمَّرَ التشغيلَ 55 يُقاسُ هنا قبلَ الدفعِ — REAL_TREE_ON_PURPOSE."""
+        before = {rel: _digest(REPO_ROOT / rel) for rel in ARTIFACTS}
+    
+        result = subprocess.run(  # noqa: S603 — REAL_TREE_ON_PURPOSE: الحكمُ على المستودعِ الحقيقيِّ مقصودٌ
+            [sys.executable, str(TOOL_PATH), str(REPO_ROOT), "--check"],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    
+        after = {rel: _digest(REPO_ROOT / rel) for rel in ARTIFACTS}
+        assert before == after, (
+            "وجهُ `--check` كتبَ في الشجرةِ التي يحكُمُ عليها — "
+            "وحاكمٌ يكتُبُ ما يقيسُ لا يقيسُ شيئًا"
+        )
+>       assert result.returncode == 0, (
+            "الأثرُ المُولَّدُ في الشجرةِ متقادمٌ: أعِدْ توليدَه بـ"
+            "`python tools/governance/truth_audit.py` وادفعْه مع عملِك — "
+            "ولا يُخفَّفُ هذا الفحصُ ولا يُسكَتُ.\n"
+            f"{result.stdout}\n{result.stderr}"
+        )
+E       AssertionError: الأثرُ المُولَّدُ في الشجرةِ متقادمٌ: أعِدْ توليدَه بـ`python tools/governance/truth_audit.py` وادفعْه مع عملِك — ولا يُخفَّفُ هذا الفحصُ ولا يُسكَتُ.
+E         
+E         [FRESHNESS] ✗ الأثرُ المُولَّدُ في الشجرةِ متقادمٌ — أعِدْ توليدَه وادفعْه مع عملِك:
+E             docs/audit/TRUTH_MATRIX.md: المكتوبُ يخالفُ المُولَّدَ
+E             docs/audit/truth_matrix.json: المكتوبُ متقادمٌ في 11 حقلًا
+E               - domains.core.code_lines: المكتوبُ '15609' · المُولَّدُ '15610'
+E               - domains.core.columns.TEST_NAME_MENTIONS: المكتوبُ '636' · المُولَّدُ '646'
+E               - domains.core.test_refs: المكتوبُ '636' · المُولَّدُ '646'
+E               - domains.docs.code_lines: المكتوبُ '5244' · المُولَّدُ '5348'
+E               - domains.docs.md_files: المكتوبُ '667' · المُولَّدُ '669'
+E               - domains.docs.py_files: المكتوبُ '51' · المُولَّدُ '53'
+E               - domains.federal.code_lines: المكتوبُ '79236' · المُولَّدُ '79223'
+E               - domains.tests.code_lines: المكتوبُ '30563' · المُولَّدُ '30736'
+E               - domains.tests.columns.TEST_NAME_MENTIONS: المكتوبُ '374' · المُولَّدُ '375'
+E               - domains.tests.py_files: المكتوبُ '118' · المُولَّدُ '119'
+E               - domains.tests.test_refs: المكتوبُ '374' · المُولَّدُ '375'
+E             الأمرُ: python tools/governance/truth_audit.py
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/user/workspace/amos/.venv/bin/python', '/home/user/workspace/amos/tools/governance/truth...   - domains.tests.test_refs: المكتوبُ '374' · المُولَّدُ '375'\n    الأمرُ: python tools/governance/truth_audit.py\n").returncode
+
+tests/governance/test_w099_generated_artifact_freshness.py:128: AssertionError
+__________ test_الرقمُ_المُعلَنُ_في_الشجرةِ_الحيّةِ_يُطابِقُ_المقيسَ ___________
+
+    def test_الرقمُ_المُعلَنُ_في_الشجرةِ_الحيّةِ_يُطابِقُ_المقيسَ():
+        """سقّاطةُ المستودعِ نفسِه: لا نموَّ ولا رخاوةَ، والعددُ مُعلَنٌ مُطابِقٌ."""
+        measured = measure(REPO_ROOT)
+        declared = declared_baseline(REPO_ROOT)
+>       assert declared == {k: measured[k] for k in BASELINE_FIELDS}, (
+            f"سطرُ `{BASELINE_KEY}` لا يُطابِقُ المقيسَ — مقيسٌ {measured} · المُعلَنُ {declared}. "
+            "يُصحَّحُ الرقمُ المُعلَنُ ولا يُخفَّفُ الفحصُ"
+        )
+E       AssertionError: سطرُ `TRUTH_LIMIT_BASELINE:` لا يُطابِقُ المقيسَ — مقيسٌ {'limits': 17, 'duplicate_numbers': 1, 'gaps': 0, 'ambiguous_references': 25} · المُعلَنُ {'limits': 17, 'duplicate_numbers': 1, 'gaps': 0, 'ambiguous_references': 26}. يُصحَّحُ الرقمُ المُعلَنُ ولا يُخفَّفُ الفحصُ
+E       assert {'limits': 17...ferences': 26} == {'limits': 17...ferences': 25}
+E         
+E         Omitting 3 identical items, use -vv to show
+E         Differing items:
+E         {'ambiguous_references': 26} != {'ambiguous_references': 25}
+E         Use -v to get more diff
+
+tests/governance/test_w115_truth_limit_integrity.py:211: AssertionError
+_______________ test_المستودعُ_نفسُه_لا_يحملُ_رقمَ_حزمةٍ_ميّتًا ________________
+
+    def test_المستودعُ_نفسُه_لا_يحملُ_رقمَ_حزمةٍ_ميّتًا():
+        """الحكمُ الحيُّ على المستودعِ: كلُّ رقمٍ مكتوبٍ يُطابِقُ الجمعَ الآنَ."""
+        code, problems = verdict(REPO_ROOT)
+>       assert code == 0, "رقمُ حزمةٍ مكتوبٌ خالفَ الجمعَ الحيَّ: " + " · ".join(problems)
+E       AssertionError: رقمُ حزمةٍ مكتوبٌ خالفَ الجمعَ الحيَّ: STALE_SUITE_CLAIM · docs/PROJECT_HANDBOOK.md:161 · root — المكتوبُ مُجمَّعًا 3102 · المجموعُ حيًّا 3108 — يُعادُ القياسُ ويُكتَبُ المقيسُ بتاريخِه، ولا يُحذَفُ الرقمُ ليمرَّ الفحصُ
+E       assert 1 == 0
+
+tests/governance/test_w120_suite_size_claims.py:54: AssertionError
+=========================== short test summary info ============================
+FAILED tests/governance/test_identity_law.py::test_the_repository_itself_conforms
+FAILED tests/governance/test_w099_generated_artifact_freshness.py::test_الأثرُ_المُولَّدُ_في_المستودعِ_طازجٌ_لا_متقادمٌ
+FAILED tests/governance/test_w115_truth_limit_integrity.py::test_الرقمُ_المُعلَنُ_في_الشجرةِ_الحيّةِ_يُطابِقُ_المقيسَ
+FAILED tests/governance/test_w120_suite_size_claims.py::test_المستودعُ_نفسُه_لا_يحملُ_رقمَ_حزمةٍ_ميّتًا
+4 failed, 3103 passed, 1 skipped in 694.80s (0:11:34)
