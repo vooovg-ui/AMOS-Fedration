@@ -1,0 +1,21 @@
+# DISC-146 — مسبارُ الإعادةِ في الثانيةِ نفسِها (W-757)
+# الأمر: نسخةٌ مؤقّتةٌ من tests/test_w755_m1_treasury_single_crossing.py بإبدالِ 'time.sleep(1.1)' بـ'pass' ثمَّ
+#   pytest tests/test_zz_disc146_probe.py::test_m1_3_domain_errors_inside_the_applier_keep_their_type_and_leave_no_row ×3 (والنسخةُ حُذِفَت بعدَه)
+# المصدر: core/sovereignty/enforcement.py:256 permit_id=f"EP-{contract.contract_id[3:]}-{int(moment.timestamp())}"
+
+    raise IdempotencyError(
+E   core.sovereignty.idempotency.IdempotencyError: العمليّةُ «state_treasury.disburse:default:M1-RETRY» فشلت: الإذنُ «EP-40109fd825aaee7d-1793439240» استُهلِك من قبل.
+    raise PermitReplayError(
+E   core.sovereignty.enforcement.PermitReplayError: الإذنُ «EP-40109fd825aaee7d-1793439240» استُهلِك من قبل.
+============================== 1 failed in 2.61s ===============================
+--- run 1
+============================== 1 passed in 2.58s ===============================
+--- run 2
+    raise IdempotencyError(
+E   core.sovereignty.idempotency.IdempotencyError: العمليّةُ «state_treasury.disburse:default:M1-RETRY» فشلت: الإذنُ «EP-43fcefa6b6f33dc2-1793439247» استُهلِك من قبل.
+    raise PermitReplayError(
+E   core.sovereignty.enforcement.PermitReplayError: الإذنُ «EP-43fcefa6b6f33dc2-1793439247» استُهلِك من قبل.
+============================== 1 failed in 2.56s ===============================
+--- run 3
+
+الخلاصة: 2 من 3 تشغيلاتٍ رُفِضَت PermitReplayError (العقدُ نفسُه في الثانيةِ نفسِها) · 1 نجحَ (عبرَ حدَّ ثانية) — رفضٌ مغلقٌ لا تمرير، والمالُ لم يتحرّك.

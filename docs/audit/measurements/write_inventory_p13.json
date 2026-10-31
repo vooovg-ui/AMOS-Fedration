@@ -1,7 +1,7 @@
 {
  "$comment": "الهدف: جردُ مواضعِ الكتابةِ في المستودعِ وتصنيفُ ما عبرَ الحدَّ السّياديَّ وما لم يعبُر— مُخرَجُ tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039).",
  "summary": {
-  "write_sites_total": 263,
+  "write_sites_total": 267,
   "by_area": {
    "core": {
     "public": 1,
@@ -15,8 +15,8 @@
    },
    "services": {
     "public": 159,
-    "sovereign": 88,
-    "non_sovereign": 70
+    "sovereign": 94,
+    "non_sovereign": 64
    },
    "tools": {
     "public": 1,
@@ -25,16 +25,15 @@
    }
   },
   "public_write_operations": 182,
-  "sovereign_write_operations": 88,
+  "sovereign_write_operations": 94,
   "closed_legacy_paths": 7,
-  "non_sovereign_write_operations": 92,
+  "non_sovereign_write_operations": 86,
   "non_sovereign_by_file": {
    "federal/executive/services/src/amos_federation/services/national_economy/service.py": 16,
    "federal/executive/services/src/amos_federation/common/persistent.py": 13,
    "federal/executive/services/src/amos_federation/services/federal_state/service.py": 10,
    "federal/executive/services/src/amos_federation/services/governance/treasury.py": 9,
    "federal/executive/services/src/amos_federation/services/royal/main.py": 9,
-   "federal/executive/services/src/amos_federation/services/state_treasury/service.py": 7,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py": 6,
    "federal/executive/services/src/amos_federation/common/database.py": 4,
    "federal/executive/services/src/amos_federation/common/durable_event_bus.py": 2,
@@ -50,6 +49,7 @@
    "federal/executive/services/src/amos_federation/services/governance/security.py": 1,
    "federal/executive/services/src/amos_federation/services/governance/system_life.py": 1,
    "federal/executive/services/src/amos_federation/services/government_services/service.py": 1,
+   "federal/executive/services/src/amos_federation/services/state_treasury/service.py": 1,
    "tools/migrations/r4_unify_agent_identity.py": 1
   }
  },
@@ -3548,9 +3548,9 @@
   {
    "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
    "owner": "StateTreasury",
-   "function": "allocate",
+   "function": "_apply",
    "ordinal": 0,
-   "public": true,
+   "public": false,
    "writes": [
     "add()",
     "commit()"
@@ -3558,6 +3558,64 @@
    "guarded": false,
    "closed_legacy": false,
    "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
+   "owner": "StateTreasury",
+   "function": "_apply",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
+   "owner": "StateTreasury",
+   "function": "_apply",
+   "ordinal": 2,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
+   "owner": "StateTreasury",
+   "function": "_apply",
+   "ordinal": 3,
+   "public": false,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
+   "owner": "StateTreasury",
+   "function": "allocate",
+   "ordinal": 0,
+   "public": true,
+   "writes": [
+    "add()",
+    "commit()"
+   ],
+   "guarded": true,
+   "closed_legacy": false,
+   "writes_via": [
+    "_delete_row"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
@@ -3569,9 +3627,11 @@
     "add()",
     "commit()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_delete_row"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
@@ -3580,7 +3640,7 @@
    "ordinal": 0,
    "public": true,
    "writes": [],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": [
     "_post",
@@ -3597,9 +3657,11 @@
     "add()",
     "commit()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_delete_row"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
@@ -3611,9 +3673,11 @@
     "add()",
     "commit()"
    ],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": []
+   "writes_via": [
+    "_delete_row"
+   ]
   },
   {
    "path": "federal/executive/services/src/amos_federation/services/state_treasury/service.py",
@@ -3622,7 +3686,7 @@
    "ordinal": 0,
    "public": true,
    "writes": [],
-   "guarded": false,
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": [
     "_post",

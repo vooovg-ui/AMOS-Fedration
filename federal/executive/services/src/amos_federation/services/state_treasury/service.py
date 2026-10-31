@@ -73,7 +73,10 @@ from amos_federation.common.money_delegation import resolve_money_delegation
 from amos_federation.common.principal import DEFAULT_TENANT
 from amos_federation.services.executive_core.engine import get_executive_core
 from amos_federation.services.executive_core.money_authority import (
+    money_crossing_contract,
+    money_crossing_kwargs,
     require_constitutional_money_authority,
+    settle_money_crossing,
 )
 from amos_federation.services.government_services.models import CaseModel, DecisionModel
 from amos_federation.services.national_registry.models import TransactionAuthorityModel
@@ -281,10 +284,18 @@ def _iso(value: datetime | None) -> str | None:
 class StateTreasury:
     """الخزانة الفدرالية للمال العام: خزائن وحسابات وموازنات وتخصيصات ودفتر."""
 
-    def __init__(self, executive_core: Any | None = None) -> None:
+    def __init__(
+        self,
+        executive_core: Any | None = None,
+        *,
+        money_authorizer_factory: Any | None = None,
+    ) -> None:
         init_db()
         #: النواة المشتركة القائمة — لا نواة ولا مُنفِّذ ثانٍ في هذا النطاق.
         self._core = executive_core if executive_core is not None else get_executive_core()
+        #: M1 (W-757): مَنفذُ حقنٍ للفحوصِ وحدَها — مُصرِّحُ العبورِ يُبنى في نقطةِ الفرضِ
+        #: الواحدة (`money_authority`) عندَ كلِّ نداءٍ بفاعلِ التفويض، ولا يُحفَظُ هنا.
+        self._money_authorizer_factory = money_authorizer_factory
 
     # ── أدوات داخلية ─────────────────────────────────────────────────────
 
@@ -294,6 +305,33 @@ class StateTreasury:
     @staticmethod
     def _tenant_of(context: AuthorizationContext) -> str:
         return context.tenant_id or DEFAULT_TENANT
+
+    def _delete_row(self, model: Any, row_id: str) -> None:
+        """معوِّضُ الإنشاء (M1): حذفُ الصفِّ المُنشأِ نفسِه بمعرّفِه المُولَّدِ قبلَ العبور."""
+        session = self._session()
+        try:
+            session.query(model).filter(model.id == row_id).delete()
+            session.commit()
+        finally:
+            session.close()
+
+    def _compensate_transfer(
+        self, context: AuthorizationContext, reference: str, official_id: str, entrypoint: str
+    ) -> None:
+        """معوِّضُ حركةِ مالٍ عابرة (M1): قيدٌ عكسيٌّ بالمسارِ القائمِ لا حذفٌ في الدفتر.
+
+        لا يُنادى إلّا إن فشلَ العبورُ **بعدَ** تطبيقِ الحركة. ويمرُّ بـ`reverse_transaction`
+        كاملًا — صلاحيّةُ العكسِ وتفويضُ المنصبِ والمُحرِّك — فإن لم يملكْها المُنادي فشلَ
+        التعويضُ صريحًا (`CompensationFailed`) ولم يُعكَسْ مالٌ بلا سلطة. و`reverse_transaction`
+        لا يعبرُ الحدَّ في هذه الدفعة (M1 § 2.9)، فلا تعشيشَ سياديًّا؛ فإن عبرَ لاحقًا
+        وجبَ نقلُ هذا المعوِّضِ إلى نواةِ العكسِ الخاصّة قبلَ ذلك.
+        """
+        self.reverse_transaction(
+            context=context,
+            reference=reference,
+            reason=f"تعويضُ عبورٍ فشلَ بعدَ التطبيق ({entrypoint})",
+            official_id=official_id,
+        )
 
     def _treasury_row(self, session, context: AuthorizationContext, code: str) -> TreasuryModel:
         tenant = self._tenant_of(context)
@@ -876,44 +914,81 @@ class StateTreasury:
         if not name.strip():
             raise TreasuryError("الخزانة تلزمها تسمية")
 
+        tenant = self._tenant_of(context)
         session = self._session()
         try:
-            institution_id = None
-            if institution_code:
-                institution_id = self._institution_row(session, context, institution_code).id
-            row = TreasuryModel(
-                id=f"trs-{uuid.uuid4()}",
-                code=code,
-                name=name,
-                institution_id=institution_id,
-                currency=currency_code,
-                status="active",
-                tenant_id=self._tenant_of(context),
-                established_by=context.principal_id,
-            )
-            session.add(row)
-            try:
-                session.commit()
-            except IntegrityError as exc:
-                session.rollback()
-                raise DuplicateCodeError(f"رمز الخزانة '{code}' مستعمل: {exc.orig}") from exc
-            entity = self._treasury_dict(row)
+            # الرمزُ المستعملُ يُرفَضُ **قبلَ** العبور (M1): وإلّا صارَ تكرارُه «إعادةً»
+            # بمفتاحِ الرمزِ بدلَ `DuplicateCodeError`. والقيدُ الفريدُ في القاعدةِ باقٍ للسباق.
+            if (
+                session.query(TreasuryModel)
+                .filter(TreasuryModel.tenant_id == tenant, TreasuryModel.code == code)
+                .first()
+                is not None
+            ):
+                raise DuplicateCodeError(f"رمز الخزانة '{code}' مستعمل في مستأجر '{tenant}'")
         finally:
             session.close()
+        treasury_id = f"trs-{uuid.uuid4()}"
 
-        trace = record_domain_trace(
-            context,
-            "treasury.establish",
-            EVENT_TREASURY_ESTABLISHED,
-            {
-                "treasury_id": entity["id"],
-                "code": entity["code"],
-                "currency": entity["currency"],
-                "institution_id": entity["institution_id"],
-                "tenant_id": entity["tenant_id"],
-            },
+        def _apply() -> dict[str, Any]:
+            session = self._session()
+            try:
+                institution_id = None
+                if institution_code:
+                    institution_id = self._institution_row(session, context, institution_code).id
+                row = TreasuryModel(
+                    id=treasury_id,
+                    code=code,
+                    name=name,
+                    institution_id=institution_id,
+                    currency=currency_code,
+                    status="active",
+                    tenant_id=self._tenant_of(context),
+                    established_by=context.principal_id,
+                )
+                session.add(row)
+                try:
+                    session.commit()
+                except IntegrityError as exc:
+                    session.rollback()
+                    raise DuplicateCodeError(f"رمز الخزانة '{code}' مستعمل: {exc.orig}") from exc
+                entity = self._treasury_dict(row)
+            finally:
+                session.close()
+
+            trace = record_domain_trace(
+                context,
+                "treasury.establish",
+                EVENT_TREASURY_ESTABLISHED,
+                {
+                    "treasury_id": entity["id"],
+                    "code": entity["code"],
+                    "currency": entity["currency"],
+                    "institution_id": entity["institution_id"],
+                    "tenant_id": entity["tenant_id"],
+                },
+            )
+            return {**entity, **trace}
+
+        contract = money_crossing_contract(
+            operation="treasury.establish",
+            entrypoint="establish_treasury",
+            target=f"treasury/{tenant}/{code}",
+            effect_kind="CREATE",
+            detail=f"تأسيسُ خزانةٍ '{code}' بعملة '{currency_code}'",
+            key_value=f"{tenant}:{code}",
+            apply=_apply,
+            undo=lambda _result: self._delete_row(TreasuryModel, treasury_id),
+            undo_description="حذفُ صفِّ الخزانةِ المُؤسَّسة — عكسٌ حقيقيٌّ لا ادّعاء",
+            metadata={"tenant_id": tenant, "code": code, "currency": currency_code},
+            authorizer_factory=self._money_authorizer_factory,
         )
-        return {**entity, **trace}
+        return settle_money_crossing(
+            lambda: contract["authorizer"].guard_declared(
+                contract["action"], contract["target"], **money_crossing_kwargs(contract)
+            ),
+            contract,
+        )
 
     # ── 2. فتح حساب ───────────────────────────────────────────────────────
 
@@ -936,70 +1011,107 @@ class StateTreasury:
         if not name.strip():
             raise TreasuryError("الحساب تلزمه تسمية")
 
+        tenant = self._tenant_of(context)
         session = self._session()
         try:
-            treasury = self._treasury_row(session, context, treasury_code)
-            if treasury.status != "active":
-                raise EntityStateError(f"الخزانة '{treasury_code}' حالتها '{treasury.status}'")
-            institution_id = None
-            if institution_code:
-                institution_id = self._institution_row(session, context, institution_code).id
-            department_id = None
-            if department_code:
-                department = (
-                    session.query(DepartmentModel)
-                    .filter(
-                        DepartmentModel.code == department_code,
-                        DepartmentModel.institution_id == institution_id,
-                    )
-                    .first()
-                )
-                if department is None:
-                    raise AccountNotFoundError(
-                        f"لا إدارة برمز '{department_code}' في المؤسسة المعطاة"
-                    )
-                require_tenant(context, department.tenant_id)
-                department_id = department.id
-
-            row = AccountModel(
-                id=f"acc-{uuid.uuid4()}",
-                code=code,
-                name=name,
-                treasury_id=treasury.id,
-                institution_id=institution_id,
-                department_id=department_id,
-                kind=kind,
-                currency=treasury.currency,
-                status="open",
-                tenant_id=self._tenant_of(context),
-                opened_by=context.principal_id,
+            # الرمزُ المستعملُ يُرفَضُ **قبلَ** العبور (M1) — كما في التأسيس.
+            treasury_row = self._treasury_row(session, context, treasury_code)
+            duplicate = (
+                session.query(AccountModel)
+                .filter(AccountModel.treasury_id == treasury_row.id, AccountModel.code == code)
+                .first()
             )
-            session.add(row)
-            try:
-                session.commit()
-            except IntegrityError as exc:
-                session.rollback()
-                raise DuplicateCodeError(
-                    f"رمز الحساب '{code}' مستعمل في هذه الخزانة: {exc.orig}"
-                ) from exc
-            entity = self._account_dict(row)
+            if duplicate is not None:
+                raise DuplicateCodeError(f"رمز الحساب '{code}' مستعمل في هذه الخزانة")
         finally:
             session.close()
+        account_id = f"acc-{uuid.uuid4()}"
 
-        trace = record_domain_trace(
-            context,
-            "treasury.account.open",
-            EVENT_ACCOUNT_OPENED,
-            {
-                "account_id": entity["id"],
-                "code": entity["code"],
-                "treasury_id": entity["treasury_id"],
-                "kind": entity["kind"],
-                "currency": entity["currency"],
-                "tenant_id": entity["tenant_id"],
-            },
+        def _apply() -> dict[str, Any]:
+            session = self._session()
+            try:
+                treasury = self._treasury_row(session, context, treasury_code)
+                if treasury.status != "active":
+                    raise EntityStateError(f"الخزانة '{treasury_code}' حالتها '{treasury.status}'")
+                institution_id = None
+                if institution_code:
+                    institution_id = self._institution_row(session, context, institution_code).id
+                department_id = None
+                if department_code:
+                    department = (
+                        session.query(DepartmentModel)
+                        .filter(
+                            DepartmentModel.code == department_code,
+                            DepartmentModel.institution_id == institution_id,
+                        )
+                        .first()
+                    )
+                    if department is None:
+                        raise AccountNotFoundError(
+                            f"لا إدارة برمز '{department_code}' في المؤسسة المعطاة"
+                        )
+                    require_tenant(context, department.tenant_id)
+                    department_id = department.id
+
+                row = AccountModel(
+                    id=account_id,
+                    code=code,
+                    name=name,
+                    treasury_id=treasury.id,
+                    institution_id=institution_id,
+                    department_id=department_id,
+                    kind=kind,
+                    currency=treasury.currency,
+                    status="open",
+                    tenant_id=self._tenant_of(context),
+                    opened_by=context.principal_id,
+                )
+                session.add(row)
+                try:
+                    session.commit()
+                except IntegrityError as exc:
+                    session.rollback()
+                    raise DuplicateCodeError(
+                        f"رمز الحساب '{code}' مستعمل في هذه الخزانة: {exc.orig}"
+                    ) from exc
+                entity = self._account_dict(row)
+            finally:
+                session.close()
+
+            trace = record_domain_trace(
+                context,
+                "treasury.account.open",
+                EVENT_ACCOUNT_OPENED,
+                {
+                    "account_id": entity["id"],
+                    "code": entity["code"],
+                    "treasury_id": entity["treasury_id"],
+                    "kind": entity["kind"],
+                    "currency": entity["currency"],
+                    "tenant_id": entity["tenant_id"],
+                },
+            )
+            return {**entity, **trace}
+
+        contract = money_crossing_contract(
+            operation="treasury.account.open",
+            entrypoint="open_account",
+            target=f"treasury/{tenant}/{treasury_code}/accounts/{code}",
+            effect_kind="CREATE",
+            detail=f"فتحُ حسابٍ '{code}' نوعُه '{kind}' في الخزانة '{treasury_code}'",
+            key_value=f"{tenant}:{treasury_code}:{code}",
+            apply=_apply,
+            undo=lambda _result: self._delete_row(AccountModel, account_id),
+            undo_description="حذفُ صفِّ الحسابِ المفتوح — لا قيدَ عليه داخلَ العبورِ نفسِه",
+            metadata={"tenant_id": tenant, "treasury_code": treasury_code, "code": code},
+            authorizer_factory=self._money_authorizer_factory,
         )
-        return {**entity, **trace}
+        return settle_money_crossing(
+            lambda: contract["authorizer"].guard_declared(
+                contract["action"], contract["target"], **money_crossing_kwargs(contract)
+            ),
+            contract,
+        )
 
     # ── 3. موازنة ─────────────────────────────────────────────────────────
 
@@ -1023,67 +1135,104 @@ class StateTreasury:
             )
         limit = require_positive(limit_amount, field="limit_amount")
 
+        tenant = self._tenant_of(context)
         session = self._session()
         try:
-            treasury = self._treasury_row(session, context, treasury_code)
-            if treasury.status != "active":
-                raise EntityStateError(f"الخزانة '{treasury_code}' حالتها '{treasury.status}'")
-            institution = self._institution_row(session, context, institution_code)
-            department_id = None
-            if department_code:
-                department = (
-                    session.query(DepartmentModel)
-                    .filter(
-                        DepartmentModel.code == department_code,
-                        DepartmentModel.institution_id == institution.id,
-                    )
-                    .first()
-                )
-                if department is None:
-                    raise BudgetNotFoundError(
-                        f"لا إدارة برمز '{department_code}' في المؤسسة '{institution_code}'"
-                    )
-                require_tenant(context, department.tenant_id)
-                department_id = department.id
-
-            row = BudgetModel(
-                id=f"bdg-{uuid.uuid4()}",
-                code=code,
-                treasury_id=treasury.id,
-                institution_id=institution.id,
-                department_id=department_id,
-                period=period,
-                currency=treasury.currency,
-                limit_amount=limit,
-                status="open",
-                tenant_id=self._tenant_of(context),
-                created_by=context.principal_id,
-            )
-            session.add(row)
-            try:
-                session.commit()
-            except IntegrityError as exc:
-                session.rollback()
-                raise DuplicateCodeError(f"رمز الموازنة '{code}' مستعمل: {exc.orig}") from exc
-            entity = self._budget_dict(row)
+            # الرمزُ المستعملُ يُرفَضُ **قبلَ** العبور (M1): وإلّا صارَ تكرارُه «إعادةً»
+            # بمفتاحِ الرمزِ بدلَ `DuplicateCodeError`. والقيدُ الفريدُ في القاعدةِ باقٍ للسباق.
+            if (
+                session.query(BudgetModel)
+                .filter(BudgetModel.tenant_id == tenant, BudgetModel.code == code)
+                .first()
+                is not None
+            ):
+                raise DuplicateCodeError(f"رمز الموازنة '{code}' مستعمل في مستأجر '{tenant}'")
         finally:
             session.close()
+        budget_id = f"bdg-{uuid.uuid4()}"
 
-        trace = record_domain_trace(
-            context,
-            "treasury.budget.create",
-            EVENT_BUDGET_CREATED,
-            {
-                "budget_id": entity["id"],
-                "code": entity["code"],
-                "institution_id": entity["institution_id"],
-                "period": entity["period"],
-                "currency": entity["currency"],
-                "limit_amount": entity["limit_amount"],
-                "tenant_id": entity["tenant_id"],
-            },
+        def _apply() -> dict[str, Any]:
+            session = self._session()
+            try:
+                treasury = self._treasury_row(session, context, treasury_code)
+                if treasury.status != "active":
+                    raise EntityStateError(f"الخزانة '{treasury_code}' حالتها '{treasury.status}'")
+                institution = self._institution_row(session, context, institution_code)
+                department_id = None
+                if department_code:
+                    department = (
+                        session.query(DepartmentModel)
+                        .filter(
+                            DepartmentModel.code == department_code,
+                            DepartmentModel.institution_id == institution.id,
+                        )
+                        .first()
+                    )
+                    if department is None:
+                        raise BudgetNotFoundError(
+                            f"لا إدارة برمز '{department_code}' في المؤسسة '{institution_code}'"
+                        )
+                    require_tenant(context, department.tenant_id)
+                    department_id = department.id
+
+                row = BudgetModel(
+                    id=budget_id,
+                    code=code,
+                    treasury_id=treasury.id,
+                    institution_id=institution.id,
+                    department_id=department_id,
+                    period=period,
+                    currency=treasury.currency,
+                    limit_amount=limit,
+                    status="open",
+                    tenant_id=self._tenant_of(context),
+                    created_by=context.principal_id,
+                )
+                session.add(row)
+                try:
+                    session.commit()
+                except IntegrityError as exc:
+                    session.rollback()
+                    raise DuplicateCodeError(f"رمز الموازنة '{code}' مستعمل: {exc.orig}") from exc
+                entity = self._budget_dict(row)
+            finally:
+                session.close()
+
+            trace = record_domain_trace(
+                context,
+                "treasury.budget.create",
+                EVENT_BUDGET_CREATED,
+                {
+                    "budget_id": entity["id"],
+                    "code": entity["code"],
+                    "institution_id": entity["institution_id"],
+                    "period": entity["period"],
+                    "currency": entity["currency"],
+                    "limit_amount": entity["limit_amount"],
+                    "tenant_id": entity["tenant_id"],
+                },
+            )
+            return {**entity, **trace}
+
+        contract = money_crossing_contract(
+            operation="treasury.budget.create",
+            entrypoint="create_budget",
+            target=f"treasury/{tenant}/budgets/{code}",
+            effect_kind="CREATE",
+            detail=f"سنُّ موازنةٍ '{code}' للفترة '{period}' بسقف {limit}",
+            key_value=f"{tenant}:{code}",
+            apply=_apply,
+            undo=lambda _result: self._delete_row(BudgetModel, budget_id),
+            undo_description="حذفُ صفِّ الموازنة — لا تخصيصَ عليها داخلَ العبورِ نفسِه",
+            metadata={"tenant_id": tenant, "code": code, "period": period},
+            authorizer_factory=self._money_authorizer_factory,
         )
-        return {**entity, **trace}
+        return settle_money_crossing(
+            lambda: contract["authorizer"].guard_declared(
+                contract["action"], contract["target"], **money_crossing_kwargs(contract)
+            ),
+            contract,
+        )
 
     # ── 4. تخصيص ──────────────────────────────────────────────────────────
 
@@ -1110,85 +1259,111 @@ class StateTreasury:
         if not purpose.strip():
             raise TreasuryError("التخصيص يلزمه غرض مكتوب")
 
-        session = self._session()
-        try:
-            budget = self._budget_row(session, context, budget_code)
-            if budget.status != "open":
-                raise EntityStateError(f"الموازنة '{budget_code}' حالتها '{budget.status}'")
-            account = self._account_row(session, context, budget.treasury_id, account_code)
-            official, authority = self._authorize_money(
-                session,
+        tenant = self._tenant_of(context)
+        # التخصيصاتُ تتكرّرُ مقصودةً على الموازنةِ نفسِها، فلا مفتاحَ طبيعيَّ لها: المفتاحُ
+        # معرّفُ التخصيصِ المُولَّدُ هنا — عبورٌ لكلِّ نداء، كسلوكِها القائم (لا إعادةَ).
+        allocation_id = f"alc-{uuid.uuid4()}"
+
+        def _apply() -> dict[str, Any]:
+            session = self._session()
+            try:
+                budget = self._budget_row(session, context, budget_code)
+                if budget.status != "open":
+                    raise EntityStateError(f"الموازنة '{budget_code}' حالتها '{budget.status}'")
+                account = self._account_row(session, context, budget.treasury_id, account_code)
+                official, authority = self._authorize_money(
+                    session,
+                    context,
+                    "treasury.allocation.create",
+                    entrypoint="allocate",
+                    required=PERMISSIONS_ALLOCATION_WRITE,
+                    grant_required=grant_required,
+                    institution_id=budget.institution_id,
+                    claimed_official_id=official_id,
+                    budget_id=budget.id,
+                    account_id=account.id,
+                    amount=allocation_amount,
+                )
+                self._require_same_currency(
+                    ("الموازنة", budget.currency), (f"الحساب '{account_code}'", account.currency)
+                )
+                if decision_id is not None:
+                    self._assert_authorizing_decision(session, context, decision_id, budget)
+
+                # صفّ الموازنة يُقفل قبل قراءة المخصَّص، فتخصيصان متزامنان لا يريان
+                # نفس «المتاح» ثم يمرّان معًا. والحالة تُعاد قراءتها بعد القفل: قد
+                # طال الانتظار حتى التزم المنافس، فما قُرئ قبله صار قديمًا.
+                self._lock_rows(session, [(BudgetModel, budget.id)])
+                if budget.status != "open":
+                    raise EntityStateError(f"الموازنة '{budget_code}' حالتها '{budget.status}'")
+
+                allocated = self._allocated_total(session, budget.id)
+                limit = to_money(budget.limit_amount)
+                if allocated + allocation_amount > limit:
+                    raise BudgetExceededError(
+                        f"التخصيص {allocation_amount} يتجاوز المتاح في الموازنة "
+                        f"'{budget_code}': الحدّ {limit} · المخصَّص {allocated}"
+                    )
+
+                row = AllocationModel(
+                    id=allocation_id,
+                    budget_id=budget.id,
+                    account_id=account.id,
+                    purpose=purpose,
+                    amount=allocation_amount,
+                    currency=budget.currency,
+                    status="active",
+                    decision_id=decision_id,
+                    tenant_id=self._tenant_of(context),
+                    created_by=context.principal_id,
+                )
+                session.add(row)
+                try:
+                    session.commit()
+                except IntegrityError as exc:
+                    session.rollback()
+                    raise TreasuryError(f"تعذّر إدخال التخصيص: {exc.orig}") from exc
+                entity = self._allocation_dict(row)
+                entity["budget_code"] = budget.code
+            finally:
+                session.close()
+
+            trace = record_domain_trace(
                 context,
                 "treasury.allocation.create",
-                entrypoint="allocate",
-                required=PERMISSIONS_ALLOCATION_WRITE,
-                grant_required=grant_required,
-                institution_id=budget.institution_id,
-                claimed_official_id=official_id,
-                budget_id=budget.id,
-                account_id=account.id,
-                amount=allocation_amount,
+                EVENT_ALLOCATION_CREATED,
+                {
+                    "allocation_id": entity["id"],
+                    "budget_id": entity["budget_id"],
+                    "account_id": entity["account_id"],
+                    "amount": entity["amount"],
+                    "currency": entity["currency"],
+                    "decision_id": entity["decision_id"],
+                    "official_id": official_id,
+                    "tenant_id": entity["tenant_id"],
+                },
             )
-            self._require_same_currency(
-                ("الموازنة", budget.currency), (f"الحساب '{account_code}'", account.currency)
-            )
-            if decision_id is not None:
-                self._assert_authorizing_decision(session, context, decision_id, budget)
+            return {**entity, **trace}
 
-            # صفّ الموازنة يُقفل قبل قراءة المخصَّص، فتخصيصان متزامنان لا يريان
-            # نفس «المتاح» ثم يمرّان معًا. والحالة تُعاد قراءتها بعد القفل: قد
-            # طال الانتظار حتى التزم المنافس، فما قُرئ قبله صار قديمًا.
-            self._lock_rows(session, [(BudgetModel, budget.id)])
-            if budget.status != "open":
-                raise EntityStateError(f"الموازنة '{budget_code}' حالتها '{budget.status}'")
-
-            allocated = self._allocated_total(session, budget.id)
-            limit = to_money(budget.limit_amount)
-            if allocated + allocation_amount > limit:
-                raise BudgetExceededError(
-                    f"التخصيص {allocation_amount} يتجاوز المتاح في الموازنة "
-                    f"'{budget_code}': الحدّ {limit} · المخصَّص {allocated}"
-                )
-
-            row = AllocationModel(
-                id=f"alc-{uuid.uuid4()}",
-                budget_id=budget.id,
-                account_id=account.id,
-                purpose=purpose,
-                amount=allocation_amount,
-                currency=budget.currency,
-                status="active",
-                decision_id=decision_id,
-                tenant_id=self._tenant_of(context),
-                created_by=context.principal_id,
-            )
-            session.add(row)
-            try:
-                session.commit()
-            except IntegrityError as exc:
-                session.rollback()
-                raise TreasuryError(f"تعذّر إدخال التخصيص: {exc.orig}") from exc
-            entity = self._allocation_dict(row)
-            entity["budget_code"] = budget.code
-        finally:
-            session.close()
-
-        trace = record_domain_trace(
-            context,
-            "treasury.allocation.create",
-            EVENT_ALLOCATION_CREATED,
-            {
-                "allocation_id": entity["id"],
-                "budget_id": entity["budget_id"],
-                "account_id": entity["account_id"],
-                "amount": entity["amount"],
-                "currency": entity["currency"],
-                "decision_id": entity["decision_id"],
-                "official_id": official_id,
-                "tenant_id": entity["tenant_id"],
-            },
+        contract = money_crossing_contract(
+            operation="treasury.allocation.create",
+            entrypoint="allocate",
+            target=f"treasury/{tenant}/budgets/{budget_code}/allocations/{allocation_id}",
+            effect_kind="CREATE",
+            detail=f"تخصيصُ {allocation_amount} من الموازنة '{budget_code}' إلى '{account_code}'",
+            key_value=f"{tenant}:{allocation_id}",
+            apply=_apply,
+            undo=lambda _result: self._delete_row(AllocationModel, allocation_id),
+            undo_description="حذفُ صفِّ التخصيص — لا صرفَ عليه داخلَ العبورِ نفسِه",
+            metadata={"tenant_id": tenant, "budget_code": budget_code, "official_id": official_id},
+            authorizer_factory=self._money_authorizer_factory,
         )
-        return {**entity, **trace}
+        return settle_money_crossing(
+            lambda: contract["authorizer"].guard_declared(
+                contract["action"], contract["target"], **money_crossing_kwargs(contract)
+            ),
+            contract,
+        )
 
     def _assert_authorizing_decision(
         self,
@@ -1240,64 +1415,107 @@ class StateTreasury:
         if not purpose.strip():
             raise TreasuryError("الحركة تلزمها غرض مكتوب")
 
+        tenant = self._tenant_of(context)
         session = self._session()
         try:
+            # إعادةُ المفتاحِ القائمِ تُجابُ **قبلَ** العبور كما كانت (وحركةٌ معكوسةٌ بالمفتاحِ
+            # نفسِه تُرفَضُ هنا — WI-115 § 3.5)، فلا يُعلَنُ أثرٌ لم يقع.
             existing = self._existing_idempotent(session, context, idempotency_key)
             if existing is not None:
                 return {**self._transaction_dict(existing), "idempotent": True}
-
-            treasury = self._treasury_row(session, context, treasury_code)
-            if treasury.status != "active":
-                raise EntityStateError(f"الخزانة '{treasury_code}' حالتها '{treasury.status}'")
-            if treasury.institution_id is None:
-                raise TreasuryError(f"الخزانة '{treasury_code}' بلا مؤسسة — لا تُموَّل بلا جهة مسؤولة")
-            cash = self._account_row(session, context, treasury.id, cash_account_code)
-            revenue = self._account_row(session, context, treasury.id, revenue_account_code)
-            official, authority = self._authorize_money(
-                session,
-                context,
-                "treasury.funding.post",
-                entrypoint="post_funding",
-                required=PERMISSIONS_FUNDING,
-                grant_required=grant_required,
-                institution_id=treasury.institution_id,
-                claimed_official_id=official_id,
-                account_id=cash.id,
-                amount=funding_amount,
-            )
-            if cash.kind not in ("cash", "reserve"):
-                raise TreasuryError(f"الحساب '{cash_account_code}' ليس نقديًّا ({cash.kind})")
-            if revenue.kind != "revenue":
-                raise TreasuryError(f"الحساب '{revenue_account_code}' ليس إيراديًّا ({revenue.kind})")
-
-            tx, entries = self._post(
-                session,
-                context=context,
-                treasury=treasury,
-                kind="funding",
-                amount=funding_amount,
-                currency=treasury.currency,
-                purpose=purpose,
-                debit_account=cash,
-                credit_account=revenue,
-                official=official,
-                authority=authority,
-                reference=reference,
-                institution_id=treasury.institution_id,
-                idempotency_key=idempotency_key,
-            )
-            entity = self._transaction_dict(tx)
-            entity["entries"] = [self._entry_dict(e) for e in entries]
         finally:
             session.close()
+        # المرجعُ يُولَّدُ هنا بصيغةِ `_post` نفسِها: المعوِّضُ يعرفُ ما يعكسُه قبلَ وقوعِه.
+        reference = reference or f"TX-{uuid.uuid4().hex[:12].upper()}"
+        # والهدفُ يحملُ مفتاحَ الذرّيّةِ إن وُجِد لا المرجعَ المُولَّد: إعادةُ محاولةٍ بعدَ فشلٍ
+        # بالمفتاحِ نفسِه طلبٌ واحدٌ ببصمةٍ واحدة (وإلّا رُفِضَت «تعارضَ مفتاح»).
+        transaction_key = idempotency_key or reference
 
-        trace = record_domain_trace(
-            context,
-            "treasury.funding.post",
-            EVENT_TRANSACTION_POSTED,
-            self._posted_event_payload(entity, official_id),
+        def _apply() -> dict[str, Any]:
+            session = self._session()
+            try:
+                existing = self._existing_idempotent(session, context, idempotency_key)
+                if existing is not None:
+                    return {**self._transaction_dict(existing), "idempotent": True}
+
+                treasury = self._treasury_row(session, context, treasury_code)
+                if treasury.status != "active":
+                    raise EntityStateError(f"الخزانة '{treasury_code}' حالتها '{treasury.status}'")
+                if treasury.institution_id is None:
+                    raise TreasuryError(
+                        f"الخزانة '{treasury_code}' بلا مؤسسة — لا تُموَّل بلا جهة مسؤولة"
+                    )
+                cash = self._account_row(session, context, treasury.id, cash_account_code)
+                revenue = self._account_row(session, context, treasury.id, revenue_account_code)
+                official, authority = self._authorize_money(
+                    session,
+                    context,
+                    "treasury.funding.post",
+                    entrypoint="post_funding",
+                    required=PERMISSIONS_FUNDING,
+                    grant_required=grant_required,
+                    institution_id=treasury.institution_id,
+                    claimed_official_id=official_id,
+                    account_id=cash.id,
+                    amount=funding_amount,
+                )
+                if cash.kind not in ("cash", "reserve"):
+                    raise TreasuryError(f"الحساب '{cash_account_code}' ليس نقديًّا ({cash.kind})")
+                if revenue.kind != "revenue":
+                    raise TreasuryError(
+                        f"الحساب '{revenue_account_code}' ليس إيراديًّا ({revenue.kind})"
+                    )
+
+                tx, entries = self._post(
+                    session,
+                    context=context,
+                    treasury=treasury,
+                    kind="funding",
+                    amount=funding_amount,
+                    currency=treasury.currency,
+                    purpose=purpose,
+                    debit_account=cash,
+                    credit_account=revenue,
+                    official=official,
+                    authority=authority,
+                    reference=reference,
+                    institution_id=treasury.institution_id,
+                    idempotency_key=idempotency_key,
+                )
+                entity = self._transaction_dict(tx)
+                entity["entries"] = [self._entry_dict(e) for e in entries]
+            finally:
+                session.close()
+
+            trace = record_domain_trace(
+                context,
+                "treasury.funding.post",
+                EVENT_TRANSACTION_POSTED,
+                self._posted_event_payload(entity, official_id),
+            )
+            return {**entity, **trace}
+
+        contract = money_crossing_contract(
+            operation="treasury.funding.post",
+            entrypoint="post_funding",
+            target=f"treasury/{tenant}/{treasury_code}/transactions/{transaction_key}",
+            effect_kind="TRANSFER",
+            detail=f"إيرادُ {funding_amount} إلى '{cash_account_code}' من '{revenue_account_code}'",
+            key_value=f"{tenant}:{transaction_key}",
+            apply=_apply,
+            undo=lambda _result: self._compensate_transfer(
+                context, reference, official_id, "post_funding"
+            ),
+            undo_description="قيدٌ عكسيٌّ للحركة بـreverse_transaction — لا حذفَ في الدفتر",
+            metadata={"tenant_id": tenant, "reference": reference, "official_id": official_id},
+            authorizer_factory=self._money_authorizer_factory,
         )
-        return {**entity, **trace}
+        return settle_money_crossing(
+            lambda: contract["authorizer"].guard_declared(
+                contract["action"], contract["target"], **money_crossing_kwargs(contract)
+            ),
+            contract,
+        )
 
     @staticmethod
     def _posted_event_payload(entity: dict[str, Any], official_id: str) -> dict[str, Any]:
@@ -1344,116 +1562,161 @@ class StateTreasury:
         if not purpose.strip():
             raise TreasuryError("الحركة تلزمها غرض مكتوب")
 
+        tenant = self._tenant_of(context)
         session = self._session()
         try:
+            # إعادةُ المفتاحِ القائمِ تُجابُ **قبلَ** العبور كما كانت (وحركةٌ معكوسةٌ بالمفتاحِ
+            # نفسِه تُرفَضُ هنا — WI-115 § 3.5)، فلا يُعلَنُ أثرٌ لم يقع.
             existing = self._existing_idempotent(session, context, idempotency_key)
             if existing is not None:
                 return {**self._transaction_dict(existing), "idempotent": True}
-
-            allocation = self._allocation_row(session, context, allocation_id)
-            if allocation.status != "active":
-                raise EntityStateError(f"التخصيص حالته '{allocation.status}' — لا صرف عليه")
-            budget = session.query(BudgetModel).filter(BudgetModel.id == allocation.budget_id).one()
-            require_tenant(context, budget.tenant_id)
-            if budget.status != "open":
-                raise EntityStateError(f"الموازنة '{budget.code}' حالتها '{budget.status}'")
-            treasury = (
-                session.query(TreasuryModel).filter(TreasuryModel.id == budget.treasury_id).one()
-            )
-            if treasury.status != "active":
-                raise EntityStateError(f"الخزانة '{treasury.code}' حالتها '{treasury.status}'")
-
-            official, authority = self._authorize_money(
-                session,
-                context,
-                "treasury.disbursement.post",
-                entrypoint="disburse",
-                required=PERMISSIONS_DISBURSE,
-                grant_required=grant_required,
-                institution_id=budget.institution_id,
-                claimed_official_id=official_id,
-                budget_id=budget.id,
-                account_id=allocation.account_id,
-                amount=spend,
-            )
-            if decision_id is not None:
-                self._assert_authorizing_decision(session, context, decision_id, budget)
-
-            cash = (
-                session.query(AccountModel).filter(AccountModel.id == allocation.account_id).one()
-            )
-            expense = self._account_row(session, context, treasury.id, expense_account_code)
-            if expense.kind != "expense":
-                raise TreasuryError(
-                    f"الحساب '{expense_account_code}' ليس حساب مصروف ({expense.kind})"
-                )
-            self._require_same_currency(
-                ("التخصيص", allocation.currency),
-                (f"الحساب '{expense_account_code}'", expense.currency),
-            )
-
-            # الحدود الثلاثة تُقرأ من الصفوف، فتُقفل أصولها أولًا وبالترتيب
-            # القانوني: موازنة ← تخصيص ← حسابان. بهذا لا يمرّ صرفان متزامنان
-            # على نفس التخصيص أو نفس الرصيد بقراءةٍ واحدة قديمة.
-            self._lock_rows(
-                session,
-                [
-                    (BudgetModel, budget.id),
-                    (AllocationModel, allocation.id),
-                    (AccountModel, cash.id),
-                    (AccountModel, expense.id),
-                ],
-            )
-            if allocation.status != "active":
-                raise EntityStateError(f"التخصيص حالته '{allocation.status}' — لا صرف عليه")
-            if budget.status != "open":
-                raise EntityStateError(f"الموازنة '{budget.code}' حالتها '{budget.status}'")
-
-            spent = self._spent_on_allocation(session, allocation.id)
-            allocated = to_money(allocation.amount)
-            if spent + spend > allocated:
-                raise AllocationExceededError(
-                    f"الصرف {spend} يتجاوز المتاح في التخصيص: المخصَّص {allocated} · "
-                    f"المصروف {spent} · المتاح {to_money(allocated - spent)}"
-                )
-            balance = self._account_balance(session, cash)
-            if spend > balance:
-                raise InsufficientFundsError(
-                    f"رصيد الحساب '{cash.code}' {balance} لا يكفي لصرف {spend}"
-                )
-
-            tx, entries = self._post(
-                session,
-                context=context,
-                treasury=treasury,
-                kind="disbursement",
-                amount=spend,
-                currency=allocation.currency,
-                purpose=purpose,
-                debit_account=expense,
-                credit_account=cash,
-                official=official,
-                authority=authority,
-                reference=reference,
-                budget_id=budget.id,
-                allocation_id=allocation.id,
-                institution_id=budget.institution_id,
-                task_id=task_id,
-                decision_id=decision_id,
-                idempotency_key=idempotency_key,
-            )
-            entity = self._transaction_dict(tx)
-            entity["entries"] = [self._entry_dict(e) for e in entries]
         finally:
             session.close()
+        # المرجعُ يُولَّدُ هنا بصيغةِ `_post` نفسِها: المعوِّضُ يعرفُ ما يعكسُه قبلَ وقوعِه.
+        reference = reference or f"TX-{uuid.uuid4().hex[:12].upper()}"
+        # والهدفُ يحملُ مفتاحَ الذرّيّةِ إن وُجِد لا المرجعَ المُولَّد: إعادةُ محاولةٍ بعدَ فشلٍ
+        # بالمفتاحِ نفسِه طلبٌ واحدٌ ببصمةٍ واحدة (وإلّا رُفِضَت «تعارضَ مفتاح»).
+        transaction_key = idempotency_key or reference
 
-        trace = record_domain_trace(
-            context,
-            "treasury.disbursement.post",
-            EVENT_TRANSACTION_POSTED,
-            self._posted_event_payload(entity, official_id),
+        def _apply() -> dict[str, Any]:
+            session = self._session()
+            try:
+                existing = self._existing_idempotent(session, context, idempotency_key)
+                if existing is not None:
+                    return {**self._transaction_dict(existing), "idempotent": True}
+
+                allocation = self._allocation_row(session, context, allocation_id)
+                if allocation.status != "active":
+                    raise EntityStateError(f"التخصيص حالته '{allocation.status}' — لا صرف عليه")
+                budget = (
+                    session.query(BudgetModel).filter(BudgetModel.id == allocation.budget_id).one()
+                )
+                require_tenant(context, budget.tenant_id)
+                if budget.status != "open":
+                    raise EntityStateError(f"الموازنة '{budget.code}' حالتها '{budget.status}'")
+                treasury = (
+                    session.query(TreasuryModel)
+                    .filter(TreasuryModel.id == budget.treasury_id)
+                    .one()
+                )
+                if treasury.status != "active":
+                    raise EntityStateError(f"الخزانة '{treasury.code}' حالتها '{treasury.status}'")
+
+                official, authority = self._authorize_money(
+                    session,
+                    context,
+                    "treasury.disbursement.post",
+                    entrypoint="disburse",
+                    required=PERMISSIONS_DISBURSE,
+                    grant_required=grant_required,
+                    institution_id=budget.institution_id,
+                    claimed_official_id=official_id,
+                    budget_id=budget.id,
+                    account_id=allocation.account_id,
+                    amount=spend,
+                )
+                if decision_id is not None:
+                    self._assert_authorizing_decision(session, context, decision_id, budget)
+
+                cash = (
+                    session.query(AccountModel)
+                    .filter(AccountModel.id == allocation.account_id)
+                    .one()
+                )
+                expense = self._account_row(session, context, treasury.id, expense_account_code)
+                if expense.kind != "expense":
+                    raise TreasuryError(
+                        f"الحساب '{expense_account_code}' ليس حساب مصروف ({expense.kind})"
+                    )
+                self._require_same_currency(
+                    ("التخصيص", allocation.currency),
+                    (f"الحساب '{expense_account_code}'", expense.currency),
+                )
+
+                # الحدود الثلاثة تُقرأ من الصفوف، فتُقفل أصولها أولًا وبالترتيب
+                # القانوني: موازنة ← تخصيص ← حسابان. بهذا لا يمرّ صرفان متزامنان
+                # على نفس التخصيص أو نفس الرصيد بقراءةٍ واحدة قديمة.
+                self._lock_rows(
+                    session,
+                    [
+                        (BudgetModel, budget.id),
+                        (AllocationModel, allocation.id),
+                        (AccountModel, cash.id),
+                        (AccountModel, expense.id),
+                    ],
+                )
+                if allocation.status != "active":
+                    raise EntityStateError(f"التخصيص حالته '{allocation.status}' — لا صرف عليه")
+                if budget.status != "open":
+                    raise EntityStateError(f"الموازنة '{budget.code}' حالتها '{budget.status}'")
+
+                spent = self._spent_on_allocation(session, allocation.id)
+                allocated = to_money(allocation.amount)
+                if spent + spend > allocated:
+                    raise AllocationExceededError(
+                        f"الصرف {spend} يتجاوز المتاح في التخصيص: المخصَّص {allocated} · "
+                        f"المصروف {spent} · المتاح {to_money(allocated - spent)}"
+                    )
+                balance = self._account_balance(session, cash)
+                if spend > balance:
+                    raise InsufficientFundsError(
+                        f"رصيد الحساب '{cash.code}' {balance} لا يكفي لصرف {spend}"
+                    )
+
+                tx, entries = self._post(
+                    session,
+                    context=context,
+                    treasury=treasury,
+                    kind="disbursement",
+                    amount=spend,
+                    currency=allocation.currency,
+                    purpose=purpose,
+                    debit_account=expense,
+                    credit_account=cash,
+                    official=official,
+                    authority=authority,
+                    reference=reference,
+                    budget_id=budget.id,
+                    allocation_id=allocation.id,
+                    institution_id=budget.institution_id,
+                    task_id=task_id,
+                    decision_id=decision_id,
+                    idempotency_key=idempotency_key,
+                )
+                entity = self._transaction_dict(tx)
+                entity["entries"] = [self._entry_dict(e) for e in entries]
+            finally:
+                session.close()
+
+            trace = record_domain_trace(
+                context,
+                "treasury.disbursement.post",
+                EVENT_TRANSACTION_POSTED,
+                self._posted_event_payload(entity, official_id),
+            )
+            return {**entity, **trace}
+
+        contract = money_crossing_contract(
+            operation="treasury.disbursement.post",
+            entrypoint="disburse",
+            target=f"treasury/{tenant}/allocations/{allocation_id}/transactions/{transaction_key}",
+            effect_kind="TRANSFER",
+            detail=f"صرفُ {spend} من التخصيص '{allocation_id}' إلى '{expense_account_code}'",
+            key_value=f"{tenant}:{transaction_key}",
+            apply=_apply,
+            undo=lambda _result: self._compensate_transfer(
+                context, reference, official_id, "disburse"
+            ),
+            undo_description="قيدٌ عكسيٌّ للحركة بـreverse_transaction — لا حذفَ في الدفتر",
+            metadata={"tenant_id": tenant, "reference": reference, "official_id": official_id},
+            authorizer_factory=self._money_authorizer_factory,
         )
-        return {**entity, **trace}
+        return settle_money_crossing(
+            lambda: contract["authorizer"].guard_declared(
+                contract["action"], contract["target"], **money_crossing_kwargs(contract)
+            ),
+            contract,
+        )
 
     # ── 7. الصرف تنفيذًا لقرار حكومي، عبر العمود التنفيذي ─────────────────
 

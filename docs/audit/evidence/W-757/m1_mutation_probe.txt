@@ -1,0 +1,8 @@
+[الأساس] rc=0 ============ 83 passed, 1 deselected, 1 warning in 82.48s (0:01:22) ============
+[M-a الفاعلُ مُثبَّتٌ EXECUTIVE] قُتِلَت · rc=1 · FAILED tests/test_w755_m1_treasury_single_crossing.py::test_m1_1_each_atomic_surface_crosses_once_with_its_declared_action_and_actor | ================== 1 failed, 1 deselected, 1 warning in 3.75s ==================
+[M-b حذفُ فكِّ اللفّ] قُتِلَت · rc=1 · FAILED tests/test_w755_m1_treasury_single_crossing.py::test_m1_3_domain_errors_inside_the_applier_keep_their_type_and_leave_no_row | ============= 1 failed, 7 passed, 1 deselected, 1 warning in 5.70s =============
+[M-c إسقاطُ المعوِّض] قُتِلَت · rc=1 · FAILED tests/test_w755_m1_treasury_single_crossing.py::test_m1_1_each_atomic_surface_crosses_once_with_its_declared_action_and_actor | ================== 1 failed, 1 deselected, 1 warning in 2.63s ==================
+[M-d حذفُ فحصِ التكرارِ قبلَ العبور (الحساب)] قُتِلَت · rc=1 · FAILED tests/test_w755_m1_treasury_single_crossing.py::test_m1_3b_duplicate_codes_are_still_duplicates_not_replays | ============= 1 failed, 8 passed, 1 deselected, 1 warning in 7.73s =============
+[M-e حذفُ العبورِ من التأسيس (تطبيقٌ مباشر)] قُتِلَت · rc=1 · FAILED tests/test_w755_m1_treasury_single_crossing.py::test_m1_1_each_atomic_surface_crosses_once_with_its_declared_action_and_actor | ================== 1 failed, 1 deselected, 1 warning in 3.23s ==================
+[M-f الإعادةُ تُطبِّقُ ثانيةً (تجاهلُ is_replay)] قُتِلَت · rc=1 · FAILED tests/test_w755_m1_treasury_single_crossing.py::test_m1_6e_a_ledger_replay_reports_replayed_and_never_returns_a_value | ============ 1 failed, 12 passed, 1 deselected, 1 warning in 9.90s =============
+== المجموع: 6 طفرات · نجا منها 0 ==
