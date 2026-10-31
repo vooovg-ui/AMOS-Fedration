@@ -110,6 +110,10 @@ def _run(b: SovereignExecutionBoundary, key: IdempotencyKey, state: dict, *, mod
             Compensator(effect_signature=CREDIT.signature, apply=undo, description="عكس"),
             Compensator(effect_signature=SEAL.signature, apply=lambda: None, description="فك"),
         ),
+        # [W-765 · Q-88] هذا المُطبِّقُ يرفعُ قبلَ أن يُغيِّرَ في كلِّ حالاتِه، فهو ذرّيٌّ فعلًا
+        # ويُصرِّحُ بذلك؛ وبلا تصريحٍ تصيرُ P2/P4 FAILED_FINAL بقاعدةِ «ربما طُبِّق» (DISC-148).
+        # والتأكيداتُ كما هي: الإعادةُ في الثانيةِ نفسِها تنجحُ مرّةً واحدة.
+        applier_atomic=True,
     )
 
 

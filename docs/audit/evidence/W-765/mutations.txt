@@ -1,0 +1,12 @@
+# W-765 · طفراتٌ على core/sovereignty/enforcement_boundary.py · كلُّ طفرةٍ تُطبَّقُ على نسخةٍ نظيفةٍ ثمّ تُرَدّ
+# السطرُ الأوّل: tests/sovereignty/test_disc148_maybe_applied.py (10) · الثاني: services tests/test_disc148_treasury_maybe_applied.py (4)
+## M1 · حذفُ «ربما طبَّق» (الرجوعُ إلى السطرِ القديم: maybe = ())
+6 failed, 4 passed in 0.22s
+========================= 3 failed, 1 passed in 8.16s ==========================
+## M2 · إسقاطُ المعوِّضِ عن الأثرِ قيدَ التطبيق (to_compensate بلا safe)
+3 failed, 7 passed in 0.23s
+========================= 3 failed, 1 passed in 8.08s ==========================
+## M3 · «لا معوِّضَ قابلٌ للتشغيل» يُوسَمُ FAILED_RETRYABLE لا FAILED_FINAL
+2 failed, 8 passed in 0.14s
+============================== 4 passed in 8.50s ===============================
+# بعدَ الرّدّ: git diff --stat على الملفّ = لا فرقَ عن الشِّفرة

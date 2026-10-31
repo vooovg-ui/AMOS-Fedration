@@ -433,7 +433,10 @@ def test_m1_6b_the_unwrap_is_exact_and_does_not_swallow_sovereign_errors() -> No
     assert "raise exc.__cause__ from exc" in body
     # لا `except` يبتلع: كلُّ فرعٍ يرفع.
     handler = body.split("except Exception as exc:", 1)[1].split("if guarded.is_replay", 1)[0]
-    assert handler.count("raise") == 2 and "return" not in handler
+    # [W-765 · Q-88] فرعٌ ثالثٌ يرفع: فكُّ CompensationRequired النظيفِ وحدَه إلى سببِه الأصليّ.
+    assert handler.count("raise") == 3 and "return" not in handler
+    assert "isinstance(exc, compensation_required) and exc.state_is_clean" in handler
+    assert "raise original from exc" in handler
 
 
 def test_m1_6e_a_ledger_replay_reports_replayed_and_never_returns_a_value() -> None:
