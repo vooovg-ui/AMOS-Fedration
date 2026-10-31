@@ -1,0 +1,14 @@
+$ cd federal/executive/services && ../../../.venv/bin/python -m pytest -q -s -p no:cacheprovider -p tests.conftest ../../../docs/audit/evidence/W-764/treasury_atomicity_probe.py
+# commit 614b5233 (قبلَ شفرةِ W-765) · 2026-10-31 · ترتيبُ «سجلّ الذرّيّة» بترتيبِ أسماءِ الملفّاتِ لا بالزمن
+........
+=== مسبارُ ذرّيّةِ مُطبِّقاتِ الخزانةِ الستّة (W-764) ===
+establish_treasury: حُقِنَ=1 · محاولة1=RuntimeError · صفوف state_treasuries 1→2 · رصيدُ النقد 50000.0000→50000.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE'] · **غيرُ ذرّيّ** (أثرٌ باقٍ بعدَ الفشل) || إعادةٌ بالنداءِ نفسِه: DuplicateCodeError · صفوف→2 · الرصيد→50000.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE']
+open_account: حُقِنَ=1 · محاولة1=RuntimeError · صفوف state_accounts 3→4 · رصيدُ النقد 50000.0000→50000.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE'] · **غيرُ ذرّيّ** (أثرٌ باقٍ بعدَ الفشل) || إعادةٌ بالنداءِ نفسِه: DuplicateCodeError · صفوف→4 · الرصيد→50000.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE']
+create_budget: حُقِنَ=1 · محاولة1=RuntimeError · صفوف state_budgets 1→2 · رصيدُ النقد 50000.0000→50000.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE'] · **غيرُ ذرّيّ** (أثرٌ باقٍ بعدَ الفشل) || إعادةٌ بالنداءِ نفسِه: DuplicateCodeError · صفوف→2 · الرصيد→50000.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE']
+allocate: حُقِنَ=1 · محاولة1=RuntimeError · صفوف state_allocations 0→1 · رصيدُ النقد 50000.0000→50000.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE'] · **غيرُ ذرّيّ** (أثرٌ باقٍ بعدَ الفشل) || إعادةٌ بالنداءِ نفسِه: OK · صفوف→2 · الرصيد→50000.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE', 'SUCCEEDED']
+post_funding: حُقِنَ=1 · محاولة1=RuntimeError · صفوف state_transactions 1→2 · رصيدُ النقد 50000.0000→50100.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE'] · **غيرُ ذرّيّ** (أثرٌ باقٍ بعدَ الفشل) || إعادةٌ بالنداءِ نفسِه: OK idempotent · صفوف→2 · الرصيد→50100.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE']
+disburse: حُقِنَ=1 · محاولة1=RuntimeError · صفوف state_transactions 1→2 · رصيدُ النقد 50000.0000→49900.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE'] · **غيرُ ذرّيّ** (أثرٌ باقٍ بعدَ الفشل) || إعادةٌ بالنداءِ نفسِه: OK idempotent · صفوف→2 · الرصيد→49900.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE']
+post_funding/بلا-مفتاح: حُقِنَ=1 · محاولة1=RuntimeError · صفوف state_transactions 1→2 · رصيدُ النقد 50000.0000→50100.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE'] · **غيرُ ذرّيّ** (أثرٌ باقٍ بعدَ الفشل) || إعادةٌ بالنداءِ نفسِه: OK · صفوف→3 · الرصيد→50200.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE', 'SUCCEEDED']
+disburse/بلا-مفتاح: حُقِنَ=1 · محاولة1=RuntimeError · صفوف state_transactions 1→2 · رصيدُ النقد 50000.0000→49900.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE'] · **غيرُ ذرّيّ** (أثرٌ باقٍ بعدَ الفشل) || إعادةٌ بالنداءِ نفسِه: OK · صفوف→3 · الرصيد→49800.0000 · سجلُّ الذرّيّة ['FAILED_RETRYABLE', 'SUCCEEDED']
+8 passed in 12.54s
+EXIT=0
