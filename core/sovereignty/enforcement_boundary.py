@@ -279,6 +279,13 @@ class BoundaryOutcome:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
+
+def _is_idempotent(plan: CompensationPlan, signature: str) -> bool:
+    """[W-765 · Q-88] معوِّضُ البصمةِ مُصرَّحٌ بأنّه مُثبِّت (آمنٌ وقعَ الأثرُ أم لم يقع)."""
+    return any(
+        c.effect_signature == signature and c.idempotent for c in plan.compensators
+    )
+
 @dataclass(slots=True)
 class SovereignExecutionBoundary:
     """المدخلُ الوحيدُ المحروسُ إلى أثرٍ حقيقيّ — تركيبٌ لا اختراع.
@@ -359,6 +366,7 @@ class SovereignExecutionBoundary:
         provider: ProviderAdapter | None = None,
         payload_of: Callable[[SovereignEffect], EffectPayload] | None = None,
         correlation_id: str = "",
+        applier_atomic: bool = False,
     ) -> BoundaryOutcome:
         """اعبُرْ الحدَّ — أو لا تنفُذ. ولا معامَلَ ثالثًا بينَ الاثنين.
 
@@ -419,6 +427,9 @@ class SovereignExecutionBoundary:
             applied_holder: list[tuple[SovereignEffect, ...]] = []
             # [W-603 · Q-70] ما طبّقه مُطبِّقُ المُنادي **وعادَ** بنجاحٍ — بترتيبِ التطبيق.
             applied_internal: list[str] = []
+            # [W-765 · Q-88 · DISC-148] الأثرُ الذي نُودِيَ مُطبِّقُه ولم يَعُدْ بعد:
+            # إن رفعَ المُطبِّقُ بقيَ هنا، فهو «ربما طُبِّق» لا «لم يُطبَّق».
+            in_flight: list[str] = []
             routed = self._route_effect(
                 permit=permit,
                 operation_key=operation_key,
@@ -430,12 +441,16 @@ class SovereignExecutionBoundary:
             )
 
             def _tracked(effect: SovereignEffect) -> None:
-                routed(effect)
-                if (
+                watched = (
                     plan is not None
                     and effect.kind is not EffectKind.EXTERNAL
                     and plan.covers(effect.signature)
-                ):
+                )
+                if watched:
+                    in_flight.append(effect.signature)
+                routed(effect)
+                if watched:
+                    in_flight.remove(effect.signature)
                     applied_internal.append(effect.signature)
 
             def _under_permit() -> tuple[str, ...]:
@@ -474,15 +489,25 @@ class SovereignExecutionBoundary:
                     ),
                 )
             except Exception as exc:
-                if plan is None or not applied_internal:
-                    # لا أثرَ طُبِّقَ: الاستثناءُ يُرفَعُ كما هو (لا لفَّ ولا تغييرَ نوعٍ).
+                # [W-765 · Q-88] المُطبِّقُ الذي رفعَ «ربما طبَّق» — إلّا إن صرّحَ بالذرّيّة.
+                maybe = () if applier_atomic else tuple(in_flight)
+                if plan is None or not (applied_internal or maybe):
+                    # لا أثرَ طُبِّقَ ولا أثرَ ربما طُبِّق: الاستثناءُ يُرفَعُ كما هو.
+                    raise
+                safe = tuple(sig for sig in maybe if _is_idempotent(plan, sig))
+                unresolved = tuple(sig for sig in maybe if sig not in safe)
+                to_compensate = tuple(applied_internal) + safe
+                if not to_compensate:
+                    # لا شيءَ يُعوَّضُ آمنًا: إغلاقٌ نهائيٌّ وحسمٌ بشريّ، ونوعُ الخطأِ كما هو.
+                    self._close_unresolved(exc, operation_key=operation_key, unresolved=unresolved)
                     raise
                 self._compensate_applied(
                     exc,
                     contract=contract,
                     plan=plan,
                     operation_key=operation_key,
-                    applied=tuple(applied_internal),
+                    applied=to_compensate,
+                    unresolved=unresolved,
                 )
                 raise  # pragma: no cover — `_compensate_applied` يرفعُ دائمًا
             stages.append(BoundaryStage.IDEMPOTENCY)
@@ -515,6 +540,7 @@ class SovereignExecutionBoundary:
         plan: CompensationPlan,
         operation_key: IdempotencyKey,
         applied: tuple[str, ...],
+        unresolved: tuple[str, ...] = (),
     ) -> None:
         """اعكسْ ما طُبِّقَ بالخطّةِ المربوطةِ ثمَّ ارفعْ `CompensationRequired` — دائمًا.
 
@@ -542,9 +568,9 @@ class SovereignExecutionBoundary:
             applied_signatures=applied,
             reason=reason,
         )
-        required = CompensationRequired(outcome)
+        required = CompensationRequired(outcome, unresolved=unresolved)
         try:
-            if outcome.state_is_clean:
+            if outcome.state_is_clean and not unresolved:
                 ledger.transition(
                     key=operation_key,
                     new_status=OperationStatus.FAILED_RETRYABLE,
@@ -563,10 +589,21 @@ class SovereignExecutionBoundary:
                 ledger.transition(
                     key=operation_key,
                     new_status=OperationStatus.FAILED_FINAL,
-                    applied_effect_signatures=tuple(outcome.residual_signatures),
+                    applied_effect_signatures=tuple(outcome.residual_signatures) + unresolved,
                     failure_reason=(
-                        f"{reason} — تعويضٌ غيرُ نظيفٍ ({outcome.record.compensation_id}) "
-                        "يلزمُ قرارٌ بشريّ"
+                        f"{reason} — "
+                        + (
+                            "عُوِّضَ ما عادَ"
+                            if outcome.state_is_clean
+                            else "تعويضٌ غيرُ نظيف"
+                        )
+                        + f" ({outcome.record.compensation_id})"
+                        + (
+                            " وأثرٌ ربما طُبِّقَ بلا معوِّضٍ مُثبِّت: " + " · ".join(unresolved)
+                            if unresolved
+                            else ""
+                        )
+                        + " يلزمُ قرارٌ بشريّ"
                     ),
                     attempt={
                         "compensated": False,
@@ -579,6 +616,37 @@ class SovereignExecutionBoundary:
                 f"{type(transition_exc).__name__}: {transition_exc}"
             )
         raise required from exc
+
+    def _close_unresolved(
+        self,
+        exc: BaseException,
+        *,
+        operation_key: IdempotencyKey,
+        unresolved: tuple[str, ...],
+    ) -> None:
+        """[W-765 · Q-88] أثرٌ ربما طُبِّقَ ولا معوِّضَ مُثبِّتًا له: `FAILED_FINAL`.
+
+        لا يُشغَّلُ معوِّضٌ لم يُصرَّحْ بثباتِه على أثرٍ لا يُعرَفُ أوقعَ أم لا، ولا
+        تُعادُ العمليّةُ تلقائيًّا. والاستثناءُ الأصليُّ يُرفَعُ بعدَها بملاحظة.
+        """
+        note = (
+            "[Q-88] المُطبِّقُ رفعَ ولم يُصرِّحْ بالذرّيّة، ومعوِّضُ أثرِه غيرُ مُصرَّحٍ "
+            "بثباتِه: " + " · ".join(unresolved) + " — ربما طُبِّق. الحالةُ FAILED_FINAL "
+            "ويلزمُ حسمٌ بشريّ."
+        )
+        try:
+            self.idempotency_ledger.transition(
+                key=operation_key,
+                new_status=OperationStatus.FAILED_FINAL,
+                applied_effect_signatures=unresolved,
+                failure_reason=f"{type(exc).__name__}: {exc} — {note}",
+                attempt={"compensated": False, "maybe_applied": list(unresolved)},
+            )
+        except Exception as transition_exc:  # noqa: BLE001 — يُلحَقُ لا يُبتلَع
+            note += (
+                f" وتعذّرَ نقلُ سجلِّ الذرّيّة: {type(transition_exc).__name__}: {transition_exc}"
+            )
+        exc.add_note(note)
 
     # ── الحرسُ واحدًا واحدًا ───────────────────────────────────────────────
     def _record_rejection(self, stage: BoundaryStage) -> None:

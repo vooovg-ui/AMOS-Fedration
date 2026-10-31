@@ -333,6 +333,26 @@ class StateTreasury:
             official_id=official_id,
         )
 
+    def _compensate_posted(
+        self, context: AuthorizationContext, transaction_id: str, official_id: str, entrypoint: str
+    ) -> None:
+        """معوِّضٌ **مُثبِّتٌ** لحركةٍ عابرة (W-765 · Q-88 · DISC-149).
+
+        يقرأُ الحركةَ بمعرِّفِها المُولَّدِ قبلَ العبور — فلا يمسُّ حركةً ليست لهذه العمليّة
+        ولو تكرّرَ مرجعٌ مرّرَه المُنادي. لا حركة ⇐ لم يقعِ الأثرُ فلا شيء · ليست `posted`
+        ⇐ عُكِسَت فلا شيء · وإلّا فقيدٌ عكسيٌّ بالمسارِ القائم (`_compensate_transfer`).
+        فتشغيلُه آمنٌ وقعَ الأثرُ أم لم يقع، ومرّةً أو أكثر.
+        """
+        session = self._session()
+        try:
+            row = session.get(TransactionModel, transaction_id)
+            if row is None or row.status != "posted":
+                return
+            reference = row.reference
+        finally:
+            session.close()
+        self._compensate_transfer(context, reference, official_id, entrypoint)
+
     def _treasury_row(self, session, context: AuthorizationContext, code: str) -> TreasuryModel:
         tenant = self._tenant_of(context)
         row = (
@@ -779,6 +799,7 @@ class StateTreasury:
         reverses_transaction_id: str | None = None,
         idempotency_key: str | None = None,
         authority: AuthorityDecision,
+        transaction_id: str | None = None,
     ) -> tuple[TransactionModel, list[LedgerEntryModel]]:
         """اكتب حركة وطرفيها في معاملة واحدة — لا حركة بطرف واحد ولا بلا توازن.
 
@@ -805,7 +826,8 @@ class StateTreasury:
         tenant = self._tenant_of(context)
         tx_reference = reference or f"TX-{uuid.uuid4().hex[:12].upper()}"
         tx = TransactionModel(
-            id=f"tx-{uuid.uuid4()}",
+            # [W-765 · Q-88] المُعرِّفُ المُولَّدُ قبلَ العبورِ يُمرَّرُ ليقرأَه المعوِّضُ المُثبِّت.
+            id=transaction_id or f"tx-{uuid.uuid4()}",
             reference=tx_reference,
             treasury_id=treasury.id,
             kind=kind,
@@ -980,6 +1002,9 @@ class StateTreasury:
             apply=_apply,
             undo=lambda _result: self._delete_row(TreasuryModel, treasury_id),
             undo_description="حذفُ صفِّ الخزانةِ المُؤسَّسة — عكسٌ حقيقيٌّ لا ادّعاء",
+            # [W-765 · Q-88] الحذفُ بمعرِّفٍ مُولَّدٍ قبلَ العبور: لا يحذفُ إلّا ما أنشأتْه العمليّة،
+            # وحذفُ ما لا يوجدُ لا شيء — فهو مُثبِّتٌ ويُصرَّحُ به.
+            undo_idempotent=True,
             metadata={"tenant_id": tenant, "code": code, "currency": currency_code},
             authorizer_factory=self._money_authorizer_factory,
         )
@@ -1103,6 +1128,9 @@ class StateTreasury:
             apply=_apply,
             undo=lambda _result: self._delete_row(AccountModel, account_id),
             undo_description="حذفُ صفِّ الحسابِ المفتوح — لا قيدَ عليه داخلَ العبورِ نفسِه",
+            # [W-765 · Q-88] الحذفُ بمعرِّفٍ مُولَّدٍ قبلَ العبور: لا يحذفُ إلّا ما أنشأتْه العمليّة،
+            # وحذفُ ما لا يوجدُ لا شيء — فهو مُثبِّتٌ ويُصرَّحُ به.
+            undo_idempotent=True,
             metadata={"tenant_id": tenant, "treasury_code": treasury_code, "code": code},
             authorizer_factory=self._money_authorizer_factory,
         )
@@ -1224,6 +1252,9 @@ class StateTreasury:
             apply=_apply,
             undo=lambda _result: self._delete_row(BudgetModel, budget_id),
             undo_description="حذفُ صفِّ الموازنة — لا تخصيصَ عليها داخلَ العبورِ نفسِه",
+            # [W-765 · Q-88] الحذفُ بمعرِّفٍ مُولَّدٍ قبلَ العبور: لا يحذفُ إلّا ما أنشأتْه العمليّة،
+            # وحذفُ ما لا يوجدُ لا شيء — فهو مُثبِّتٌ ويُصرَّحُ به.
+            undo_idempotent=True,
             metadata={"tenant_id": tenant, "code": code, "period": period},
             authorizer_factory=self._money_authorizer_factory,
         )
@@ -1355,6 +1386,9 @@ class StateTreasury:
             apply=_apply,
             undo=lambda _result: self._delete_row(AllocationModel, allocation_id),
             undo_description="حذفُ صفِّ التخصيص — لا صرفَ عليه داخلَ العبورِ نفسِه",
+            # [W-765 · Q-88] الحذفُ بمعرِّفٍ مُولَّدٍ قبلَ العبور: لا يحذفُ إلّا ما أنشأتْه العمليّة،
+            # وحذفُ ما لا يوجدُ لا شيء — فهو مُثبِّتٌ ويُصرَّحُ به.
+            undo_idempotent=True,
             metadata={"tenant_id": tenant, "budget_code": budget_code, "official_id": official_id},
             authorizer_factory=self._money_authorizer_factory,
         )
@@ -1430,6 +1464,7 @@ class StateTreasury:
         # والهدفُ يحملُ مفتاحَ الذرّيّةِ إن وُجِد لا المرجعَ المُولَّد: إعادةُ محاولةٍ بعدَ فشلٍ
         # بالمفتاحِ نفسِه طلبٌ واحدٌ ببصمةٍ واحدة (وإلّا رُفِضَت «تعارضَ مفتاح»).
         transaction_key = idempotency_key or reference
+        transaction_id = f"tx-{uuid.uuid4()}"
 
         def _apply() -> dict[str, Any]:
             session = self._session()
@@ -1468,6 +1503,7 @@ class StateTreasury:
 
                 tx, entries = self._post(
                     session,
+                    transaction_id=transaction_id,
                     context=context,
                     treasury=treasury,
                     kind="funding",
@@ -1503,10 +1539,12 @@ class StateTreasury:
             detail=f"إيرادُ {funding_amount} إلى '{cash_account_code}' من '{revenue_account_code}'",
             key_value=f"{tenant}:{transaction_key}",
             apply=_apply,
-            undo=lambda _result: self._compensate_transfer(
-                context, reference, official_id, "post_funding"
+            undo=lambda _result: self._compensate_posted(
+                context, transaction_id, official_id, "post_funding"
             ),
             undo_description="قيدٌ عكسيٌّ للحركة بـreverse_transaction — لا حذفَ في الدفتر",
+            # [W-765 · Q-88] يقرأُ الحركةَ بمعرِّفِها المُولَّدِ قبلَ العبور فهو مُثبِّت.
+            undo_idempotent=True,
             metadata={"tenant_id": tenant, "reference": reference, "official_id": official_id},
             authorizer_factory=self._money_authorizer_factory,
         )
@@ -1577,6 +1615,7 @@ class StateTreasury:
         # والهدفُ يحملُ مفتاحَ الذرّيّةِ إن وُجِد لا المرجعَ المُولَّد: إعادةُ محاولةٍ بعدَ فشلٍ
         # بالمفتاحِ نفسِه طلبٌ واحدٌ ببصمةٍ واحدة (وإلّا رُفِضَت «تعارضَ مفتاح»).
         transaction_key = idempotency_key or reference
+        transaction_id = f"tx-{uuid.uuid4()}"
 
         def _apply() -> dict[str, Any]:
             session = self._session()
@@ -1665,6 +1704,7 @@ class StateTreasury:
 
                 tx, entries = self._post(
                     session,
+                    transaction_id=transaction_id,
                     context=context,
                     treasury=treasury,
                     kind="disbursement",
@@ -1704,10 +1744,12 @@ class StateTreasury:
             detail=f"صرفُ {spend} من التخصيص '{allocation_id}' إلى '{expense_account_code}'",
             key_value=f"{tenant}:{transaction_key}",
             apply=_apply,
-            undo=lambda _result: self._compensate_transfer(
-                context, reference, official_id, "disburse"
+            undo=lambda _result: self._compensate_posted(
+                context, transaction_id, official_id, "disburse"
             ),
             undo_description="قيدٌ عكسيٌّ للحركة بـreverse_transaction — لا حذفَ في الدفتر",
+            # [W-765 · Q-88] يقرأُ الحركةَ بمعرِّفِها المُولَّدِ قبلَ العبور فهو مُثبِّت.
+            undo_idempotent=True,
             metadata={"tenant_id": tenant, "reference": reference, "official_id": official_id},
             authorizer_factory=self._money_authorizer_factory,
         )

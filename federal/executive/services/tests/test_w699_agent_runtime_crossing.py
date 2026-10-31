@@ -1419,10 +1419,14 @@ def test_w699_5_mirror_failure_with_unchanged_target_skips_canonical_restore() -
 
     population_mod._update_population_row_core = _poisoned
     try:
-        with pytest.raises(_idempotency_error()):
+        # [W-765 · Q-88 · DISC-148] كانَ المتوقَّعُ IdempotencyError: المُطبِّقُ كتبَ ثمّ رفعَ ولم
+        # يَعُدْ، فلم يرَ الحدُّ أثرًا يُعوِّضُه. والآنَ الأثرُ «ربما طُبِّق» ومعوِّضُ المرآةِ مُصرَّحٌ
+        # بثباتِه، فيُعوَّضُ صراحةً ويُرفَعُ CompensationRequired نظيفًا. والتأكيداتُ بعدَه كما هي.
+        with pytest.raises(_compensation_required()) as raised:
             # الحمولةُ تتغيّرُ (الاسمُ) فالعمليةُ ليست «مُطبَّقةً فعلًا»،
             # والحالةُ الكانونيةُ «paused» مساويةٌ للهدفِ «paused».
             registry.update_state("w699-5-same", "paused", name="اسم جديد بعد الفشل")
+        assert raised.value.state_is_clean
     finally:
         population_mod._update_population_row_core = original
 

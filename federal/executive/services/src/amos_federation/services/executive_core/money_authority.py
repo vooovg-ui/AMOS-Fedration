@@ -214,6 +214,7 @@ def money_crossing_contract(
     undo_description: str,
     metadata: dict[str, Any],
     authorizer_factory: Callable[[str], Any] | None = None,
+    undo_idempotent: bool = False,
 ) -> dict[str, Any]:
     """عقدُ عبورٍ واحدٍ لعمليّةِ مالٍ ذرّيّة — يُبنى هنا، **ويعبرُ في جسدِ العمليّةِ العامّة**.
 
@@ -226,6 +227,10 @@ def money_crossing_contract(
       وسندُها وأثرُ التدقيقِ والحدثِ تقعُ في **معاملةٍ واحدة**، فإعلانُها أثرَين يجعلُ الثانيَ
       مُطبِّقًا فارغًا يدّعي ما لم يفعل — فأُعلِنَت أثرًا واحدًا (§ 2.9 · انحرافٌ مُعلَنٌ عن § 2.8).
     - `authorizer_factory` مَنفذُ حقنٍ للفحوصِ وحدَها؛ يُعطى الفاعلَ المُعلَنَ لا غيرَه.
+    - **[W-765 · Q-88 · DISC-149] تصحيحٌ بالقياس:** الحركةُ وسندُها في معاملةٍ واحدة، لكنَّ أثرَ
+      التدقيقِ والحدثِ (`record_domain_trace`) بعدَ الالتزام، فالمُطبِّقُ **غيرُ ذرّيّ**
+      (`evidence/W-764/treasury_atomicity_probe_before.txt`). فـ`undo_idempotent=True` تصريحُ
+      العمليّةِ بأنَّ `undo` آمنٌ وقعَ الأثرُ أم لم يقع، فيُشغِّلُه الحدُّ على الأثرِ «ربما طُبِّق».
     """
     delegation = resolve_money_delegation(operation, entrypoint=entrypoint)
     effect = declared_effect(effect_kind, target, detail)
@@ -246,7 +251,12 @@ def money_crossing_contract(
         "applier": _apply,
         "operation_key": operation_key(f"state_treasury.{entrypoint}", key_value),
         "compensators": (
-            compensator(effect.signature, lambda: undo(applied.get("result")), undo_description),
+            compensator(
+                effect.signature,
+                lambda: undo(applied.get("result")),
+                undo_description,
+                idempotent=undo_idempotent,
+            ),
         ),
         "metadata": {
             **metadata,
@@ -279,11 +289,24 @@ def settle_money_crossing(cross: Callable[[], Any], contract: dict[str, Any]) ->
     مفتاح · قيدُ التنفيذ) تمرُّ كما هي.
     """
     idempotency_error = _core_sovereignty("idempotency").IdempotencyError
+    compensation_required = _core_sovereignty("compensation").CompensationRequired
     try:
         guarded = cross()
     except Exception as exc:
         if type(exc) is idempotency_error and exc.__cause__ is not None:
             raise exc.__cause__ from exc
+        # [W-765 · Q-88] الأثرُ «ربما طُبِّق» عُوِّضَ تعويضًا نظيفًا ولا بقيّة: الحالةُ رجعت،
+        # فيُرفَعُ السببُ الأصليُّ (خطأُ النطاقِ مثلًا) بملاحظةِ التعويض — ولا يتغيّرُ عقدُ
+        # الأخطاءِ للمُنادين. وغيرُ النظيفِ أو ذو البقيّةِ يُرفَعُ كما هو (FAILED_FINAL).
+        if isinstance(exc, compensation_required) and exc.state_is_clean:
+            wrapped = exc.__cause__
+            if type(wrapped) is idempotency_error and wrapped.__cause__ is not None:
+                original = wrapped.__cause__
+                original.add_note(
+                    "[Q-88] المُطبِّقُ رفعَ فعُوِّضَ أثرُه «ربما طُبِّق» بمعوِّضٍ مُثبِّت: "
+                    f"{exc.outcome.record.compensation_id} — الحالةُ رجعت"
+                )
+                raise original from exc
         raise
     if guarded.is_replay:
         # إعادةٌ لمفتاحٍ مُثبَّت: لا أثرَ ثانيًا ولا حدثَ ثانيًا — يُقال «أُعيد».

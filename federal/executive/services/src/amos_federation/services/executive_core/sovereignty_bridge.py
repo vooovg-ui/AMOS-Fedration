@@ -177,6 +177,7 @@ class SovereignAuthorizer(Protocol):
         judicial_action: Any | None = None,
         royal_decree: Any | None = None,
         human_approval: KingApproval | None = None,
+        applier_atomic: bool = False,
     ) -> GuardedResult: ...
 
     def review_only(
@@ -437,6 +438,7 @@ class ConstitutionalAuthorizer:
         judicial_action: Any | None = None,
         royal_decree: Any | None = None,
         human_approval: KingApproval | None = None,
+        applier_atomic: bool = False,
     ) -> GuardedResult:
         """نفِّذْ عبر حدِّ التنفيذِ السياديّ — أو لا تنفُذ.
 
@@ -469,6 +471,8 @@ class ConstitutionalAuthorizer:
             operation_key=operation_key,
             compensators=tuple(compensators),
             judicial_action=judicial_action,
+            # [W-765 · Q-88] تصريحُ المُطبِّقِ بالذرّيّةِ يُمرَّرُ كما هو — والافتراضُ «ربما طبَّق».
+            applier_atomic=applier_atomic,
         )
         records = self._gateway.records
         if not records:  # pragma: no cover - البوابة تسجّل كل قرار
@@ -587,10 +591,22 @@ def operation_key(scope: str, value: str) -> Any:
     return _core_sovereignty("idempotency").IdempotencyKey(scope=scope, value=value)
 
 
-def compensator(effect_signature: str, apply: Callable[[], None], description: str = "") -> Any:
-    """معوّضُ أثرٍ واحد (1I) — مُعلَنٌ قبلَ التنفيذِ لا مُرتجَلٌ بعدَ الفشل."""
+def compensator(
+    effect_signature: str,
+    apply: Callable[[], None],
+    description: str = "",
+    *,
+    idempotent: bool = False,
+) -> Any:
+    """معوّضُ أثرٍ واحد (1I) — مُعلَنٌ قبلَ التنفيذِ لا مُرتجَلٌ بعدَ الفشل.
+
+    `idempotent` (W-765 · Q-88): تصريحٌ بأنَّ المعوِّضَ آمنٌ وقعَ الأثرُ أم لم يقع.
+    """
     return _core_sovereignty("compensation").Compensator(
-        effect_signature=effect_signature, apply=apply, description=description
+        effect_signature=effect_signature,
+        apply=apply,
+        description=description,
+        idempotent=idempotent,
     )
 
 

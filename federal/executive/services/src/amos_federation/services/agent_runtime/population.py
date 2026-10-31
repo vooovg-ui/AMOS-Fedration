@@ -494,6 +494,9 @@ class PopulationRegistry:
                     mirror_effect.signature,
                     _restore_mirror,
                     "إرجاعُ لقطةِ صفِّ السكّان",
+                    # [W-765 · Q-88] إسنادُ لقطةٍ مطلقةٍ لا فرقٌ نسبيّ: تشغيلُه آمنٌ كتبَ
+                    # المُطبِّقُ أم لم يكتب، ومرّةً أو أكثر — فهو مُثبِّتٌ ويُصرَّحُ به.
+                    idempotent=True,
                 )
             )
 

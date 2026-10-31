@@ -256,6 +256,9 @@ class Compensator:
     effect_signature: str
     apply: Callable[[], None]
     description: str = ""
+    # [W-765 · Q-88 · DISC-148] تصريحٌ بأنَّ المعوِّضَ مُثبِّت: تشغيلُه آمنٌ وقعَ الأثرُ
+    # أم لم يقع، ومرّةً أو أكثر. وحدَه يُشغَّلُ على أثرٍ «ربما طُبِّق»، والافتراضُ الأحوط.
+    idempotent: bool = False
 
     def __post_init__(self) -> None:
         if not self.effect_signature.strip():
@@ -585,10 +588,21 @@ class CompensationRequired(CompensationError):
     فالأثرُ الباقي مُعلَنٌ بأسمائِه.
     """
 
-    def __init__(self, outcome: CompensationOutcome) -> None:
+    def __init__(
+        self, outcome: CompensationOutcome, *, unresolved: tuple[str, ...] = ()
+    ) -> None:
         self.outcome = outcome
+        # [W-765 · Q-88] آثارٌ ربما طُبِّقَت ولا معوِّضَ مُثبِّتًا لها — لم تُعوَّض.
+        self.unresolved = tuple(unresolved)
         rec = outcome.record
-        if rec.state_is_clean:
+        if self.unresolved:
+            وصف = (
+                ("وعُوِّضَ ما عادَ من أثرِها" if rec.state_is_clean else "ولم يُعوَّض كلُّ ما عاد")
+                + "، وأثرٌ ربما طُبِّقَ بلا معوِّضٍ مُثبِّت: "
+                + " · ".join(self.unresolved)
+                + ". الحالةُ FAILED_FINAL ويلزمُ قرارٌ بشريّ"
+            )
+        elif rec.state_is_clean:
             وصف = "وعُوِّضَ أثرُها كاملًا فرجعتِ الحالة"
         else:
             وصف = (
@@ -600,6 +614,11 @@ class CompensationRequired(CompensationError):
             f"العمليّةُ «{rec.operation_key}» على العقد «{rec.contract_id}» فشلت "
             f"({outcome.original_failure}) {وصف}. الحالة: {rec.status.value}."
         )
+
+    @property
+    def state_is_clean(self) -> bool:
+        """رجعتِ الحالةُ كلُّها: عُوِّضَ ما عادَ ولا أثرَ ربما طُبِّقَ بلا تعويض."""
+        return self.outcome.state_is_clean and not self.unresolved
 
 
 @dataclass(slots=True)
