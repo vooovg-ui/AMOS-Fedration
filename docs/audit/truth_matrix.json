@@ -391,10 +391,10 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 659,
-      "py_files": 46,
+      "md_files": 661,
+      "py_files": 49,
       "yaml_files": 0,
-      "code_lines": 4959,
+      "code_lines": 5080,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -404,7 +404,7 @@
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,
-      "observed_hits": 2,
+      "observed_hits": 6,
       "api_routes": 0,
       "test_refs": 209,
       "identity_violations": 0,
