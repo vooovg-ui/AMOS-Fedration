@@ -1,0 +1,38 @@
+=== قياسُ توفرِ مقاعدِ المجلسِ — خامًا كما أُخذَ (2026-10-31 · جلسةُ W-753) ===
+الأداةُ: كتالوجُ النماذجِ القابلةِ للإطلاقِ على خطةِ هذا الحسابِ كما تعرضُهُ منصةُ التشغيلُ نفسُها (جلسةُ المنسِّقِ) — مصدرُ الحقيقةِ الذي قاسَتْهُ واقعةُ W-745 (النصُّ الحرفيُّ للمنصةِ: «isn't on this user's plan» — فما ليسَ في الكتالوجِ لا يُطلَقُ بل يُسكَّنُ صامتًا إلى Claude Opus 5.5 · DISC-144).
+
+--- الكتالوجُ الخامُّ كما أرجعَتْهُ المنصةُ (JSON) ---
+{
+  "models": [
+    {
+      "id": "pplx_asi_opus",
+      "label": "Claude Opus 5.5",
+      "description": "Powerful model for complex tasks.",
+      "supported_reasoning_efforts": ["none", "low", "medium", "high", "xhigh", "max"],
+      "default_reasoning_effort": "medium"
+    },
+    {
+      "id": "pplx_asi_opus_fast",
+      "label": "Claude Opus 5.5 (Fast)",
+      "description": "Powerful model for complex tasks.",
+      "supported_reasoning_efforts": ["none", "low", "medium", "high", "xhigh", "max"],
+      "default_reasoning_effort": "medium"
+    }
+  ],
+  "default_model": "pplx_asi_opus",
+  "computer_harness": {
+    "default_mode": "light",
+    "modes": {
+      "light": {
+        "orchestrator_model": "pplx_asi_opus",
+        "orchestrator_effort": "medium"
+      }
+    }
+  }
+}
+
+--- القراءةُ ---
+- عائلةٌ واحدةٌ في الكتالوجِ: Anthropic (Claude Opus 5.5 بنسختَينِ: العاديةُ والسريعةُ — عائلةٌ واحدةٌ لا عائلتانِ).
+- المنسِّقُ الفعليُّ GLM-5.3 (عائلةُ GLM) ⇒ عائلةُ GLM مُستبعَدةٌ منَ المقاعدِ (§ 1.1 · Q-60/Q-69) وعائلةُ Anthropic مسموحةٌ كمقعدٍ — لكنها وحدَها: **لا ثلاثَ عوائلَ (§ 1.1) ولا اثنَينِ (§ 1.2) ممكنةً**.
+- سلوكُ الإطلاقِ بنموذجٍ خارجِ الكتالوجِ (التسكينُ الصامتُ) قِيسَ بالتجربةِ الفعليةِ في W-745 (8 إطلاقاتٍ · خامًّا في evidence/W-745/availability_measurement.txt · DISC-144) ولم يتغيرِ الكتالوجُ منذَها مقيسًا اليومَ.
+- الخلاصةُ: العجزُ باقٍ كما قُيِّدَ في W-745/W-746 — قرارُ D30 (لا يُخفَّضُ النصابُ · الجولاتُ مؤجَّلةٌ) ما زالَ هو الحاكمَ، وما ينقصُ بالحرفِ في SEAT_FORMATION_SHORTFALL.md.
