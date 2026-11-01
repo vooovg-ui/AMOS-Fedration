@@ -1,0 +1,6 @@
+البوّابة: من العقدةِ المقيسةِ نفسِها
+اليومُ مُثبَّتٌ: 2026-10-31 (يومُ تشغيلِ CI على العقد) — لعزلِ DISC-150 عن انقضاءِ الحجوزِ بمرورِ الساعة
+#234 b78bba09 · CI: أحمر — Work Governance: OPEN_RECORD_WITHOUT_ANCHOR DISC-149 · المحلّيّ: يُقبَلُ (EXIT=0) EXIT=0
+#235 6a850f20 · CI: أحمر — Truth Audit · Identity Law · Cross-System: TRUTH_MATRIX متقادم · المحلّيّ: يُقبَلُ (EXIT=0) EXIT=0
+#236 8ba08561 · CI: أخضر 13/13 (ضابط) · المحلّيّ: يُقبَلُ (EXIT=0) EXIT=0
+EXIT=0

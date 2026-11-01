@@ -26,6 +26,16 @@
     أيِّ قراءةِ حكمٍ أو دفعٍ — وإلّا الرمزُ 2 كما كان. ولا تغيّرَ في أداةِ الحكمِ
     ولا في الرموزِ الأخرى.
 
+    [إضافةٌ مؤرَّخةٌ (W-769 · WI-077 · DISC-150 · قرارُ المالكِ Q-89 · 2026-11-01)]:
+    عقدتانِ احمرّتا في CI (#234 بـ`OPEN_RECORD_WITHOUT_ANCHOR` و#235 بمصفوفةٍ متقادمةٍ)
+    قبلَهما الحرسُ السبعةُ محلّيًّا (مسبارُ W-768). فأُضيفَت بعدَ السبعِ خطواتُ كلِّ
+    وظيفةِ CI لم تكنْ تُشغَّلُ هنا (8–33)، ومنها فحصا المِرساةِ (8) والطزاجةِ (9)
+    وruff على المستودعِ كلِّه (29 · 32). والخطوةُ 32 **حكمٌ جديدٌ أشدُّ من CI**
+    بنصِّ القرار: `ruff format --check .` بسقفِ قائمةٍ اسميّةٍ (`ruff_format_debt.txt`)
+    لا يزيد. ووظائفُ CI التي لا تُشغَّلُ هنا مُسمّاةٌ في `CI_PARITY_NAMED_DIFFERENCES`
+    وتُطبَعُ في آخرِ كلِّ تشغيل. وخيارُ `--base` (الافتراضيُّ origin/main) لخطواتِ
+    المدى. والسبعُ الأولى باقيةٌ بأوامرِها. التصميم: `docs/audit/DISC150_PREPUSH_PARITY_DESIGN.md`.
+
 النطاق:
     بندُ WI-077 (توجيهُ المستشارِ 5 · G3 · DISC-098): الحرسُ السبعةُ المُلزِمةُ
     قبلَ الدفعِ — عقدتا 70441f8 و597d8bb بلغتا `main` حمراوَينِ لأنّ هذه
@@ -35,9 +45,9 @@
     Perplexity Computer (WI-077 · بإذنِ المالكِ العامِّ وتوجيهِ المستشارِ 5).
 
 تاريخ الإنشاء: 2026-10-16 (WI-077 · W-348)
-تاريخ آخر تعديل: 2026-10-16 (W-387 · WI-083 — صيغةُ الوسيطِ والمطابقةُ التامّةُ لاسمِ المستودع) · ووقبله 2026-10-15 (WI-077 · المرّةُ الأولى)
+تاريخ آخر تعديل: 2026-11-01 (W-769 · WI-077 — تكافؤُ CI: الخطواتُ 8–33 · DISC-150 · Q-89) · وقبله 2026-10-16 (W-387 · WI-083 — صيغةُ الوسيطِ والمطابقةُ التامّةُ لاسمِ المستودع) · ووقبله 2026-10-15 (WI-077 · المرّةُ الأولى)
 
-المحتويات (الحرسُ السبعةُ — بترتيبٍ ثابتٍ):
+المحتويات (ثلاثٌ وثلاثونَ خطوةً بترتيبٍ ثابتٍ — السبعُ الأولى كما كانت):
     1. `check_work_governance.py --commit HEAD` — كلُّ عملٍ مُسجَّلٌ ومملوكٌ
        ومساراتُهُ مُعلنةٌ (عيبُ 70441f8: `PATH_UNCLAIMED`).
     2. `check_work_governance.py --self-check --today <اليوم+4>` — الخارطةُ
@@ -49,10 +59,21 @@
     7. فحوصُ الهويةِ واتساقِ المراجعِ: `pytest` على
        `tests/governance/test_w154_reviewer_consistency.py` وفحوصِ قانونِ
        الهويةِ (عيبُ 597d8bb: `REVIEWER_ROW_BLOCK_MISMATCH`).
+    8–9. مِرساةُ القيودِ المفتوحة (`open_record_accountability.py`) · طزاجةُ المصفوفة
+       (`git diff --exit-code HEAD` على المصفوفتَين بعدَ الخطوة 5) — DISC-150.
+    10–13. بقيّةُ Work Governance: `--self-check` · `--range <base>..HEAD` ·
+       `guard_enforcement_closure.py` · `pre_push_merge_guard.py`.
+    14–15. بقيّةُ Completion Ledger: `--self-check` · `--range <base>..HEAD`.
+    16–18. بقيّةُ Truth Audit: جردُ الذاكرة · افتراقُ التسعير · نَسَبُ القياسات.
+    19–27. Identity Law: البطاقاتُ والخواتمُ والتفسيرانِ وأسماءُ الجذرِ ومِسبارُ الوَثب
+       و`pytest tests/governance/` كلُّه.
+    28–32. Lint: إصدارُ ruff · `ruff check .` · ruff في الخدمات · سقفُ دَينِ التنسيق.
+    33. Lockfile: الحزمُ الستُّ في `requirements.lock`.
 
 الاستعمال:
     .venv/bin/python tools/dev/prepush_gate.py            # على الشجرةِ الحاضرةِ
     .venv/bin/python tools/dev/prepush_gate.py --repo-root /مسار   # لقياسِ شجرةٍ أخرى
+    .venv/bin/python tools/dev/prepush_gate.py --base <ref>        # أساسُ خطواتِ المدى
     .venv/bin/python tools/dev/prepush_gate.py --merge <sha>
         # وجهُ الدمجِ (WI-078): الحرسُ ثمَّ حكمُ CI مقروءًا أخضرَ على العقدةِ
         # نفسِها ثمَّ التقديمُ السريعُ إلى main — لا دفعَ عندَ أيِّ فشلٍ
@@ -90,15 +111,25 @@ PY = sys.executable
 GOVERNANCE = REPO_ROOT / "tools" / "governance"
 
 
-#: الحرسُ السبعةُ: (الاسمُ، الأمرُ) — الأمرُ يُبنى بدالّةٍ لأنّ بعضَهُ يحتاجُ الجذرَ.
+#: الحرسُ السبعةُ الأولى باقيةٌ بأوامرِها (W-348). وما بعدَها خطواتُ وظائفِ CI التي
+#: لم تكنْ تُشغَّلُ محلّيًّا (DISC-150 · قرارُ المالكِ Q-89 · W-769). الأمرُ في كلِّ
+#: خطوةٍ يحملُ مُفسِّرَه (`PY` أو `git`)، فتُشغَّلُ `git diff` كغيرِها.
+#: وكلُّ خطوةٍ تستدعي أدواتِ الشجرةِ المقيسةِ نفسِها (`repo_root/tools/…`) كما يفعلُ CI.
+#: وكانت السبعُ تستدعي أدواتِ مستودعِ البوّابة، فكانَ `--repo-root` يقيسُ الخطوتَين 3 و4
+#: على شجرةِ البوّابةِ لا الشجرةِ المطلوبة، لأنَّ أداتَيهما تجدانِ الجذرَ من موضعِ ملفِّهما
+#: (W-769). وفي التشغيلِ العاديِّ الشجرتانِ واحدة، فلا يتغيّرُ أمرٌ.
 def _gates(
-    repo_root: Path, today_plus_4: str
+    repo_root: Path, today_plus_4: str, base: str = "origin/main"
 ) -> list[tuple[str, list[str], Path | None]]:
+    tools = repo_root / "tools" / "governance"
+    services = repo_root / "federal" / "executive" / "services"
+    me = str(Path(__file__).resolve())
     return [
         (
             "1· حوكمةُ العملِ (--commit HEAD)",
             [
-                str(GOVERNANCE / "check_work_governance.py"),
+                PY,
+                str(tools / "check_work_governance.py"),
                 "--commit",
                 "HEAD",
                 "--repo-root",
@@ -109,7 +140,8 @@ def _gates(
         (
             "2· حوكمةُ العملِ (--self-check --today +4)",
             [
-                str(GOVERNANCE / "check_work_governance.py"),
+                PY,
+                str(tools / "check_work_governance.py"),
                 "--self-check",
                 "--today",
                 today_plus_4,
@@ -120,27 +152,28 @@ def _gates(
         ),
         (
             "3· صدقُ طوابعِ الالتزامِ (UTC)",
-            [str(GOVERNANCE / "commit_timestamp_integrity.py"), "--check"],
+            [PY, str(tools / "commit_timestamp_integrity.py"), "--check"],
             repo_root,
         ),
         (
             "4· سجلُّ الإكمالِ (--commit HEAD)",
-            [str(GOVERNANCE / "check_completion_ledger.py"), "--commit", "HEAD"],
+            [PY, str(tools / "check_completion_ledger.py"), "--commit", "HEAD"],
             repo_root,
         ),
         (
             "5· راتشيتُ مصفوفةِ الحقيقةِ",
-            [str(GOVERNANCE / "truth_audit.py"), str(repo_root), "--ratchet"],
+            [PY, str(tools / "truth_audit.py"), str(repo_root), "--ratchet"],
             repo_root,
         ),
         (
             "6· انحرافُ وثائقِ الحالةِ",
-            [str(GOVERNANCE / "state_document_drift.py"), "--root", str(repo_root)],
+            [PY, str(tools / "state_document_drift.py"), "--root", str(repo_root)],
             repo_root,
         ),
         (
             "7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)",
             [
+                PY,
                 "-m",
                 "pytest",
                 "tests/governance/test_w154_reviewer_consistency.py",
@@ -149,7 +182,315 @@ def _gates(
             ],
             repo_root,
         ),
+        # ── DISC-150 · Q-89: الفحصانِ المأمورُ بهما نصًّا ─────────────────────
+        (
+            "8· مِرساةُ القيودِ المفتوحةِ (open_record_accountability · Work Governance)",
+            [PY, str(tools / "open_record_accountability.py")],
+            repo_root,
+        ),
+        (
+            "9· طزاجةُ مصفوفةِ الحقيقةِ (git diff بعدَ الخطوة 5 · Truth Audit)",
+            [
+                "git",
+                "diff",
+                "--exit-code",
+                "HEAD",
+                "--",
+                "docs/audit/TRUTH_MATRIX.md",
+                "docs/audit/truth_matrix.json",
+            ],
+            repo_root,
+        ),
+        # ── Work Governance (بقيّةُ خطواتِه) ───────────────────────────────────
+        (
+            "10· حوكمةُ العملِ (--self-check بلا تاريخٍ · كما في CI)",
+            [PY, str(tools / "check_work_governance.py"), "--self-check"],
+            repo_root,
+        ),
+        (
+            f"11· حوكمةُ العملِ (--range {base}..HEAD)",
+            [PY, str(tools / "check_work_governance.py"), "--range", f"{base}..HEAD"],
+            repo_root,
+        ),
+        (
+            "12· إغلاقُ إنفاذِ الحرسِ (guard_enforcement_closure)",
+            [PY, str(tools / "guard_enforcement_closure.py")],
+            repo_root,
+        ),
+        (
+            "13· حرسُ إزاحةِ التزامِ الدمجِ (pre_push_merge_guard)",
+            [
+                PY,
+                str(tools / "pre_push_merge_guard.py"),
+                "--base-ref",
+                base,
+                "--head",
+                "HEAD",
+                "--exclude-ephemeral",
+            ],
+            repo_root,
+        ),
+        # ── Completion Ledger ─────────────────────────────────────────────────
+        (
+            "14· سجلُّ الإكمالِ (--self-check)",
+            [PY, str(tools / "check_completion_ledger.py"), "--self-check"],
+            repo_root,
+        ),
+        (
+            f"15· سجلُّ الإكمالِ (--range {base}..HEAD)",
+            [PY, str(tools / "check_completion_ledger.py"), "--range", f"{base}..HEAD"],
+            repo_root,
+        ),
+        # ── Truth Audit (بقيّةُ خطواتِه) ───────────────────────────────────────
+        (
+            "16· جردُ مخازنِ الذاكرةِ المنشورُ (--check)",
+            [PY, str(tools / "in_memory_inventory.py"), ".", "--check"],
+            repo_root,
+        ),
+        (
+            "17· افتراقُ التسعيرِ المنشورُ (--check)",
+            [PY, str(tools / "pricing_divergence.py"), ".", "--check"],
+            repo_root,
+        ),
+        (
+            "18· نَسَبُ القياساتِ وطزاجتُها (--check --without-deps)",
+            [
+                PY,
+                str(tools / "measurement_provenance.py"),
+                ".",
+                "--check",
+                "--without-deps",
+            ],
+            repo_root,
+        ),
+        # ── Identity Law ──────────────────────────────────────────────────────
+        (
+            "19· بطاقاتُ الهويّةِ (check_repository_identity)",
+            [PY, str(tools / "check_repository_identity.py"), "."],
+            repo_root,
+        ),
+        (
+            "20· بطاقاتُ المواطنينَ المستوردينَ (--check)",
+            [PY, str(tools / "generate_identity_cards.py"), "--check"],
+            repo_root,
+        ),
+        (
+            "21· بطاقاتُ الأقاليمِ (--check)",
+            [PY, str(tools / "write_domain_readmes.py"), "--check"],
+            repo_root,
+        ),
+        (
+            "22· الحقولُ المشتقّةُ مختومةٌ (--check)",
+            [PY, str(tools / "stamp_readme_identity.py"), "--check"],
+            repo_root,
+        ),
+        (
+            "23· تفسيرا INT-001 وINT-002 قائمانِ والمدقّقُ يستندُ إليهما",
+            [PY, me, "--internal", "int-files", "--repo-root", str(repo_root)],
+            repo_root,
+        ),
+        (
+            "24· الخاتمُ لا يكتبُ حقولَ الحكمِ",
+            [PY, me, "--internal", "stamp-fields", "--repo-root", str(repo_root)],
+            repo_root,
+        ),
+        (
+            "25· لا اسمَ غريبًا في الجذرِ (check_root_file_names)",
+            [PY, str(tools / "check_root_file_names.py"), "."],
+            repo_root,
+        ),
+        (
+            "26· مِسبارُ الوَثبِ (mutation_probe)",
+            [PY, str(tools / "mutation_probe.py")],
+            repo_root,
+        ),
+        (
+            "27· اختباراتُ الحوكمةِ كلُّها (pytest tests/governance/ · ومنها الطزاجة)",
+            [PY, "-m", "pytest", "tests/governance/", "-q"],
+            repo_root,
+        ),
+        # ── Lint (ruff) ───────────────────────────────────────────────────────
+        (
+            f"28· إصدارُ ruff = {RUFF_VERSION} (المثبَّتُ في CI)",
+            [PY, me, "--internal", "ruff-version", "--repo-root", str(repo_root)],
+            repo_root,
+        ),
+        (
+            "29· ruff check . (المستودعُ كلُّه)",
+            [PY, "-m", "ruff", "check", "."],
+            repo_root,
+        ),
+        (
+            "30· ruff check src/ tests/ (الخدمات)",
+            [PY, "-m", "ruff", "check", "src/", "tests/"],
+            services,
+        ),
+        (
+            "31· ruff format --check src/ tests/ (الخدمات)",
+            [PY, "-m", "ruff", "format", "--check", "src/", "tests/"],
+            services,
+        ),
+        (
+            "32· ruff format --check . بسقفِ قائمةِ الدَّينِ (أشدُّ من CI)",
+            [PY, me, "--internal", "format-debt", "--repo-root", str(repo_root)],
+            repo_root,
+        ),
+        # ── Lockfile Consistency ──────────────────────────────────────────────
+        (
+            "33· الحزمُ الحرجةُ في requirements.lock",
+            [PY, me, "--internal", "lockfile", "--repo-root", str(repo_root)],
+            repo_root,
+        ),
     ]
+
+
+#: رسائلُ الفحوصِ الداخليّةِ بلا علامةِ «✓» عمدًا: مقامُ الخُضرةِ (DISC-053 · green_denominator_closure)
+#: يُعِدُّ كلَّ «✓» تحتَ tools/، والسجلُّ المُعلَنُ 44 لا يُرفَعُ بيدِ المنفِّذ (W-769).
+#: إصدارُ ruff المثبَّتُ في وظيفةِ Lint (`pip install ruff==0.6.9` في ci.yml).
+RUFF_VERSION = "0.6.9"
+
+#: قائمةُ دَينِ التنسيقِ الاسميّةُ: الملفّاتُ غيرُ المنسَّقةِ كما قِيسَت على `53bb0cc5`
+#: (212 ملفًّا · W-768). تنقصُ ولا تزيد: الإضافةُ إليها رفعُ خطٍّ أساسٍ، وهو للمالك.
+FORMAT_DEBT_PATH = Path(__file__).resolve().with_name("ruff_format_debt.txt")
+
+#: الحزمُ التي تفحصُها وظيفةُ Lockfile Consistency في ci.yml.
+LOCK_PACKAGES = (
+    "fastapi",
+    "uvicorn",
+    "sqlalchemy",
+    "anthropic",
+    "structlog",
+    "pydantic",
+)
+
+#: وظائفُ CI التي تُغطّيها خطواتٌ محلّيّة: معرِّفُ الوظيفةِ ← أرقامُ خطواتِها هنا.
+CI_PARITY_COVERED: dict[str, tuple[int, ...]] = {
+    "work-governance-gate": (1, 2, 6, 8, 10, 11, 12, 13, 27),
+    "ledger-gate": (4, 14, 15, 27),
+    "truth-audit": (5, 9, 16, 17, 18),
+    "identity-check": (19, 20, 21, 22, 23, 24, 25, 26, 27),
+    "lint": (28, 29, 30, 31),
+    "lockfile-check": (33,),
+}
+
+#: وظائفُ CI التي لا تُشغَّلُ محلّيًّا، وسببُ كلٍّ منها. تُطبَعُ في آخرِ كلِّ تشغيل،
+#: فخضرتُها تُقرأُ من CI وحدَه (DISC150_PREPUSH_PARITY_DESIGN.md § 7).
+CI_PARITY_NAMED_DIFFERENCES: dict[str, str] = {
+    "constitutional-kernel": "Constitutional Kernel: تغطيةُ فروعٍ ≥ 90% وسجلٌّ مؤقّت · نطاقُ K1",
+    "sovereignty-kernel": "Sovereignty Kernel: تبعيّاتُ الخدماتِ وتغطيةٌ ≥ 90% · نطاقُ C3",
+    "crown-root-of-trust": "Crown Root of Trust: تبعيّاتُ الخدماتِ وفحصُ تاريخِ git كلِّه",
+    "smoke": "Smoke: اثنا عشرَ مجالًا بتبعيّاتِ الخدماتِ كاملة",
+    "test": "Tests: حزمةُ الخدماتِ كاملةً (≈ 23 دقيقةً مقيسة)",
+    "coverage": "Coverage: حزمةُ الخدماتِ كاملةً بتغطيةٍ ≥ 80%",
+    "cross-system-suites": "Cross-System Suites: خادمُ PostgreSQL 17",
+}
+
+
+def _would_reformat(output: str) -> set[str]:
+    """أسماءُ الملفّاتِ التي يقولُ ruff إنّها تحتاجُ تنسيقًا (`Would reformat: …`)."""
+    prefix = "Would reformat: "
+    return {
+        line[len(prefix) :].strip()
+        for line in output.splitlines()
+        if line.startswith(prefix)
+    }
+
+
+def _format_debt_verdict(
+    unformatted: set[str], debt: set[str]
+) -> tuple[int, list[str]]:
+    """الحكمُ: 0 إن كانَ كلُّ ملفٍّ غيرِ منسَّقٍ في قائمةِ الدَّين، وإلّا 1 بأسماءِ الزائد."""
+    extra = sorted(unformatted - debt)
+    return (1 if extra else 0), extra
+
+
+def _read_debt(path: Path) -> set[str]:
+    return {
+        line.strip()
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.startswith("#")
+    }
+
+
+def _internal(check: str, repo_root: Path) -> int:
+    """فحوصٌ لا أداةَ لها في المستودع، تُستدعى خطواتٍ بـ`--internal <الاسم>`."""
+    if check == "int-files":
+        interp = repo_root / "core" / "constitution" / "interpretations"
+        needed = [
+            interp / "INT-001-article-009-scope.md",
+            interp / "INT-002-preamble-sealing.md",
+        ]
+        absent = [str(p.relative_to(repo_root)) for p in needed if not p.is_file()]
+        checker = repo_root / "tools" / "governance" / "check_repository_identity.py"
+        if absent:
+            print(f"✗ تفسيرٌ غائب: {' · '.join(absent)}")
+            return 1
+        if "INT-001" not in checker.read_text(encoding="utf-8"):
+            print("✗ المدقّقُ لا يستندُ إلى INT-001")
+            return 1
+        print("[PREPUSH] حُكمُ الفحص: التفسيرانِ قائمانِ والمدقّقُ يستندُ إلى INT-001.")
+        return 0
+    if check == "stamp-fields":
+        stamper = repo_root / "tools" / "governance" / "stamp_readme_identity.py"
+        text = stamper.read_text(encoding="utf-8")
+        written = [f for f in ("## التعريف", "## النطاق", "## المالك") if f in text]
+        if written:
+            print(f"✗ الخاتمُ يكتبُ حقلَ حكم: {' · '.join(written)}")
+            return 1
+        print("[PREPUSH] حُكمُ الفحص: الخاتمُ يشتقُّ ولا يختلق.")
+        return 0
+    if check == "lockfile":
+        lock = repo_root / "federal" / "executive" / "services" / "requirements.lock"
+        names = {
+            line.split("==", 1)[0].strip().lower()
+            for line in lock.read_text(encoding="utf-8").splitlines()
+            if "==" in line
+        }
+        missing = [p for p in LOCK_PACKAGES if p not in names]
+        if missing:
+            print(f"✗ MISSING في requirements.lock: {' · '.join(missing)}")
+            return 1
+        print(
+            f"[PREPUSH] حُكمُ الفحص: الحزمُ الستُّ في requirements.lock: {' · '.join(LOCK_PACKAGES)}"
+        )
+        return 0
+    if check == "ruff-version":
+        result = subprocess.run(
+            [PY, "-m", "ruff", "--version"], capture_output=True, text=True, check=False
+        )
+        found = (result.stdout or result.stderr).strip()
+        if result.returncode != 0 or found.split()[-1:] != [RUFF_VERSION]:
+            print(f"✗ ruff المطلوب {RUFF_VERSION} والموجود: {found or 'غيرُ مثبَّت'}")
+            return 1
+        print(f"[PREPUSH] حُكمُ الفحص: {found}")
+        return 0
+    if check == "format-debt":
+        result = subprocess.run(
+            [PY, "-m", "ruff", "format", "--check", "."],
+            cwd=str(repo_root),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        out = (result.stdout or "") + (result.stderr or "")
+        unformatted = _would_reformat(out)
+        if result.returncode not in (0, 1) or (
+            result.returncode == 1 and not unformatted
+        ):
+            print(out[-1500:])
+            print("✗ ruff format لم يُنتِجْ قائمةً مقروءة")
+            return 1
+        debt = _read_debt(FORMAT_DEBT_PATH)
+        code, extra = _format_debt_verdict(unformatted, debt)
+        for name in extra:
+            print(f"✗ غيرُ منسَّقٍ وليسَ في قائمةِ الدَّين: {name}")
+        print(
+            f"غيرُ المنسَّقِ الآن {len(unformatted)} · قائمةُ الدَّين {len(debt)} · "
+            f"زائدٌ {len(extra)} · سُدِّدَ {len(debt - unformatted)}"
+        )
+        return code
+    print(f"✗ فحصٌ داخليٌّ غيرُ معروف: {check}")
+    return 2
 
 
 # ── وجهُ الدمجِ `--merge <sha>` (WI-078 · توجيهُ المستشارِ 6 · H2) ───────────
@@ -450,17 +791,24 @@ def main() -> int:
             "العقدةِ نفسِها ثمَّ تقديمٌ سريعٌ إلى main — لا دفعَ عندَ أيِّ فشلٍ."
         ),
     )
+    parser.add_argument(
+        "--base",
+        default="origin/main",
+        help="أساسُ خطواتِ المدى (11 · 13 · 15) — الافتراضيُّ origin/main كما في CI",
+    )
+    parser.add_argument("--internal", default="", help=argparse.SUPPRESS)
     args = parser.parse_args()
     repo_root = (args.repo_root or REPO_ROOT).resolve()
+    if args.internal:
+        return _internal(args.internal, repo_root)
     today_plus_4 = (date.today() + timedelta(days=4)).isoformat()
 
     failures: list[str] = []
-    print(f"[PREPUSH] الجذرُ المقيسُ: {repo_root}")
-    for name, cmd, cwd in _gates(repo_root, today_plus_4):
-        run_cmd = [PY, *cmd]
+    print(f"[PREPUSH] الجذرُ المقيسُ: {repo_root} · الأساسُ: {args.base}")
+    for name, cmd, cwd in _gates(repo_root, today_plus_4, args.base):
         print(f"\n[PREPUSH] ▶ {name}")
         result = subprocess.run(
-            run_cmd,
+            cmd,
             cwd=str(cwd),
             capture_output=True,
             text=True,
@@ -477,6 +825,9 @@ def main() -> int:
             print(tail[-1] if tail else "✓")
 
     print("\n" + "=" * 60)
+    print("[PREPUSH] وظائفُ CI التي لا تُقاسُ هنا (خضرتُها من CI وحدَه):")
+    for reason in CI_PARITY_NAMED_DIFFERENCES.values():
+        print(f"[PREPUSH]   · {reason}")
     if args.merge:
         return _merge_flow(args.merge.strip(), repo_root, failures)
     if failures:
