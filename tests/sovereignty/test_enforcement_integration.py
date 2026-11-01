@@ -3,7 +3,7 @@
 النطاق: `core/sovereignty/gateways.py` بعد هجرة 1N، وعلاقتُها بحدِّ 1M.
 المالك: tests/sovereignty/ — ديوان التدقيق
 تاريخ الإنشاء: 2026-08-18
-تاريخ آخر تعديل: 2026-08-18
+تاريخ آخر تعديل: 2026-11-01 (W-774 · Q-87: المثالُ التابعُ فعلٌ غيرُ حصريّ) · وقبله: 2026-08-18
 
 الفرقُ بين هذا الملفِّ وملفِّ 1M: هناك كان المُقاسُ **الحدَّ نفسَه** — هل يُتجاوَزُ
 حرسُه؟ وهنا المُقاسُ **المُنادين** — هل صاروا يمرُّون به فعلًا، وهل بقيَ لهم بابٌ
@@ -143,7 +143,7 @@ def بوابةُ_ولاية(
     return StateGateway(بوابة, boundary=حدّ)
 
 
-def _طلب(action: str = "execute_task", target: str = TARGET) -> ActionRequest:
+def _طلب(action: str = "run_local_task", target: str = TARGET) -> ActionRequest:  # Q-87 (W-774 · WI-126): كانَ execute_task — حصريٌّ للتنفيذيّ فيُرفَضُ STATE عليه؛ والبوابةُ للولايةِ لا تقبلُ إلا STATE، فالمثالُ فعلٌ غيرُ حصريّ
     return ActionRequest(
         actor=Branch.STATE, action=action, target=target, channel="official"
     )

@@ -4,7 +4,7 @@
 النطاق: القواعد المشتقة من المواد 001–010. كل قاعدة مربوطة برقم مادة وبند محدد — لا قاعدة يتيمة.
 المالك: core/constitutional_engine/
 تاريخ الإنشاء: 2026-08-16
-تاريخ آخر تعديل: 2026-10-30 (W-747 · WI-124 — Q-68 الخيارُ 1: R-003-1 تحصرُ أفعالَ الفروعِ الحصريّةَ عن AGENT وSYSTEM · Q68_AGENT_SYSTEM_EXCLUSIVE_DESIGN.md)
+تاريخ آخر تعديل: 2026-11-01 (W-774 · WI-126 — Q-87 القرارُ 5: R-003-1 تحصرُ الأفعالَ الحصريّةَ عن STATE وINSTITUTION · HUMAN بموافقةٍ موسومة · ROYAL بلا مرسومٍ رفض · Q87_FOUR_ACTORS_DESIGN.md)
 
 قاعدة الصياغة: كل دالة قاعدة ترجع `None` عند الامتثال، أو نص سبب المخالفة عند الخرق.
 الافتراض الأصلي: المنع. لا تُضاف قاعدة تُوسّع الصلاحية — القواعد تُضيّق فقط.
@@ -251,10 +251,16 @@ _BRANCH_EXCLUSIVE: dict[Branch, frozenset[str]] = {
 }
 _FOUR_BRANCHES = (Branch.EXECUTIVE, Branch.LEGISLATIVE, Branch.JUDICIAL, Branch.TREASURY)
 # Q-68 الخيارُ 1 (W-747 · WI-124): «الحصر: لا يمارس AGENT ولا SYSTEM أفعال الفروع الحصرية
-# (عدا مرسوم ملكي موقع كما هو اليوم)». مجموعةٌ مغلقةٌ بالاسمِ — لا «كلُّ من ليس فرعًا»: HUMAN
-# وSTATE وINSTITUTION وROYAL خارجَ نصِّ القرارِ فلا يُمسّون. والمرسومُ الموقَّعُ محفوظٌ بالبناء:
+# (عدا مرسوم ملكي موقع كما هو اليوم)». مجموعةٌ مغلقةٌ بالاسمِ — لا «كلُّ من ليس فرعًا»: كان HUMAN
+# وSTATE وINSTITUTION وROYAL خارجَ نصِّ Q-68 فلم يُمَسّوا، ثم حكمَ فيهم Q-87 (أدناه · W-774). والمرسومُ الموقَّعُ محفوظٌ بالبناء:
 # R-003-1 أثرُها للتاجِ ADVISORY فتُدرَجُ رأيًا لا منعًا في المسارِ السياديّ (engine.evaluate).
-_NON_BRANCH_EXCLUDED = frozenset({Branch.AGENT, Branch.SYSTEM})
+_NON_BRANCH_EXCLUDED = frozenset({Branch.AGENT, Branch.SYSTEM, Branch.STATE, Branch.INSTITUTION})
+# Q-87 القرارُ 5 (W-774 · WI-126 · تصميمُ Q87_FOUR_ACTORS_DESIGN.md § 2): «يُمنَع STATE وINSTITUTION
+# بـR-003-1 كما أُضيف AGENT وSYSTEM في Q-68؛ ويُشترَط لـHUMAN موافقة بشرية موسومة (قناة human_approval
+# المستعملة في W-740) على الأفعال الحصرية وعلى أفعال المال؛ ويُوحَّد حكم review مع execute لـROYAL بلا
+# مرسوم (كلاهما رفض)». فـSTATE وINSTITUTION أُضيفا إلى المجموعةِ أعلاه، وHUMAN وROYAL لهما شرطاهما في
+# `_r003_1`. والوسمُ هو ما تكتبُه قناةُ W-740 في `metadata["human_approval_source"]`.
+_HUMAN_APPROVAL_SOURCE_KEY = "human_approval_source"
 
 
 @dataclass(frozen=True)
@@ -359,13 +365,19 @@ def _r002_2(req: ActionRequest) -> str | None:
 # ===========================================================================
 
 def _r003_1(req: ActionRequest) -> str | None:
-    """اختصاص الفروع: لا فرع يمارس اختصاص فرع آخر — ولا يمارسه AGENT ولا SYSTEM (Q-68)."""
+    """اختصاص الفروع: لا فرع يمارس اختصاص فرع آخر — ولا يمارسه AGENT ولا SYSTEM (Q-68)
+    ولا STATE ولا INSTITUTION، ولا HUMAN بلا موافقةٍ موسومة، ولا ROYAL بلا مرسوم (Q-87)."""
+    if req.actor is Branch.HUMAN:
+        return _r003_1_human(req)
+    if req.actor is Branch.ROYAL:
+        return _r003_1_royal(req)
     if req.actor in _NON_BRANCH_EXCLUDED:
         for branch, actions in _BRANCH_EXCLUSIVE.items():
             if req.action in actions:
                 return (
                     f"الطرف «{req.actor.value}» خارج الفروع يمارس «{req.action}» وهو اختصاص حصري "
-                    f"للفرع «{branch.value}». الحصر يمنع ذلك (Q-68)."
+                    f"للفرع «{branch.value}». الحصر يمنع ذلك "
+                    f"({'Q-68' if req.actor in (Branch.AGENT, Branch.SYSTEM) else 'Q-87 بنصّ Q-68'})."
                 )
         return None
     if req.actor not in _BRANCH_EXCLUSIVE:
@@ -379,6 +391,42 @@ def _r003_1(req: ActionRequest) -> str | None:
                 f"للفرع «{branch.value}». الفصل بين السلطات يمنع ذلك."
             )
     return None
+
+
+def _exclusive_owner(action: str) -> Branch | None:
+    """الفرعُ الذي يملكُ الفعلَ حصرًا، أو None إن لم يكن حصريًّا."""
+    for branch, actions in _BRANCH_EXCLUSIVE.items():
+        if action in actions:
+            return branch
+    return None
+
+
+def _r003_1_human(req: ActionRequest) -> str | None:
+    """Q-87: HUMAN على الحصريّةِ وأفعالِ المالِ يحتاجُ `human_approved` ومصدرًا موسومًا غيرَ فارغ."""
+    owner = _exclusive_owner(req.action)
+    if owner is None and req.action not in NON_CONSTITUTIONAL_MONEY_ACTIONS:
+        return None
+    source = req.metadata.get(_HUMAN_APPROVAL_SOURCE_KEY)
+    if req.human_approved and isinstance(source, str) and source.strip():
+        return None
+    target = f"اختصاص حصري للفرع «{owner.value}»" if owner is not None else "فعل مال"
+    return (
+        f"الطرف «{req.actor.value}» يمارس «{req.action}» وهو {target} بلا موافقة بشرية موسومة "
+        f"(human_approved ومصدر «{_HUMAN_APPROVAL_SOURCE_KEY}»). Q-87 يشترطها."
+    )
+
+
+def _r003_1_royal(req: ActionRequest) -> str | None:
+    """Q-87: ROYAL بلا مرسومٍ على الحصريّةِ رفض؛ وبمرسومٍ لا يمسُّه التغيير (الأثرُ للتاجِ ADVISORY)."""
+    if req.royal_decree is not None:
+        return None
+    owner = _exclusive_owner(req.action)
+    if owner is None:
+        return None
+    return (
+        f"الطرف «{req.actor.value}» بلا مرسوم ملكي يمارس «{req.action}» وهو اختصاص حصري "
+        f"للفرع «{owner.value}». Q-87 يوحّد المراجعة والتنفيذ رفضًا."
+    )
 
 
 def _r003_2(req: ActionRequest) -> str | None:

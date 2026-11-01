@@ -1,0 +1,10 @@
+=== طفرة: حذفُ STATE وINSTITUTION من _NON_BRANCH_EXCLUDED
+--- قبل: _NON_BRANCH_EXCLUDED = frozenset({Branch.AGENT, Branch.SYSTEM, Branch.STATE, Branch.INSTITUTION})
++++ بعد: _NON_BRANCH_EXCLUDED = frozenset({Branch.AGENT, Branch.SYSTEM})
+123 failed, 426 passed in 1.35s
+
+=== طفرة: قبولُ human_approved بلا مصدر
+--- قبل:     if req.human_approved and isinstance(source, str) and source.strip():
++++ بعد:     if req.human_approved:
+65 failed, 484 passed in 1.16s
+

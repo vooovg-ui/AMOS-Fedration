@@ -1,0 +1,14 @@
+FAILED tests/constitutional/test_q68_agent_system_exclusive.py::test_q68_4_excluded_set_is_exactly_agent_and_system
+FAILED tests/crown/test_w064_secret_scan_exceptions.py::test_البوابة_تخرج_بصفر_على_الشجرة_الحاضرة
+FAILED tests/crown/test_w064_secret_scan_exceptions.py::test_البوابة_تعلن_عجزها_على_تاريخ_مقطوع
+FAILED tests/crown/test_w565_secret_history_decode.py::test_البايتُ_التالفُ_وحدَهُ_لا_يُسقِطُ_الحارسَ
+FAILED tests/governance/test_q3_branch_declaration_surface.py::test_issue_ruling_is_denied_for_the_default_actor_and_allowed_for_judicial
+FAILED tests/governance/test_w099_generated_artifact_freshness.py::test_الأثرُ_المُولَّدُ_في_المستودعِ_طازجٌ_لا_متقادمٌ
+FAILED tests/sovereignty/test_enforcement_integration.py::Testالمُنادونالمُهجَّرون::test_التنفيذ_التابع_يمر_بكل_مراحل_الحد
+FAILED tests/sovereignty/test_enforcement_integration.py::Testالمُنادونالمُهجَّرون::test_الاعادة_تُعلَن_ولا_تُعَد_نجاحا_ثانيا
+FAILED tests/sovereignty/test_enforcement_integration.py::Testالأثرالخارجيّلايُسلَّممباشرة::test_الاثر_الخارجي_يُرتَّب_في_الصادر_ولا_يبلغ_المطبِّق
+FAILED tests/sovereignty/test_supreme_authority.py::Testتكامل_شامل::test_سلسلة_القرار_التابع_تسمح_بالسليم_وتمنع_المخالف
+ERROR tests/sovereignty/test_enforcement_separation.py::Testالوصولُالفدراليّ::test_موضع_انفاذ_فدرالي_لا_يملك_بوابة
+ERROR tests/sovereignty/test_enforcement_separation.py::Testالوصولُالفدراليّ::test_النواة_التنفيذية_تطلب_اذنا_ثم_تُنفَّذ_به
+ERROR tests/sovereignty/test_enforcement_separation.py::Testالوصولُالفدراليّ::test_الاذن_الفدرالي_لا_يتجاوز_ما_أُعلِن
+10 failed, 3121 passed, 3 skipped, 3 errors in 427.28s (0:07:07)

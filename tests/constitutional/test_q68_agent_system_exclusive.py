@@ -6,7 +6,7 @@
 النطاق: core/constitutional_engine/rules.py::_r003_1 — Q68_AGENT_SYSTEM_EXCLUSIVE_DESIGN.md § 4.
 المالك: tests/constitutional/
 تاريخ الإنشاء: 2026-10-30
-تاريخ آخر تعديل: 2026-10-30 (W-747 — الإنشاء)
+تاريخ آخر تعديل: 2026-11-01 (W-774 — test_q68_4: المجموعةُ أربعةٌ بقرارِ Q-87) · وقبله: 2026-10-30 (W-747 — الإنشاء)
 """
 
 from __future__ import annotations
@@ -86,8 +86,14 @@ def test_q68_3_signed_decree_path_stays_allowed_with_advisory(
 
 
 def test_q68_4_excluded_set_is_exactly_agent_and_system() -> None:
-    # لا يتّسعُ صامتًا إلى HUMAN/STATE/INSTITUTION/ROYAL — خارجَ نصِّ Q-68.
-    assert rules_module._NON_BRANCH_EXCLUDED == frozenset({Branch.AGENT, Branch.SYSTEM})
+    # لا يتّسعُ صامتًا — اتّسعَ مرّةً بقرارِ المالكِ Q-87 القرارُ 5 (W-774 · WI-126): «يُمنَع STATE وINSTITUTION
+    # بـR-003-1 كما أُضيف AGENT وSYSTEM في Q-68». وHUMAN وROYAL خارجَها: لهما شرطاهما في `_r003_1` (Q-87).
+    # (اسمُ الفحصِ يبقى كما هو حفظًا لتاريخِه؛ والمجموعةُ المقيسةُ أربعةٌ بالاسم.)
+    assert rules_module._NON_BRANCH_EXCLUDED == frozenset(
+        {Branch.AGENT, Branch.SYSTEM, Branch.STATE, Branch.INSTITUTION}
+    )
+    assert Branch.HUMAN not in rules_module._NON_BRANCH_EXCLUDED
+    assert Branch.ROYAL not in rules_module._NON_BRANCH_EXCLUDED
 
 
 def test_q68_5_mutation_emptying_the_set_reopens_the_gap(monkeypatch) -> None:

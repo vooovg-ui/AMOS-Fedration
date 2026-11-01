@@ -5,7 +5,7 @@
 أحكامُ البوّابةِ على أفعالِ ذلك الدَّين.
 المالك: governance/
 تاريخ الإنشاء: 2026-08-22
-تاريخ آخر تعديل: 2026-08-22
+تاريخ آخر تعديل: 2026-11-01 (W-774 · Q-87: ROYAL بلا مرسومٍ على issue_ruling DENY) · وقبله: 2026-08-22
 
 ## لماذا هذا الحرسُ موجود (W-023 · T2 · الخطوة 11)
 
@@ -421,7 +421,10 @@ def test_issue_ruling_is_denied_for_the_default_actor_and_allowed_for_judicial()
     assert verdicts["EXECUTIVE"][0] == "DENY"
     assert "R-003-1" in verdicts["EXECUTIVE"][1]
     assert verdicts["JUDICIAL"][0] == "ALLOW"
-    assert verdicts["ROYAL"][0] == "ALLOW"
+    # Q-87 (W-774 · WI-126): كانَ ALLOW لـROYAL بلا مرسوم — يُعدَّلُ إلى DENY لأنه نقيضُ القرار
+    # («يُوحَّد حكم review مع execute لـROYAL بلا مرسوم (كلاهما رفض)») · التوجيهُ 36 § 2 بند 4.
+    assert verdicts["ROYAL"][0] == "DENY"
+    assert "R-003-1" in verdicts["ROYAL"][1]
 
 
 def test_authority_grants_are_denied_for_every_branch() -> None:

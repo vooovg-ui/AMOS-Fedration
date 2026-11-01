@@ -2,7 +2,7 @@
 
 المالك: tests/sovereignty/ — التاج
 تاريخ الإنشاء: 2026-08-16
-تاريخ آخر تعديل: 2026-08-21
+تاريخ آخر تعديل: 2026-11-01 (W-774 · Q-87: المثالُ التابعُ فعلٌ غيرُ حصريّ) · وقبله: 2026-08-21
 """
 
 from __future__ import annotations
@@ -364,7 +364,7 @@ class Testتكامل_شامل:
         معوّض = (Compensator(effect_signature=أثر.signature, apply=lambda: None),)
 
         حصيلة = بوابة_ولاية.execute_declared(
-            ActionRequest(actor=Branch.STATE, action="execute_task", target="ولاية-أ"),
+            ActionRequest(actor=Branch.STATE, action="run_local_task", target="ولاية-أ"),  # Q-87 (W-774 · WI-126): كانَ execute_task — حصريٌّ للتنفيذيّ فيُرفَضُ STATE عليه؛ والبوابةُ للولايةِ لا تقبلُ إلا STATE، فالمثالُ فعلٌ غيرُ حصريّ
             declared_effects=(أثر,),
             applier=lambda _أثر: نُفذ.append("سليم"),
             operation_key=IdempotencyKey(scope="اختبار.تابع", value="سليم"),
