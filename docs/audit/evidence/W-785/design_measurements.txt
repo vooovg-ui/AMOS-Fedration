@@ -1,0 +1,39 @@
+# قياساتُ تصميمِ § 2.10 (W-785) · العقدة dd6f7e7f8f8d2b01ad171c7522333e2c5d5f72df · 2026-11-01 23:19:43 UTC
+## 1. الأسطحُ الخمسةُ في الجرد (inventory_before.json)
+execute_expenditure → [('national_economy/service.py', True, False, ['commit()'], [])]
+execute_transfer → [('national_economy/service.py', True, False, ['commit()'], [])]
+execute_scoped_disbursement → [('federal_state/service.py', True, False, [], ['_record_operation'])]
+execute_decision_disbursement → غيرُ مُدرَجٍ كاتبًا
+enforce_ruling_via_treasury → [('federal_judiciary/service.py', True, False, ['commit()'], [])]
+## 2. نداءُ treasury.disburse في المركَّبات (rg)
+federal/executive/services/src/amos_federation/services/national_economy/service.py:1442:        transaction = treasury.disburse(
+federal/executive/services/src/amos_federation/services/national_economy/service.py:1759:        transaction = treasury.disburse(
+federal/executive/services/src/amos_federation/services/federal_judiciary/service.py:1046:            transaction = treasury.disburse(
+federal/executive/services/src/amos_federation/services/federal_state/service.py:1099:        result = treasury.disburse(
+## 3. حرسُ Q-32 نصًّا
+ENFORCED_ENTRYPOINTS = frozenset({"allocate", "post_funding", "disburse", "reverse_transaction"})
+WRAPPER_ENTRYPOINTS = frozenset({"execute_decision_disbursement", "execute_transfer"})
+    def test_the_movement_writer_is_called_from_exactly_three_entrypoints(
+        self, treasury_functions: dict[str, ast.FunctionDef]
+    ) -> None:
+        callers = {
+            name
+            for name, node in treasury_functions.items()
+            if not name.startswith("_") and "self._post" in _qualified_calls_in(node)
+        }
+        assert callers == {"post_funding", "disburse", "reverse_transaction"}, (
+            "تغيَّرَ مَن يكتبُ حركةَ مالٍ في خزانةِ الدولةِ — "
+            f"المقيسُ اليومَ: {sorted(callers)}. ويُعادُ قياسُ موجزِ Q-32 قبلَ عرضِه."
+        )
+## 4. حرسُ Q-31 (عددُ نداءِ التخويل)
+    ).read_text(encoding="utf-8")
+    # نداءٌ واحدٌ بقوسٍ لا أكثر: واحدٌ لأربعةِ مواضعَ، والاستيرادُ لا يحملُ قوسًا.
+    assert service.count("require_constitutional_money_authority(") == 1
+    assert service.count("require_constitutional_money_authority") == 2
+    assert "ConstitutionalAuthorizer" not in service
+## 5. مُعامَلاتُ التجاوز
+def bypass_parameters_of(subject: object) -> frozenset[str]:
+    """معامَلاتُ التجاوزِ في صنفٍ أو دالّة — تُقاسُ بالتوقيعِ لا تُدَّعى.
+## 6. تشغيلُ الحرسَين قبلَ الشِّفرة
+============================== 27 passed in 1.53s ==============================
+EXIT=0
