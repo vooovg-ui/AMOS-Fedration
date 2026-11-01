@@ -1,0 +1,29 @@
+# W-776 — سقوطُ «بوابة 5ب» في CI لـPR #241 وإعادةُ توليدِ المصفوفتين — خامّ
+# الهدف: إثباتُ أن الانحرافَ أثرُ Q-87 وحدَه (ROYAL بلا مرسومٍ ALLOW→DENY) لا غير، وأن البوابةَ المحليّةَ لم تقِسه.
+# المالك: Perplexity Computer (منسِّق) · البند WI-126 · القيد W-776
+
+## 1. CI على d5902f24 (PR #241)
+التشغيل 41335572728 · الوظيفة 124934565429 «Constitutional Kernel» — الخطوة 9 «بوابة 5ب — طزاجة مصفوفتي القضاء والمال المنشورتين (W-038)» failure · الخطوة 10 skipped
+الأمر: python tools/governance/measurement_provenance.py . --check --only-deps
+
+## 2. قبلَ إعادةِ التوليد (محليًّا على 5f64595c)
+سقطَ عقدُ نَسَبِ القياساتِ (W-037):
+  · judicial_gate_matrix.json: القياسُ المنشورُ متقادمٌ في 1 حقلًا — rows: منشورٌ [{'action': 'adjudicate', 'actor': 'EXECUTIVE', 'decision':  · مقيسٌ [{'action': 'adjudicate', 'actor': 'EXECUTIVE', 'decision': 
+  · treasury_gate_matrix.json: القياسُ المنشورُ متقادمٌ في 1 حقلًا — rows: منشورٌ [{'action': 'allocate_budget', 'actor': 'EXECUTIVE', 'decisi · مقيسٌ [{'action': 'allocate_budget', 'actor': 'EXECUTIVE', 'decisi
+
+القاعدةُ: لا ملفَّ بلا قيدٍ، ولا قيدَ بلا سببٍ. أعِدْ توليدَ المتقادمِ بأمرِه المُقيَّدِ، أو قيِّدْ ما نُشِرَ بلا قيدٍ.
+EXIT=1
+
+## 3. البوابةُ المحليّةُ (tools/dev/prepush_gate.py الخطوة 18) تشغّلُ الشطرَ الآخرَ وحدَه:
+measurement_provenance.py . --check --without-deps  ⇒ الشطرُ --only-deps (المصفوفتانِ تحتاجانِ cryptography) لا يُقاسُ قبلَ الدفع ⇒ DISC-153
+
+## 4. الأمرانِ المُقيَّدان
+$ python tools/audit/judicial_gate_probe.py → docs/audit/measurements/judicial_gate_matrix.json
+$ python tools/audit/treasury_gate_probe.py → docs/audit/measurements/treasury_gate_matrix.json
+
+## 5. الفرقُ مقيسًا (الصفوفُ نفسُها عددًا · الحقلُ المتغيّرُ rows وحدَه)
+judicial_gate_matrix.json · الصفوف 128 → 128 · المتغيّر: {('ROYAL', 'ALLOW', 'DENY', ('R-003-1',)): 16} · الحقولُ المتغيّرة: ['rows']
+treasury_gate_matrix.json · الصفوف 87 → 87 · المتغيّر: {('ROYAL', 'ALLOW', 'DENY', ('R-003-1',)): 15} · الحقولُ المتغيّرة: ['rows']
+## 6. بعدَ إعادةِ التوليد
+عقدُ نَسَبِ القياساتِ مستقيمٌ: 11 قياسًا مقيَّدًا · 8 محروسًا (‏منها 1 برباطٍ مقيسٍ نصًّا) · 3 مُعلَنًا بسببٍ مكتوبٍ. ومُؤَجَّلٌ إلى الشطرِ الآخرِ: 5 (‏من 2 يحتاجُ حزمًا خارجيّةً).
+EXIT=0

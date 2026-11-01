@@ -29,9 +29,11 @@
   {
    "action": "adjudicate",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "issue_ruling",
@@ -61,9 +63,11 @@
   {
    "action": "issue_ruling",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "vacate_ruling",
@@ -93,9 +97,11 @@
   {
    "action": "vacate_ruling",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "admit_evidence",
@@ -125,9 +131,11 @@
   {
    "action": "admit_evidence",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "register_judgment",
@@ -157,9 +165,11 @@
   {
    "action": "register_judgment",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "refer_case",
@@ -189,9 +199,11 @@
   {
    "action": "refer_case",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "admit_case",
@@ -221,9 +233,11 @@
   {
    "action": "admit_case",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "recuse_judge",
@@ -253,9 +267,11 @@
   {
    "action": "recuse_judge",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "create_court",
@@ -453,9 +469,11 @@
   {
    "action": "assign_case",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "open_hearing",
@@ -653,9 +671,11 @@
   {
    "action": "record_proceeding",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "record_enforcement",
@@ -821,9 +841,11 @@
   {
    "action": "legislate",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "enact_policy",
@@ -853,9 +875,11 @@
   {
    "action": "enact_policy",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "amend_policy",
@@ -885,9 +909,11 @@
   {
    "action": "amend_policy",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "repeal_policy",
@@ -917,9 +943,11 @@
   {
    "action": "repeal_policy",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "suspend_policy",
@@ -949,9 +977,11 @@
   {
    "action": "suspend_policy",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "vote",
@@ -981,9 +1011,11 @@
   {
    "action": "vote",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   }
  ]
 }

@@ -20,9 +20,11 @@
   {
    "action": "allocate_budget",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "issue_tokens",
@@ -43,9 +45,11 @@
   {
    "action": "issue_tokens",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "allocate_resources",
@@ -66,9 +70,11 @@
   {
    "action": "allocate_resources",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "book_expense",
@@ -89,9 +95,11 @@
   {
    "action": "book_expense",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "disburse_funds",
@@ -112,9 +120,11 @@
   {
    "action": "disburse_funds",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "transfer_treasury",
@@ -135,9 +145,11 @@
   {
    "action": "transfer_treasury",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "treasury.establish",
@@ -452,9 +464,11 @@
   {
    "action": "establish_treasury",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "open_account",
@@ -475,9 +489,11 @@
   {
    "action": "open_account",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "create_budget",
@@ -498,9 +514,11 @@
   {
    "action": "create_budget",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "allocate_funds",
@@ -521,9 +539,11 @@
   {
    "action": "allocate_funds",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "post_funding",
@@ -544,9 +564,11 @@
   {
    "action": "post_funding",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "reverse_transaction",
@@ -567,9 +589,11 @@
   {
    "action": "reverse_transaction",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "authorize_expenditure",
@@ -590,9 +614,11 @@
   {
    "action": "authorize_expenditure",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "execute_transfer",
@@ -613,9 +639,11 @@
   {
    "action": "execute_transfer",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   },
   {
    "action": "award_procurement",
@@ -636,9 +664,11 @@
   {
    "action": "award_procurement",
    "actor": "ROYAL",
-   "decision": "ALLOW",
+   "decision": "DENY",
    "human_gated": false,
-   "rules": []
+   "rules": [
+    "R-003-1"
+   ]
   }
  ]
 }
