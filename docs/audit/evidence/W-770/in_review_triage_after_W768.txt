@@ -1,0 +1,85 @@
+ACTIVE_WORK من: 359d5c1b · السجلُّ من: origin/main
+صفوفُ ACTIVE_WORK حالتُها IN_REVIEW: 48
+بطاقاتٌ سطرُ «الحالة:» فيها IN_REVIEW: 48
+عناوينُ بطاقاتٍ فيها `IN_REVIEW` بعلامتَي الشِّفرة: 20
+الفرقُ (28): صفوفٌ IN_REVIEW وعنوانُ بطاقتِها لا يقولُ `IN_REVIEW`:
+  WI-026: حالاتُ العنوان —
+  WI-027: حالاتُ العنوان —
+  WI-028: حالاتُ العنوان —
+  WI-029: حالاتُ العنوان —
+  WI-030: حالاتُ العنوان —
+  WI-031: حالاتُ العنوان —
+  WI-033: حالاتُ العنوان —
+  WI-034: حالاتُ العنوان —
+  WI-036: حالاتُ العنوان —
+  WI-038: حالاتُ العنوان —
+  WI-041: حالاتُ العنوان —
+  WI-043: حالاتُ العنوان —
+  WI-045: حالاتُ العنوان —
+  WI-046: حالاتُ العنوان —
+  WI-047: حالاتُ العنوان —
+  WI-068: حالاتُ العنوان ['PROPOSED']
+  WI-070: حالاتُ العنوان ['PROPOSED']
+  WI-071: حالاتُ العنوان ['IN_PROGRESS', 'VERIFIED']
+  WI-072: حالاتُ العنوان ['IN_PROGRESS', 'VERIFIED']
+  WI-074: حالاتُ العنوان ['IN_PROGRESS']
+  WI-078: حالاتُ العنوان ['PROPOSED']
+  WI-079: حالاتُ العنوان ['PROPOSED']
+  WI-080: حالاتُ العنوان ['VERIFIED', 'PROPOSED']
+  WI-081: حالاتُ العنوان ['PROPOSED']
+  WI-083: حالاتُ العنوان ['PROPOSED']
+  WI-087: حالاتُ العنوان ['PROPOSED']
+  WI-088: حالاتُ العنوان ['PROPOSED']
+  WI-116: حالاتُ العنوان ['IN_PROGRESS']
+
+الرقم | الطبقة | نطاقُ الصفّ | الفئةُ المعلنة | فئةُ المسارات | الفعّالة | النوع | أوّلُ دمجٍ لشِفرة | العمرُ يومًا (إلى 2026-11-01) | جولةٌ سابقة | الصنف
+WI-026 | T0 | tooling-gates:C1 | — | tests-root:C0 غيرُ مُسجَّل:C0 | C1 | اختبارات | 2026-09-01 W-087 63c4f2fa (صفُّ السجلّ) | 61 | — | ب
+WI-027 | T0 | audit-truth:C1 | — | tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات | 2026-09-01 W-090 37870a70 (صفُّ السجلّ) | 61 | — | ب
+WI-028 | T0 | tooling-gates:C1 | — | tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات | 2026-09-01 W-093 f69f51c4 (العنوان) | 61 | — | ب
+WI-029 | T0 | tests-root:C0 | — | tests-root:C0 | C0 | اختبارات | 2026-09-02 W-097 9bf0b000 (العنوان) | 60 | — | ب
+WI-030 | T0 | tooling-gates:C1 | — | tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات | 2026-09-02 W-100 48082c5d (صفُّ السجلّ) | 60 | — | ب
+WI-031 | T0 | tooling-gates:C1 | — | tests-root:C0 | C1 | اختبارات | 2026-09-02 W-103 061f64c6 (العنوان) | 60 | — | ب
+WI-033 | T0 | tests-root:C0 | — | tests-root:C0 | C0 | اختبارات | 2026-09-02 W-107 ceef58e4 (العنوان) | 60 | — | ب
+WI-036 | T0 | tooling-gates:C1 | — | tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات | 2026-09-03 W-115 c817ada8 (صفُّ السجلّ) | 59 | — | ب
+WI-034 | T0 | tooling-gates:C1 | — | tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات | 2026-09-02 W-109 86936588 (صفُّ السجلّ) | 60 | — | ب
+WI-038 | T0 | tooling-gates:C1 | — | tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات | 2026-09-03 W-121 d7333c0c (صفُّ السجلّ) | 59 | — | ب
+WI-041 | T0 | tooling-gates:C1 | — | docs-general:C0 tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات+وثائق | 2026-10-03 W-179 5f8b33fc (العنوان) | 29 | — | ب
+WI-043 | T0 | tooling-gates:C1 | — | tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات | 2026-09-03 W-129 936f5e15 (العنوان) | 59 | — | ب
+WI-047 | T0 | tooling-gates:C1 | — | tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات | 2026-09-03 W-132 575b911b (العنوان) | 59 | — | ب
+WI-046 | T0 | tooling-gates:C1 | — | tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات | 2026-09-03 W-131 9da40866 (العنوان) | 59 | — | ب
+WI-045 | T0 | tooling-gates:C1 | — | tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات | 2026-09-03 W-130 93db6855 (العنوان) | 59 | — | ب
+WI-060 | T0 | audit-truth:C1 | — | غيرُ مُسجَّل:C0 | C1 | وثائق | — | — | — | ب
+WI-062 | — | data-migrations:C2 | — | data-migrations:C2 federal-executive:C1 | C2 | إنتاج+اختبارات+وثائق | 2026-10-12 W-292 12ad2d98 (العنوان) | 20 | — | د
+WI-063 | T3 | federal-executive:C1 | — | federal-executive:C1 | C1 | إنتاج+اختبارات | 2026-10-12 W-292 12ad2d98 (صفُّ السجلّ) | 20 | — | د
+WI-064 | — | data-migrations:C2 | — | data-migrations:C2 federal-executive:C1 | C2 | إنتاج+اختبارات | 2026-10-12 W-292 12ad2d98 (صفُّ السجلّ) | 20 | — | د
+WI-065 | — | data-migrations:C2 | — | federal-executive:C1 | C2 | اختبارات | 2026-10-12 W-292 12ad2d98 (صفُّ السجلّ) | 20 | — | د
+WI-066 | — | data-migrations:C2 | — | data-migrations:C2 federal-executive:C1 | C2 | إنتاج+اختبارات | 2026-10-12 W-292 12ad2d98 (صفُّ السجلّ) | 20 | — | د
+WI-067 | T3 | federal-executive:C1 | — | audit-truth:C1 decisions:C3 federal-executive:C1 غيرُ مُسجَّل:C0 | C3 | أدوات+إنتاج+اختبارات+وثائق | 2026-10-12 W-292 12ad2d98 (العنوان) | 20 | — | أ
+WI-068 | T0 | audit-truth:C1 | — | audit-truth:C1 governance-docs:C1 | C1 | وثائق | — | — | W-338:مراجعةٌ استشاريّة | ب
+WI-069 | T0 | audit-truth:C1 | — | audit-truth:C1 governance-docs:C1 | C1 | وثائق | — | — | W-338:مراجعةٌ استشاريّة | ب
+WI-070 | T0 | audit-truth:C1 | — | audit-truth:C1 | C1 | وثائق | — | — | W-338:مراجعةٌ استشاريّة | ب
+WI-071 | T0 | audit-truth:C1 | — | audit-truth:C1 | C1 | وثائق | — | — | W-338:مراجعةٌ استشاريّة | ب
+WI-072 | T0 | federal-executive:C1 | — | audit-truth:C1 federal-executive:C1 | C1 | اختبارات+وثائق | 2026-10-13 W-312 a77851f7 (العنوان) | 19 | W-338:مراجعةٌ استشاريّة | ب
+WI-073 | T0 | tooling-gates:C1 | — | audit-truth:C1 tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات+وثائق | 2026-10-14 W-319 51a617db (العنوان) | 18 | W-338:مراجعةٌ استشاريّة | ب
+WI-074 | T0 | tooling-gates:C1 | — | audit-truth:C1 ci-pipeline:C1 tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات+وثائق | 2026-10-14 W-335 51ded6f2 (العنوان) | 18 | W-338:مراجعةٌ استشاريّة | ب
+WI-075 | T0 | audit-truth:C1 | — | audit-truth:C1 | C1 | وثائق | — | — | — | ب
+WI-078 | T0 | tooling-gates:C1 | — | audit-truth:C1 tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات+وثائق | 2026-10-16 W-360 23757d53 (العنوان) | 16 | — | ب
+WI-079 | T3 | audit-truth:C1 | C3 | audit-truth:C1 | C3 | وثائق | — | — | — | د
+WI-080 | T2 | governance-docs:C1 | — | audit-truth:C1 tests-root:C0 | C1 | اختبارات+وثائق | 2026-10-16 W-368 58db63e6 (العنوان) | 16 | — | د
+WI-081 | T1 | audit-truth:C1 | — | audit-truth:C1 | C1 | وثائق | — | — | — | د
+WI-083 | T0 | tooling-gates:C1 | — | audit-truth:C1 tests-root:C0 tooling-gates:C1 | C1 | اختبارات+وثائق | 2026-10-16 W-387 03fda584 (العنوان) | 16 | — | ب
+WI-087 | T0 | audit-truth:C1 | — | governance-docs:C1 | C1 | وثائق | — | — | — | ب
+WI-088 | T0 | tooling-gates:C1 | — | tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات | 2026-10-18 W-422 ed279e44 (العنوان) | 14 | — | ب
+WI-096 | T0 | sovereignty:C3 | C3 | audit-truth:C1 sovereignty:C3 tests-root:C0 | C3 | إنتاج+اختبارات+وثائق | 2026-10-19 W-494 63b1a3f0 (صفُّ السجلّ) | 13 | W-519:إحاطات,W-521:أحكامُ مقاعد | أ
+WI-097 | T0 | federal-executive:C1 | — | federal-executive:C1 | C1 | اختبارات | 2026-10-19 W-494 63b1a3f0 (صفُّ السجلّ) | 13 | — | ب
+WI-102 | T0 | tooling-gates:C1 | — | audit-truth:C1 tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات+وثائق | 2026-10-20 W-554 1bc31449 (العنوان) | 12 | — | ب
+WI-103 | T0 | tooling-gates:C1 | — | audit-truth:C1 tests-root:C0 tooling-gates:C1 | C1 | أدوات+اختبارات+وثائق | 2026-10-21 W-565 c6288a02 (العنوان) | 11 | — | ب
+WI-109 | T1 | federal-executive:C1 | — | audit-truth:C1 | C1 | وثائق | — | — | — | د
+WI-110 | T1 | federal-executive:C1 | — | audit-truth:C1 | C1 | وثائق | — | — | — | د
+WI-114 | T1 | federal-executive:C1 | — | audit-truth:C1 federal-executive:C1 | C1 | إنتاج+اختبارات+وثائق | 2026-10-25 W-675 cb3b3fb9 (العنوان) | 7 | W-744:إحاطات | د
+WI-116 | T1 | federal-executive:C1 | — | audit-truth:C1 federal-executive:C1 sovereignty:C3 tests-root:C0 | C3 | إنتاج+اختبارات+وثائق | 2026-10-26 W-696 153109cf (صفُّ السجلّ) | 6 | W-732:إحاطات,W-744:إحاطات | أ
+WI-120 | T1 | federal-executive:C1 | C3 | audit-truth:C1 federal-executive:C1 governance-docs:C1 tests-root:C0 | C3 | إنتاج+اختبارات+وثائق | 2026-10-28 W-722 4f2743bd (العنوان) | 4 | W-732:إحاطات,W-733:حكم,W-744:إحاطات | أ
+WI-123 | T1 | federal-executive:C1 | C3 | audit-truth:C1 | C3 | وثائق | — | — | W-744:إحاطات | د
+WI-124 | T1 | federal-executive:C1 | C4 | audit-truth:C1 constitution:C3 tests-root:C0 | C4 | إنتاج+اختبارات+وثائق | 2026-10-30 W-747 e782bf95 (العنوان) | 2 | — | أ
+
+الأصناف: (أ) 5 · (ب) 31 · (د) 12

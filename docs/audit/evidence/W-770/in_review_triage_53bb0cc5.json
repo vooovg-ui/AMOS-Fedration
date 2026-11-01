@@ -1,0 +1,1279 @@
+{
+  "الهدف": "فرزُ بنودِ IN_REVIEW المقيسُ عرضًا للمالك (Q-89 · W-770)",
+  "in_review_rows": [
+    "WI-026",
+    "WI-027",
+    "WI-028",
+    "WI-029",
+    "WI-030",
+    "WI-031",
+    "WI-033",
+    "WI-034",
+    "WI-036",
+    "WI-038",
+    "WI-041",
+    "WI-043",
+    "WI-045",
+    "WI-046",
+    "WI-047",
+    "WI-060",
+    "WI-062",
+    "WI-063",
+    "WI-064",
+    "WI-065",
+    "WI-066",
+    "WI-067",
+    "WI-068",
+    "WI-069",
+    "WI-070",
+    "WI-071",
+    "WI-072",
+    "WI-073",
+    "WI-074",
+    "WI-075",
+    "WI-077",
+    "WI-078",
+    "WI-079",
+    "WI-080",
+    "WI-081",
+    "WI-083",
+    "WI-087",
+    "WI-088",
+    "WI-096",
+    "WI-097",
+    "WI-102",
+    "WI-103",
+    "WI-109",
+    "WI-110",
+    "WI-114",
+    "WI-116",
+    "WI-120",
+    "WI-123",
+    "WI-124"
+  ],
+  "header_backtick": [
+    "WI-060",
+    "WI-062",
+    "WI-063",
+    "WI-064",
+    "WI-065",
+    "WI-066",
+    "WI-067",
+    "WI-069",
+    "WI-073",
+    "WI-075",
+    "WI-096",
+    "WI-097",
+    "WI-102",
+    "WI-103",
+    "WI-109",
+    "WI-110",
+    "WI-114",
+    "WI-120",
+    "WI-123",
+    "WI-124"
+  ],
+  "card_status": [
+    "WI-026",
+    "WI-027",
+    "WI-028",
+    "WI-029",
+    "WI-030",
+    "WI-031",
+    "WI-033",
+    "WI-034",
+    "WI-036",
+    "WI-038",
+    "WI-041",
+    "WI-043",
+    "WI-045",
+    "WI-046",
+    "WI-047",
+    "WI-060",
+    "WI-062",
+    "WI-063",
+    "WI-064",
+    "WI-065",
+    "WI-066",
+    "WI-067",
+    "WI-068",
+    "WI-069",
+    "WI-070",
+    "WI-071",
+    "WI-072",
+    "WI-073",
+    "WI-074",
+    "WI-075",
+    "WI-077",
+    "WI-078",
+    "WI-079",
+    "WI-080",
+    "WI-081",
+    "WI-083",
+    "WI-087",
+    "WI-088",
+    "WI-096",
+    "WI-097",
+    "WI-102",
+    "WI-103",
+    "WI-109",
+    "WI-110",
+    "WI-114",
+    "WI-116",
+    "WI-120",
+    "WI-123",
+    "WI-124"
+  ],
+  "items": [
+    {
+      "wi": "WI-026",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0",
+        "غيرُ مُسجَّل:C0"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "63c4f2fa",
+        "2026-09-01",
+        "W-087",
+        "صفُّ السجلّ"
+      ],
+      "age_days_from_first_code_merge": 61,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-027",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "37870a70",
+        "2026-09-01",
+        "W-090",
+        "صفُّ السجلّ"
+      ],
+      "age_days_from_first_code_merge": 61,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "audit-truth:C1"
+    },
+    {
+      "wi": "WI-028",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "f69f51c4",
+        "2026-09-01",
+        "W-093",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 61,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-029",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0"
+      ],
+      "effective_class": "C0",
+      "kinds": [
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "9bf0b000",
+        "2026-09-02",
+        "W-097",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 60,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tests-root:C0"
+    },
+    {
+      "wi": "WI-030",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "48082c5d",
+        "2026-09-02",
+        "W-100",
+        "صفُّ السجلّ"
+      ],
+      "age_days_from_first_code_merge": 60,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-031",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "061f64c6",
+        "2026-09-02",
+        "W-103",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 60,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-033",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0"
+      ],
+      "effective_class": "C0",
+      "kinds": [
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "ceef58e4",
+        "2026-09-02",
+        "W-107",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 60,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tests-root:C0"
+    },
+    {
+      "wi": "WI-036",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "c817ada8",
+        "2026-09-03",
+        "W-115",
+        "صفُّ السجلّ"
+      ],
+      "age_days_from_first_code_merge": 59,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-034",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "86936588",
+        "2026-09-02",
+        "W-109",
+        "صفُّ السجلّ"
+      ],
+      "age_days_from_first_code_merge": 60,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-038",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "d7333c0c",
+        "2026-09-03",
+        "W-121",
+        "صفُّ السجلّ"
+      ],
+      "age_days_from_first_code_merge": 59,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-041",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "docs-general:C0",
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "5f8b33fc",
+        "2026-10-03",
+        "W-179",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 29,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-043",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "936f5e15",
+        "2026-09-03",
+        "W-129",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 59,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-047",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "575b911b",
+        "2026-09-03",
+        "W-132",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 59,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-046",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "9da40866",
+        "2026-09-03",
+        "W-131",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 59,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-045",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "93db6855",
+        "2026-09-03",
+        "W-130",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 59,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-060",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "غيرُ مُسجَّل:C0"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "وثائق"
+      ],
+      "first_code_merge": null,
+      "age_days_from_first_code_merge": null,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "audit-truth:C1"
+    },
+    {
+      "wi": "WI-062",
+      "tier": "—",
+      "declared_class": [],
+      "path_domains": [
+        "data-migrations:C2",
+        "federal-executive:C1"
+      ],
+      "effective_class": "C2",
+      "kinds": [
+        "إنتاج",
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "12ad2d98",
+        "2026-10-12",
+        "W-292",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 20,
+      "prior_round_evidence": [],
+      "category": "د",
+      "row_domain": "data-migrations:C2"
+    },
+    {
+      "wi": "WI-063",
+      "tier": "T3",
+      "declared_class": [],
+      "path_domains": [
+        "federal-executive:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "إنتاج",
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "12ad2d98",
+        "2026-10-12",
+        "W-292",
+        "صفُّ السجلّ"
+      ],
+      "age_days_from_first_code_merge": 20,
+      "prior_round_evidence": [],
+      "category": "د",
+      "row_domain": "federal-executive:C1"
+    },
+    {
+      "wi": "WI-064",
+      "tier": "—",
+      "declared_class": [],
+      "path_domains": [
+        "data-migrations:C2",
+        "federal-executive:C1"
+      ],
+      "effective_class": "C2",
+      "kinds": [
+        "إنتاج",
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "12ad2d98",
+        "2026-10-12",
+        "W-292",
+        "صفُّ السجلّ"
+      ],
+      "age_days_from_first_code_merge": 20,
+      "prior_round_evidence": [],
+      "category": "د",
+      "row_domain": "data-migrations:C2"
+    },
+    {
+      "wi": "WI-065",
+      "tier": "—",
+      "declared_class": [],
+      "path_domains": [
+        "federal-executive:C1"
+      ],
+      "effective_class": "C2",
+      "kinds": [
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "12ad2d98",
+        "2026-10-12",
+        "W-292",
+        "صفُّ السجلّ"
+      ],
+      "age_days_from_first_code_merge": 20,
+      "prior_round_evidence": [],
+      "category": "د",
+      "row_domain": "data-migrations:C2"
+    },
+    {
+      "wi": "WI-066",
+      "tier": "—",
+      "declared_class": [],
+      "path_domains": [
+        "data-migrations:C2",
+        "federal-executive:C1"
+      ],
+      "effective_class": "C2",
+      "kinds": [
+        "إنتاج",
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "12ad2d98",
+        "2026-10-12",
+        "W-292",
+        "صفُّ السجلّ"
+      ],
+      "age_days_from_first_code_merge": 20,
+      "prior_round_evidence": [],
+      "category": "د",
+      "row_domain": "data-migrations:C2"
+    },
+    {
+      "wi": "WI-067",
+      "tier": "T3",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1",
+        "decisions:C3",
+        "federal-executive:C1",
+        "غيرُ مُسجَّل:C0"
+      ],
+      "effective_class": "C3",
+      "kinds": [
+        "أدوات",
+        "إنتاج",
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "12ad2d98",
+        "2026-10-12",
+        "W-292",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 20,
+      "prior_round_evidence": [],
+      "category": "أ",
+      "row_domain": "federal-executive:C1"
+    },
+    {
+      "wi": "WI-068",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1",
+        "governance-docs:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "وثائق"
+      ],
+      "first_code_merge": null,
+      "age_days_from_first_code_merge": null,
+      "prior_round_evidence": [
+        "W-338:مراجعةٌ استشاريّة"
+      ],
+      "category": "ب",
+      "row_domain": "audit-truth:C1"
+    },
+    {
+      "wi": "WI-069",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1",
+        "governance-docs:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "وثائق"
+      ],
+      "first_code_merge": null,
+      "age_days_from_first_code_merge": null,
+      "prior_round_evidence": [
+        "W-338:مراجعةٌ استشاريّة"
+      ],
+      "category": "ب",
+      "row_domain": "audit-truth:C1"
+    },
+    {
+      "wi": "WI-070",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "وثائق"
+      ],
+      "first_code_merge": null,
+      "age_days_from_first_code_merge": null,
+      "prior_round_evidence": [
+        "W-338:مراجعةٌ استشاريّة"
+      ],
+      "category": "ب",
+      "row_domain": "audit-truth:C1"
+    },
+    {
+      "wi": "WI-071",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "وثائق"
+      ],
+      "first_code_merge": null,
+      "age_days_from_first_code_merge": null,
+      "prior_round_evidence": [
+        "W-338:مراجعةٌ استشاريّة"
+      ],
+      "category": "ب",
+      "row_domain": "audit-truth:C1"
+    },
+    {
+      "wi": "WI-072",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1",
+        "federal-executive:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "a77851f7",
+        "2026-10-13",
+        "W-312",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 19,
+      "prior_round_evidence": [
+        "W-338:مراجعةٌ استشاريّة"
+      ],
+      "category": "ب",
+      "row_domain": "federal-executive:C1"
+    },
+    {
+      "wi": "WI-073",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1",
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "51a617db",
+        "2026-10-14",
+        "W-319",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 18,
+      "prior_round_evidence": [
+        "W-338:مراجعةٌ استشاريّة"
+      ],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-074",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1",
+        "ci-pipeline:C1",
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "51ded6f2",
+        "2026-10-14",
+        "W-335",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 18,
+      "prior_round_evidence": [
+        "W-338:مراجعةٌ استشاريّة"
+      ],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-075",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "وثائق"
+      ],
+      "first_code_merge": null,
+      "age_days_from_first_code_merge": null,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "audit-truth:C1"
+    },
+    {
+      "wi": "WI-077",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "79041566",
+        "2026-10-16",
+        "W-348",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 16,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-078",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1",
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "23757d53",
+        "2026-10-16",
+        "W-360",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 16,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-079",
+      "tier": "T3",
+      "declared_class": [
+        "C3"
+      ],
+      "path_domains": [
+        "audit-truth:C1"
+      ],
+      "effective_class": "C3",
+      "kinds": [
+        "وثائق"
+      ],
+      "first_code_merge": null,
+      "age_days_from_first_code_merge": null,
+      "prior_round_evidence": [],
+      "category": "د",
+      "row_domain": "audit-truth:C1"
+    },
+    {
+      "wi": "WI-080",
+      "tier": "T2",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1",
+        "tests-root:C0"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "58db63e6",
+        "2026-10-16",
+        "W-368",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 16,
+      "prior_round_evidence": [],
+      "category": "د",
+      "row_domain": "governance-docs:C1"
+    },
+    {
+      "wi": "WI-081",
+      "tier": "T1",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "وثائق"
+      ],
+      "first_code_merge": null,
+      "age_days_from_first_code_merge": null,
+      "prior_round_evidence": [],
+      "category": "د",
+      "row_domain": "audit-truth:C1"
+    },
+    {
+      "wi": "WI-083",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1",
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "03fda584",
+        "2026-10-16",
+        "W-387",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 16,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-087",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "governance-docs:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "وثائق"
+      ],
+      "first_code_merge": null,
+      "age_days_from_first_code_merge": null,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "audit-truth:C1"
+    },
+    {
+      "wi": "WI-088",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "ed279e44",
+        "2026-10-18",
+        "W-422",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 14,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-096",
+      "tier": "T0",
+      "declared_class": [
+        "C3"
+      ],
+      "path_domains": [
+        "audit-truth:C1",
+        "sovereignty:C3",
+        "tests-root:C0"
+      ],
+      "effective_class": "C3",
+      "kinds": [
+        "إنتاج",
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "63b1a3f0",
+        "2026-10-19",
+        "W-494",
+        "صفُّ السجلّ"
+      ],
+      "age_days_from_first_code_merge": 13,
+      "prior_round_evidence": [
+        "W-519:إحاطات",
+        "W-521:أحكامُ مقاعد"
+      ],
+      "category": "أ",
+      "row_domain": "sovereignty:C3"
+    },
+    {
+      "wi": "WI-097",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "federal-executive:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "اختبارات"
+      ],
+      "first_code_merge": [
+        "63b1a3f0",
+        "2026-10-19",
+        "W-494",
+        "صفُّ السجلّ"
+      ],
+      "age_days_from_first_code_merge": 13,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "federal-executive:C1"
+    },
+    {
+      "wi": "WI-102",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1",
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "1bc31449",
+        "2026-10-20",
+        "W-554",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 12,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-103",
+      "tier": "T0",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1",
+        "tests-root:C0",
+        "tooling-gates:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "أدوات",
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "c6288a02",
+        "2026-10-21",
+        "W-565",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 11,
+      "prior_round_evidence": [],
+      "category": "ب",
+      "row_domain": "tooling-gates:C1"
+    },
+    {
+      "wi": "WI-109",
+      "tier": "T1",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "وثائق"
+      ],
+      "first_code_merge": null,
+      "age_days_from_first_code_merge": null,
+      "prior_round_evidence": [],
+      "category": "د",
+      "row_domain": "federal-executive:C1"
+    },
+    {
+      "wi": "WI-110",
+      "tier": "T1",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "وثائق"
+      ],
+      "first_code_merge": null,
+      "age_days_from_first_code_merge": null,
+      "prior_round_evidence": [],
+      "category": "د",
+      "row_domain": "federal-executive:C1"
+    },
+    {
+      "wi": "WI-114",
+      "tier": "T1",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1",
+        "federal-executive:C1"
+      ],
+      "effective_class": "C1",
+      "kinds": [
+        "إنتاج",
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "cb3b3fb9",
+        "2026-10-25",
+        "W-675",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 7,
+      "prior_round_evidence": [
+        "W-744:إحاطات"
+      ],
+      "category": "د",
+      "row_domain": "federal-executive:C1"
+    },
+    {
+      "wi": "WI-116",
+      "tier": "T1",
+      "declared_class": [],
+      "path_domains": [
+        "audit-truth:C1",
+        "federal-executive:C1",
+        "sovereignty:C3",
+        "tests-root:C0"
+      ],
+      "effective_class": "C3",
+      "kinds": [
+        "إنتاج",
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "153109cf",
+        "2026-10-26",
+        "W-696",
+        "صفُّ السجلّ"
+      ],
+      "age_days_from_first_code_merge": 6,
+      "prior_round_evidence": [
+        "W-732:إحاطات",
+        "W-744:إحاطات"
+      ],
+      "category": "أ",
+      "row_domain": "federal-executive:C1"
+    },
+    {
+      "wi": "WI-120",
+      "tier": "T1",
+      "declared_class": [
+        "C3"
+      ],
+      "path_domains": [
+        "audit-truth:C1",
+        "federal-executive:C1",
+        "governance-docs:C1",
+        "tests-root:C0"
+      ],
+      "effective_class": "C3",
+      "kinds": [
+        "إنتاج",
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "4f2743bd",
+        "2026-10-28",
+        "W-722",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 4,
+      "prior_round_evidence": [
+        "W-732:إحاطات",
+        "W-733:حكم",
+        "W-744:إحاطات"
+      ],
+      "category": "أ",
+      "row_domain": "federal-executive:C1"
+    },
+    {
+      "wi": "WI-123",
+      "tier": "T1",
+      "declared_class": [
+        "C3"
+      ],
+      "path_domains": [
+        "audit-truth:C1"
+      ],
+      "effective_class": "C3",
+      "kinds": [
+        "وثائق"
+      ],
+      "first_code_merge": null,
+      "age_days_from_first_code_merge": null,
+      "prior_round_evidence": [
+        "W-744:إحاطات"
+      ],
+      "category": "د",
+      "row_domain": "federal-executive:C1"
+    },
+    {
+      "wi": "WI-124",
+      "tier": "T1",
+      "declared_class": [
+        "C4"
+      ],
+      "path_domains": [
+        "audit-truth:C1",
+        "constitution:C3",
+        "tests-root:C0"
+      ],
+      "effective_class": "C4",
+      "kinds": [
+        "إنتاج",
+        "اختبارات",
+        "وثائق"
+      ],
+      "first_code_merge": [
+        "e782bf95",
+        "2026-10-30",
+        "W-747",
+        "العنوان"
+      ],
+      "age_days_from_first_code_merge": 2,
+      "prior_round_evidence": [],
+      "category": "أ",
+      "row_domain": "federal-executive:C1"
+    }
+  ]
+}

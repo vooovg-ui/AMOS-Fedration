@@ -1,0 +1,184 @@
+[PREPUSH] الجذرُ المقيسُ: /home/user/workspace/amos · الأساسُ: origin/main
+
+[PREPUSH] ▶ 1· حوكمةُ العملِ (--commit HEAD)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+[PREPUSH] ▶ 2· حوكمةُ العملِ (--self-check --today +4)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+[PREPUSH] ▶ 3· صدقُ طوابعِ الالتزامِ (UTC)
+[COMMIT STAMP] ✓ لا نموَّ في دَينِ الطوابعِ.
+
+[PREPUSH] ▶ 4· سجلُّ الإكمالِ (--commit HEAD)
+[LEDGER GATE] ✓ التوثيقُ مقيَّدٌ مع العمل — لا مخالفة.
+
+[PREPUSH] ▶ 5· راتشيتُ مصفوفةِ الحقيقةِ
+[RATCHET] ثابت عند 61 مخالفة.
+
+[PREPUSH] ▶ 6· انحرافُ وثائقِ الحالةِ
+  ✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ.
+
+[PREPUSH] ▶ 7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)
+.......................F........                                         [100%]
+=================================== FAILURES ===================================
+_____ test_generators_are_settled_on_the_repository[stamp_readme_identity] _____
+
+tool = 'stamp_readme_identity'
+
+    @pytest.mark.parametrize("tool", ["write_domain_readmes", "stamp_readme_identity",
+                                      "generate_identity_cards"])
+    def test_generators_are_settled_on_the_repository(tool: str) -> None:
+        """`--check` يجب أن يمرّ: لا بطاقة ناقصة ولا حقل مشتقّ غير مختوم."""
+        r = subprocess.run(
+            [sys.executable, str(TOOLS / f"{tool}.py"), "--check"],
+            cwd=REPO_ROOT, capture_output=True, text=True, timeout=180, check=False,
+        )
+>       assert r.returncode == 0, f"{tool} --check فشل:\n{r.stdout}\n{r.stderr}"
+E       AssertionError: stamp_readme_identity --check فشل:
+E         [README STAMP] ✗ 1 بطاقة تُعلن تاريخًا يناقض سجل git.
+E           - /home/user/workspace/amos/tools/dev/README.md: مُعلَن 2026-10-16 · الواقع 2026-11-01
+E         
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/user/workspace/amos/.venv/bin/python', '/home/user/workspace/amos/tools/governance/stamp...يناقض سجل git.\n  - /home/user/workspace/amos/tools/dev/README.md: مُعلَن 2026-10-16 · الواقع 2026-11-01\n', stderr='').returncode
+
+tests/governance/test_identity_law.py:287: AssertionError
+=========================== short test summary info ============================
+FAILED tests/governance/test_identity_law.py::test_generators_are_settled_on_the_repository[stamp_readme_identity]
+1 failed, 31 passed in 38.07s
+/home/user/workspace/amos/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+[PREPUSH] ✗ فشلَ: 7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)
+
+[PREPUSH] ▶ 8· مِرساةُ القيودِ المفتوحةِ (open_record_accountability · Work Governance)
+_WITHOUT_GUARD: RK-012 (docs/governance/work/RISK_REGISTER.md:30): مُعلَنٌ بيدِ المالكِ ولا حرسَ له — إبلاغٌ لا إسقاطٌ: لا فعلَ لمنفِّذٍ فيه، وتاريخُ استحقاقِه قرارُ المالكِ لا اختراعُ عاملٍ.
+  ملاحظة · OWNER_HELD_WITHOUT_GUARD: RK-015 (docs/governance/work/RISK_REGISTER.md:33): مُعلَنٌ بيدِ المالكِ ولا حرسَ له — إبلاغٌ لا إسقاطٌ: لا فعلَ لمنفِّذٍ فيه، وتاريخُ استحقاقِه قرارُ المالكِ لا اختراعُ عاملٍ.
+  ملاحظة · OWNER_HELD_WITHOUT_GUARD: RK-016 (docs/governance/work/RISK_REGISTER.md:34): مُعلَنٌ بيدِ المالكِ ولا حرسَ له — إبلاغٌ لا إسقاطٌ: لا فعلَ لمنفِّذٍ فيه، وتاريخُ استحقاقِه قرارُ المالكِ لا اختراعُ عاملٍ.
+  ملاحظة · OWNER_HELD_WITHOUT_GUARD: RK-017 (docs/governance/work/RISK_REGISTER.md:35): مُعلَنٌ بيدِ المالكِ ولا حرسَ له — إبلاغٌ لا إسقاطٌ: لا فعلَ لمنفِّذٍ فيه، وتاريخُ استحقاقِه قرارُ المالكِ لا اختراعُ عاملٍ.
+  ملاحظة · OWNER_HELD_WITHOUT_GUARD: RK-021 (docs/governance/work/RISK_REGISTER.md:38): مُعلَنٌ بيدِ المالكِ ولا حرسَ له — إبلاغٌ لا إسقاطٌ: لا فعلَ لمنفِّذٍ فيه، وتاريخُ استحقاقِه قرارُ المالكِ لا اختراعُ عاملٍ.
+  ملاحظة · OWNER_HELD_WITHOUT_GUARD: RK-022 (docs/governance/work/RISK_REGISTER.md:39): مُعلَنٌ بيدِ المالكِ ولا حرسَ له — إبلاغٌ لا إسقاطٌ: لا فعلَ لمنفِّذٍ فيه، وتاريخُ استحقاقِه قرارُ المالكِ لا اختراعُ عاملٍ.
+  ملاحظة · ANCHOR_TALLY: صفوفٌ مقروءةٌ 172 · مفتوحةٌ 142 · محروسةٌ 36 · باستحقاقٍ 66 · بيدِ المالكِ 40 · بلا مِرساةٍ 0.
+  ✗ DUE_DATE_PASSED: DISC-095 (docs/governance/work/DISCOVERIES.md:107): استحقاقُه 2026-10-31 وقد مضى (اليومَ 2026-11-01) — الاستحقاقُ الفائتُ ليس مِرساةً.
+  ✗ DUE_DATE_PASSED: DISC-096 (docs/governance/work/DISCOVERIES.md:108): استحقاقُه 2026-10-31 وقد مضى (اليومَ 2026-11-01) — الاستحقاقُ الفائتُ ليس مِرساةً.
+  ✗ DUE_DATE_PASSED: DISC-105 (docs/governance/work/DISCOVERIES.md:118): استحقاقُه 2026-10-31 وقد مضى (اليومَ 2026-11-01) — الاستحقاقُ الفائتُ ليس مِرساةً.
+  ✗ DUE_DATE_PASSED: RK-023 (docs/governance/work/RISK_REGISTER.md:40): استحقاقُه 2026-10-31 وقد مضى (اليومَ 2026-11-01) — الاستحقاقُ الفائتُ ليس مِرساةً.
+[PREPUSH] ✗ فشلَ: 8· مِرساةُ القيودِ المفتوحةِ (open_record_accountability · Work Governance)
+
+[PREPUSH] ▶ 9· طزاجةُ مصفوفةِ الحقيقةِ (git diff بعدَ الخطوة 5 · Truth Audit)
+✓
+
+[PREPUSH] ▶ 10· حوكمةُ العملِ (--self-check بلا تاريخٍ · كما في CI)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+[PREPUSH] ▶ 11· حوكمةُ العملِ (--range origin/main..HEAD)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+
+[PREPUSH] ▶ 12· إغلاقُ إنفاذِ الحرسِ (guard_enforcement_closure)
+  ✓ لا مخالفةَ مقيسةً: كلُّ دعوى دفعةٍ لها طريقُ إنفاذٍ.
+
+[PREPUSH] ▶ 13· حرسُ إزاحةِ التزامِ الدمجِ (pre_push_merge_guard)
+[MERGE GUARD] ✓ المدى `53bb0cc5da..01d8d78b5b` لا يحتوي على التزامِ دمجٍ — فلا خرقَ يُقاسُ على التزاماتِ الدمجِ (وليسَ هذا إثباتًا للتقديمِ السريعِ: انعدامُ الدمجِ شرطٌ لا برهانُ ff)
+
+[PREPUSH] ▶ 14· سجلُّ الإكمالِ (--self-check)
+[LEDGER GATE] ✓ التوثيقُ مقيَّدٌ مع العمل — لا مخالفة.
+
+[PREPUSH] ▶ 15· سجلُّ الإكمالِ (--range origin/main..HEAD)
+[LEDGER GATE] ✓ التوثيقُ مقيَّدٌ مع العمل — لا مخالفة.
+
+[PREPUSH] ▶ 16· جردُ مخازنِ الذاكرةِ المنشورُ (--check)
+[IN-MEMORY INVENTORY --check] ✓ القياسُ المنشورُ طازجٌ ويُطابِقُ المصدرَ: docs/audit/measurements/in_memory_inventory.json
+
+[PREPUSH] ▶ 17· افتراقُ التسعيرِ المنشورُ (--check)
+[PRICING DIVERGENCE --check] ✓ القياسُ المنشورُ طازجٌ ويُطابِقُ المصدرَ: docs/audit/measurements/pricing_divergence.json
+
+[PREPUSH] ▶ 18· نَسَبُ القياساتِ وطزاجتُها (--check --without-deps)
+عقدُ نَسَبِ القياساتِ مستقيمٌ: 11 قياسًا مقيَّدًا · 8 محروسًا (‏منها 1 برباطٍ مقيسٍ نصًّا) · 3 مُعلَنًا بسببٍ مكتوبٍ. ومُؤَجَّلٌ إلى الشطرِ الآخرِ: 2 (‏من 2 يحتاجُ حزمًا خارجيّةً).
+
+[PREPUSH] ▶ 19· بطاقاتُ الهويّةِ (check_repository_identity)
+نجح: كل مجلد يحمل بطاقة هوية كاملة، وكل ملف يُعلن هدفه.
+
+[PREPUSH] ▶ 20· بطاقاتُ المواطنينَ المستوردينَ (--check)
+[IDENTITY CARDS] ✓ كل بطاقات المواطنين المستوردين مولَّدة ومحدَّثة.
+
+[PREPUSH] ▶ 21· بطاقاتُ الأقاليمِ (--check)
+✓ كل الأقاليم المسجّلة (45) لها بطاقة هوية.
+
+[PREPUSH] ▶ 22· الحقولُ المشتقّةُ مختومةٌ (--check)
+[README STAMP] ✗ 1 بطاقة تُعلن تاريخًا يناقض سجل git.
+  - /home/user/workspace/amos/tools/dev/README.md: مُعلَن 2026-10-16 · الواقع 2026-11-01
+[PREPUSH] ✗ فشلَ: 22· الحقولُ المشتقّةُ مختومةٌ (--check)
+
+[PREPUSH] ▶ 23· تفسيرا INT-001 وINT-002 قائمانِ والمدقّقُ يستندُ إليهما
+✓ التفسيرانِ قائمانِ والمدقّقُ يستندُ إلى INT-001.
+
+[PREPUSH] ▶ 24· الخاتمُ لا يكتبُ حقولَ الحكمِ
+✓ الخاتمُ يشتقُّ ولا يختلق.
+
+[PREPUSH] ▶ 25· لا اسمَ غريبًا في الجذرِ (check_root_file_names)
+[ROOT NAMES GATE] ✓ لا اسمَ غريبًا في الجذرِ ولا اسمَ مفتاحِ فهرسةٍ في الشجرةِ.
+
+[PREPUSH] ▶ 26· مِسبارُ الوَثبِ (mutation_probe)
+  ✓ كلُّ دعوى مُسجَّلةٍ سقَطَ عندَها ما أُعلِنَ من فحوصٍ — لا مخالفة.
+
+[PREPUSH] ▶ 27· اختباراتُ الحوكمةِ كلُّها (pytest tests/governance/ · ومنها الطزاجة)
+طحٍ يتصرّفُ كما صُرِّحَ به.
+E           بلا مقامٍ · tools/governance/schema_inventory_drift.py:497 · [SCHEMA INVENTORY] ✓ المُعلَنُ مستقيمٌ  ومطابقٌ للمقيس.  (بلا مطابقةٍ حيّة).
+E           بلا مقامٍ · tools/governance/stamp_readme_identity.py:322 · [README STAMP] ✓ كل البطاقات تحمل حقليها المشتقّين مطابقين للواقع.
+E           بلا مقامٍ · tools/governance/suite_size_inventory.py:553 · ✓ لا مخالفةَ مقيسةً: كلُّ رقمِ حزمةٍ **مقروءٍ بالصيغتَينِ المُعلَنتَينِ** («N نجحَت · M مُتخطّاة» و«المُجمَّعُ حيًّا N»)
+E           بلا مقامٍ · tools/governance/truth_audit.py:1104 · [FRESHNESS] ✓ الأثرُ المُولَّدُ المكتوبُ في الشجرةِ يطابقُ المُولَّدَ الآنَ.
+E           بلا مقامٍ · tools/governance/truth_limit_integrity.py:339 · [TRUTH LIMIT] ✓ لا نموَّ في التباسِ أرقامِ الحدودِ، والعددُ المُعلَنُ مُطابِقٌ.
+E           بلا مقامٍ · tools/governance/verify_cross_system_suites.py:359 · [CROSS-SYSTEM] ✓ الوثيقة المولَّدة مطابقة للمصفوفة المُعلنة.
+E         
+E         [GREEN DENOMINATOR] ✗ مخالفات: 1
+E           STALE_DENOMINATOR_BASELINE: مقامُ القياسِ نفسُه تغيَّرَ فالقيدُ متقادِمٌ — green_sentences: مقيسٌ 48 · المُعلَنُ 44: يُعادُ القياسُ ويُصحَّحُ القيدُ
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/user/workspace/amos/.venv/bin/python', '/home/user/workspace/amos/tools/governance/green... القياسِ نفسُه تغيَّرَ فالقيدُ متقادِمٌ — green_sentences: مقيسٌ 48 · المُعلَنُ 44: يُعادُ القياسُ ويُصحَّحُ القيدُ\n').returncode
+
+tests/governance/test_w130_green_denominator_closure.py:328: AssertionError
+=========================== short test summary info ============================
+FAILED tests/governance/test_identity_law.py::test_generators_are_settled_on_the_repository[stamp_readme_identity]
+FAILED tests/governance/test_w130_green_denominator_closure.py::test_the_repository_matches_its_declared_baseline
+FAILED tests/governance/test_w130_green_denominator_closure.py::test_the_check_face_passes_on_the_repository
+3 failed, 1420 passed in 495.35s (0:08:15)
+/home/user/workspace/amos/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+[PREPUSH] ✗ فشلَ: 27· اختباراتُ الحوكمةِ كلُّها (pytest tests/governance/ · ومنها الطزاجة)
+
+[PREPUSH] ▶ 28· إصدارُ ruff = 0.6.9 (المثبَّتُ في CI)
+✓ ruff 0.6.9
+
+[PREPUSH] ▶ 29· ruff check . (المستودعُ كلُّه)
+All checks passed!
+
+[PREPUSH] ▶ 30· ruff check src/ tests/ (الخدمات)
+All checks passed!
+
+[PREPUSH] ▶ 31· ruff format --check src/ tests/ (الخدمات)
+258 files already formatted
+
+[PREPUSH] ▶ 32· ruff format --check . بسقفِ قائمةِ الدَّينِ (أشدُّ من CI)
+غيرُ المنسَّقِ الآن 212 · قائمةُ الدَّين 212 · زائدٌ 0 · سُدِّدَ 0
+
+[PREPUSH] ▶ 33· الحزمُ الحرجةُ في requirements.lock
+✓ الحزمُ الستُّ في requirements.lock: fastapi · uvicorn · sqlalchemy · anthropic · structlog · pydantic
+
+============================================================
+[PREPUSH] وظائفُ CI التي لا تُقاسُ هنا (خضرتُها من CI وحدَه):
+[PREPUSH]   · Constitutional Kernel: تغطيةُ فروعٍ ≥ 90% وسجلٌّ مؤقّت · نطاقُ K1
+[PREPUSH]   · Sovereignty Kernel: تبعيّاتُ الخدماتِ وتغطيةٌ ≥ 90% · نطاقُ C3
+[PREPUSH]   · Crown Root of Trust: تبعيّاتُ الخدماتِ وفحصُ تاريخِ git كلِّه
+[PREPUSH]   · Smoke: اثنا عشرَ مجالًا بتبعيّاتِ الخدماتِ كاملة
+[PREPUSH]   · Tests: حزمةُ الخدماتِ كاملةً (≈ 23 دقيقةً مقيسة)
+[PREPUSH]   · Coverage: حزمةُ الخدماتِ كاملةً بتغطيةٍ ≥ 80%
+[PREPUSH]   · Cross-System Suites: خادمُ PostgreSQL 17
+[PREPUSH] ✗ 7· فحوصُ الهويةِ واتساقِ المراجعِ (test_w154 + قانونُ الهويةِ)
+[PREPUSH] ✗ 8· مِرساةُ القيودِ المفتوحةِ (open_record_accountability · Work Governance)
+[PREPUSH] ✗ 22· الحقولُ المشتقّةُ مختومةٌ (--check)
+[PREPUSH] ✗ 27· اختباراتُ الحوكمةِ كلُّها (pytest tests/governance/ · ومنها الطزاجة)
+[PREPUSH] ممنوعٌ الدفعُ — الحرسُ لم يخضرَّ كلُّه.
+EXIT=1 SECONDS=811
