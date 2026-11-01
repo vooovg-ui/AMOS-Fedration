@@ -1,0 +1,12 @@
+# W-780 — قناةُ الدفعِ والدمجِ لدفعةِ W-778+W-779 (PR #243 · 2026-11-01 UTC) — خامٌّ
+# الهدف: إثباتُ أن العقدةَ المدموجةَ شجرتُها شجرةُ الالتزامِ المحليِّ الذي اجتازَ البوابة.
+# المالك: Perplexity Computer (منسِّق · Claude Opus 5.5) · البند WI-100 · القيد W-780
+
+$ python3 tools/dev/prepush_gate.py → EXIT=0 على 614a2854 (W-779) · «جائزٌ الدفعُ — الحرسُ أخضرُ كلُّه»
+$ .venv/bin/python tools/governance/measurement_provenance.py . --check --only-deps → مستقيم (يدويًّا بحكمِ DISC-153)
+$ GIT_TERMINAL_PROMPT=0 timeout 45 git push origin w-778-779-n1-wi085-cap → rc=124 (DISC-152)
+REST بلا قوّة: 62ed7303 → 48f4d802 (الشجرة 7f717cdd) · 614a2854 → f607871c750966cc0c45988dceff1ed0e740d4c6 (الشجرة 5cb14312 = المحليّة)
+POST git/refs refs/heads/w-778-779-n1-wi085-cap → f607871c · PR #243
+CI على f607871c: 41353244198 (13/13) · 41353239047 (1/1) — الفاحص EXIT=0
+PATCH git/refs/heads/main sha=f607871c force=false → تقديمٌ سريعٌ من ccd73347 · PR #243 MERGED 2026-11-01T22:02:51Z
+main بعدَ التقديم: 41355094796 (13/13) · 41355094742 (1/1) — الفاحص EXIT=0
