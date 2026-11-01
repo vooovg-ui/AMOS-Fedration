@@ -13,7 +13,7 @@ Perplexity Computer (المنسِّقُ Claude Opus 5.5 · قيدُ W-778 · WI-
 2026-11-01
 
 ## تاريخ آخر تعديل
-2026-11-01 (W-778 — الإنشاء)
+2026-11-01
 
 ## المحتويات
 - `ci/`: حمولاتُ `gh api …/runs/{id}/jobs` الخامُّ للتشغيلاتِ الأربعة وخرجُ الفاحصِ `--from-json --require-readable --expect-sha` (EXIT=0 ×2).

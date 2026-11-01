@@ -1,0 +1,27 @@
+# W-779 — طفراتُ سقفِ ملاحظاتِ زرِّ التوقّف (§ 5 من docs/audit/WI085_MONITORING_EXIT_CRITERION.md) — خامٌّ
+# الهدف: إثباتُ أن الاختباراتِ تكشفُ الطفراتِ الثلاثَ المُسمّاةَ في التصميم · تُطبَّقُ واحدةً واحدةً على core/sovereignty/gateway.py ثم يُستعادُ الأصلُ (cmp مطابق)
+# المالك: Perplexity Computer (منسِّق · Claude Opus 5.5) · البند WI-085 · القيد W-779 · 2026-11-01
+# الأمر: .venv/bin/python -m pytest tests/sovereignty/test_w752_kill_switch_observe.py -q -p no:cacheprovider -W ignore
+
+== M1 إزالةُ maxlen
+   الاستبدال: 'deque( maxlen=KILL_SWITCH_OBSERVATIONS_CAP )' → 'deque()'
+   rc=1 · 3 failed, 27 passed in 0.18s
+   FAILED tests/sovereignty/test_w752_kill_switch_observe.py::test_cap_constant_is_design_value
+   FAILED tests/sovereignty/test_w752_kill_switch_observe.py::test_cap_plus_five_bounds_memory_counts_dropped_and_exports_all[1]
+   FAILED tests/sovereignty/test_w752_kill_switch_observe.py::test_cap_plus_five_bounds_memory_counts_dropped_and_exports_all[7]
+   الحكم: مكتشَفة
+== M2 عدمُ عدِّ المُسقَط
+   الاستبدال: 'self._kill_switch_observations_dropped += 1' → 'pass'
+   rc=1 · 2 failed, 28 passed in 0.15s
+   FAILED tests/sovereignty/test_w752_kill_switch_observe.py::test_cap_plus_five_bounds_memory_counts_dropped_and_exports_all[1]
+   FAILED tests/sovereignty/test_w752_kill_switch_observe.py::test_cap_plus_five_bounds_memory_counts_dropped_and_exports_all[7]
+   الحكم: مكتشَفة
+== M3 المُصرِّفُ للمحفوظِ فقط
+   الاستبدال: 'if self._kill_switch_sink is not None: self._kill_switch_sink(observation)' → 'if self._kill_switch_sink is not None and self._kill_switch_observations_total <= kept.maxlen: self._kill_switch_sink(observation)'
+   rc=1 · 2 failed, 28 passed in 0.15s
+   FAILED tests/sovereignty/test_w752_kill_switch_observe.py::test_cap_plus_five_bounds_memory_counts_dropped_and_exports_all[1]
+   FAILED tests/sovereignty/test_w752_kill_switch_observe.py::test_cap_plus_five_bounds_memory_counts_dropped_and_exports_all[7]
+   الحكم: مكتشَفة
+== بعدَ الاستعادة: 30 passed in 0.16s
+
+النتيجة: 3/3 مكتشَفة · 0 ناجية

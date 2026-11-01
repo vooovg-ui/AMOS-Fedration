@@ -1,9 +1,9 @@
 """الهدف: إثباتُ مرحلةِ المراقبةِ لـWI-085 في النواة (Q-79 · ب · م2 · غ1): البوّابةُ تقرأُ المستوى من مصدرٍ مُسجَّلٍ وتأخذُ الأعلى
 وتُسجِّلُ «ما كانَ سيمنعُه» — **ولا تمنع**: الحكمُ والتنفيذُ كما كانا (معيارُ § 10.6 (1) من `docs/audit/WI085_KILL_SWITCH_INJECTION_DESIGN.md`).
 
-المالك: tests/sovereignty/ — البندُ WI-085 (قيدُ W-752)
+المالك: tests/sovereignty/ — البندُ WI-085 (قيدُ W-752 · وسقفُ الذاكرةِ بقيدِ W-779)
 تاريخ الإنشاء: 2026-10-30
-تاريخ آخر تعديل: 2026-10-30
+تاريخ آخر تعديل: 2026-11-01 (W-779 — اختباراتُ سقفِ الملاحظات · § 5 من WI085_MONITORING_EXIT_CRITERION) · وقبله: 2026-10-30
 """
 
 from __future__ import annotations
@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 
 import pytest
 import core.sovereignty.crown as crown_mod
+import core.sovereignty.gateway as gateway_mod
 from core.constitutional_engine.engine import ConstitutionalEngine
 from core.constitutional_engine.ledger import ConstitutionalLedger
 from core.constitutional_engine.model import ActionRequest, Branch
@@ -248,3 +249,53 @@ def test_sovereign_path_observed_not_blocked(crown, gw) -> None:
     assert done == ["تم"]
     (o,) = gw.kill_switch_observations
     assert o.path == "sovereign" and o.effective_level == 5
+
+
+# ── سقفُ الذاكرة (W-779 · § 5 من `docs/audit/WI085_MONITORING_EXIT_CRITERION.md`) ──────────
+
+
+def test_cap_constant_is_design_value(gw) -> None:
+    assert gateway_mod.KILL_SWITCH_OBSERVATIONS_CAP == 10_000
+    assert gw._kill_switch_observations.maxlen == 10_000
+    assert gw.kill_switch_observations_total == 0
+    assert gw.kill_switch_observations_dropped == 0
+
+
+@pytest.mark.parametrize("cap", [1, 7])
+def test_cap_plus_five_bounds_memory_counts_dropped_and_exports_all(
+    monkeypatch, tmp_path, cap
+) -> None:
+    """‏CAP+5 ⇒ الطولُ CAP · المُسقَطُ 5 · الكلُّ CAP+5 · المُصرِّفُ CAP+5 — والعبورُ كلُّه نافذ."""
+    monkeypatch.setattr(gateway_mod, "KILL_SWITCH_OBSERVATIONS_CAP", cap)
+    ledger = ConstitutionalLedger(tmp_path / "cap.jsonl")
+    g = SovereignGateway(ConstitutionalEngine(ledger=ledger))
+    exported: list[object] = []
+    g.register_kill_switch_source(_Fixed(4), exported.append)
+    done: list[int] = []
+    for i in range(cap + 5):
+        g.execute(_req("create_task"), lambda i=i: done.append(i))
+    assert done == list(range(cap + 5)), "السقفُ منعَ عبورًا — والقرارُ «بلا منع»"
+    assert len(g.kill_switch_observations) == cap
+    assert g.kill_switch_observations_dropped == 5
+    assert g.kill_switch_observations_total == cap + 5
+    # المُصرِّفُ لكلِّ ملاحظة: السقفُ يحدُّ الذاكرةَ لا الدليل
+    assert len(exported) == cap + 5
+    # المحفوظُ هو الأحدث: آخرُ CAP ملاحظةً مُصرَّفةً بعينِها
+    assert list(g.kill_switch_observations) == exported[-cap:]
+    assert g.kill_switch_observation_errors == 0
+
+
+def test_below_cap_nothing_dropped(gw) -> None:
+    gw.register_kill_switch_source(_Fixed(4))
+    for _ in range(3):
+        gw.review(_req("create_task"))
+    assert len(gw.kill_switch_observations) == 3
+    assert gw.kill_switch_observations_total == 3
+    assert gw.kill_switch_observations_dropped == 0
+
+
+def test_unobserved_crossings_not_counted_in_total(gw) -> None:
+    gw.register_kill_switch_source(_Fixed(0))
+    gw.review(_req("create_task"))
+    assert gw.kill_switch_observations_total == 0
+    assert gw.kill_switch_observations_dropped == 0

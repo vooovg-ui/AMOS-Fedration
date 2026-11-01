@@ -2,7 +2,7 @@
 
 المالك: core/sovereignty/ — التاج
 تاريخ الإنشاء: 2026-08-16
-تاريخ آخر تعديل: 2026-10-30 (W-752 — مراقبةُ زرِّ التوقّفِ بلا منع · WI-085 · Q-79)
+تاريخ آخر تعديل: 2026-11-01 (W-779 — سقفُ ملاحظاتِ زرِّ التوقّفِ في الذاكرة · WI-085 · Q-87 قرار 6) · وقبله: 2026-10-30 (W-752 — مراقبةُ زرِّ التوقّفِ بلا منع · WI-085 · Q-79)
 
 هذه الوحدة تُغلق الدين الأكبر في E1: كان المحرك يحكم ولا يمنع، لأن لا شيء كان
 مُلزَمًا بسؤاله. البوابة تجعل السؤال شرط التنفيذ لا خيارًا مجاورًا له.
@@ -32,6 +32,7 @@
 from __future__ import annotations
 
 import logging
+from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 
@@ -83,6 +84,10 @@ from core.sovereignty.security_events import SecurityEventKind, SecurityEventLog
 _kill_switch_log = logging.getLogger("core.sovereignty.kill_switch")
 
 T = TypeVar("T")
+
+# WI-085 · W-779 (`docs/audit/WI085_MONITORING_EXIT_CRITERION.md` § 5): سقفُ ملاحظاتِ زرِّ التوقّفِ في ذاكرةِ الجلسة.
+# يحدُّ الذاكرةَ لا الدليل: المُصرِّفُ يُستدعى لكلِّ ملاحظةٍ وإن أُسقِطَت، والمُسقَطُ معدودٌ مكشوف.
+KILL_SWITCH_OBSERVATIONS_CAP = 10_000
 
 # أسماء ممنوعة في معاملات البوابة — تُفحَص آليًا في الاختبارات
 FORBIDDEN_BYPASS_PARAMS = frozenset(
@@ -246,7 +251,11 @@ class SovereignGateway:
         # لا مصدرَ مُسجَّلٌ ⇒ يُقرأُ 5 (غ1) ويُلاحَظُ ولا يُمنَع.
         self._kill_switch_source: KillSwitchLevelSource | None = None
         self._kill_switch_sink: ObservationSink | None = None
-        self._kill_switch_observations: list[KillSwitchObservation] = []
+        self._kill_switch_observations: deque[KillSwitchObservation] = deque(
+            maxlen=KILL_SWITCH_OBSERVATIONS_CAP
+        )
+        self._kill_switch_observations_total = 0
+        self._kill_switch_observations_dropped = 0
         self._kill_switch_observation_errors = 0
 
     # ── الاستعلام ─────────────────────────────────────────────────────────
@@ -300,13 +309,27 @@ class SovereignGateway:
         """عددُ أعطالِ المراقبةِ نفسِها (المُصرِّفُ أو الحكم) — مكشوفٌ لا مبتلَعٌ صامتًا."""
         return self._kill_switch_observation_errors
 
+    @property
+    def kill_switch_observations_total(self) -> int:
+        """كلُّ ما لوحِظَ في الجلسة — المحفوظُ في الذاكرةِ والمُسقَطُ منها (§ 5)."""
+        return self._kill_switch_observations_total
+
+    @property
+    def kill_switch_observations_dropped(self) -> int:
+        """ما أُسقِطَ من الذاكرةِ لامتلاءِ السقف. ‏> 0 إنذارٌ يُفتَحُ له قيدٌ (§ 2.0) — لا يُبتلَعُ صامتًا."""
+        return self._kill_switch_observations_dropped
+
     def _observe_kill_switch(self, request: ActionRequest, verdict: Verdict, path: str) -> None:
         """لاحِظْ ولا تمنعْ: الحكمُ لا يتغيّرُ، وعطلُ المراقبةِ لا يُسقِطُ العبور (§ 10.3)."""
         try:
             observation = observe(request, verdict, path=path, source=self._kill_switch_source)
             if observation is None:
                 return
+            kept = self._kill_switch_observations
+            if len(kept) == kept.maxlen:
+                self._kill_switch_observations_dropped += 1
             self._kill_switch_observations.append(observation)
+            self._kill_switch_observations_total += 1
             if self._kill_switch_sink is not None:
                 self._kill_switch_sink(observation)
         except Exception:  # noqa: BLE001 — «بلا منع» نصُّ القرار: المراقبةُ لا تُسقِطُ تشغيلًا سليمًا
