@@ -1,0 +1,29 @@
+# W-772 — قياسُ قناةِ الدفعِ (git receive-pack) يومَ 2026-11-01 — خامٌّ
+# الهدف: توثيقُ سببِ انحرافِ مسلكِ الدمجِ في W-771 عن `TZ=UTC git push origin <sha>:main` بالقياسِ لا بالرواية.
+# المالك: Perplexity Computer (منسِّق) · البند WI-100 · القيد W-772
+
+## 1. git push إلى الفرعِ (ثلاثُ محاولاتٍ · ثمَّ إلى main)
+$ GIT_TERMINAL_PROMPT=0 timeout 90 git push -u origin w-771-q91-council-families   → rc=124 (انتهاءُ المهلةِ بلا ردٍّ) ×3
+$ TZ=UTC GIT_TERMINAL_PROMPT=0 timeout 90 git push origin 2211610b…:main             → rc=124
+$ timeout 60 git -c http.version=HTTP/1.1 push origin main:test-tiny-branch           → rc=124 (دفعٌ بلا أيِّ كائنٍ جديد)
+
+## 2. ما يعملُ في القناةِ نفسِها
+$ git ls-remote origin HEAD   → rc=0 · 6d7a1863ebf98036372b7a57fa7011fe5a69af36  HEAD
+$ git fetch origin            → rc=0
+GET  …/info/refs?service=git-receive-pack (بالاعتماد)  → HTTP 200 · agent=github/spokes-receive-pack-…
+
+## 3. السببُ مقيسًا: أمرُ تحديثِ مرجعٍ واحدٍ بلا حزمةٍ عبرَ POST …/git-receive-pack (pkt-line يدويًّا)
+الأمر: 0000…0000 6d7a1863… refs/heads/curl-test-branch
+الرد: HTTP 200 · "unpack no voting servers succeeded" · "ng refs/heads/curl-test-branch failed"
+⇒ الخادمُ (GitHub spokes) يرفضُ كلَّ كتابةٍ عبرَ git receive-pack — عطبٌ في جهةِ الخادمِ لا في الشجرةِ ولا في الاعتماد.
+
+## 4. واجهةُ REST تعملُ للكتابة
+POST repos/…/git/refs  ref=refs/heads/api-test-branch sha=6d7a1863  → 201 (أُنشئَ فرعُ اختبارٍ)
+DELETE repos/…/git/refs/heads/api-test-branch                          → 422 "Repository rule violations found · Cannot delete this branch"
+⇒ فرعُ الاختبارِ `api-test-branch` باقٍ على 6d7a1863 (عقدةُ main السابقة · لا محتوى جديد) — حذفُه بيدِ المالكِ (قاعدةُ المستودع).
+
+## 5. المسلكُ البديلُ المستعمَلُ في W-771 (مُعلَنٌ هنا)
+- الالتزامُ بُنِيَ بالواجهة: 16 blob ⇒ tree 95dd115a ⇒ commit 2211610b (الأبُ 6d7a1863 · المؤلِّفُ والملتزِمُ vooovg-ui · 2026-11-01T14:56:46Z بختمِ UTC «Z»).
+- شجرتُه 95dd115a **مطابقةٌ** لشجرةِ الالتزامِ المحلّيِّ cab4353a الذي اجتازَ prepush_gate كاملةً (EXIT=0) — `git rev-parse <c>^{tree}` للاثنَين.
+- الفرعُ أُنشئَ بالواجهة ⇒ PR #239 ⇒ CI 14/14 ⇒ الفاحصُ EXIT=0 على 2211610b ⇒ `PATCH git/refs/heads/main sha=2211610b` بلا `force` (الواجهةُ ترفضُ ما ليس تقديمًا سريعًا) ⇒ main = 2211610b · PR #239 MERGED 2026-11-01T15:51:29Z.
+- لا `gh pr merge` · لا زرَّ GitHub · لا دفعَ قسريّ · والطابعُ UTC — مقصدُ الأمرِ الدائمِ § 4 البندِ 4 محفوظٌ، والأداةُ وحدَها اختلفت (REST بدلَ git push) — انحرافٌ مُعلَنٌ للمالك (DISC-152).

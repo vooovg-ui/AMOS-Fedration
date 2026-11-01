@@ -1,0 +1,29 @@
+# W-772 session measurements — UTC 2026-11-01T16:16:56Z — main = 2211610bbcb408968cf2247c92d483b782802b13
+## gh pr list --state open
+#73 revert-72-wi-082-spawn-agent
+#71 wi-086-ledger-a2
+#70 wi-085-ledger-append-design
+#69 wi-082-stage3
+#55 w-337-mutation-probe
+## remote heads count
+259
+## highest W in branch names
+771
+## check_work_governance --self-check
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-114: قيدُه (W-664، W-672، W-675) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-115: قيدُه (W-665، W-668، W-670، W-673) مدموجٌ في «origin/main» وحالتُه ما زالت IN_PROGRESS — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+EXIT=0
+## check_work_governance --today 2026-11-05
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-112: قيدُه (W-643) مدموجٌ في «origin/main» وحالتُه ما زالت READY — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-114: قيدُه (W-664، W-672، W-675) مدموجٌ في «origin/main» وحالتُه ما زالت IN_REVIEW — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ⚠ POST_MERGE_NOT_CLOSED: WI-115: قيدُه (W-665، W-668، W-670، W-673) مدموجٌ في «origin/main» وحالتُه ما زالت IN_PROGRESS — يُنقَلُ إلى CLOSED ويُكتَبُ فيه W-### ورقمُ الدمجِ (THE_ROADMAP § 7 واجب 2) — إبلاغٌ بلا إسقاطٍ: بينَ الدمجِ والإغلاقِ نافذةُ التزامٍ واحدٍ مشروعةٌ؛ الإسقاطُ بـ`--enforce-post-merge` أو بقرارِ `A-3` (§ 13.3 · `DISC-030`)
+[WORK GATE] ✓ كلُّ عملٍ مُسجَّلٌ ومملوكٌ ولا تقاطع — لا مخالفة.
+## truth_audit --ratchet
+  - HARDCODED_TRUTH: 2
+[TRUTH AUDIT] كُتبت: /home/user/workspace/amos/docs/audit/TRUTH_MATRIX.md
+[RATCHET] ثابت عند 61 مخالفة.
+## state_document_drift
+    الحقلُ المُعلَنُ حالةً: تاريخ آخر تعديل · قيدُه W-771 · السطرُ 12
+  ملاحظة · LEDGER_HEAD: أحدثُ قيدٍ مقروءٍ في § 8: W-771 (2026-11-01) · وعددُ الصفوفِ 769 · ووثائقُ الحالةِ المُعلَنةُ 2 منها 0 متأخِّرةٌ · وحقولٌ مُعلَنةٌ متأخِّرةٌ 0.
+  ✓ لا انحرافَ مقيسًا: كلُّ وثيقةِ حالةٍ تذكرُ أحدثَ قيدٍ.
