@@ -1,0 +1,21 @@
+# W-775 — قناةُ الدفعِ لدفعةِ W-772+W-773 (2026-11-01) — خامٌّ
+# الهدف: إثباتُ أن مسلكَ REST (DISC-152) تكرّرَ بالقياس، وأن العقدةَ المدموجةَ شجرتُها شجرةُ الالتزامِ المحليِّ الذي اجتازَ البوابة.
+# المالك: Perplexity Computer (منسِّق · Claude Opus 5.5) · البند WI-100 · القيد W-775
+
+## 1. بوابةُ ما قبلَ الدفع
+$ python3 tools/dev/prepush_gate.py   (المحاولةُ الأولى EXIT=1: الخطوة 3 — طابعا الالتزامِ تساويا بعدَ autosquash ⇒ `git rebase --committer-date-is-author-date`)
+$ python3 tools/dev/prepush_gate.py   → «جائزٌ الدفعُ — الحرسُ أخضرُ كلُّه.» EXIT=0 على b59d8e4f (W-772) و d62ba54c (W-773)
+
+## 2. git push
+$ GIT_TERMINAL_PROMPT=0 timeout 60 git push origin w-772-773-n1-wi126   → rc=124 (العطبُ نفسُه · DISC-152)
+
+## 3. REST (بلا قوّة): blobs → tree (base_tree = شجرةُ الأب) → commit بالرسالةِ والمؤلِّفِ والطابعينِ أنفسِهم
+b59d8e4f (W-772) → cf4cce8d494724f207601ad5e9161ac7212530b1 · الشجرة 63fc7531 = شجرةُ b59d8e4f
+d62ba54c (W-773) → 8e57dd87d8ed5ba7ad874e1285f56864eb6a9b46 · الشجرة 9a34e446 = شجرةُ d62ba54c
+(كلُّ blob تحقّقَ أن SHA المُنشَأ = SHA المحليّ؛ وكلُّ شجرةٍ تحقّقَ تطابقُها قبلَ إنشاءِ الالتزام)
+POST git/refs refs/heads/w-772-773-n1-wi126 → 8e57dd87
+
+## 4. PR والدمج
+PR #240 · CI: 41330039051 (13/13) · 41330034948 (1/1) — الفاحصُ --require-readable --expect-sha 8e57dd87… EXIT=0
+PATCH git/refs/heads/main sha=8e57dd87… force=false → 8e57dd87 (تقديمٌ سريعٌ من 2211610b) · PR #240 MERGED 2026-11-01T17:37:08Z
+main بعدَ التقديم: 41332395012 (13/13) · 41332395114 (1/1) — EXIT=0
