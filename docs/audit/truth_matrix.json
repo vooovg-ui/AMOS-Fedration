@@ -62,7 +62,7 @@
       "secret_hits": 0,
       "observed_hits": 0,
       "api_routes": 0,
-      "test_refs": 70,
+      "test_refs": 72,
       "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
@@ -83,7 +83,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 70
+        "TEST_NAME_MENTIONS": 72
       },
       "maturity": "SPECIFIED",
       "findings_count": 0
@@ -91,9 +91,9 @@
     "federal": {
       "domain": "federal",
       "md_files": 60,
-      "py_files": 263,
+      "py_files": 264,
       "yaml_files": 3,
-      "code_lines": 79406,
+      "code_lines": 80033,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
@@ -391,22 +391,22 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 735,
-      "py_files": 63,
+      "md_files": 738,
+      "py_files": 64,
       "yaml_files": 0,
-      "code_lines": 6983,
+      "code_lines": 7121,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
       },
       "has_readme": true,
-      "real_source_hits": 27,
+      "real_source_hits": 28,
       "fake_hits": 0,
       "in_memory_hits": 0,
       "secret_hits": 0,
       "observed_hits": 6,
       "api_routes": 0,
-      "test_refs": 215,
+      "test_refs": 216,
       "identity_violations": 0,
       "test_evidence": "ABSENT",
       "coverage_evidence": "ABSENT",
@@ -427,7 +427,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 215
+        "TEST_NAME_MENTIONS": 216
       },
       "maturity": "IMPLEMENTED",
       "findings_count": 0
@@ -492,7 +492,7 @@
       "secret_hits": 0,
       "observed_hits": 5,
       "api_routes": 0,
-      "test_refs": 379,
+      "test_refs": 380,
       "identity_violations": 0,
       "test_evidence": "PASS",
       "coverage_evidence": "ABSENT",
@@ -513,7 +513,7 @@
           "COVERAGE": "ABSENT",
           "DEPLOYMENT": "ABSENT"
         },
-        "TEST_NAME_MENTIONS": 379
+        "TEST_NAME_MENTIONS": 380
       },
       "maturity": "INTEGRATED",
       "findings_count": 0

@@ -73,6 +73,7 @@ from amos_federation.common.money_delegation import resolve_money_delegation
 from amos_federation.common.principal import DEFAULT_TENANT
 from amos_federation.services.executive_core.engine import get_executive_core
 from amos_federation.services.executive_core.money_authority import (
+    MoneyFollowUp,
     money_crossing_contract,
     money_crossing_kwargs,
     require_constitutional_money_authority,
@@ -1587,11 +1588,19 @@ class StateTreasury:
         decision_id: str | None = None,
         reference: str | None = None,
         idempotency_key: str | None = None,
+        follow_up: tuple[MoneyFollowUp, ...] = (),
+        composite: str | None = None,
     ) -> dict[str, Any]:
         """اصرف من تخصيص: مَدينٌ مصروف ودائنٌ نقديّ.
 
         ثلاثة حدود مفروضة قبل أي كتابة: التخصيص نشط · المصروف عليه + المبلغ ≤
         مبلغه · ورصيد الحساب النقدي يكفي. وكلها مقروءة من الصفوف لا من عدّاد.
+
+        [W-796 · WI-127 · § 2.10 قرار 3 · § 2.11] `follow_up` آثارٌ مُعلَنةٌ يحملُها **هذا العبورُ
+        نفسُه** بعدَ أثرِ الحركة (سجلُّ العمليّةِ وحالةُ المركَّب)، لكلٍّ معوِّضُه — فلا يكتبُ
+        المركَّبُ بعدَ الصرفِ خارجَ أيِّ عبور. يُضيفُ آثارًا ولا يُسقِطُ العبور، فليسَ معاملَ
+        تجاوز. وافتراضُه فارغٌ فلا يتغيّرُ مُنادٍ قائم. و`composite` اسمُ المركَّبِ المُنادي يُكتَبُ
+        في بياناتِ العبور. والإعادةُ بمفتاحٍ قائمٍ تُجابُ قبلَ العبورِ بلا أن تُطبَّقَ الصفوف.
         """
         grant_required = gate_treasury_operation(
             context, "treasury.disbursement.post", PERMISSIONS_DISBURSE
@@ -1750,8 +1759,14 @@ class StateTreasury:
             undo_description="قيدٌ عكسيٌّ للحركة بـreverse_transaction — لا حذفَ في الدفتر",
             # [W-765 · Q-88] يقرأُ الحركةَ بمعرِّفِها المُولَّدِ قبلَ العبور فهو مُثبِّت.
             undo_idempotent=True,
-            metadata={"tenant_id": tenant, "reference": reference, "official_id": official_id},
+            metadata={
+                "tenant_id": tenant,
+                "reference": reference,
+                "official_id": official_id,
+                **({"composite": composite} if composite else {}),
+            },
             authorizer_factory=self._money_authorizer_factory,
+            follow_up=follow_up,
         )
         return settle_money_crossing(
             lambda: contract["authorizer"].guard_declared(

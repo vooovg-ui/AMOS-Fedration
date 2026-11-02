@@ -1,0 +1,55 @@
+{
+  "$comment": "الهدف: خرجُ مِسبارِ الطفراتِ الخمسِ لـWI-127 خامًا (mutation_probe.py --json · W-796) — 5/5 مقتولة · لُفَّت القائمةُ في مفتاحِ results لإعلانِ الهدفِ وحده",
+  "results": [
+    {
+      "id": "①",
+      "what": "معوِّضُ الصفِّ اللاحقِ فارغ (لا يحذفُ ولا يُرجِع)",
+      "file": "federal/executive/services/src/amos_federation/services/executive_core/money_authority.py",
+      "test": "test_3_expenditure_late_failure_reverses_money_and_removes_the_record",
+      "baseline_rc": 0,
+      "mutated_rc": 1,
+      "reason": "E   AssertionError: صفُّ العمليّةِ حُذِفَ بمعوِّضِه | E   assert 1 == 0",
+      "killed": true
+    },
+    {
+      "id": "②",
+      "what": "سجلُّ العمليّةِ وحالتُها يُكتَبانِ بعدَ `disburse` خارجَ العبور (الشكلُ السابقُ للقيد)",
+      "file": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+      "test": "test_3_expenditure_late_failure_reverses_money_and_removes_the_record",
+      "baseline_rc": 0,
+      "mutated_rc": 1,
+      "reason": "E   AssertionError: الحركةُ عُكِسَت بقيدٍ عكسيّ | E   assert 0 == (0 + 1)",
+      "killed": true
+    },
+    {
+      "id": "③",
+      "what": "فاعلُ `EXECUTIVE` بدلَ مدخلِ الجدولِ للعبورِ ذي الصفوف",
+      "file": "federal/executive/services/src/amos_federation/services/executive_core/money_authority.py",
+      "test": "test_1_expenditure_writes_record_and_status_inside_the_crossing",
+      "baseline_rc": 0,
+      "mutated_rc": 1,
+      "reason": "E   core.sovereignty.gateway.SovereigntyViolation: DENY — 1 مخالفة دستورية: | E     [CRITICAL] A003 (المادة الثالثة — الفصل بين السلطات) · البند: الفروع الأربعة — الحدود · القاعدة R-003-1 | E         السبب: الفرع «executive» يمارس «disburse_funds» وهو اختصاص حصري للفرع «treasury». الفصل بين السلطات يمنع ذلك.",
+      "killed": true
+    },
+    {
+      "id": "④",
+      "what": "الصفوفُ تُعلَنُ قبلَ أثرِ الحركة (سجلٌّ بلا مرجعِ حركة)",
+      "file": "federal/executive/services/src/amos_federation/services/executive_core/money_authority.py",
+      "test": "test_1_expenditure_writes_record_and_status_inside_the_crossing",
+      "baseline_rc": 0,
+      "mutated_rc": 1,
+      "reason": "E   core.sovereignty.idempotency.IdempotencyError: العمليّةُ «state_treasury.disburse:default:exp-EXP-46FDC168DF56» فشلت: 'NoneType' object has no attribute 'get' | E   core.sovereignty.compensation.CompensationRequired: العمليّةُ «state_treasury.disburse:default:exp-EXP-46FDC168DF56@attempt2» على العقد «EC-f324fac397397e5e» فشلت (IdempotencyError: العمليّةُ «state_treasury.disburse:default:exp-EX",
+      "killed": true
+    },
+    {
+      "id": "⑤",
+      "what": "صفٌّ بلا معوِّضٍ يُعطى معوِّضًا فارغًا بدلَ أن يُرفَضَ العقد",
+      "file": "federal/executive/services/src/amos_federation/services/executive_core/money_authority.py",
+      "test": "test_8_follow_up_without_compensator_is_refused_before_any_write",
+      "baseline_rc": 0,
+      "mutated_rc": 1,
+      "reason": "E   Failed: DID NOT RAISE Exception",
+      "killed": true
+    }
+  ]
+}

@@ -51,6 +51,7 @@ from amos_federation.common.database import get_session_factory, init_db
 from amos_federation.common.money import to_money
 from amos_federation.common.principal import DEFAULT_TENANT
 from amos_federation.services.executive_core import get_executive_core
+from amos_federation.services.executive_core.money_authority import MoneyFollowUp
 from amos_federation.services.federal_state.authority import (
     GovernmentAuthority,
     GovernmentAuthorityError,
@@ -123,6 +124,11 @@ def _now() -> datetime:
 
 def _iso(value: datetime | None) -> str | None:
     return value.isoformat() if value else None
+
+
+def new_operation_id() -> str:
+    """معرِّفُ صفِّ عمليّةٍ حكوميّة — يُولَّدُ قبلَ عبورِ المالِ حينَ يكونُ السجلُّ أثرًا فيه."""
+    return f"gop-{uuid.uuid4().hex[:12]}"
 
 
 class FederalStateGovernment:
@@ -894,13 +900,18 @@ class FederalStateGovernment:
         transaction_reference: str | None,
         status: str,
         detail: str,
+        operation_id: str | None = None,
     ) -> dict[str, Any]:
-        """اكتب أثرَ عمليةٍ حكومية ثمّ أعلنه — الصفُّ يجيب أسئلةَ R8-F السبعة."""
+        """اكتب أثرَ عمليةٍ حكومية ثمّ أعلنه — الصفُّ يجيب أسئلةَ R8-F السبعة.
+
+        [W-796 · § 2.11 قرار 4] `operation_id` معرِّفٌ يُولِّدُه المُنادي **قبلَ** عبورِ المال
+        ليحذفَ معوِّضُ `follow_up` ما أنشأتْه العمليّةُ وحدَه. وافتراضُه التوليدُ كما كان.
+        """
         tenant = self._tenant_of(context)
         session = self._session()
         try:
             row = GovernmentOperationModel(
-                id=f"gop-{uuid.uuid4().hex[:12]}",
+                id=operation_id or new_operation_id(),
                 kind=kind,
                 level=level,
                 government_id=authority.target.government_id,
@@ -1096,18 +1107,13 @@ class FederalStateGovernment:
         finally:
             session.close()
 
-        result = treasury.disburse(
-            context=context,
-            allocation_id=allocation_id,
-            expense_account_code=expense_account_code,
-            amount=amount,
-            purpose=purpose,
-            official_id=official_id,
-            idempotency_key=idempotency_key,
-        )
-        reference = result.get("reference") or result.get("id")
-        return {
-            **self._record_operation(
+        # [W-796 · WI-127 · § 2.10 قرار 3 · § 2.11] سجلُّ العمليّةِ أثرٌ مُعلَنٌ في عبورِ `disburse`
+        # نفسِه (لا كتابةَ بعدَه خارجَ أيِّ عبور): يُكتَبُ بعدَ الحركةِ ويُحذَفُ بمعوِّضِه إن فشلَ ما بعدَه.
+        operation_id = new_operation_id()
+
+        def _record(transfer: Any) -> dict[str, Any]:
+            reference = transfer.get("reference") or transfer.get("id")
+            return self._record_operation(
                 context,
                 kind="TREASURY",
                 level=level,
@@ -1121,9 +1127,51 @@ class FederalStateGovernment:
                 transaction_reference=reference,
                 status="executed" if reference else "failed",
                 detail=purpose,
+                operation_id=operation_id,
+            )
+
+        result = treasury.disburse(
+            context=context,
+            allocation_id=allocation_id,
+            expense_account_code=expense_account_code,
+            amount=amount,
+            purpose=purpose,
+            official_id=official_id,
+            idempotency_key=idempotency_key,
+            composite="federation.execute_scoped_disbursement",
+            follow_up=(
+                MoneyFollowUp(
+                    kind="CREATE",
+                    suffix="government_operation",
+                    detail="سجلُّ العمليّةِ الحكوميّة (TREASURY) لهذا الصرف",
+                    apply=_record,
+                    undo=lambda _record_result: self._discard_operation(operation_id),
+                    undo_description="حذفُ صفِّ العمليّةِ الذي أنشأتْه هذه العمليّةُ وحدَها بمعرِّفِه",
+                    undo_idempotent=True,
+                ),
             ),
-            "transaction": result,
-        }
+        )
+        follow = result.pop("follow_up", None)
+        if follow is None:
+            # إعادةٌ بمفتاحٍ قائم: الخزانةُ أجابتْ قبلَ العبور فلم تُطبَّقِ الصفوف — فلا سجلَّ ثانيًا
+            # (§ 2.11 قرار 6 · تغيُّرٌ مُعلَن: كانت الإعادةُ تكتبُ سجلًّا ثانيًا).
+            return {"id": None, "idempotent": True, "transaction": result}
+        return {**follow[0], "transaction": result}
+
+    def _discard_operation(self, operation_id: str) -> None:
+        """معوِّضُ `follow_up`: احذفْ صفَّ العمليّةِ بمعرِّفِه المُولَّدِ قبلَ العبور — مُثبِّت.
+
+        لا يمسُّ إلّا ما أنشأتْه العمليّةُ نفسُها؛ وغيابُ الصفِّ (لم يُكتَبْ بعدُ) ليس خطأً.
+        وأثرُ التدقيقِ والحدثِ المكتوبُ بعدَ الالتزامِ لا يُمحى (§ 2.11 قرار 5).
+        """
+        session = self._session()
+        try:
+            row = session.get(GovernmentOperationModel, operation_id)
+            if row is not None:
+                session.delete(row)
+                session.commit()
+        finally:
+            session.close()
 
     # ── القراءة ──────────────────────────────────────────────────────────
 

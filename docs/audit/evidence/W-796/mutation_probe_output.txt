@@ -1,0 +1,13 @@
+# الأمر: PYTHONPATH=federal/executive/services/src .venv/bin/python docs/audit/evidence/W-796/mutation_probe.py --json docs/audit/evidence/W-796/mutation_probe_output.json
+# الشجرة: ae7e3d05 + شِفرةُ W-796 (غيرُ ملتزمةٍ وقتَ التشغيل) · 2026-11-02 UTC · EXIT=0
+① KILLED · أساس=0 · طفرة=1 · معوِّضُ الصفِّ اللاحقِ فارغ (لا يحذفُ ولا يُرجِع)
+   السبب: E   AssertionError: صفُّ العمليّةِ حُذِفَ بمعوِّضِه | E   assert 1 == 0
+② KILLED · أساس=0 · طفرة=1 · سجلُّ العمليّةِ وحالتُها يُكتَبانِ بعدَ `disburse` خارجَ العبور (الشكلُ السابقُ للقيد)
+   السبب: E   AssertionError: الحركةُ عُكِسَت بقيدٍ عكسيّ | E   assert 0 == (0 + 1)
+③ KILLED · أساس=0 · طفرة=1 · فاعلُ `EXECUTIVE` بدلَ مدخلِ الجدولِ للعبورِ ذي الصفوف
+   السبب: E   core.sovereignty.gateway.SovereigntyViolation: DENY — 1 مخالفة دستورية: | E     [CRITICAL] A003 (المادة الثالثة — الفصل بين السلطات) · البند: الفروع الأربعة — الحدود · القاعدة R-003-1 | E         السبب: الفرع «executive» يمارس «disburse_funds» وهو اختصاص حصري للفرع «treasury». الفصل بين السلطات يمنع ذلك.
+④ KILLED · أساس=0 · طفرة=1 · الصفوفُ تُعلَنُ قبلَ أثرِ الحركة (سجلٌّ بلا مرجعِ حركة)
+   السبب: E   core.sovereignty.idempotency.IdempotencyError: العمليّةُ «state_treasury.disburse:default:exp-EXP-46FDC168DF56» فشلت: 'NoneType' object has no attribute 'get' | E   core.sovereignty.compensation.CompensationRequired: العمليّةُ «state_treasury.disburse:default:exp-EXP-46FDC168DF56@attempt2» على العقد «EC-f324fac397397e5e» فشلت (IdempotencyError: العمليّةُ «state_treasury.disburse:default:exp-EX
+⑤ KILLED · أساس=0 · طفرة=1 · صفٌّ بلا معوِّضٍ يُعطى معوِّضًا فارغًا بدلَ أن يُرفَضَ العقد
+   السبب: E   Failed: DID NOT RAISE Exception
+المجموع: 5/5 مقتولة

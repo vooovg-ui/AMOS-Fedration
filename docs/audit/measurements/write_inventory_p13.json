@@ -1,7 +1,7 @@
 {
  "$comment": "الهدف: جردُ مواضعِ الكتابةِ في المستودعِ وتصنيفُ ما عبرَ الحدَّ السّياديَّ وما لم يعبُر— مُخرَجُ tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ · دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039).",
  "summary": {
-  "write_sites_total": 267,
+  "write_sites_total": 271,
   "by_area": {
    "core": {
     "public": 1,
@@ -982,6 +982,7 @@
    "guarded": false,
    "closed_legacy": false,
    "writes_via": [
+    "_discard_operation",
     "_record_operation"
    ]
   },
@@ -2795,6 +2796,58 @@
    "public": true,
    "writes": [
     "add()",
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "_mark_executed",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "_mark_executed",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "_restore",
+   "ordinal": 0,
+   "public": false,
+   "writes": [
+    "commit()"
+   ],
+   "guarded": false,
+   "closed_legacy": false,
+   "writes_via": []
+  },
+  {
+   "path": "federal/executive/services/src/amos_federation/services/national_economy/service.py",
+   "owner": "NationalEconomy",
+   "function": "_restore",
+   "ordinal": 1,
+   "public": false,
+   "writes": [
     "commit()"
    ],
    "guarded": false,

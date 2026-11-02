@@ -55,9 +55,10 @@ from amos_federation.common.database import get_session_factory, init_db
 from amos_federation.common.money_delegation import resolve_money_delegation
 from amos_federation.common.principal import DEFAULT_TENANT
 from amos_federation.services.executive_core import get_executive_core
+from amos_federation.services.executive_core.money_authority import MoneyFollowUp
 from amos_federation.services.federal_state.authority import require_government_authority
 from amos_federation.services.federal_state.models import GovernmentModel
-from amos_federation.services.federal_state.service import get_federal_state
+from amos_federation.services.federal_state.service import get_federal_state, new_operation_id
 from amos_federation.services.national_economy.authorization import (
     PERMISSIONS_ECONOMY_EXECUTE,
     PERMISSIONS_ECONOMY_POLICY_WRITE,
@@ -1436,8 +1437,95 @@ class NationalEconomy:
             department_id = row.department_id
             purpose = row.purpose
             decision_id = row.decision_id
+            # ما يُرجِعُه معوِّضُ WRITE (UPDATE في § 2.11): الحقولُ كما قُرئت قبلَ العبور (§ 2.11 قرار 4).
+            row_before = (row.status, row.transaction_reference, row.operation_id, row.updated_at)
+            decision_row = session.get(EconomicDecisionModel, decision_id) if decision_id else None
+            decision_before = (
+                (
+                    decision_row.status,
+                    decision_row.transaction_reference,
+                    decision_row.operation_id,
+                    decision_row.task_id,
+                )
+                if decision_row is not None
+                else None
+            )
         finally:
             session.close()
+        # [W-796 · WI-127 · § 2.10 قرار 3 · § 2.11] سجلُّ العمليّةِ والحالةُ آثارٌ مُعلَنةٌ في عبورِ
+        # `disburse` نفسِه بمعوِّضٍ لكلٍّ — لا كتابةَ بعدَ الصرفِ خارجَ أيِّ عبور.
+        operation_id = new_operation_id()
+        done: dict[str, Any] = {}
+
+        def _record(transfer: Any) -> dict[str, Any]:
+            done["reference"] = transfer.get("reference") or transfer.get("id")
+            done["operation"] = self._federation._record_operation(
+                context,
+                kind="TREASURY",
+                level=scope_level,
+                authority=authority,
+                institution_id=institution_id,
+                department_id=department_id,
+                decision_id=None,
+                case_id=None,
+                ruling_id=None,
+                task_id=None,
+                transaction_reference=done["reference"],
+                status="executed",
+                detail=f"تنفيذُ إجازةِ إنفاق {reference}",
+                operation_id=operation_id,
+            )
+            return done["operation"]
+
+        def _mark_executed(_transfer: Any) -> tuple[dict[str, Any], dict[str, Any]]:
+            session = self._session()
+            try:
+                row = session.get(ExpenditureAuthorizationModel, authorization_id)
+                row.status = "executed"
+                row.transaction_reference = done["reference"]
+                row.operation_id = done["operation"]["id"]
+                row.updated_at = _now()
+                decision = session.get(EconomicDecisionModel, decision_id) if decision_id else None
+                if decision is not None:
+                    decision.status = "executed"
+                    decision.transaction_reference = done["reference"]
+                    decision.operation_id = done["operation"]["id"]
+                    decision.task_id = decision.task_id or done["operation"].get("task_id")
+                session.commit()
+                session.refresh(row)
+                return (
+                    self._expenditure_dict(row),
+                    (
+                        self._decision_dict(decision)
+                        if decision is not None
+                        else self._orphan_decision(row)
+                    ),
+                )
+            finally:
+                session.close()
+
+        def _restore(_marked: Any) -> None:
+            session = self._session()
+            try:
+                row = session.get(ExpenditureAuthorizationModel, authorization_id)
+                if row is not None:
+                    (
+                        row.status,
+                        row.transaction_reference,
+                        row.operation_id,
+                        row.updated_at,
+                    ) = row_before
+                decision = session.get(EconomicDecisionModel, decision_id) if decision_id else None
+                if decision is not None and decision_before is not None:
+                    (
+                        decision.status,
+                        decision.transaction_reference,
+                        decision.operation_id,
+                        decision.task_id,
+                    ) = decision_before
+                session.commit()
+            finally:
+                session.close()
 
         transaction = treasury.disburse(
             context=context,
@@ -1447,49 +1535,37 @@ class NationalEconomy:
             purpose=purpose,
             official_id=official_id,
             idempotency_key=idempotency_key or f"exp-{reference}",
+            composite="economy.execute_expenditure",
+            follow_up=(
+                MoneyFollowUp(
+                    kind="CREATE",
+                    suffix="government_operation",
+                    detail="سجلُّ العمليّةِ الحكوميّة (TREASURY) لتنفيذِ الإجازة",
+                    apply=_record,
+                    undo=lambda _r: self._federation._discard_operation(operation_id),
+                    undo_description="حذفُ صفِّ العمليّةِ الذي أنشأتْه هذه العمليّةُ وحدَها بمعرِّفِه",
+                    undo_idempotent=True,
+                ),
+                MoneyFollowUp(
+                    kind="WRITE",
+                    suffix=f"expenditure_authorizations/{authorization_id}",
+                    detail="حالةُ الإجازةِ وقرارِها: authorized → executed",
+                    apply=_mark_executed,
+                    undo=_restore,
+                    undo_description="إرجاعُ الحقولِ إلى قيمِها المقروءةِ قبلَ العبور",
+                    undo_idempotent=True,
+                ),
+            ),
         )
-        transaction_reference = transaction.get("reference") or transaction.get("id")
-
-        operation_record = self._federation._record_operation(
-            context,
-            kind="TREASURY",
-            level=scope_level,
-            authority=authority,
-            institution_id=institution_id,
-            department_id=department_id,
-            decision_id=None,
-            case_id=None,
-            ruling_id=None,
-            task_id=None,
-            transaction_reference=transaction_reference,
-            status="executed",
-            detail=f"تنفيذُ إجازةِ إنفاق {reference}",
-        )
-
-        session = self._session()
-        try:
-            row = session.get(ExpenditureAuthorizationModel, authorization_id)
-            row.status = "executed"
-            row.transaction_reference = transaction_reference
-            row.operation_id = operation_record["id"]
-            row.updated_at = _now()
-            decision = session.get(EconomicDecisionModel, decision_id) if decision_id else None
-            if decision is not None:
-                decision.status = "executed"
-                decision.transaction_reference = transaction_reference
-                decision.operation_id = operation_record["id"]
-                decision.task_id = decision.task_id or operation_record.get("task_id")
-            session.commit()
-            session.refresh(row)
-            payload = self._expenditure_dict(row)
-            decision_payload = (
-                self._decision_dict(decision)
-                if decision is not None
-                else self._orphan_decision(row)
+        follow = transaction.pop("follow_up", None)
+        if follow is None:
+            # الخزانةُ أجابتْ مفتاحًا قائمًا قبلَ العبور: حركةٌ سابقةٌ بلا سجلٍّ ولا حالة — حالةٌ
+            # جزئيّةٌ لا تُصلَحُ بكتابةٍ خارجَ العبور (§ 2.11 · تغيُّرٌ مُعلَن).
+            raise EconomicStateError(
+                f"إجازةُ '{reference}' لها حركةٌ قائمةٌ بالمفتاحِ نفسِه بلا سجلِّ تنفيذ — "
+                "حالةٌ جزئيّةٌ سابقةٌ تُعالَجُ بقرارٍ لا بإعادة"
             )
-        finally:
-            session.close()
-
+        payload, decision_payload = follow[1]
         trace = self._announce(
             context,
             action="economy.expenditure.execute",
@@ -1753,8 +1829,88 @@ class NationalEconomy:
             scope_level, institution_id = row.scope_level, row.institution_id
             department_id, purpose, decision_id = row.department_id, row.purpose, row.decision_id
             transfer_kind = row.transfer_kind
+            # ما يُرجِعُه معوِّضُ WRITE (UPDATE في § 2.11): الحقولُ كما قُرئت قبلَ العبور (§ 2.11 قرار 4).
+            row_before = (row.status, row.transaction_reference, row.operation_id, row.updated_at)
+            decision_row = session.get(EconomicDecisionModel, decision_id) if decision_id else None
+            decision_before = (
+                (
+                    decision_row.status,
+                    decision_row.transaction_reference,
+                    decision_row.operation_id,
+                )
+                if decision_row is not None
+                else None
+            )
         finally:
             session.close()
+        # [W-796 · WI-127 · § 2.10 قرار 3 · § 2.11] سجلُّ العمليّةِ والحالةُ آثارٌ مُعلَنةٌ في عبورِ
+        # `disburse` نفسِه بمعوِّضٍ لكلٍّ — لا كتابةَ بعدَ الصرفِ خارجَ أيِّ عبور.
+        operation_id = new_operation_id()
+        done: dict[str, Any] = {}
+
+        def _record(transfer: Any) -> dict[str, Any]:
+            done["reference"] = transfer.get("reference") or transfer.get("id")
+            done["operation"] = self._federation._record_operation(
+                context,
+                kind="TREASURY",
+                level=scope_level,
+                authority=authority,
+                institution_id=institution_id,
+                department_id=department_id,
+                decision_id=None,
+                case_id=None,
+                ruling_id=None,
+                task_id=None,
+                transaction_reference=done["reference"],
+                status="executed",
+                detail=f"صرفُ تحويل {transfer_kind} {reference}",
+                operation_id=operation_id,
+            )
+            return done["operation"]
+
+        def _mark_executed(_transfer: Any) -> tuple[dict[str, Any], dict[str, Any]]:
+            session = self._session()
+            try:
+                row = session.get(EconomicTransferModel, transfer_id)
+                row.status = "executed"
+                row.transaction_reference = done["reference"]
+                row.operation_id = done["operation"]["id"]
+                row.updated_at = _now()
+                decision = session.get(EconomicDecisionModel, decision_id) if decision_id else None
+                if decision is not None:
+                    decision.status = "executed"
+                    decision.transaction_reference = done["reference"]
+                    decision.operation_id = done["operation"]["id"]
+                session.commit()
+                session.refresh(row)
+                return (
+                    self._transfer_dict(row),
+                    self._decision_dict(decision) if decision is not None else {},
+                )
+            finally:
+                session.close()
+
+        def _restore(_marked: Any) -> None:
+            session = self._session()
+            try:
+                row = session.get(EconomicTransferModel, transfer_id)
+                if row is not None:
+                    (
+                        row.status,
+                        row.transaction_reference,
+                        row.operation_id,
+                        row.updated_at,
+                    ) = row_before
+                decision = session.get(EconomicDecisionModel, decision_id) if decision_id else None
+                if decision is not None and decision_before is not None:
+                    (
+                        decision.status,
+                        decision.transaction_reference,
+                        decision.operation_id,
+                    ) = decision_before
+                session.commit()
+            finally:
+                session.close()
 
         transaction = treasury.disburse(
             context=context,
@@ -1764,42 +1920,37 @@ class NationalEconomy:
             purpose=purpose,
             official_id=official_id,
             idempotency_key=idempotency_key or f"trf-{reference}",
+            composite="economy.execute_transfer",
+            follow_up=(
+                MoneyFollowUp(
+                    kind="CREATE",
+                    suffix="government_operation",
+                    detail="سجلُّ العمليّةِ الحكوميّة (TREASURY) لصرفِ التحويل",
+                    apply=_record,
+                    undo=lambda _r: self._federation._discard_operation(operation_id),
+                    undo_description="حذفُ صفِّ العمليّةِ الذي أنشأتْه هذه العمليّةُ وحدَها بمعرِّفِه",
+                    undo_idempotent=True,
+                ),
+                MoneyFollowUp(
+                    kind="WRITE",
+                    suffix=f"economic_transfers/{transfer_id}",
+                    detail="حالةُ التحويلِ وقرارِه: authorized → executed",
+                    apply=_mark_executed,
+                    undo=_restore,
+                    undo_description="إرجاعُ الحقولِ إلى قيمِها المقروءةِ قبلَ العبور",
+                    undo_idempotent=True,
+                ),
+            ),
         )
-        transaction_reference = transaction.get("reference") or transaction.get("id")
-        operation_record = self._federation._record_operation(
-            context,
-            kind="TREASURY",
-            level=scope_level,
-            authority=authority,
-            institution_id=institution_id,
-            department_id=department_id,
-            decision_id=None,
-            case_id=None,
-            ruling_id=None,
-            task_id=None,
-            transaction_reference=transaction_reference,
-            status="executed",
-            detail=f"صرفُ تحويل {transfer_kind} {reference}",
-        )
-
-        session = self._session()
-        try:
-            row = session.get(EconomicTransferModel, transfer_id)
-            row.status = "executed"
-            row.transaction_reference = transaction_reference
-            row.operation_id = operation_record["id"]
-            row.updated_at = _now()
-            decision = session.get(EconomicDecisionModel, decision_id) if decision_id else None
-            if decision is not None:
-                decision.status = "executed"
-                decision.transaction_reference = transaction_reference
-                decision.operation_id = operation_record["id"]
-            session.commit()
-            session.refresh(row)
-            payload = self._transfer_dict(row)
-            decision_payload = self._decision_dict(decision) if decision is not None else {}
-        finally:
-            session.close()
+        follow = transaction.pop("follow_up", None)
+        if follow is None:
+            # الخزانةُ أجابتْ مفتاحًا قائمًا قبلَ العبور: حركةٌ سابقةٌ بلا سجلٍّ ولا حالة — حالةٌ
+            # جزئيّةٌ لا تُصلَحُ بكتابةٍ خارجَ العبور (§ 2.11 · تغيُّرٌ مُعلَن).
+            raise EconomicStateError(
+                f"تحويلُ '{reference}' له حركةٌ قائمةٌ بالمفتاحِ نفسِه بلا سجلِّ صرف — "
+                "حالةٌ جزئيّةٌ سابقةٌ تُعالَجُ بقرارٍ لا بإعادة"
+            )
+        payload, decision_payload = follow[1]
         return {**payload, "transaction": transaction, "decision": decision_payload}
 
     @staticmethod

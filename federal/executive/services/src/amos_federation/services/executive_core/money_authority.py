@@ -64,6 +64,7 @@ Q-19 أثبتَ أنَّ **أربعةً** من عشرةِ مواضعِ تحري�
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from amos_federation.common.money_delegation import resolve_money_delegation
@@ -201,6 +202,30 @@ def _crossing_authorizer_for(actor: str) -> ConstitutionalAuthorizer:
     return _authorizer_for(actor, slot="crossing")
 
 
+FOLLOW_UP_KINDS = frozenset({"CREATE", "WRITE"})
+"""أنواعُ آثارِ `follow_up` المقبولة (§ 2.11 قرار 2): كتابةُ سجلٍّ أو تحديثُ حالة — لا مالَ ولا خارج."""
+
+
+@dataclass(frozen=True)
+class MoneyFollowUp:
+    """أثرٌ مُعلَنٌ إضافيٌّ يُطبَّقُ **داخلَ عبورِ المالِ نفسِه** بعدَ أثرِ الحركة (§ 2.10 قرار 3).
+
+    - `suffix`: لاحقةُ موردٍ ثابتةٌ تحتَ هدفِ العبور (`<target>/<suffix>`) — ثابتةٌ من مرجعِ
+      العمليّةِ لا من `uuid`، فتبقى بصمةُ الطلبِ واحدةً عندَ الإعادة (§ 2.11 قرار 2).
+    - `apply(transfer_result)`: يتلقّى نتيجةَ أثرِ الحركة، ويُعيدُ نتيجتَه.
+    - `undo(own_result)`: معوِّضُه المُعلَن. و`None` يعني «بلا معوِّض» فيرفضُ الحدُّ العقدَ
+      قبلَ أيِّ كتابة (1I · `UncompensatableEffectError`) — لا يُستبدَلُ به معوِّضٌ فارغ.
+    """
+
+    kind: str
+    suffix: str
+    detail: str
+    apply: Callable[[Any], Any]
+    undo: Callable[[Any], None] | None
+    undo_description: str
+    undo_idempotent: bool = False
+
+
 def money_crossing_contract(
     *,
     operation: str,
@@ -215,6 +240,7 @@ def money_crossing_contract(
     metadata: dict[str, Any],
     authorizer_factory: Callable[[str], Any] | None = None,
     undo_idempotent: bool = False,
+    follow_up: tuple[MoneyFollowUp, ...] = (),
 ) -> dict[str, Any]:
     """عقدُ عبورٍ واحدٍ لعمليّةِ مالٍ ذرّيّة — يُبنى هنا، **ويعبرُ في جسدِ العمليّةِ العامّة**.
 
@@ -231,15 +257,47 @@ def money_crossing_contract(
       التدقيقِ والحدثِ (`record_domain_trace`) بعدَ الالتزام، فالمُطبِّقُ **غيرُ ذرّيّ**
       (`evidence/W-764/treasury_atomicity_probe_before.txt`). فـ`undo_idempotent=True` تصريحُ
       العمليّةِ بأنَّ `undo` آمنٌ وقعَ الأثرُ أم لم يقع، فيُشغِّلُه الحدُّ على الأثرِ «ربما طُبِّق».
+    - **[W-796 · WI-127 · § 2.10/§ 2.11] `follow_up`:** آثارٌ مُعلَنةٌ إضافيّةٌ تُضافُ إلى **العبورِ
+      نفسِه** بعدَ أثرِ الحركة، لكلٍّ معوِّضُه — فلا عبورَ ثانٍ ولا تعشيش، ولا يسقطُ العبور.
+      والمُطبِّقُ يوزّعُ بتوقيعِ الأثر؛ وفشلُ أثرٍ لاحقٍ يُعوِّضُ ما قبلَه بالحدِّ نفسِه.
     """
     delegation = resolve_money_delegation(operation, entrypoint=entrypoint)
     effect = declared_effect(effect_kind, target, detail)
-    applied: dict[str, Any] = {}
+    applied: dict[str, Any] = {"follow_up": {}}
+    follow_effects: list[tuple[Any, MoneyFollowUp]] = []
+    for item in follow_up:
+        if item.kind not in FOLLOW_UP_KINDS:
+            raise ValueError(
+                f"أثرُ follow_up «{item.suffix}» نوعُه «{item.kind}» — المقبولُ "
+                f"{sorted(FOLLOW_UP_KINDS)} وحدَه"
+            )
+        follow_effects.append(
+            (declared_effect(item.kind, f"{target}/{item.suffix}", item.detail), item)
+        )
+    signatures = [effect.signature] + [e.signature for e, _ in follow_effects]
+    if len(set(signatures)) != len(signatures):
+        raise ValueError("آثارُ العبورِ تتكرّرُ توقيعًا — لكلِّ أثرٍ لاحقةٌ مستقلّة")
+    by_signature = {e.signature: item for e, item in follow_effects}
 
-    def _apply(_effect: Any) -> Any:
-        result = apply()
-        applied["result"] = result
+    def _apply(declared: Any) -> Any:
+        item = by_signature.get(declared.signature)
+        if item is None:
+            result = apply()
+            applied["result"] = result
+            return result
+        result = item.apply(applied.get("result"))
+        applied["follow_up"][declared.signature] = result
         return result
+
+    def _follow_compensator(
+        declared: Any, item: MoneyFollowUp, undo_item: Callable[[Any], None]
+    ) -> Any:
+        return compensator(
+            declared.signature,
+            lambda: undo_item(applied["follow_up"].get(declared.signature)),
+            item.undo_description,
+            idempotent=item.undo_idempotent,
+        )
 
     build = authorizer_factory if authorizer_factory is not None else _crossing_authorizer_for
     return {
@@ -247,7 +305,7 @@ def money_crossing_contract(
         "actor": delegation.actor,
         "action": delegation.constitutional_action,
         "target": target,
-        "declared_effects": (effect,),
+        "declared_effects": (effect, *(e for e, _ in follow_effects)),
         "applier": _apply,
         "operation_key": operation_key(f"state_treasury.{entrypoint}", key_value),
         "compensators": (
@@ -257,7 +315,14 @@ def money_crossing_contract(
                 undo_description,
                 idempotent=undo_idempotent,
             ),
+            # الصفُّ بلا معوِّضٍ لا يُبنى له معوِّضٌ فارغ: يرفضُه الحدُّ قبلَ أيِّ كتابة (1I).
+            *(
+                _follow_compensator(e, item, item.undo)
+                for e, item in follow_effects
+                if item.undo is not None
+            ),
         ),
+        "follow_up_count": len(follow_effects),
         "metadata": {
             **metadata,
             "money_operation": delegation.operation,
@@ -315,12 +380,19 @@ def settle_money_crossing(cross: Callable[[], Any], contract: dict[str, Any]) ->
             "operation_key": guarded.outcome.operation_key,
             "target": contract["target"],
         }
+    if contract.get("follow_up_count"):
+        # [W-796 · § 2.11 قرار 3] تعدُّدُ الآثارِ يجعلُ القيمةَ صفًّا بترتيبِ التطبيق: الحركةُ أوّلًا
+        # ثمَّ الصفوف. فيُعادُ ما يراه المُنادي اليومَ وتُضافُ إليه نتائجُ الصفوف.
+        primary, *rest = guarded.value
+        return {**primary, "follow_up": list(rest)}
     return guarded.value
 
 
 __all__ = [
     "ALLOWED_DECISION",
+    "FOLLOW_UP_KINDS",
     "ConstitutionalMoneyDenialError",
+    "MoneyFollowUp",
     "money_crossing_contract",
     "money_crossing_kwargs",
     "require_constitutional_money_authority",
