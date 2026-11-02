@@ -1,0 +1,29 @@
+# الهدف: مخرجُ مِسبارِ W-791 خامًا · الأمر: .venv/bin/python docs/audit/evidence/W-791/follow_up_inventory_probe.py · العقدة: d5f3418a0a25e2401eb9db8d03f3165dee56cad3 · التاريخ: 2026-11-02T05:44:47+00:00
+## S0 اليوم: disburse ثمَّ كتابةٌ مباشرة
+  site pkg/economy.py:Economy.execute_expenditure public=True guarded=False writes=['add()', 'commit()'] via=[]
+  site pkg/treasury.py:Treasury._apply public=False guarded=False writes=['add()'] via=[]
+  site pkg/treasury.py:Treasury.disburse public=True guarded=True writes=['add()'] via=[]
+  summary: total=3 public=2 crossing=1 not_crossing=1
+  private_writers_unattributed=['_apply']
+## S1 مُطبِّقٌ مُتداخِلٌ في جسدِ السطح
+  site pkg/economy.py:Economy._record public=False guarded=False writes=['add()'] via=[]
+  site pkg/economy.py:Economy._undo public=False guarded=False writes=['delete()'] via=[]
+  site pkg/economy.py:Economy.execute_expenditure public=True guarded=False writes=['add()', 'delete()'] via=[]
+  site pkg/treasury.py:Treasury._apply public=False guarded=False writes=['add()'] via=[]
+  site pkg/treasury.py:Treasury.disburse public=True guarded=True writes=['add()'] via=[]
+  summary: total=5 public=2 crossing=1 not_crossing=1
+  private_writers_unattributed=['_record', '_undo', '_apply']
+## S2 مُطبِّقٌ منهجٌ خاصٌّ يُمرَّرُ مرجعًا
+  site pkg/economy.py:Economy._record_op public=False guarded=False writes=['add()'] via=[]
+  site pkg/economy.py:Economy._undo_op public=False guarded=False writes=['delete()'] via=[]
+  site pkg/treasury.py:Treasury._apply public=False guarded=False writes=['add()'] via=[]
+  site pkg/treasury.py:Treasury.disburse public=True guarded=True writes=['add()'] via=[]
+  summary: total=4 public=1 crossing=1 not_crossing=0
+  private_writers_unattributed=['_record_op', '_undo_op', '_apply']
+## S3 مُطبِّقٌ منهجٌ خاصٌّ يُنادى في lambda
+  site pkg/economy.py:Economy.execute_expenditure public=True guarded=False writes=[] via=['_record_op', '_undo_op']
+  site pkg/treasury.py:Treasury._apply public=False guarded=False writes=['add()'] via=[]
+  site pkg/treasury.py:Treasury.disburse public=True guarded=True writes=['add()'] via=[]
+  summary: total=3 public=2 crossing=1 not_crossing=1
+  private_writers_unattributed=['_apply']
+EXIT=0

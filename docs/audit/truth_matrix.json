@@ -391,10 +391,10 @@
     },
     "docs": {
       "domain": "docs",
-      "md_files": 727,
-      "py_files": 62,
+      "md_files": 731,
+      "py_files": 63,
       "yaml_files": 0,
-      "code_lines": 6886,
+      "code_lines": 6983,
       "nucleus_count": 7,
       "nucleus_status": {
         "unspecified": 7
