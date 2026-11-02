@@ -1,0 +1,12 @@
+# الأمر: python3 docs/audit/evidence/W-788/path_claims.py · العقدة 4336852e213b1a4ba3039888979ad31038e143e6 (قبلَ تعديلاتِ هذه الدفعة) · 2026-11-02 00:17:08 UTC
+federal/executive/services/src/amos_federation/services/state_treasury/service.py → WI-125 IN_PROGRESS (حاجز)
+federal/executive/services/src/amos_federation/services/national_economy/service.py → WI-115 IN_PROGRESS (حاجز)
+federal/executive/services/src/amos_federation/services/federal_state/service.py → WI-115 IN_PROGRESS (حاجز)
+federal/executive/services/src/amos_federation/services/federal_judiciary/service.py → WI-105 CLOSED · WI-111 CLOSED
+federal/executive/services/src/amos_federation/common/money_delegation.py → لا بندَ يُعلِنُه
+federal/executive/services/tests/test_q19_money_delegation.py → لا بندَ يُعلِنُه
+federal/executive/services/tests/test_q31_money_engine_wiring.py → لا بندَ يُعلِنُه
+federal/executive/services/tests/test_q32_money_enforcement_surface.py → لا بندَ يُعلِنُه
+docs/audit/M1_MONEY_CROSSING_DESIGN.md → WI-122 RESERVED (حاجز)
+docs/audit/evidence/W-784 → WI-122 RESERVED (حاجز) · WI-127 READY
+docs/audit/evidence/W-785 → WI-122 RESERVED (حاجز) · WI-127 READY
