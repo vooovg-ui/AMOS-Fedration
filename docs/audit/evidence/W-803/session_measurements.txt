@@ -1,0 +1,11 @@
+# قياساتُ جلسةِ W-803 (خامًا · سابقةُ W-677/W-678/W-701)
+# التاريخ: 2026-11-02 · المنسِّقُ الفعليُّ: GLM-5.3 (Perplexity Computer)
+
+1. bootstrap ✓ (خُطّافُ ما قبلَ الدفعِ مثبَّتٌ: tools/dev/bootstrap.sh)
+2. حوكمةُ الأعمالِ: check_work_governance.py --self-check --today 2026-11-06 ⇒ EXIT 0 بلا مخالفةٍ (إبلاغاتُ POST_MERGE_NOT_CLOSED فقط — كلُّها بانتظارِ المالكِ: WI-040 · WI-082 · WI-096 · WI-098 · WI-100 · WI-102 · WI-103 · WI-109 · WI-110 · WI-112 · WI-114 · WI-115)
+3. راتشيتُ الحقيقةِ: truth_audit.py --ratchet ⇒ ثابتٌ عندَ 61 مخالفةً (IN_MEMORY_STORE 59 · HARDCODED_TRUTH 2)
+4. انحرافُ وثائقِ الحالةِ: state_document_drift.py ⇒ 0 (LEDGER_HEAD: W-802 · 800 صفًّا في § 8)
+5. الهويةُ: check_repository_identity.py ✓ EXIT 0 · gh api user ⇒ vooovg-ui · GIT_AUTHOR_IDENT مثبتٌ محليًّا (326082239@users.noreply.github.com)
+6. جردُ الخطوطِ الموازيةِ: git ls-remote --heads ⇒ أعلى أرقامِ الفروعِ w-802 = رأسُ main (لا فرعًا يحملُ قيدًا أعلى) · 5 طلباتٍ مفتوحةً قديمةً (#73 · #71 · #70 · #69 · #55 — قيودُها دونَ main)
+7. قياسُ توفرِ العائلاتِ بتجربةِ إطلاقٍ فعليةٍ: 6 إطلاقاتٍ عبرَ 6 عوائلَ مُتمايزةٍ (DeepSeek · OpenAI · Google · Moonshot · xAI · Anthropic) — خامًّا في availability_measurement.txt ⇒ عائلةٌ واحدةٌ تعملُ فعلًا (Anthropic · Claude Opus 5.5) فلا نصابَ
+8. لا شِّفرةَ ولا انتقالَ حالةٍ في هذا القيدِ — توثيقُ قرارِ المالكِ Q-93 وقياسُهُ وحدَه
