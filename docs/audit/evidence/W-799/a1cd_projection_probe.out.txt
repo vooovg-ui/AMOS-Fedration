@@ -1,0 +1,108 @@
+# الأمر: .venv/bin/python docs/audit/evidence/W-799/a1cd_projection_probe.py · العقدة: 8d907367 (main بعدَ W-796) · 2026-11-02 UTC · EXIT=0
+== (1) الجردُ كما هو اليوم ==
+  write_sites_total: 271
+  public_write_operations: 182
+  sovereign_write_operations: 94
+  closed_legacy_paths: 7
+  non_sovereign_write_operations: 86
+
+== (2) المواضعُ الاثنا عشرَ بقراراتِها ==
+   8 · persistent.py:PersistentAuditStore.append · ج-1(أ) حدٌّ مُعلَن · public=True guarded=False closed=False line=742
+  25 · durable_event_bus.py:DurableEventBus.publish · ج-1(أ) حدٌّ مُعلَن · public=True guarded=False closed=False line=92
+  27 · event_bus.py:EventBus.publish · ج-1(أ) حدٌّ مُعلَن · public=True guarded=False closed=False line=63
+  28 · events.py:EventPublisher.publish · ج-1(أ) حدٌّ مُعلَن · public=True guarded=False closed=False line=214
+  21 · database.py:-.ensure_added_columns · د-1 حدٌّ مُعلَن · public=True guarded=False closed=False line=422
+   9 · persistent.py:PersistentSystemStateStore.get · د-1 حدٌّ مُعلَن · public=True guarded=False closed=False line=932
+  24 · database.py:-.db_cursor · د-1 حدٌّ مُعلَن · public=True guarded=False closed=False line=564
+  22 · database.py:-.with_db · د-2 حذف · public=True guarded=False closed=False line=463
+  23 · database.py:-.wrapper · د-2 حذف · public=True guarded=False closed=False line=466
+  26 · durable_event_bus.py:DurableEventBus.ack · د-2 حذف · public=True guarded=False closed=False line=220
+   3 · persistent.py:PersistentTaskStore.create · د-2 حذف · public=True guarded=False closed=False line=294
+   4 · persistent.py:PersistentTaskStore.update_status · د-2 حذف · public=True guarded=False closed=False line=365
+
+== (3) إسقاطُ D-4 (المواضعُ العامّةُ غيرُ المحروسةِ منها) ==
+  ج-1(أ) حدٌّ مُعلَن: 4
+  د-1 حدٌّ مُعلَن: 3
+  د-2 حذف: 5
+  D-4 اليوم: 86
+  بعدَ (ج-1)(أ) و(د-1) فئةً مطبوعةً منفصلة: 79
+  وبعدَ حذفِ ما لا مستدعيَ له حتى في الفحوص (2): 77
+  وبعدَ حذفِ ما يُنادى من الفحوصِ وحدَها (3) إن أذنَ المالك: 74
+
+== (4) شرطُ (د-2): كلُّ ذكرٍ للاسمِ خارجَ تعريفِه ==
+  with_db: 0 ذكرًا
+  DurableEventBus.ack: 6 ذكرًا
+    federal/executive/services/tests/test_phase2_events.py:217
+    federal/executive/services/tests/test_durable_bus_branches.py:60
+    federal/executive/services/tests/test_durable_bus_branches.py:68
+    federal/executive/services/tests/test_durable_bus_branches.py:70
+    federal/executive/services/tests/test_durable_bus_branches.py:78
+    federal/executive/services/tests/test_durable_bus_branches.py:96
+  PersistentTaskStore: 9 ذكرًا
+    federal/executive/services/tests/test_r1_canonical_execution_path.py:323
+    federal/executive/services/tests/test_r1_canonical_execution_path.py:361
+    federal/executive/services/tests/test_r2_task_execution_integration.py:192
+    federal/executive/services/tests/test_r2_task_execution_integration.py:511
+    federal/executive/services/tests/test_phase1_postgres.py:229
+    federal/executive/services/tests/test_phase1_postgres.py:230
+    federal/executive/services/tests/test_phase1_postgres.py:232
+    federal/executive/services/src/amos_federation/services/executive_core/repository.py:8
+    tools/governance/restart_survival_probe.py:467
+  ملفّاتٌ تذكرُ tool_registry وأحدَ الأسماءِ معًا: 1
+    federal/executive/services/tests/test_phase1_postgres.py
+
+== (5) (ج-1)(أ): نداءاتُ شهودِ الإلحاقِ في الإنتاجِ بموقعِها ==
+  داخلَ مطبِّقٍ متداخلٍ في عمليّةٍ محروسة: 22
+  في جسدِ عمليّةٍ محروسةٍ خارجَ المتداخلة: 21
+  خارجَ أيِّ عمليّةٍ محروسة: 50
+  الدَّينُ المسمّى (خارجَ أيِّ عمليّةٍ محروسة) — 50 نداءً:
+    federal/executive/services/src/amos_federation/common/event_wiring.py:70
+    federal/executive/services/src/amos_federation/common/event_wiring.py:85
+    federal/executive/services/src/amos_federation/common/event_wiring.py:102
+    federal/executive/services/src/amos_federation/common/event_wiring.py:123
+    federal/executive/services/src/amos_federation/common/event_wiring.py:144
+    federal/executive/services/src/amos_federation/common/event_wiring.py:171
+    federal/executive/services/src/amos_federation/common/event_wiring.py:233
+    federal/executive/services/src/amos_federation/common/events.py:306
+    federal/executive/services/src/amos_federation/common/events.py:317
+    federal/executive/services/src/amos_federation/services/agent_runtime/population.py:873
+    federal/executive/services/src/amos_federation/services/api_gateway/main.py:115
+    federal/executive/services/src/amos_federation/services/control_console/main.py:149
+    federal/executive/services/src/amos_federation/services/control_console/main.py:205
+    federal/executive/services/src/amos_federation/services/control_console/main.py:255
+    federal/executive/services/src/amos_federation/services/control_console/main.py:256
+    federal/executive/services/src/amos_federation/services/executive_core/agent_runtime_gateway.py:286
+    federal/executive/services/src/amos_federation/services/executive_core/agent_runtime_gateway.py:295
+    federal/executive/services/src/amos_federation/services/executive_core/engine.py:186
+    federal/executive/services/src/amos_federation/services/executive_core/engine.py:197
+    federal/executive/services/src/amos_federation/services/executive_core/subsystem_boundary.py:207
+    federal/executive/services/src/amos_federation/services/executive_core/subsystem_boundary.py:221
+    federal/executive/services/src/amos_federation/services/federal_judiciary/service.py:140
+    federal/executive/services/src/amos_federation/services/federal_state/service.py:263
+    federal/executive/services/src/amos_federation/services/federal_state/service.py:308
+    federal/executive/services/src/amos_federation/services/federal_state/service.py:391
+    federal/executive/services/src/amos_federation/services/federal_state/service.py:470
+    federal/executive/services/src/amos_federation/services/federal_state/service.py:571
+    federal/executive/services/src/amos_federation/services/federal_state/service.py:630
+    federal/executive/services/src/amos_federation/services/federal_state/service.py:747
+    federal/executive/services/src/amos_federation/services/federal_state/service.py:864
+    federal/executive/services/src/amos_federation/services/federal_state/service.py:959
+    federal/executive/services/src/amos_federation/services/governance/canary.py:247
+    federal/executive/services/src/amos_federation/services/governance/expansion.py:881
+    federal/executive/services/src/amos_federation/services/governance/learning_cycle.py:282
+    federal/executive/services/src/amos_federation/services/governance/main.py:46
+    federal/executive/services/src/amos_federation/services/governance/security.py:443
+    federal/executive/services/src/amos_federation/services/governance/system_life.py:160
+    federal/executive/services/src/amos_federation/services/governance/treasury.py:187
+    federal/executive/services/src/amos_federation/services/governance/treasury.py:522
+    federal/executive/services/src/amos_federation/services/government_services/service.py:1079
+    federal/executive/services/src/amos_federation/services/national_economy/service.py:334
+    federal/executive/services/src/amos_federation/services/national_registry/service.py:294
+    federal/executive/services/src/amos_federation/services/orchestrator/main.py:140
+    federal/executive/services/src/amos_federation/services/state_registry/service.py:331
+    federal/executive/services/src/amos_federation/services/state_registry/trace.py:61
+    federal/executive/services/src/amos_federation/services/state_registry/trace.py:69
+    federal/executive/services/src/amos_federation/services/state_treasury/service.py:1943
+    federal/executive/services/src/amos_federation/services/tool_registry/authorized_execution.py:419
+    federal/executive/services/src/amos_federation/services/tool_registry/providers/selection.py:231
+    federal/executive/services/src/amos_federation/services/tool_registry/sandbox.py:429
