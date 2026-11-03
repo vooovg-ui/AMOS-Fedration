@@ -134,6 +134,24 @@ REGISTRY: tuple[Provenance, ...] = (
         probe=("python", "tools/audit/sovereign_write_inventory.py", "--json", "{out}"),
     ),
     Provenance(
+        name="append_witness_debt_p15.json",
+        generator="tools/audit/append_witness_debt.py",
+        command=(
+            "python tools/audit/append_witness_debt.py "
+            "--json docs/audit/measurements/append_witness_debt_p15.json"
+        ),
+        strategy="tmpfile",
+        probe=("python", "tools/audit/append_witness_debt.py", "--json", "{out}"),
+        reason=(
+            "الدَّينُ المسمّى (قرارُ المالكِ (ج-1)(أ) في Q-87 · § 3 من A1_CD_DESIGN.md "
+            "· W-806): تصنيفٌ ساكنٌ بالنصِّ (guard_declared( في جسدِ الدالّةِ "
+            "الخارجيّةِ) لا يعتمدُ على شفرةِ الإنتاجِ وحسبَها بل على **بنيةِ "
+            "الدوالِّ المحيطةِ**، فلا يحتاجُ عمقَ سجلٍّ ولا استنساخَ شجرةٍ — والمفاتيحُ "
+            "ثابتةٌ (ملفٌّ · دالّةٌ خارجيّةٌ) بلا أرقامِ أسطرٍ (DISC-039) فلا "
+            "يُقادِمُ القياسَ تحريكُ تعليقٍ."
+        ),
+    ),
+    Provenance(
         name="final_audit_p14.json",
         generator="tools/audit/final_audit.py",
         command=(

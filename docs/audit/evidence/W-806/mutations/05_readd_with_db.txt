@@ -1,0 +1,7 @@
+== الطفرة ⑤: إعادةُ with_db وwrapper إلى database.py مع نداءٍ له ==
+== خرجُ فحصِ الغيابِ (الخامُّ) ==
+tests/governance/test_w806_with_db_absence.py:83: AssertionError
+=========================== short test summary info ============================
+FAILED tests/governance/test_w806_with_db_absence.py::test_الملفُّ_لا_يعرِّفُ_with_db_بنيةً
+FAILED tests/governance/test_w806_with_db_absence.py::test_الشجرةُ_كلُّها_بلا_ذكرٍ_خارجَ_هذا_الحرسِ
+2 failed in 0.18s

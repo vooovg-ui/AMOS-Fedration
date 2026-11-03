@@ -1,0 +1,4 @@
+== الطفرة ③: مدخلٌ خارجَ جذرِ الحدودِ (common/) في القائمةِ ==
+== خرجُ الأداةِ (الخامُّ) ==
+[SOVEREIGN INVENTORY] ✗ مدخلٌ متقادمٌ أو خارجَ federal/executive/services/src/amos_federation/common/: ../services/auditing.py · - · record — لا يطابقُ موضعًا حيًّا في الجرد.
+TOOL_EXIT=2

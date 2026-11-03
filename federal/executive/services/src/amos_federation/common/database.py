@@ -460,24 +460,6 @@ def get_db() -> Generator[Session, None, None]:
         session.close()
 
 
-def with_db(func):
-    """Decorator لتوفير جلسة DB تلقائيًا."""
-
-    def wrapper(*args, **kwargs):
-        session = get_session_factory()()
-        try:
-            result = func(*args, session=session, **kwargs)
-            session.commit()
-            return result
-        except Exception:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-
-    return wrapper
-
-
 # === توافق عكسي مع الوحدات القديمة ===
 
 

@@ -1,0 +1,4 @@
+== الطفرة ⑥: مدخلٌ متقادمٌ لموضعٍ محذوفٍ (database.py · - · with_db — حُذِفَ في هذه الدفعةِ) ==
+== خرجُ الأداةِ (الخامُّ) ==
+[SOVEREIGN INVENTORY] ✗ مدخلٌ متقادمٌ أو خارجَ federal/executive/services/src/amos_federation/common/: database.py · - · with_db — لا يطابقُ موضعًا حيًّا في الجرد.
+TOOL_EXIT=2

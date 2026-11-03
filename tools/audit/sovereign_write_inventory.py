@@ -25,6 +25,14 @@
   العدِّ كأنّها لم تكنْ، فلا تُرى سياديّةً ولا مُتجاوِزة (قِيسَ هذا فعلًا في P1أ).
 - «تعبرُ الحدَّ» = يقعُ `guard_declared(` في جسدِ العمليّةِ العامّةِ نفسِها. ولا
   يكفي أن يعبرَ معاونُها: الإعلانُ مسؤوليّةُ العمليّةِ لا مسؤوليّةُ أداةِ قياس.
+- **حدودٌ مُعلَنةٌ في `common/`** (قرارُ المالكِ ج-1(أ) و(د-1) · التصميمُ W-799):
+  مواضعُ سبعةٌ في `amos_federation/common/` قرَّرَ المالكُ أنها حدودٌ لا دَينًا —
+  تُوسَمُ بمرجعِ قرارِها من القائمةِ المغلقةِ `DECLARED_BOUNDARIES` فتخرجُ من
+  `non_sovereign_write_operations` وتُعَدُّ في `declared_boundary_operations`
+  وتُطبَعُ سطرًا وحيدًا. والقائمةُ مغلقةٌ بثلاثةِ شروطٍ تُفشِلُ الأداةَ نفسَها:
+  مدخلٌ لا يطابقُ موضعًا حيًّا (متقادمٌ أو خارجَ `common/`)، أو مرجعُ قرارٍ
+  غيرُ موجودٍ في السجلِّ السياديّ. فالحدُّ إعلانٌ لا إخفاء: الرقمُ العامُّ لا
+  يتغيّرُ بسَببِه، والدَّينُ يُطبعُ بجوارِه لا مكانَه.
 - معاونٌ خاصٌّ يكتبُ ولا تصلُ إليه عمليّةٌ عامّةٌ في وحدتِه يُحصى موضعًا مستقلًّا
   ولا يُسقَط، لأنّ الكتابةَ التي لا يُعرَفُ مدخلُها أخطرُ لا أهون.
 - كونُ الدالّةِ «مُغيِّرةً» لا يعني وجوبَ هجرتِها: الوجوبُ حكمٌ دستوريٌّ يُقرَّر في
@@ -138,6 +146,77 @@ GUARD_MARKER = "guard_declared("
 #: علامةُ إغلاقِ مسارٍ قديم (1N/2A): يُرفَعُ ولا يكتب.
 CLOSED_MARKER = "UndeclaredExecutionError"
 
+#: بادئةُ مجلَّدِ `common/` الذي تنحصرُ فيه الحدودُ المُعلَنةُ (قرارُ المالكِ ج-1(أ) و(د-1)).
+DECLARED_BOUNDARY_ROOT = "federal/executive/services/src/amos_federation/common/"
+
+#: (§ 2 من `A1_CD_DESIGN.md`) الحدودُ المُعلَنةُ — قائمةٌ مغلقةٌ لا تُوسَّعُ إلّا بقرارٍ
+#: مسجَّلٍ في السجلِّ السياديّ.
+#:
+#: المفتاحُ (اسمُ الملفِّ داخلَ `common/` · المالك · الدالّة) والقيمةُ مرجعُ القرارِ في
+#: `SOVEREIGN_DECISION_REGISTER.md`. والموضعُ المطابقُ يحملُ `declared_boundary=<المرجع>`
+#: فيخرجُ من `non_sovereign_write_operations` ويُعَدُّ في حقلٍ مستقلٍّ
+#: `declared_boundary_operations` يُطبَعُ سطرًا وحيدًا — **حدٌّ مُعلَنٌ مطبوعٌ لا إسقاطٌ
+#: صامت** (قرارُ المالكِ ج-1(أ) و(د-1) · ورقةُ W-759 · التصميمُ W-799).
+#:
+#: والقائمةُ محروسةٌ بفحصِ `tests/governance/test_w806_declared_boundaries.py` وبقسمِ
+#: «حدودٌ مُعلَنةٌ في common/» في السجلِّ السياديّ — والثلاثةُ يُطابِقُ بعضُها بعضًا.
+DECLARED_BOUNDARIES: dict[tuple[str, str, str], str] = {
+    ("persistent.py", "PersistentAuditStore", "append"): "ج-1(أ)",
+    ("durable_event_bus.py", "DurableEventBus", "publish"): "ج-1(أ)",
+    ("event_bus.py", "EventBus", "publish"): "ج-1(أ)",
+    ("events.py", "EventPublisher", "publish"): "ج-1(أ)",
+    ("database.py", "-", "ensure_added_columns"): "د-1",
+    ("persistent.py", "PersistentSystemStateStore", "get"): "د-1",
+    ("database.py", "-", "db_cursor"): "د-1",
+}
+
+
+def _boundary_key(site: WriteSite) -> tuple[str, str, str] | None:
+    """مفتاحُ الحدِّ المُعلَنِ لموضعٍ إن كان تحتَ جذرِ الحدودِ، وإلّا فلا شيء.
+
+    المفتاحُ (اسمُ الملفِّ داخلَ `common/` · المالك · الدالّة) — والمواضعُ السبعةُ
+    كلُّها في أعلى المستوىِ داخلَ المجلَّدِ فلا حاجةَ لمفتاحٍ أعمقَ.
+    """
+    if not site.path.startswith(DECLARED_BOUNDARY_ROOT):
+        return None
+    return (site.path[len(DECLARED_BOUNDARY_ROOT):], site.owner, site.function)
+
+
+def apply_declared_boundaries(sites: list[WriteSite]) -> list[WriteSite]:
+    """وسِمُ مواضعِ الحدودِ المُعلَنةِ — تطبيقٌ لا حكمٌ (ذاك عملُ البوّابة)."""
+    resolved: list[WriteSite] = []
+    for site in sites:
+        key = _boundary_key(site)
+        if key is not None and key in DECLARED_BOUNDARIES:
+            resolved.append(replace(site, declared_boundary=DECLARED_BOUNDARIES[key]))
+        else:
+            resolved.append(site)
+    return resolved
+
+
+def validate_declared_boundaries(
+    sites: list[WriteSite], register_text: str
+) -> list[str]:
+    """حرسُ القائمةِ المغلقةِ: مدخلٌ متقادمٌ أو خارجَ `common/` أو مرجعٌ غيرُ مسجَّلٍ
+    يُفشِلُ الأداةَ نفسَها — لا تحذيرًا (قرارُ التصميمِ § 2 البندُ 2).
+
+    تُعادُ قائمةُ المخالفاتِ نصوصًا؛ والخارجُ الصفريُّ مسؤوليّةُ المُشغِّلِ لا الأداة.
+    """
+    breaches: list[str] = []
+    live = {_boundary_key(site) for site in sites if _boundary_key(site)}
+    for key, reference in sorted(DECLARED_BOUNDARIES.items()):
+        if key not in live:
+            breaches.append(
+                f"مدخلٌ متقادمٌ أو خارجَ {DECLARED_BOUNDARY_ROOT}: "
+                f"{key[0]} · {key[1]} · {key[2]} — لا يطابقُ موضعًا حيًّا في الجرد."
+            )
+        if reference not in register_text:
+            breaches.append(
+                f"مرجعُ قرارٍ غيرُ موجودٍ في السجلِّ السياديّ: {reference} "
+                f"({key[0]} · {key[1]} · {key[2]})."
+            )
+    return breaches
+
 
 @dataclass(frozen=True)
 class WriteSite:
@@ -153,6 +232,10 @@ class WriteSite:
     closed_legacy: bool
     #: كتابةٌ وصلت من معاونٍ خاصٍّ لا من جسدِ العمليّةِ نفسِها — يُصرَّحُ بها ولا تُخفى.
     writes_via: tuple[str, ...] = ()
+    #: مرجعُ قرارِ المالكِ إن كان الموضعُ حدًّا مُعلنًا في `common/`، وإلّا فلا شيء.
+    #: الموضعُ الموسومُ يخرجُ من `non_sovereign_write_operations` ويُعَدُّ في
+    #: `declared_boundary_operations` (ج-1(أ) و(د-1) · A1_CD_DESIGN.md § 2).
+    declared_boundary: str | None = None
 
 
 class _WriteVisitor(ast.NodeVisitor):
@@ -446,7 +529,7 @@ def collect(root: Path, subtree: Path | None = None) -> list[WriteSite]:
             visitor.sites, visitor.qcalls, visitor.qnodes, str(relative), source
         )
         sites.extend(attribute_helper_writes(module_sites, visitor.calls))
-    return sites
+    return apply_declared_boundaries(sites)
 
 
 #: مناطقُ القياس — الفصلُ مقصود: «خدماتٌ» ليست كـ«أدوات» ولا كـ«نواة».
@@ -514,16 +597,23 @@ def summarize(sites: list[WriteSite]) -> dict[str, object]:
     public = [s for s in sites if s.public]
     by_file: dict[str, int] = {}
     for site in public:
-        if not site.guarded and not site.closed_legacy:
+        if (
+            not site.guarded
+            and not site.closed_legacy
+            and site.declared_boundary is None
+        ):
             by_file[site.path] = by_file.get(site.path, 0) + 1
     by_area: dict[str, dict[str, int]] = {}
     for site in public:
         bucket = by_area.setdefault(
-            area_of(site.path), {"public": 0, "sovereign": 0, "non_sovereign": 0}
+            area_of(site.path),
+            {"public": 0, "sovereign": 0, "non_sovereign": 0, "declared": 0},
         )
         bucket["public"] += 1
         if site.guarded:
             bucket["sovereign"] += 1
+        elif site.declared_boundary is not None:
+            bucket["declared"] += 1
         elif not site.closed_legacy:
             bucket["non_sovereign"] += 1
     return {
@@ -532,8 +622,15 @@ def summarize(sites: list[WriteSite]) -> dict[str, object]:
         "public_write_operations": len(public),
         "sovereign_write_operations": sum(1 for s in public if s.guarded),
         "closed_legacy_paths": sum(1 for s in sites if s.closed_legacy),
+        "declared_boundary_operations": sum(
+            1 for s in public if s.declared_boundary is not None
+        ),
         "non_sovereign_write_operations": sum(
-            1 for s in public if not s.guarded and not s.closed_legacy
+            1
+            for s in public
+            if not s.guarded
+            and not s.closed_legacy
+            and s.declared_boundary is None
         ),
         "non_sovereign_by_file": dict(
             sorted(by_file.items(), key=lambda kv: (-kv[1], kv[0]))
@@ -558,21 +655,43 @@ def main() -> int:
     sites = collect(root, subtree)
     summary = summarize(sites)
 
+    # حرسُ القائمةِ المغلقةِ (§ 2 البندُ 2): مدخلٌ متقادمٌ أو خارجَ common/ أو مرجعٌ
+    # غيرُ مسجَّلٍ يُفشِلُ الأداةَ نفسَها. ويُقصَرُ على جرْدِ الشجرةِ كاملةً: جردُ
+    # شجرةٍ فرعيّةٍ لا يرى مواضعَ خارجِهِ فلا يُحاسَبُ على غيابِها.
+    if subtree is None:
+        register_path = root / "docs/audit/SOVEREIGN_DECISION_REGISTER.md"
+        try:
+            register_text = register_path.read_text(encoding="utf-8")
+        except OSError as exc:
+            print(
+                f"[SOVEREIGN INVENTORY] تعذَّرَ قراءةُ السجلِّ السياديّ "
+                f"({register_path}): {type(exc).__name__}: {exc} — لا يُقاسُ الحدُّ "
+                "بلا سجلٍّ يوثّقُه.",
+                file=sys.stderr,
+            )
+            return 2
+        breaches = validate_declared_boundaries(sites, register_text)
+        if breaches:
+            for breach in breaches:
+                print(f"[SOVEREIGN INVENTORY] ✗ {breach}", file=sys.stderr)
+            return 2
+
     print("== جردُ الكتاباتِ الإنتاجيّة ==")
     print(f"  جذرُ القياس            : {subtree or '.'}")
     print(f"  مواضعُ كتابةٍ (كلُّها)   : {summary['write_sites_total']}")
     print(f"  عمليّاتٌ عامّةٌ مُغيِّرة   : {summary['public_write_operations']}")
     print(f"  منها تعبرُ الحدَّ        : {summary['sovereign_write_operations']}")
     print(f"  مساراتٌ قديمةٌ مُغلَقة    : {summary['closed_legacy_paths']}")
+    print(f"  حدودٌ مُعلَنة             : {summary['declared_boundary_operations']}")
     print(f"  **لا تعبرُ الحدَّ**       : {summary['non_sovereign_write_operations']}")
     by_area = summary["by_area"]
     assert isinstance(by_area, dict)
     if by_area:
-        print("  التوزيعُ على المناطق (عامّة / سياديّة / متجاوزة):")
+        print("  التوزيعُ على المناطق (عامّة / سياديّة / مُعلَنة / متجاوزة):")
         for area, counts in sorted(by_area.items()):
             print(
                 f"    {area:16s} {counts['public']:4d} / {counts['sovereign']:3d} /"
-                f" {counts['non_sovereign']:4d}"
+                f" {counts['declared']:3d} / {counts['non_sovereign']:4d}"
             )
     non_sovereign_by_file = summary["non_sovereign_by_file"]
     assert isinstance(non_sovereign_by_file, dict)
@@ -590,7 +709,11 @@ def main() -> int:
                 "tools/audit/sovereign_write_inventory.py --json. ومنه يُشتَقُّ رقمُ "
                 "الدَّينِ وحدَه. المادةُ التاسعةُ · 2. ومفتاحُ الموقعِ (‏مسارٌ · مالكٌ "
                 "· دالّةٌ · رتبةٌ) ولا يحملُ رقمَ سطرٍ: الإحداثيُّ يتحرَّكُ بسطرِ "
-                "تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039)."
+                "تعليقٍ فيُقادِمُ قياسًا لم يتغيَّرْ سلوكُه (DISC-039). والمواضعُ "
+                "الموسومةُ بمرجعِ قرارٍ في declared_boundary حدودٌ مُعلَنةٌ في common/ "
+                "(ج-1(أ) و(د-1) · Q-87 · W-806): تُعَدُّ في "
+                "declared_boundary_operations ولا تُحتسَبُ دَينًا — إعلانٌ مطبوعٌ لا "
+                "إسقاطٌ صامت."
             ),
             "summary": summary,
             "sites": site_records(sites),

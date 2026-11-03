@@ -1,0 +1,45 @@
+== الطفرة ④: ردُّ إسقاطِ الحدودِ من الدَّينِ (الموسومُ يُعَدُّ مرةً أخرى غيرَ سياديّ) ==
+== خرجُ الأداةِ (الخامُّ) ==
+== جردُ الكتاباتِ الإنتاجيّة ==
+  جذرُ القياس            : .
+  مواضعُ كتابةٍ (كلُّها)   : 269
+  عمليّاتٌ عامّةٌ مُغيِّرة   : 180
+  منها تعبرُ الحدَّ        : 94
+  مساراتٌ قديمةٌ مُغلَقة    : 7
+  حدودٌ مُعلَنة             : 7
+  **لا تعبرُ الحدَّ**       : 84
+  التوزيعُ على المناطق (عامّة / سياديّة / مُعلَنة / متجاوزة):
+    core                1 /   0 /   0 /    0
+    service_common     19 /   0 /   7 /   19
+    services          159 /  94 /   0 /   64
+    tools               1 /   0 /   0 /    1
+  التوزيعُ على الملفّات:
+      16  federal/executive/services/src/amos_federation/services/national_economy/service.py
+      13  federal/executive/services/src/amos_federation/common/persistent.py
+      10  federal/executive/services/src/amos_federation/services/federal_state/service.py
+       9  federal/executive/services/src/amos_federation/services/governance/treasury.py
+       9  federal/executive/services/src/amos_federation/services/royal/main.py
+       6  federal/executive/services/src/amos_federation/services/federal_judiciary/service.py
+       2  federal/executive/services/src/amos_federation/common/database.py
+       2  federal/executive/services/src/amos_federation/common/durable_event_bus.py
+       2  federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py
+       2  federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py
+       2  federal/executive/services/src/amos_federation/services/training/persistent_registry.py
+       1  federal/executive/services/src/amos_federation/common/event_bus.py
+       1  federal/executive/services/src/amos_federation/common/events.py
+       1  federal/executive/services/src/amos_federation/services/api_gateway/store.py
+       1  federal/executive/services/src/amos_federation/services/federal_judiciary/docket.py
+       1  federal/executive/services/src/amos_federation/services/federal_judiciary/enforcement.py
+       1  federal/executive/services/src/amos_federation/services/governance/learning_cycle.py
+       1  federal/executive/services/src/amos_federation/services/governance/security.py
+       1  federal/executive/services/src/amos_federation/services/governance/system_life.py
+       1  federal/executive/services/src/amos_federation/services/government_services/service.py
+       1  federal/executive/services/src/amos_federation/services/state_treasury/service.py
+       1  tools/migrations/r4_unify_agent_identity.py
+TOOL_EXIT=0
+
+== خرجُ فحصِ معادلةِ الهويّةِ (الخامُّ) ==
+tests/governance/test_w806_declared_boundaries.py:134: AssertionError
+=========================== short test summary info ============================
+FAILED tests/governance/test_w806_declared_boundaries.py::test_معادلةُ_الهويّةِ_الرقمُ_العامُّ_يُفسَّرُ_كاملًا
+1 failed, 4 passed in 10.79s
