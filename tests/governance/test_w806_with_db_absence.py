@@ -63,9 +63,9 @@ def test_الملفُّ_لا_يعرِّفُ_with_db_بنيةً() -> None:
             )
             for decorator in node.decorator_list:
                 name = ast.unparse(decorator)
-                assert "with_db" not in name, (
-                    f"زخرفَةٌ {name} تُعيدُ with_db من الشبّاكِ — القرارُ (د-2)."
-                )
+                assert (
+                    "with_db" not in name
+                ), f"زخرفَةٌ {name} تُعيدُ with_db من الشبّاكِ — القرارُ (د-2)."
         if isinstance(node, ast.Name) and node.id == "with_db":
             raise AssertionError("اسمُ with_db عادَ إلى database.py بنيةً.")
 

@@ -82,7 +82,7 @@ def test_كلُّ_مدخلٍ_يطابقُ_موضعًا_حيًّا_موسومًا
         "مدخلٌ بلا موضعٍ حيٍّ أو موضعٌ بلا مدخل."
     )
     for site in tagged:
-        key = (site.path[len(tool.DECLARED_BOUNDARY_ROOT):], site.owner, site.function)
+        key = (site.path[len(tool.DECLARED_BOUNDARY_ROOT) :], site.owner, site.function)
         assert key in EXPECTED_BOUNDARIES, f"موضعٌ موسومٌ خارجَ القائمة: {key}"
         assert site.declared_boundary == EXPECTED_BOUNDARIES[key]
 
@@ -93,14 +93,14 @@ def test_حدودٌ_خارجَ_common_مرفوضةٌ_بنيةِ_الأداةِ()
     # لا موضعٍ خارجَ جذرِ الحدودِ يُوسَمُ — المفتاحُ يُبنى من الجذرِ أو لا يُبنى.
     for site in sites:
         if not site.path.startswith(tool.DECLARED_BOUNDARY_ROOT):
-            assert site.declared_boundary is None, (
-                f"موضعٌ خارجَ common/ موسومٌ حدًّا: {site.path} — القرارُ لم يأذنْ به."
-            )
+            assert (
+                site.declared_boundary is None
+            ), f"موضعٌ خارجَ common/ موسومٌ حدًّا: {site.path} — القرارُ لم يأذنْ به."
     # والمدخلُ الذي ملفُّه خارجَ common/ لا يجدُ موضعًا حيًّا فيُفشِلُ التحققَ نفسَه.
     breaches = tool.validate_declared_boundaries([], "")
-    assert len(breaches) == 2 * len(EXPECTED_BOUNDARIES), (
-        "شجرةٌ فارغةٌ يجبُ أن تُفشِلَ كلَّ مدخلٍ مرتينِ: تقادمًا ومرجعًا."
-    )
+    assert len(breaches) == 2 * len(
+        EXPECTED_BOUNDARIES
+    ), "شجرةٌ فارغةٌ يجبُ أن تُفشِلَ كلَّ مدخلٍ مرتينِ: تقادمًا ومرجعًا."
     assert any("متقادمٌ أو خارجَ" in b for b in breaches)
 
 
@@ -110,9 +110,9 @@ def test_مراجعُ_القراراتِ_مسجَّلةٌ_في_السجلِّ_ا
     breaches = tool.validate_declared_boundaries(tool.collect(REPO_ROOT), register_text)
     assert breaches == [], f"انتهاكاتُ القائمةِ المغلقةِ: {breaches}"
     for reference in set(EXPECTED_BOUNDARIES.values()):
-        assert reference in register_text, (
-            f"مرجعُ قرارٍ {reference} ليسَ في السجلِّ السياديّ — الحدُّ بلا سندٍ."
-        )
+        assert (
+            reference in register_text
+        ), f"مرجعُ قرارٍ {reference} ليسَ في السجلِّ السياديّ — الحدُّ بلا سندٍ."
 
 
 def test_معادلةُ_الهويّةِ_الرقمُ_العامُّ_يُفسَّرُ_كاملًا() -> None:
@@ -128,9 +128,7 @@ def test_معادلةُ_الهويّةِ_الرقمُ_العامُّ_يُفسَ�
     sovereign = summary["sovereign_write_operations"]
     declared = summary["declared_boundary_operations"]
     non_sovereign = summary["non_sovereign_write_operations"]
-    public_closed = sum(
-        1 for s in sites if s.public and s.closed_legacy
-    )
+    public_closed = sum(1 for s in sites if s.public and s.closed_legacy)
     assert public == sovereign + public_closed + declared + non_sovereign, (
         f"معادلةُ الهويّةِ مكسورة: {public} ≠ {sovereign} + {public_closed} "
         f"+ {declared} + {non_sovereign} — فئةٌ تُحسَبُ مرتينِ أو تُسقَط."

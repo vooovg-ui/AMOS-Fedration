@@ -67,9 +67,9 @@ def test_القياسُ_المنشورُ_يطابقُ_الشجرةَ_الحيّ�
     )
     assert measured["total_calls"] == published["total_calls"]
     assert measured["named_debt"] == published["named_debt"]
-    assert measured["outside_debt_keys"] == published["outside_debt_keys"], (
-        "مفاتيحُ الدَّينِ المسمّى انحرفَتْ عن المنشورِ — تُعادُ مطابقةُ النشرِ."
-    )
+    assert (
+        measured["outside_debt_keys"] == published["outside_debt_keys"]
+    ), "مفاتيحُ الدَّينِ المسمّى انحرفَتْ عن المنشورِ — تُعادُ مطابقةُ النشرِ."
 
 
 def test_الفئاتُ_الثلاثُ_تُفسِّرُ_المجموعَ() -> None:

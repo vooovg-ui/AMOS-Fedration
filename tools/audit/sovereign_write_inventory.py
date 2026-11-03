@@ -179,7 +179,7 @@ def _boundary_key(site: WriteSite) -> tuple[str, str, str] | None:
     """
     if not site.path.startswith(DECLARED_BOUNDARY_ROOT):
         return None
-    return (site.path[len(DECLARED_BOUNDARY_ROOT):], site.owner, site.function)
+    return (site.path[len(DECLARED_BOUNDARY_ROOT) :], site.owner, site.function)
 
 
 def apply_declared_boundaries(sites: list[WriteSite]) -> list[WriteSite]:
@@ -276,7 +276,9 @@ class _WriteVisitor(ast.NodeVisitor):
                     qcalled.add(("name", target.id))
                 elif isinstance(target, ast.Attribute):
                     called.add(target.attr)
-                    on_self = isinstance(target.value, ast.Name) and target.value.id in {
+                    on_self = isinstance(
+                        target.value, ast.Name
+                    ) and target.value.id in {
                         "self",
                         "cls",
                     }
@@ -379,9 +381,7 @@ def _bare(qualified: str) -> str:
     return qualified.rsplit(".", 1)[-1]
 
 
-def resolve_callees(
-    caller: str, qcalls: dict[str, set[tuple[str, str]]]
-) -> set[str]:
+def resolve_callees(caller: str, qcalls: dict[str, set[tuple[str, str]]]) -> set[str]:
     """حُلَّ نداءاتِ `caller` إلى أسماءٍ مؤهَّلةٍ معرَّفةٍ في الوحدة.
 
     - `self.x()`/`cls.x()` ← `Owner.x` إن عُرِّفَ في الصنفِ نفسِه؛ وإلّا (موروثٌ أو
@@ -520,8 +520,11 @@ def collect(root: Path, subtree: Path | None = None) -> list[WriteSite]:
         except (SyntaxError, UnicodeDecodeError, OSError) as exc:
             # ملفُّ إنتاجٍ لا يُحلَّلُ **يُنقِصُ الدَّينَ المقيسَ بصمت**: أسطحُه لا
             # تُعَدُّ فيظهرُ الدَّينُ أقلَّ مما هو. فيُعلَنُ على المِخرَجِ ولا يُتجاوَزُ صامتًا.
-            print(f"[SOVEREIGN INVENTORY] تعذَّرَ تحليلُ {relative} — "
-                  f"لم تُعَدَّ أسطحُه: {type(exc).__name__}: {exc}", file=sys.stderr)
+            print(
+                f"[SOVEREIGN INVENTORY] تعذَّرَ تحليلُ {relative} — "
+                f"لم تُعَدَّ أسطحُه: {type(exc).__name__}: {exc}",
+                file=sys.stderr,
+            )
             continue
         visitor = _WriteVisitor(str(relative), source)
         visitor.visit(tree)
@@ -555,9 +558,7 @@ def site_records(sites: list[WriteSite]) -> list[dict[str, object]]:
     """
     grouped: dict[tuple[str, str, str], list[dict[str, object]]] = {}
     for site in sites:
-        record = {
-            key: value for key, value in asdict(site).items() if key != "line"
-        }
+        record = {key: value for key, value in asdict(site).items() if key != "line"}
         grouped.setdefault((site.path, site.owner, site.function), []).append(record)
 
     payload: list[dict[str, object]] = []
@@ -628,9 +629,7 @@ def summarize(sites: list[WriteSite]) -> dict[str, object]:
         "non_sovereign_write_operations": sum(
             1
             for s in public
-            if not s.guarded
-            and not s.closed_legacy
-            and s.declared_boundary is None
+            if not s.guarded and not s.closed_legacy and s.declared_boundary is None
         ),
         "non_sovereign_by_file": dict(
             sorted(by_file.items(), key=lambda kv: (-kv[1], kv[0]))

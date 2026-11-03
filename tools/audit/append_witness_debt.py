@@ -96,7 +96,9 @@ def measure() -> dict[str, object]:
         source = p.read_text(encoding="utf-8")
         tree = ast.parse(source)
 
-        def visit(node: ast.AST, stack: list[ast.FunctionDef | ast.AsyncFunctionDef]) -> None:
+        def visit(
+            node: ast.AST, stack: list[ast.FunctionDef | ast.AsyncFunctionDef]
+        ) -> None:
             for child in ast.iter_child_nodes(node):
                 if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     visit(child, [*stack, child])
