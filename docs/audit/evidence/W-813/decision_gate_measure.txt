@@ -1,0 +1,12 @@
+{
+ "debt": 84,
+ "sovereign": 94,
+ "closed_legacy": 7,
+ "write_sites_total": 269,
+ "git_head": "ede2e8db",
+ "waves": {
+  "W1": 11,
+  "W2": 28,
+  "W3": 45
+ }
+}
