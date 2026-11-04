@@ -13,7 +13,7 @@
 2026-11-04
 
 ## تاريخ آخر تعديل
-2026-11-04 (W-819 — § 7 تصميمُ الدفعةِ 2 بقرارِ Q-98 · قبلَ الشِّفرة) · 2026-11-04 (W-817 — § 6 تصميمُ الدفعةِ 1 بقرارِ Q-97 · قبلَ الشِّفرة) · 2026-11-04 (W-816 — النسخةُ الأولى)
+2026-11-04 (W-822 — § 8 تصميمُ الدفعةِ 3 (أسطحُ الخزانةِ الثلاثة) بقرارِ Q-99 · قبلَ الشِّفرة · وتصحيحٌ بالقياسِ لأسماءِ عمليّتَي الصفّ 20) · 2026-11-04 (W-819 — § 7 تصميمُ الدفعةِ 2 بقرارِ Q-98 · قبلَ الشِّفرة) · 2026-11-04 (W-817 — § 6 تصميمُ الدفعةِ 1 بقرارِ Q-97 · قبلَ الشِّفرة) · 2026-11-04 (W-816 — النسخةُ الأولى)
 
 ---
 
@@ -150,3 +150,57 @@
 ### 7.4 ما لا تفعلُه الدفعة
 
 لا `KILL_SWITCH_BLOCKS` (كما في § 6.4) · لا تمسُّ أسطحَ الخزانةِ 18–20 (الدفعةُ 3) ولا المركَّبةَ 21–23 (الدفعةُ 4) ولا `log_cost` (لا شِفرةَ قبلَ القياس) · لا تُقرِّرُ أنّ 15–17 تنفيذيّةٌ نهائيًّا.
+
+## 8 · الدفعةُ 3 — أسطحُ الخزانةِ الثلاثةُ في `national_economy` (W-822 · قرارُ Q-99 · قبلَ الشِّفرة)
+
+**السند:** قرارُ المالكِ Q-99 (التوجيهُ 44 § 1 حرفيًّا): «الدفعة 3: سطح الخزانة الثلاثة: authorize_expenditure (الفعل القائم)، authorize_procurement (award_procurement + مدخل معجم وتفويض جديدان)، authorize_transfer (فعل جديد، زوج execute_transfer) بحسب Q-97 § 6-3. بانضباط DISC-146/148/149: معوِّض متكرر آمن، وapplier يرفع استثناءً = «ربما نُفِّذ» فيُعوَّض أو FAILED_FINAL.» **التصنيف: C4** (تمسُّ `core/constitutional_engine/rules.py` و`common/money_delegation.py`) — لا VERIFIED بغيرِ مراجع، وتُدرَجُ مع الدفعتَين 1 و2 في قائمةِ غيرِ المراجَع (RK-024).
+
+### 8.1 المقيسُ قبلَ التصميم (`evidence/W-823/q99_engine_probe_before.txt` · `rules.py` من القرصِ عندَ ba1cac8f)
+
+- `authorize_expenditure` و`award_procurement`: **1/10** — TREASURY وحدَه ALLOW، والتسعةُ DENY بـR-003-1.
+- `authorize_transfer`: **10/10 ALLOW** — فعلٌ مجهولٌ للمحرّك يمرُّ لكلِّ فاعل (العبورُ به اليومَ عبورٌ بلا حماية).
+- الأسطحُ الثلاثةُ لا تعبرُ الحدَّ اليوم (D-4 ‏[3] Q-83 (ج) يسمّيها الثلاثةَ وحدَها · `evidence/W-822/d4_classification_before.txt`).
+- `MONEY_OPERATION_LEXICON` فيه `economy.procurement.award` ⇒ `award_procurement`، لكنَّ عمليّةَ السطحِ في الشِّفرةِ `economy.procurement.authorize` — فلا مدخلَ لها.
+- **تصحيحٌ بالقياسِ لـ§ 3 الصفّ 20:** الجدولُ اقترحَ مدخلَي معجمٍ `economy.transfer.grant`/`economy.transfer.subsidy`. والعمليّتانِ الحقيقيّتانِ في `TRANSFER_OPERATION_KINDS` (`national_economy/authorization.py:103`) هما **`economy.grant.authorize`** و**`economy.subsidy.authorize`**، و`economy.transfer.{kind}` اسمُ **صلاحيّةِ النطاق** (`require_domain_permission`) لا العمليّة. فالمعجمُ يُفتَحُ بالاسمَين الحقيقيَّين، ولا تُغيَّرُ الصلاحيّة.
+
+### 8.2 الجدول (الأسطحُ 18–20 من § 3 · كلُّها CREATE · الفاعلُ من جدولِ التفويضِ لا مُثبَّت)
+
+| # | السطح | الفعل | العمليّة ⇒ مدخلُ التفويض | الأثرُ المعلَن | المعوِّض (`undo_idempotent=True`) | مفتاحُ الذرّيّة |
+| --- | --- | --- | --- | --- | --- | --- |
+| 18 | `authorize_expenditure` | `authorize_expenditure` (قائم) | `economy.expenditure.authorize` ⇒ قائم (المدخلُ 9) | CREATE `economy/{tenant}/expenditures/{reference}` | حذفُ الإجازةِ ثمّ قرارِها بمعرّفَيهما | `state_treasury.authorize_expenditure` ⊕ `{tenant}:{row_id}` |
+| 19 | `authorize_procurement` | `award_procurement` (قائم) | `economy.procurement.authorize` ⇒ **جديدٌ** في المعجم ⇒ `award_procurement` · ومدخلُ تفويضٍ **جديد** | CREATE `economy/{tenant}/procurements/{reference}` | حذفُ المشترياتِ ثمّ قرارِها | `state_treasury.authorize_procurement` ⊕ `{tenant}:{row_id}` |
+| 20 | `authorize_transfer` | `authorize_transfer` (**جديدٌ** في `TREASURY_ACTIONS`) | `economy.grant.authorize` و`economy.subsidy.authorize` ⇒ **جديدان** في المعجم ⇒ `authorize_transfer` · ومدخلا تفويضٍ **جديدان** بالمدخلِ نفسِه | CREATE `economy/{tenant}/transfers/{reference}` | حذفُ التحويلِ ثمّ قرارِه | `state_treasury.authorize_transfer` ⊕ `{tenant}:{row_id}` |
+
+- **ترتيبُ الحذف:** الصفُّ أوّلًا ثمّ القرار — لأنَّ `decision_id` مفتاحٌ أجنبيٌّ من الصفِّ إلى القرارِ بـ`ondelete=RESTRICT` (`models.py`)، كما في § 7.1 الصفّ 14. والحذفُ بمعرّفٍ مولَّدٍ قبلَ العبور، وغائبُه لا شيء — فهو مُثبِّتٌ ويُصرَّحُ به.
+- **لا مفتاحَ طبيعيَّ:** الإجازاتُ الثلاثُ تتكرّرُ مقصودةً (لا رمزَ فريدَ لها اليوم · المرجعُ يُولَّدُ لكلِّ نداء)، فالمفتاحُ معرّفُ الصفِّ المولَّد — عبورٌ لكلِّ نداءٍ بلا إعادة، كسابقةِ `StateTreasury.allocate`. فلا يُدَّعى «إعادةٌ» لم تكن.
+- **بادئةُ المفتاح** `state_treasury.{entrypoint}` من العقدِ المشترك (`money_crossing_contract`) لا من هذه الدفعة — انحرافٌ اسميٌّ معلَنٌ لا يُغيَّرُ هنا كي لا تتغيّرَ مفاتيحُ الأسطحِ الخزانيّةِ القائمة.
+
+### 8.3 تغييرُ المعجمِ والتفويضِ والحرّاس (عدٌّ لا إضعاف · سابقةُ DISC-155)
+
+- `TREASURY_ACTIONS`: ‏15 ⇒ **16** (`authorize_transfer`). وكلُّ فعلٍ يُضافُ حصرٌ للخزانةِ فيُمنعُ على غيرِها بـR-003-1 — تضييق.
+- `MONEY_OPERATION_LEXICON`: ‏13 ⇒ **16** (`economy.procurement.authorize` · `economy.grant.authorize` · `economy.subsidy.authorize`).
+- `MONEY_DELEGATIONS`: ‏11 ⇒ **14** (المدخلُ 12 للمشتريات · 13 و14 للتحويل). والقرارُ ذكرَ «إن نما بمدخلٍ (12)»، والصفُّ 20 يُلزِمُ مدخلَين لعمليّتَين حقيقيّتَين — فالنموُّ ثلاثةٌ لا واحد، ويُعلَنُ هنا قبلَ الشِّفرة.
+- **الحرّاسُ الثلاثةُ لجدولِ التفويض** (كما في W-815): `test_q19_money_delegation.py` (مواضعُ الاقتصاد 2 ⇒ 5 — رأسُ المشترياتِ ونداءانِ حرفيّانِ في التحويلِ لأنَّ الحارسَ يطلبُ نصَّ العمليّةِ حرفيًّا عندَ موضعِها · المجموع 7 ⇒ 10 · الجدول 11 ⇒ 14 · `MEASURED_CALL_SITES` += 3) · `test_q31_money_engine_wiring.py` (المباشرةُ 6 ⇒ 9 · المجموع 7 ⇒ 10 · الجدول 11 ⇒ 14) · `test_q32_money_enforcement_surface.py` (الالتزاماتُ 1 ⇒ 3 · المداخلُ غيرُ المارّةِ بـ`_authorize_money` ‏7 ⇒ 9 وتفويضاتُها 7 ⇒ 10 · الجدول 11 ⇒ 14 · وفحصا «الالتزامُ لا يصرفُ وحالتُه `authorized`» و«لا يمرُّ بطبقةِ التخويل» يُوسَّعانِ إلى الثلاثة — تشديد).
+- **حارسٌ رابعٌ يتغيّرُ عددُه** لم يذكرْه القرارُ نصًّا: `tests/governance/test_q18_money_lexicon.py` يقيّدُ `len(TREASURY_ACTIONS) == 15`. يصيرُ 16، ويُضافُ صفٌّ مسمًّى `Q99_ADDED_ACTIONS = ("authorize_transfer",)` إلى اختبارِ «لا فرعَ غيرُ الخزانةِ يُحرِّكُ مالًا» — تشديد. ويُثبَتُ الفرقُ الخامُ للأربعةِ في `evidence/W-823/guards_raw_diff.txt`.
+- `Q-32` (حدودُ الفرضِ بـ`_authorize_money`) **لا يُعادُ حسمُه**: الأربعةُ المفروضةُ هناك أربعةٌ كما هي، والثلاثةُ الجديدةُ «التزاماتٌ» تعبرُ الحدَّ بعقدِ الخزانةِ لا بطبقةِ التخويل.
+
+### 8.4 شكلُ العبور (نمطُ `StateTreasury.establish_treasury` · عقدٌ واحدٌ لكلِّ سطح)
+
+1. **رأسُ السطح:** `resolve_money_delegation(<العمليّة>, entrypoint=<السطح>)` قبلَ أيِّ عمل (يرفعُ لعمليّةٍ غيرِ مُعلَنة) — قائمٌ في 18، ويُضافُ في 19 و20 (في 20 بعدَ اشتقاقِ العمليّةِ من النوع، بنداءَين حرفيَّين لكلِّ عمليّةٍ لا اسمٍ مُتغيِّر — قِيسَ أنَّ حارسَ Q-19 يبحثُ عن النصِّ الحرفيّ فيسقطُ بالمتغيِّر، فلا يُضعَّفُ الحارسُ بل تُكتَبُ الشِّفرةُ له).
+2. **الفحوصُ القائمةُ كلُّها قبلَ العبورِ ولا تُضعَّف:** `require_domain_permission` · المبلغُ موجب · العملة · الغرض/المواصفة · وجودُ البرنامجِ والتخصيصِ والهويّة · `_authorize` (حلُّ سلطةِ المنصبِ قراءةً) · `_target_government` · مرجعُ الإجازةِ والكيان. في جلسةِ قراءةٍ تُغلَق، ويُبنى الصفُّ كائنًا عابرًا لا يُضاف.
+3. `money_crossing_contract(operation=…, entrypoint=…, target=…, effect_kind="CREATE", key_value=f"{tenant}:{row_id}", apply=_apply, undo=…, undo_idempotent=True, metadata=…, authorizer_factory=self._money_authorizer_factory)` ثمّ `settle_money_crossing(lambda: contract["authorizer"].guard_declared(contract["action"], contract["target"], **money_crossing_kwargs(contract)), contract)` **في جسمِ السطحِ نفسِه** (الجردُ يعدُّ `guard_declared(`). والفاعلُ TREASURY من الجدولِ لا من `self.authorizer` (EXECUTIVE).
+4. `_apply` يفتحُ جلسةَ كتابة: يُضيفُ الصفَّ، ويُصدِرُ القرارَ بـ`_issue_decision` فيها، ويربطُ `decision_id`، ويُثبِّت، ثمّ `_announce` داخلَه. فالمطبِّقُ **غيرُ ذرّيّ** (الحدثُ بعدَ الالتزام): إن رفعَ فـ«ربما نُفِّذ» ⇒ المعوِّضُ المُثبِّتُ يُشغَّلُ (DISC-149 · Q-88)، وإن فشلَ التعويضُ فـFAILED_FINAL من الحدِّ نفسِه — لا مسارَ ثالث.
+5. **شكلُ الردّ:** ما كانَ يُعادُ اليومَ (`{**payload, "decision": …, **trace}`) بلا مفتاحٍ محذوف.
+6. **المُصرِّح:** معامَلٌ اختياريٌّ جديدٌ `NationalEconomy.__init__(…, money_authorizer_factory=None)` للفحوصِ وحدَها؛ والافتراضُ بناءُ مُصرِّحِ الخزانةِ في نقطةِ الفرضِ الواحدة (`_crossing_authorizer_for`). و`authorizer` (EXECUTIVE) باقٍ لأسطحِ Q-98.
+
+### 8.5 القياس (Q-99 · التوجيهُ 44 § 2)
+
+- **مسبارٌ خام** `evidence/W-823/q99_engine_probe.py` قبلُ وبعد: لكلِّ فعلٍ من الثلاثةِ عشرةُ فاعلين، المقبولُ TREASURY وحدَه.
+- **العبور:** رفضٌ قبلَ الكتابة · نجاحٌ بدليل · لا إعادةٌ مدّعاة · تعويضٌ عندَ فشلِ المطبِّق · **المسارُ كاملًا** بالتوصيلِ الافتراضيّ: سجلُّ البوّابةِ AUTHORIZED ثمّ COMPLETED بالفاعلِ TREASURY، وقيدُ `CONSTITUTIONAL_VERDICT` في `ConstitutionalLedger`، و`verify_chain()` فارغ.
+- **الطفرات:** حذفُ كلِّ فعلٍ من `TREASURY_ACTIONS` ⇒ المسبارُ يفشل (3) · ورفعُ `guard_declared` من كلِّ سطح ⇒ اختبارُ العبورِ يفشل (3).
+- **المنادون:** مسحٌ ساكنٌ للنصوصِ الحرفيّةِ للأفعالِ والعمليّاتِ قبلُ وبعد + `test_r9`/`test_q19`/`test_q31`/`test_q32` قبلُ وبعد.
+- **D-4** قبلُ وبعدُ على ba1cac8f، بالحرقِ وإعادةِ التصنيفِ منفصلَين.
+
+### 8.6 ما لا تفعلُه الدفعة
+
+لا `KILL_SWITCH_BLOCKS` · لا تمسُّ `execute_expenditure`/`execute_transfer` (تعبرانِ بـ`treasury.disburse` القائم) · لا شِفرةَ لـDISC-159 ولا لـDISC-160 (وثيقتا تصميمٍ في W-822: `DISC159_ENFORCE_RULING_DRAFT.md` · `DISC160_PAID_CALL_PREAUTH_DESIGN.md`) · لا PostgreSQL (دفعةٌ مستقلّةٌ بعدَها بقرارِ Q-99) · لا تمسُّ المركَّبةَ 21–23.

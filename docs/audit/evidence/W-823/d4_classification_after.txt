@@ -1,0 +1,82 @@
+D-4 (عمليّاتٌ عامّةٌ كاتبةٌ غيرُ عابرة) = 57
+بالمنطقة: service_common 12 · services 44 · tools 1 · core 0
+
+[9] G1 § 9.2 — مالٌ متعشِّشٌ (Q-9) · بعدَ كاشفِ التعشيشِ وM1 وجولةٍ بأعلى فئة (D30)
+      services · services/governance/treasury.py::Treasury.allocate_budget
+      services · services/governance/treasury.py::Treasury.charge_model_invoke
+      services · services/governance/treasury.py::Treasury.charge_retraining
+      services · services/governance/treasury.py::Treasury.charge_storage
+      services · services/governance/treasury.py::Treasury.generate_financial_report
+      services · services/governance/treasury.py::Treasury.process_real_costs
+      services · services/governance/treasury.py::Treasury.reward_quality_report
+      services · services/governance/treasury.py::Treasury.reward_successful_training
+      services · services/governance/treasury.py::Treasury.reward_task_completion
+[9] K1 — ممنوعُ المَسّ (Q-4)
+      services · services/royal/main.py::-.approve_promotion
+      services · services/royal/main.py::-.close_institution
+      services · services/royal/main.py::-.create_decree
+      services · services/royal/main.py::-.create_institution
+      services · services/royal/main.py::-.dismiss_agent
+      services · services/royal/main.py::-.generate_interface
+      services · services/royal/main.py::-.request_agent_training
+      services · services/royal/main.py::-.request_tool_generation
+      services · services/royal/main.py::-.restore_agent
+[7] A1 — العبورُ عندَ المستدعي لا يُنقِصُ D-4 (Q-75 ①) · العبورُ داخلَ المخزنِ غيرُ مقرَّر
+      service_common · common/persistent.py::PersistentAgentStore.register
+      service_common · common/persistent.py::PersistentCriticStore.review
+      service_common · common/persistent.py::PersistentPromotionStore.create
+      service_common · common/persistent.py::PersistentPromotionStore.save_gates
+      service_common · common/persistent.py::PersistentSystemStateStore.reset
+      service_common · common/persistent.py::PersistentSystemStateStore.set_level
+      service_common · common/persistent.py::PersistentToolStore.register
+[7] D17-2 / D21-أ بند 9 — الأفعالُ الأربعةُ مؤجَّلة
+      services · services/federal_judiciary/docket.py::-.submit_evidence
+      services · services/federal_judiciary/registry.py::-.appoint_judge
+      services · services/federal_judiciary/registry.py::-.create_court
+      services · services/federal_judiciary/service.py::FederalJudiciary.appoint_judge
+      services · services/federal_judiciary/service.py::FederalJudiciary.register_court
+      services · services/federal_judiciary/service.py::FederalJudiciary.set_court_status
+      services · services/federal_judiciary/service.py::FederalJudiciary.submit_evidence
+[3] DISC-156 → دَينٌ مسمّى (Q-95 قرار 1)
+      service_common · common/durable_event_bus.py::DurableEventBus.ack
+      service_common · common/persistent.py::PersistentTaskStore.create
+      service_common · common/persistent.py::PersistentTaskStore.update_status
+[3] M1 § 2.11 — عابرٌ بصيغة S1 والجردُ لا يراه (توسيعُ الجردِ تصميمٌ مستقلٌّ للمالك)
+      services · services/federal_state/service.py::FederalStateGovernment.execute_scoped_disbursement
+      services · services/national_economy/service.py::NationalEconomy.execute_expenditure
+      services · services/national_economy/service.py::NationalEconomy.execute_transfer
+[3] Q-83 (أ)① + (ج) — مركَّبُ النواة (M1 الدفعة 4)
+      services · services/federal_state/service.py::FederalStateGovernment.execute_scoped_operation
+      services · services/national_economy/service.py::NationalEconomy.activate_policy
+      services · services/national_economy/service.py::NationalEconomy.execute_economic_decision
+[2] Q-87 (ج-2) — عبورٌ عندَ المستدعي بعدَ M1
+      service_common · common/persistent.py::PersistentExperienceStore.record
+      service_common · common/persistent.py::PersistentMemoryStore.store
+[2] J4 — Q-16 + جولةُ WI-084 (D30: لا نصاب)
+      services · services/federal_judiciary/enforcement.py::-.record_enforcement
+      services · services/federal_judiciary/service.py::FederalJudiciary.enforce_ruling_via_task
+[2] أفعالٌ بشريّةُ البوّابة (train_model · promote_model) — قناةُ الموافقةِ نفسُها (Q-80 ①) · غيرُ مقيسٍ بمسبارِ المحرّكِ هنا
+      services · services/training/persistent_registry.py::PersistentModelRegistry.register
+      services · services/training/persistent_registry.py::PersistentModelRegistry.update_status
+[1] DISC-157 — بلا مستدعٍ إنتاجيٍّ وتقومُ عليه فحوص (نمطُ DISC-156)
+      services · services/api_gateway/store.py::DatabaseTaskStore.create
+[1] DISC-155 — حرّاسُ Q-19/Q-31/Q-32
+      services · services/federal_judiciary/service.py::FederalJudiciary.enforce_ruling_via_treasury
+[1] Q-80 ① — دَينٌ حتى قناةِ الموافقةِ البشريّة
+      services · services/governance/learning_cycle.py::LearningCycle.start_training
+[1] G1 § 9.1 — تصميمٌ مستقلٌّ (المعوِّضُ يضعُ سرًّا في الأثر)
+      services · services/governance/security.py::SecretVault.store_secret
+[1] G1 § 9.1 + Q-10 BLOCKED — لا قدرةَ استرجاع
+      services · services/governance/system_life.py::SystemLifecycle.restore_backup
+[1] Q-16 ③ — DECIDED · التنفيذُ BLOCKED حتى الشرطين
+      services · services/government_services/service.py::GovernmentServices.process_case
+[1] مشتقُّ مالٍ — بعدَ الأصل (حزمةُ القرار W2 · Q-83 (ج))
+      services · services/model_gateway/model_layer.py::ModelLayer.log_cost
+[1] Q-25 ① — فئةُ INFRASTRUCTURE: إعادةُ تصنيفٍ لا حرق
+      services · services/model_gateway/model_layer.py::ModelLayer.set_cached
+[1] M1 § 2.9 قرار 1 — معوِّضُ العكسِ سؤالٌ للمالك
+      services · services/state_treasury/service.py::StateTreasury.reverse_transaction
+[1] إيجابٌ كاذبٌ في الجرد — تُعيدُ نصَّ SQL ولا تكتب · إصلاحُ الأداةِ إعادةُ تصنيفٍ بقرارِ المالك
+      tools · tools/migrations/r4_unify_agent_identity.py::-.emit_sql
+
+غيرُ مصنَّف = 0

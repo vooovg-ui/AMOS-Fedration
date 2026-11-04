@@ -4,7 +4,7 @@ AMOS-Federation Common — Money Delegation
 النطاق: common — مفردةٌ مشتركةٌ بينَ خزانةِ الدولةِ والاقتصادِ الوطنيّ (والقضاءِ الاتّحاديِّ بمدخلِ تنفيذِ الحكم · W-815)
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-21 (Q-19)
-تاريخ آخر تعديل: 2026-11-04 (W-815 — المدخلُ الحادي عشر لـ`enforce_ruling_via_treasury` · DISC-155 · Q-96 القرار 1)
+تاريخ آخر تعديل: 2026-11-04 (W-823 — المداخلُ 12–14 لأسطحِ الخزانةِ في الاقتصادِ الوطنيّ · قرارُ المالكِ Q-99) · 2026-11-04 (W-815 — المدخلُ الحادي عشر لـ`enforce_ruling_via_treasury` · DISC-155 · Q-96 القرار 1)
 تعتمد على: core/constitutional_engine/rules.py — معجمُ المالِ المحسومُ في Q-18
 
 ## لماذا تفويضٌ لكلِّ عمليّةٍ لا وسمٌ لخدمةٍ كاملة
@@ -166,6 +166,38 @@ MONEY_DELEGATIONS: Final[tuple[MoneyDelegation, ...]] = (
         entrypoint="execute_transfer",
         actor=TREASURY_BRANCH,
         basis="التحويلُ نقلُ مالٍ عامٍّ بينَ جهتَين، والنقلُ حركةٌ لا إجراءٌ إداريّ.",
+    ),
+    # المداخلُ 12–14 (W-823 · قرارُ المالكِ Q-99 · تصميمُ Q83C § 8): إجازاتٌ تُلزِمُ مالًا
+    # عامًّا قبلَ صرفِه كـ`authorize_expenditure`، فتعبرُ الحدَّ بفاعلِ الخزانةِ من هذا الجدول.
+    MoneyDelegation(
+        operation="economy.procurement.authorize",
+        constitutional_action="award_procurement",
+        entrypoint="authorize_procurement",
+        actor=TREASURY_BRANCH,
+        basis=(
+            "إجازةُ المشترياتِ ترسيةٌ تُلزِمُ مالًا عامًّا على تخصيصٍ قائمٍ قبلَ صرفِه، "
+            "فهي `award_procurement` بحكمِ Q-18 وQ-99."
+        ),
+    ),
+    MoneyDelegation(
+        operation="economy.grant.authorize",
+        constitutional_action="authorize_transfer",
+        entrypoint="authorize_transfer",
+        actor=TREASURY_BRANCH,
+        basis=(
+            "إجازةُ المنحةِ تُلزِمُ مالًا عامًّا لمستفيدٍ قبلَ تنفيذِه بـ`execute_transfer`، "
+            "فهي فعلُ خزانةٍ بحكمِ Q-99 (زوجُ «إجازة ⇒ تنفيذ»)."
+        ),
+    ),
+    MoneyDelegation(
+        operation="economy.subsidy.authorize",
+        constitutional_action="authorize_transfer",
+        entrypoint="authorize_transfer",
+        actor=TREASURY_BRANCH,
+        basis=(
+            "إجازةُ الإعانةِ تُلزِمُ مالًا عامًّا لمستفيدٍ قبلَ تنفيذِه بـ`execute_transfer`، "
+            "فيُفوَّضُ نوعُها على حِدَةٍ لأنَّ العمليّةَ غيرُ عمليّةِ المنحة."
+        ),
     ),
     # ── القضاءُ الاتّحاديّ · services/federal_judiciary/service.py ───────
     # المدخلُ الحادي عشر (W-815 · DISC-155 · قرارُ المالكِ Q-96 القرار 1): مدخلٌ

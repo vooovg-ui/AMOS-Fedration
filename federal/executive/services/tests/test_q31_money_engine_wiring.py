@@ -231,12 +231,16 @@ def test_treasury_asks_the_single_enforcement_point_and_builds_no_bridge() -> No
     assert "sovereignty_bridge" not in service
 
 
-# ── 6 · الحدُّ المُعلَن: أربعةٌ من أحدَ عشرَ لا كلُّها (Q-32 · W-815) ───────────
-def test_the_enforced_scope_is_declared_as_four_of_eleven_sites() -> None:
+# ── 6 · الحدُّ المُعلَن: أربعةٌ من أربعةَ عشرَ لا كلُّها (Q-32 · W-815 · W-823) ──
+def test_the_enforced_scope_is_declared_as_four_of_fourteen_sites() -> None:
     """لا يُدَّعى ما ليس مفروضًا: سبعةُ مواضعَ لا تمرُّ بطبقةِ التخويلِ فتبقى بلا حكم.
 
     [W-815 · DISC-155 · Q-96 القرار 1]: كانت ستّةً من عشرة؛ والسابعُ مدخلُ تنفيذِ
     الحكمِ القضائيّ (`enforce_ruling_via_treasury`)، وحركتُه عبرَ `disburse` المفروض.
+
+    [W-823 · Q-99]: صارت عشرةً من أربعةَ عشر — المداخلُ 12–14 (`authorize_procurement`
+    ونوعا `authorize_transfer`) إجازاتٌ تعبرُ الحدَّ بعقدِ الخزانةِ (`money_crossing_contract`)
+    لا بـ`_authorize_money`، فتُعَدُّ هنا مع غيرِ المارّةِ بطبقةِ التخويل كـ`authorize_expenditure`.
 
     هذا القيدُ يحرسُ **صدقَ الدعوى** لا الشِّفرة: فلو وُسِّعَ النطاقُ غدًا سقطَ هنا،
     فيُحدَّثُ العددُ مع الوثيقةِ ومع قرارِ **Q-32** — لا في صمت.
@@ -262,7 +266,7 @@ def test_the_enforced_scope_is_declared_as_four_of_eleven_sites() -> None:
         "resolve_money_delegation("
     )
     judiciary = judiciary_src.count("resolve_money_delegation(")
-    assert len(MONEY_DELEGATIONS) == 11
-    assert direct == 6, "تغيّرَ عددُ المواضعِ غيرِ المفروضةِ دستوريًّا — حدِّثْ Q-32"
+    assert len(MONEY_DELEGATIONS) == 14
+    assert direct == 9, "تغيّرَ عددُ المواضعِ غيرِ المفروضةِ دستوريًّا — حدِّثْ Q-32"
     assert judiciary == 1, "تغيّرَ عددُ مواضعِ القضاءِ غيرِ المفروضة — حدِّثْ Q-32"
-    assert direct + judiciary == 7
+    assert direct + judiciary == 10

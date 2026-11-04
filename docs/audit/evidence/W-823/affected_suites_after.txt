@@ -1,0 +1,28 @@
+# بعدَ الشِّفرة (W-823): الحزمُ المتأثّرةُ نفسُها + ملفُّ العبورِ الجديد
+# الأمر (من federal/executive/services): OTEL_SDK_DISABLED=true python -m pytest -q -p no:cacheprovider tests/test_r9_national_economic_state.py tests/test_r9_economy_q98_crossing.py tests/test_r9_economy_q99_treasury_crossing.py tests/test_q19_money_delegation.py tests/test_q31_money_engine_wiring.py tests/test_q32_money_enforcement_surface.py
+/home/user/workspace/amos/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0
+rootdir: /home/user/workspace/amos/federal/executive/services
+configfile: pyproject.toml
+plugins: asyncio-1.4.1.post1, anyio-4.16.0, cov-7.1.0, platformdirs-4.14.3
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 169 items
+
+tests/test_r9_national_economic_state.py ............................... [ 18%]
+..............                                                           [ 26%]
+tests/test_r9_economy_q98_crossing.py .................................. [ 46%]
+                                                                         [ 46%]
+tests/test_r9_economy_q99_treasury_crossing.py ......................... [ 61%]
+..                                                                       [ 62%]
+tests/test_q19_money_delegation.py ..................................    [ 82%]
+tests/test_q31_money_engine_wiring.py ............                       [ 89%]
+tests/test_q32_money_enforcement_surface.py .................            [100%]
+
+======================= 169 passed in 316.76s (0:05:16) ========================
+tests/governance/test_q18_money_lexicon.py: 117 passed (بعدَ الشِّفرة · قبلُها 111 · +6 حالاتٍ لـauthorize_transfer: 1 (في المعجم) + 4 (رفضُ الفروعِ غيرِ الخزانة) + 1 (قبولُ الخزانة) — مقيسٌ بـ--collect-only)
+tests/governance/test_q18_money_lexicon.py + tests/constitutional/test_q99_treasury_vocabulary.py: 127 passed
+tests/constitutional/ + q18 + q99 (الجذر): 1087 passed

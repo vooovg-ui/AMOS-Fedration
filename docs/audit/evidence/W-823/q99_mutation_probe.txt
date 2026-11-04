@@ -1,0 +1,9 @@
+A rules-drop authorize_expenditure    probe_exit=1 KILLED
+A rules-drop award_procurement        probe_exit=1 KILLED
+A rules-drop authorize_transfer       probe_exit=1 KILLED
+B guard-drop authorize_expenditure    pytest_exit=1 KILLED · ================= 6 failed, 1 passed, 20 deselected in 25.78s ==================
+B guard-drop authorize_procurement    pytest_exit=1 KILLED · ================= 5 failed, 1 passed, 21 deselected in 22.01s ==================
+B guard-drop authorize_transfer       pytest_exit=1 KILLED · ================= 11 failed, 2 passed, 14 deselected in 43.71s =================
+service.py restored byte-identical: True
+MUTATION RESULT: total=6 survived=0
+EXIT=0

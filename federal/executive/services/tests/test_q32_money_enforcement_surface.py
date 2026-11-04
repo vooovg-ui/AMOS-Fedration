@@ -29,6 +29,12 @@ Q-32 **مسألةٌ سياديّةٌ لم تُحسَمْ بعد**، ولا يج�
 السابعُ مُغلِّفٌ ثالثٌ — `enforce_ruling_via_treasury` في القضاءِ الاتّحاديّ — يُشترَطُ نصًّا
 أن يُسنِدَ الحركةَ إلى `treasury.disburse` المحروس كالمُغلِّفَين الآخرَين.
 
+[W-823 · قرارُ المالكِ Q-99]: صارَ الجدولُ **أربعةَ عشرَ** تفويضًا، والمداخلُ غيرُ المارّةِ
+بـ`_authorize_money` **تسعةً** (عشرةُ تفويضاتٍ — `authorize_transfer` مدخلٌ واحدٌ لعمليّتَين).
+والمضافُ التزامانِ كـ`authorize_expenditure`: `authorize_procurement` و`authorize_transfer` —
+لا يُحرِّكانِ مالًا (حالتُهما `authorized`)، ويعبرانِ الحدَّ بعقدِ الخزانةِ (`settle_money_crossing`)
+فيُسألُ المُحرِّكُ عندَ الالتزامِ بفاعلِ TREASURY. والفحوصُ تُوسَّعُ إلى الثلاثةِ ولا يُرفَعُ منها شيء.
+
 ## الحدُّ المُعلَنُ لهذا الحرس
 
 هذا الحرسُ يقيسُ **بنيةَ المصدرِ** (شجرةَ التحليلِ لا نصًّا حرفيًّا)، ولا يُثبتُ
@@ -51,7 +57,9 @@ ENFORCED_ENTRYPOINTS = frozenset({"allocate", "post_funding", "disburse", "rever
 
 #: السبعةُ التي لا تعبُرُها (ستّةٌ حتّى W-815) — مُصنَّفةً بما تفعلُه حقًّا لا بما يُظَنُّ.
 CONTAINER_ENTRYPOINTS = frozenset({"establish_treasury", "open_account", "create_budget"})
-OBLIGATION_ENTRYPOINTS = frozenset({"authorize_expenditure"})
+OBLIGATION_ENTRYPOINTS = frozenset(
+    {"authorize_expenditure", "authorize_procurement", "authorize_transfer"}  # W-823 · Q-99
+)
 WRAPPER_ENTRYPOINTS = frozenset(
     {"execute_decision_disbursement", "execute_transfer", "enforce_ruling_via_treasury"}
 )
@@ -169,7 +177,7 @@ class TestA1MovementWriteIsOnePlaceAndItIsGuarded:
         }
         assert enforced == set(ENFORCED_ENTRYPOINTS), (
             f"عددُ المواضعِ المفروضةِ تغيَّرَ: {sorted(enforced)} — "
-            "والرقمُ «أربعةٌ من أحدَ عشر» مكتوبٌ في وثائقَ سياديّةٍ فيُصحَّحُ معه."
+            "والرقمُ «أربعةٌ من أربعةَ عشر» (W-823) مكتوبٌ في وثائقَ سياديّةٍ فيُصحَّحُ معه."
         )
 
 
@@ -186,7 +194,7 @@ class TestA2WhatTheSixReallyAre:
         assert "_authorize_money" not in _calls_in(
             treasury_functions["execute_decision_disbursement"]
         )
-        for name in ("authorize_expenditure", "execute_transfer"):
+        for name in (*sorted(OBLIGATION_ENTRYPOINTS), "execute_transfer"):
             assert "_authorize_money" not in _calls_in(economy_functions[name])
 
     def test_the_judicial_wrapper_does_not_pass_the_authorization_layer_itself(
@@ -209,20 +217,27 @@ class TestA2WhatTheSixReallyAre:
     def test_the_obligation_moves_no_money_and_declares_it(
         self, economy_functions: dict[str, ast.FunctionDef]
     ) -> None:
-        """إجازةُ الإنفاقِ التزامٌ لا حركة: حالتُها `authorized` ولا تُنادي صرفًا."""
-        node = economy_functions["authorize_expenditure"]
-        calls = _qualified_calls_in(node)
-        assert not {
-            c for c in calls if c.endswith(".disburse")
-        }, "إجازةُ الإنفاقِ صارت تصرفُ مالًا — فهي حركةٌ لا التزامٌ، ويتغيّرُ حكمُ Q-32."
-        statuses = {
-            kw.value.value
-            for child in ast.walk(node)
-            if isinstance(child, ast.Call)
-            for kw in child.keywords
-            if kw.arg == "status" and isinstance(kw.value, ast.Constant)
-        }
-        assert "authorized" in statuses, "حالةُ الإجازةِ لم تبقَ `authorized` — يُعادُ القياس."
+        """الإجازاتُ الثلاثُ التزامٌ لا حركة: حالتُها `authorized` ولا تُنادي صرفًا.
+
+        [W-823 · Q-99] وُسِّعَ من إجازةِ الإنفاقِ وحدَها إلى الثلاثة، ومعه شرطٌ جديد: كلٌّ منها
+        يعبرُ الحدَّ بعقدِ الخزانةِ (`settle_money_crossing`) — فإن رُفِعَ العبورُ سقطَ هنا.
+        """
+        for name in sorted(OBLIGATION_ENTRYPOINTS):
+            node = economy_functions[name]
+            calls = _qualified_calls_in(node)
+            assert not {
+                c for c in calls if c.endswith(".disburse")
+            }, f"«{name}» صارت تصرفُ مالًا — فهي حركةٌ لا التزامٌ، ويتغيّرُ حكمُ Q-32."
+            statuses = {
+                kw.value.value
+                for child in ast.walk(node)
+                if isinstance(child, ast.Call)
+                for kw in child.keywords
+                if kw.arg == "status" and isinstance(kw.value, ast.Constant)
+            }
+            assert "authorized" in statuses, f"حالةُ «{name}» لم تبقَ `authorized` — يُعادُ القياس."
+            assert "settle_money_crossing" in _calls_in(node), f"«{name}» لا تعبرُ عقدَ الخزانة."
+            assert "resolve_money_delegation" in _calls_in(node), f"«{name}» بلا رأسِ تفويض."
 
     def test_the_obligation_is_later_executed_through_the_guarded_treasury(
         self, economy_functions: dict[str, ast.FunctionDef]
@@ -267,24 +282,27 @@ class TestA2WhatTheSixReallyAre:
         ), "تنفيذُ الحكمِ لم يبقَ ماضيًا بخزانةِ الدولةِ — فصارَ القضاءُ دفترًا ثانيًا للمال."
         assert not {c for c in calls if c.endswith("._post")}
 
-    def test_the_seven_are_seven_no_more_no_less(self) -> None:
-        # كانت ستّةً حتّى W-815؛ والسابعُ المُغلِّفُ القضائيّ (DISC-155 · Q-96 القرار 1).
+    def test_the_nine_are_nine_no_more_no_less(self) -> None:
+        # كانت ستّةً حتّى W-815؛ والسابعُ المُغلِّفُ القضائيّ (DISC-155 · Q-96 القرار 1)؛
+        # والثامنُ والتاسعُ التزاما Q-99 (W-823).
         assert (
-            len(CONTAINER_ENTRYPOINTS | OBLIGATION_ENTRYPOINTS | WRAPPER_ENTRYPOINTS) == 7
-        ), "تصنيفُ السبعةِ في هذا الحرسِ لم يبقَ سبعةً — فالموجزُ والحرسُ افترقا."
+            len(CONTAINER_ENTRYPOINTS | OBLIGATION_ENTRYPOINTS | WRAPPER_ENTRYPOINTS) == 9
+        ), "تصنيفُ التسعةِ في هذا الحرسِ لم يبقَ تسعةً — فالموجزُ والحرسُ افترقا."
         assert len(WRAPPER_ENTRYPOINTS) == 3
+        assert len(OBLIGATION_ENTRYPOINTS) == 3
 
-    def test_the_eleven_declared_delegations_split_four_and_seven(self) -> None:
-        """الجدولُ المُعلَنُ في Q-19 هو مصدرُ العددِ (أحدَ عشرَ · عشرةٌ حتّى W-815)."""
+    def test_the_fourteen_declared_delegations_split_four_and_ten(self) -> None:
+        """الجدولُ المُعلَنُ في Q-19 هو مصدرُ العدد (أربعةَ عشرَ منذُ W-823 · أحدَ عشرَ حتّاه)."""
         from amos_federation.common.money_delegation import MONEY_DELEGATIONS
 
         entrypoints = {d.entrypoint for d in MONEY_DELEGATIONS}
-        assert len(MONEY_DELEGATIONS) == 11
+        assert len(MONEY_DELEGATIONS) == 14
+        assert sum(d.entrypoint not in ENFORCED_ENTRYPOINTS for d in MONEY_DELEGATIONS) == 10
         assert entrypoints & set(ENFORCED_ENTRYPOINTS) == set(ENFORCED_ENTRYPOINTS)
         unenforced = entrypoints - set(ENFORCED_ENTRYPOINTS)
         assert unenforced == (
             CONTAINER_ENTRYPOINTS | OBLIGATION_ENTRYPOINTS | WRAPPER_ENTRYPOINTS
-        ), f"السبعةُ غيرُ المفروضةِ تغيَّرَت: {sorted(unenforced)}"
+        ), f"التسعةُ غيرُ المفروضةِ تغيَّرَت: {sorted(unenforced)}"
 
 
 class TestA3TheOperationalCreditTreasuryIsOutOfScopeByDecision:

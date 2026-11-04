@@ -1,0 +1,4 @@
+tests/test_q32_money_enforcement_surface.py .................            [100%]
+
+======================= 139 passed in 205.03s (0:03:25) ========================
+tests/governance/test_q18_money_lexicon.py: 111 passed (قبلَ الشِّفرة · ba1cac8f)

@@ -40,6 +40,10 @@ Q18_ADDED_ACTIONS = (
     "award_procurement",
 )
 
+# [W-823 · قرارُ المالكِ Q-99] فعلٌ أوجبَه Q-99 بعدَ Q-18 — مُسمًّى صريحًا كذلك، ويدخلُ
+# فحوصَ الحصرِ نفسَها (لا فرعَ غيرُ الخزانةِ · والخزانةُ تمرّ): تشديدٌ لا تخفيف.
+Q99_ADDED_ACTIONS = ("authorize_transfer",)
+
 Q18_PRE_EXISTING_ACTIONS = (
     "allocate_budget",
     "issue_tokens",
@@ -66,7 +70,7 @@ def _verdict_name(engine: ConstitutionalEngine, actor: Branch, action: str) -> s
 # ── ١. المعجمُ يحتوي ما قرَّرَه القرارُ السياديّ ───────────────────────────────
 
 
-@pytest.mark.parametrize("action", Q18_ADDED_ACTIONS)
+@pytest.mark.parametrize("action", Q18_ADDED_ACTIONS + Q99_ADDED_ACTIONS)
 def test_q18_added_action_is_in_lexicon(action: str) -> None:
     """كلُّ فعلٍ أوجبَه Q-18 موجودٌ في المعجم — لا نيّةٌ بلا نصّ."""
     assert action in TREASURY_ACTIONS, f"الفعلُ «{action}» أوجبَه Q-18 وليسَ في المعجم"
@@ -79,8 +83,12 @@ def test_pre_q18_action_survives(action: str) -> None:
 
 
 def test_lexicon_grew_and_did_not_shrink() -> None:
-    """المعجمُ خمسةَ عشرَ فعلًا بعدَ Q-18، لا أقلّ — عددٌ مُعلَنٌ يُكسَرُ إن تراجعَ أحد."""
-    assert len(TREASURY_ACTIONS) == 15, (
+    """المعجمُ ستّةَ عشرَ فعلًا بعدَ Q-99، لا أقلّ — عددٌ مُعلَنٌ يُكسَرُ إن تراجعَ أحد.
+
+    كانَ خمسةَ عشرَ بعدَ Q-18، وزادَ `authorize_transfer` بقرارِ المالكِ Q-99 المُقيَّدِ في
+    سجلِّ القراراتِ السياديّة (قيدا W-822/W-823) — لا تعديلًا صامتًا للرقم.
+    """
+    assert len(TREASURY_ACTIONS) == 16, (
         f"المعجمُ {len(TREASURY_ACTIONS)} فعلًا. من زادَ أو نقصَ فعليه تعديلُ Q-18 "
         "في سجلِّ القراراتِ السياديّةِ وقيدُ عملٍ في سجلِّ الإنجاز، لا تعديلُ الرقمِ هنا."
     )
@@ -89,7 +97,9 @@ def test_lexicon_grew_and_did_not_shrink() -> None:
 # ── ٢. حكمُ البوابةِ الفعليُّ لا المُتوقَّع ─────────────────────────────────────
 
 
-@pytest.mark.parametrize("action", Q18_ADDED_ACTIONS + Q18_PRE_EXISTING_ACTIONS)
+@pytest.mark.parametrize(
+    "action", Q18_ADDED_ACTIONS + Q99_ADDED_ACTIONS + Q18_PRE_EXISTING_ACTIONS
+)
 @pytest.mark.parametrize("actor", NON_TREASURY_BRANCHES)
 def test_money_action_denied_to_non_treasury_branch(
     engine: ConstitutionalEngine, action: str, actor: Branch
@@ -100,7 +110,9 @@ def test_money_action_denied_to_non_treasury_branch(
     ), f"الفاعلُ «{actor.value}» مرَّ بفعلِ المالِ «{action}». R-003-1 لم يُطبَّق."
 
 
-@pytest.mark.parametrize("action", Q18_ADDED_ACTIONS + Q18_PRE_EXISTING_ACTIONS)
+@pytest.mark.parametrize(
+    "action", Q18_ADDED_ACTIONS + Q99_ADDED_ACTIONS + Q18_PRE_EXISTING_ACTIONS
+)
 def test_money_action_allowed_to_treasury(
     engine: ConstitutionalEngine, action: str
 ) -> None:

@@ -55,7 +55,12 @@ from amos_federation.common.database import get_session_factory, init_db
 from amos_federation.common.money_delegation import resolve_money_delegation
 from amos_federation.common.principal import DEFAULT_TENANT
 from amos_federation.services.executive_core import get_executive_core
-from amos_federation.services.executive_core.money_authority import MoneyFollowUp
+from amos_federation.services.executive_core.money_authority import (
+    MoneyFollowUp,
+    money_crossing_contract,
+    money_crossing_kwargs,
+    settle_money_crossing,
+)
 from amos_federation.services.federal_state.authority import require_government_authority
 from amos_federation.services.federal_state.models import GovernmentModel
 from amos_federation.services.federal_state.service import get_federal_state, new_operation_id
@@ -176,6 +181,7 @@ class NationalEconomy:
         executive_core: Any | None = None,
         federation: Any | None = None,
         authorizer: Any | None = None,
+        money_authorizer_factory: Any | None = None,
     ) -> None:
         init_db()
         #: النواةُ المشتركة القائمة — تُمرَّر في الاختبارات ولا تُستبدَل بأخرى.
@@ -184,6 +190,10 @@ class NationalEconomy:
         self._federation = federation if federation is not None else get_federal_state()
         #: مُصرِّحُ العبور (Q-98) — يُمرَّر في الاختبارات، وإلّا فـ`get_authorizer()`.
         self._authorizer = authorizer
+        #: [Q-99 · W-823] مَنفذُ حقنٍ للفحوصِ وحدَها في عبورِ أسطحِ الخزانةِ الثلاثة: يُعطى
+        #: الفاعلَ المُعلَنَ في جدولِ التفويضِ (TREASURY) لا غيرَه — كسابقةِ `StateTreasury`.
+        #: و`None` ⇒ مُصرِّحُ الخزانةِ من نقطةِ الفرضِ الواحدة (`_crossing_authorizer_for`).
+        self._money_authorizer_factory = money_authorizer_factory
 
     @property
     def authorizer(self) -> Any:
@@ -195,6 +205,81 @@ class NationalEconomy:
 
             self._authorizer = get_authorizer()
         return self._authorizer
+
+    def _money_authorization_contract(
+        self,
+        context: AuthorizationContext,
+        *,
+        operation: str,
+        entrypoint: str,
+        collection: str,
+        row: Any,
+        subject_kind: str,
+        decision_kwargs: dict[str, Any],
+        payload_of: Any,
+        announce_action: str,
+        announce_subject: str,
+        detail: str,
+    ) -> dict[str, Any]:
+        """عقدُ عبورِ إجازةِ خزانةٍ (Q-99 · Q83C § 8.4): أثرُ CREATE واحدٌ يشملُ الصفَّ وقرارَه.
+
+        الصفُّ مبنيٌّ كائنًا عابرًا في جلسةِ القراءة (لم يُضَف). والمطبِّقُ يكتبُه وقرارَه في
+        معاملةٍ واحدةٍ ثمّ يُعلِنُ الحدث — فهو غيرُ ذرّيّ: إن رفعَ فـ«ربما نُفِّذ» ويُشغَّلُ
+        المعوِّضُ المُثبِّت (حذفُ الصفِّ ثمّ القرارِ بمعرّفَيهما؛ الصفُّ أوّلًا لأنَّ `decision_id`
+        مفتاحٌ أجنبيٌّ مقيَّدٌ إلى القرار · وغائبُهما لا شيء) أو FAILED_FINAL من الحدّ (DISC-149).
+        والفاعلُ من جدولِ التفويض (TREASURY) لا من `self.authorizer` (EXECUTIVE).
+        """
+        tenant = self._tenant_of(context)
+        model = type(row)
+        row_id = row.id
+        created: dict[str, str] = {}
+
+        def _apply() -> dict[str, Any]:
+            write = self._session()
+            try:
+                write.add(row)
+                decision = self._issue_decision(
+                    write,
+                    context,
+                    operation=operation,
+                    subject_kind=subject_kind,
+                    subject_id=row_id,
+                    **decision_kwargs,
+                )
+                created["decision_id"] = decision.id
+                row.decision_id = decision.id
+                write.commit()
+                write.refresh(row)
+                payload = payload_of(row)
+                decision_payload = self._decision_dict(decision)
+            finally:
+                write.close()
+            trace = self._announce(
+                context,
+                action=announce_action,
+                subject=announce_subject,
+                decision=decision_payload,
+                payload=payload,
+            )
+            return {**payload, "decision": decision_payload, **trace}
+
+        return money_crossing_contract(
+            operation=operation,
+            entrypoint=entrypoint,
+            target=f"economy/{tenant}/{collection}/{row.reference}",
+            effect_kind="CREATE",
+            detail=detail,
+            key_value=f"{tenant}:{row_id}",
+            apply=_apply,
+            undo=lambda _result: self._delete_rows(
+                (model, row_id),
+                (EconomicDecisionModel, created.get("decision_id")),
+            ),
+            undo_description="حذفُ الإجازةِ ثمّ قرارِها بمعرّفَيهما (الصفُّ أوّلًا · مفتاحٌ أجنبيٌّ)",
+            undo_idempotent=True,
+            metadata={"tenant_id": tenant, "reference": row.reference, "operation": operation},
+            authorizer_factory=self._money_authorizer_factory,
+        )
 
     def _delete_rows(self, *rows: tuple[Any, str | None]) -> None:
         """معوِّضُ CREATE: احذفِ الصفوفَ بمعرِّفاتِها بالترتيبِ المعطى — ولا أثرَ لغائب."""
@@ -1675,35 +1760,35 @@ class NationalEconomy:
                 correlation_id=correlation_id,
                 tenant_id=tenant,
             )
-            session.add(row)
-            decision = self._issue_decision(
-                session,
-                context,
-                operation="economy.expenditure.authorize",
-                subject_kind="EXPENDITURE",
-                subject_id=row.id,
-                authority=authority,
-                government_id=government_id,
-                institution_id=institution.id,
-                department_id=department_id,
-                scope_level=scope_level,
-                correlation_id=correlation_id,
-            )
-            row.decision_id = decision.id
-            session.commit()
-            session.refresh(row)
-            payload = self._expenditure_dict(row)
-            decision_payload = self._decision_dict(decision)
         finally:
             session.close()
-        trace = self._announce(
+        # [Q-99 · W-823] عبورُ الحدِّ بفاعلِ الخزانةِ مرّةً واحدة — الكتابةُ كلُّها داخلَ المطبِّق.
+        contract = self._money_authorization_contract(
             context,
-            action="economy.expenditure.authorize",
-            subject="amos_federation.economy.expenditure_authorized",
-            decision=decision_payload,
-            payload=payload,
+            operation="economy.expenditure.authorize",
+            entrypoint="authorize_expenditure",
+            collection="expenditures",
+            row=row,
+            subject_kind="EXPENDITURE",
+            decision_kwargs={
+                "authority": authority,
+                "government_id": government_id,
+                "institution_id": institution.id,
+                "department_id": department_id,
+                "scope_level": scope_level,
+                "correlation_id": correlation_id,
+            },
+            payload_of=self._expenditure_dict,
+            announce_action="economy.expenditure.authorize",
+            announce_subject="amos_federation.economy.expenditure_authorized",
+            detail=f"إجازةُ إنفاقٍ {spend} {code} على التخصيص '{allocation_id}'",
         )
-        return {**payload, "decision": decision_payload, **trace}
+        return settle_money_crossing(
+            lambda: contract["authorizer"].guard_declared(
+                contract["action"], contract["target"], **money_crossing_kwargs(contract)
+            ),
+            contract,
+        )
 
     def execute_expenditure(
         self,
@@ -1993,6 +2078,12 @@ class NationalEconomy:
             raise EconomicStateError(
                 f"نوعُ تحويلٍ مجهول: '{transfer_kind}' — المقبولُ {sorted(operations)}"
             )
+        # [Q-99 · W-823] لا عملَ قبلَ تفويضٍ مُعلَنٍ للعمليّةِ المشتقّةِ من النوع (Q-19) —
+        # بنصٍّ حرفيٍّ لكلِّ عمليّة (المدخلان 13 و14) كي يقيسَه حارسُ Q-19 لا اسمًا مُتغيِّرًا.
+        if operation == "economy.grant.authorize":
+            resolve_money_delegation("economy.grant.authorize", entrypoint="authorize_transfer")
+        else:
+            resolve_money_delegation("economy.subsidy.authorize", entrypoint="authorize_transfer")
         moved = _money(amount)
         if moved <= 0:
             raise EconomicStateError("مبلغُ التحويل يجب أن يكون موجبًا")
@@ -2073,25 +2164,6 @@ class NationalEconomy:
                 correlation_id=correlation_id,
                 tenant_id=tenant,
             )
-            session.add(row)
-            decision = self._issue_decision(
-                session,
-                context,
-                operation=operation,
-                subject_kind="TRANSFER",
-                subject_id=row.id,
-                authority=authority,
-                government_id=government_id,
-                institution_id=institution.id,
-                department_id=department_id,
-                scope_level=scope_level,
-                correlation_id=correlation_id,
-            )
-            row.decision_id = decision.id
-            session.commit()
-            session.refresh(row)
-            payload = self._transfer_dict(row)
-            decision_payload = self._decision_dict(decision)
         finally:
             session.close()
         subject = (
@@ -2099,14 +2171,33 @@ class NationalEconomy:
             if transfer_kind == "GRANT"
             else "amos_federation.economy.subsidy_authorized"
         )
-        trace = self._announce(
+        # [Q-99 · W-823] عبورُ الحدِّ بفاعلِ الخزانةِ مرّةً واحدة — الكتابةُ كلُّها داخلَ المطبِّق.
+        contract = self._money_authorization_contract(
             context,
-            action=f"economy.transfer.{transfer_kind.lower()}",
-            subject=subject,
-            decision=decision_payload,
-            payload=payload,
+            operation=operation,
+            entrypoint="authorize_transfer",
+            collection="transfers",
+            row=row,
+            subject_kind="TRANSFER",
+            decision_kwargs={
+                "authority": authority,
+                "government_id": government_id,
+                "institution_id": institution.id,
+                "department_id": department_id,
+                "scope_level": scope_level,
+                "correlation_id": correlation_id,
+            },
+            payload_of=self._transfer_dict,
+            announce_action=f"economy.transfer.{transfer_kind.lower()}",
+            announce_subject=subject,
+            detail=f"إجازةُ تحويلٍ ({transfer_kind}) {moved} {code} على التخصيص '{allocation_id}'",
         )
-        return {**payload, "decision": decision_payload, **trace}
+        return settle_money_crossing(
+            lambda: contract["authorizer"].guard_declared(
+                contract["action"], contract["target"], **money_crossing_kwargs(contract)
+            ),
+            contract,
+        )
 
     def execute_transfer(
         self,
@@ -2619,6 +2710,31 @@ class NationalEconomy:
 
     # ── R9-J: المشترياتُ — تجريدٌ داخليٌّ لا سوق ───────────────────────────
 
+    @staticmethod
+    def _procurement_dict(row: ProcurementModel) -> dict[str, Any]:
+        """صورةُ المشترياتِ المُعادة — حقولُها نفسُها قبلَ Q-99 (نُقِلَت من جسمِ السطح)."""
+        return {
+            "id": row.id,
+            "reference": row.reference,
+            "title": row.title,
+            "program_id": row.program_id,
+            "government_id": row.government_id,
+            "requesting_institution_id": row.requesting_institution_id,
+            "department_id": row.department_id,
+            "scope_level": row.scope_level,
+            "supplier_identity_id": row.supplier_identity_id,
+            "estimated_amount": row.estimated_amount,
+            "currency": row.currency,
+            "backend": row.backend,
+            "external_market_status": row.external_market_status,
+            "policy_id": row.policy_id,
+            "status": row.status,
+            "authority_classification": row.authority_classification,
+            "expenditure_authorization_id": row.expenditure_authorization_id,
+            "decision_id": row.decision_id,
+            "tenant_id": row.tenant_id,
+        }
+
     def authorize_procurement(
         self,
         context: AuthorizationContext,
@@ -2641,6 +2757,10 @@ class NationalEconomy:
         `backend='INTERNAL_ABSTRACTION'` و`external_market_status='UNAVAILABLE'`
         مُقيَّدتان في القاعدة، فلا يستطيع نداءٌ أن يُعلن تكاملًا مع سوقٍ حقيقيّ.
         """
+        # [Q-99 · W-823] لا عملَ قبلَ تفويضٍ مُعلَنٍ للعمليّة (Q-19) — المدخلُ 12.
+        resolve_money_delegation(
+            "economy.procurement.authorize", entrypoint="authorize_procurement"
+        )
         require_domain_permission(
             context, "economy.procurement.authorize", PERMISSIONS_ECONOMY_EXECUTE
         )
@@ -2706,55 +2826,35 @@ class NationalEconomy:
                 expenditure_authorization_id=expenditure_id,
                 tenant_id=tenant,
             )
-            session.add(row)
-            decision = self._issue_decision(
-                session,
-                context,
-                operation="economy.procurement.authorize",
-                subject_kind="PROCUREMENT",
-                subject_id=row.id,
-                authority=authority,
-                government_id=government_id,
-                institution_id=institution.id,
-                department_id=department_id,
-                scope_level=scope_level,
-                correlation_id=correlation_id,
-            )
-            row.decision_id = decision.id
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "reference": row.reference,
-                "title": row.title,
-                "program_id": row.program_id,
-                "government_id": row.government_id,
-                "requesting_institution_id": row.requesting_institution_id,
-                "department_id": row.department_id,
-                "scope_level": row.scope_level,
-                "supplier_identity_id": row.supplier_identity_id,
-                "estimated_amount": row.estimated_amount,
-                "currency": row.currency,
-                "backend": row.backend,
-                "external_market_status": row.external_market_status,
-                "policy_id": row.policy_id,
-                "status": row.status,
-                "authority_classification": row.authority_classification,
-                "expenditure_authorization_id": row.expenditure_authorization_id,
-                "decision_id": row.decision_id,
-                "tenant_id": row.tenant_id,
-            }
-            decision_payload = self._decision_dict(decision)
         finally:
             session.close()
-        trace = self._announce(
+        # [Q-99 · W-823] عبورُ الحدِّ بفاعلِ الخزانةِ مرّةً واحدة — الكتابةُ كلُّها داخلَ المطبِّق.
+        contract = self._money_authorization_contract(
             context,
-            action="economy.procurement.authorize",
-            subject="amos_federation.economy.procurement_created",
-            decision=decision_payload,
-            payload=payload,
+            operation="economy.procurement.authorize",
+            entrypoint="authorize_procurement",
+            collection="procurements",
+            row=row,
+            subject_kind="PROCUREMENT",
+            decision_kwargs={
+                "authority": authority,
+                "government_id": government_id,
+                "institution_id": institution.id,
+                "department_id": department_id,
+                "scope_level": scope_level,
+                "correlation_id": correlation_id,
+            },
+            payload_of=self._procurement_dict,
+            announce_action="economy.procurement.authorize",
+            announce_subject="amos_federation.economy.procurement_created",
+            detail=f"إجازةُ مشترياتٍ '{title}' بتقديرِ {estimate} {money_code}",
         )
-        return {**payload, "decision": decision_payload, **trace}
+        return settle_money_crossing(
+            lambda: contract["authorizer"].guard_declared(
+                contract["action"], contract["target"], **money_crossing_kwargs(contract)
+            ),
+            contract,
+        )
 
     # ── R9-O: التنفيذُ بالنواة التنفيذية وحدَها ────────────────────────────
 

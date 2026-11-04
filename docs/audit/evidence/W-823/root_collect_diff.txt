@@ -1,0 +1,7 @@
+# مجموعُ فحوصِ الجذرِ (tests/) قبلَ/بعدَ — W-823 · الأمر: pytest tests/ --collect-only -q
+قبل (ba1cac8f · /tmp/base): 3614 · بعد: 3639 · الفرق +25
+      5 tests/constitutional/test_q68_agent_system_exclusive.py
+      4 tests/constitutional/test_q87_four_actors.py
+     10 tests/constitutional/test_q99_treasury_vocabulary.py
+      6 tests/governance/test_q18_money_lexicon.py
+محذوف: 0

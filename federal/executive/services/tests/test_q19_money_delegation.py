@@ -58,6 +58,10 @@ MEASURED_CALL_SITES: tuple[tuple[str, str], ...] = (
     ("economy.transfer.execute", "execute_transfer"),
     # W-815 · DISC-155 · Q-96 القرار 1: مدخلُ تنفيذِ الحكمِ القضائيّ.
     ("treasury.disbursement.post", "enforce_ruling_via_treasury"),
+    # W-823 · Q-99: أسطحُ الخزانةِ في الاقتصادِ الوطنيّ (المداخلُ 12–14).
+    ("economy.procurement.authorize", "authorize_procurement"),
+    ("economy.grant.authorize", "authorize_transfer"),
+    ("economy.subsidy.authorize", "authorize_transfer"),
 )
 
 
@@ -219,7 +223,10 @@ def test_every_money_call_site_count_matches_the_declared_table() -> None:
     # التي لا تعبُرُ طبقةَ التخويل. وفي الاقتصادِ نداءانِ مباشران لم يتغيّرا.
     # وسطرُ الاستيرادِ لا يُعدُّ لأنّه لا يحملُ قوسًا.
     assert treasury == 4
-    assert economy == 2
+    # W-823 · Q-99: كانَ في الاقتصادِ نداءانِ مباشران، فأُضيفَت ثلاثةٌ: رأسُ
+    # `authorize_procurement` ونداءانِ حرفيّانِ في `authorize_transfer` (عمليّةٌ لكلِّ نوع)
+    # — عددٌ مقيسٌ يزيدُ ولا فحصَ يُرفَع.
+    assert economy == 5
     # W-815 · DISC-155 · Q-96 القرار 1: نداءٌ مباشرٌ واحدٌ في القضاءِ لمدخلِ تنفيذِ
     # الحكم — فحصٌ جديدٌ لا تخفيف: الخزانةُ والاقتصادُ بعددَيهما كما كانا.
     judiciary = _source(JUDICIARY_SRC).count("resolve_money_delegation(")
@@ -227,8 +234,9 @@ def test_every_money_call_site_count_matches_the_declared_table() -> None:
     # مجموعُ المواضعِ أحدَ عشرَ (كانَ عشرةً حتّى W-815): سبعةٌ تُحضِرُ تفويضَها
     # مباشرةً، وأربعةٌ تمرُّ بطبقةِ التخويلِ فتُحضَرُ لها هناك — وهي وحدها المفروضةُ
     # دستوريًّا.
-    assert treasury + economy + judiciary == 7
-    assert len(MONEY_DELEGATIONS) == len(MEASURED_CALL_SITES) == 11
+    # W-823 · Q-99: المجموعُ 10 (كانَ 7) والجدولُ 14 (كانَ 11) — المداخلُ 12–14.
+    assert treasury + economy + judiciary == 10
+    assert len(MONEY_DELEGATIONS) == len(MEASURED_CALL_SITES) == 14
 
 
 def test_judicial_enforcement_resolves_its_delegation_before_any_work() -> None:

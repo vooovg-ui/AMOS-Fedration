@@ -133,6 +133,10 @@ TREASURY_ACTIONS = frozenset({
     "allocate_funds", "post_funding", "reverse_transaction",
     # الاقتصادُ المركَّبُ حينَ يمسُّ الميزانيّاتَ نفسَها
     "authorize_expenditure", "execute_transfer", "award_procurement",
+    # [Q-99 · W-823] إجازةُ تحويلٍ اقتصاديٍّ (منحة/إعانة) — زوجُ `execute_transfer`
+    # («إجازة ⇒ تنفيذ» كـ`authorize_expenditure`). كان مجهولًا للمحرّكِ فيمرُّ 10/10؛
+    # وبإضافتِه حصرٌ للخزانةِ يُمنعُ على غيرِها بـR-003-1 (تضييق · قياسُ W-823).
+    "authorize_transfer",
 })
 
 # أفعالُ مالٍ مُستثناةٌ من المعجمِ بقرارِ Q-17: amos-credit وحدةُ قياسٍ
@@ -163,6 +167,11 @@ MONEY_OPERATION_LEXICON: dict[str, str] = {
     "economy.expenditure.authorize": "authorize_expenditure",
     "economy.transfer.execute": "execute_transfer",
     "economy.procurement.award": "award_procurement",
+    # [Q-99 · W-823] عمليّاتُ أسطحِ الخزانةِ في `national_economy` بأسمائها الحقيقيّة
+    # في الشِّفرة (لا `economy.transfer.{kind}` — تلك صلاحيّةُ النطاق · تصحيحُ § 8.1).
+    "economy.procurement.authorize": "award_procurement",
+    "economy.grant.authorize": "authorize_transfer",
+    "economy.subsidy.authorize": "authorize_transfer",
 }
 
 
