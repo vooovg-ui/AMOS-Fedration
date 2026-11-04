@@ -1,0 +1,19 @@
+A rules-drop register_government      probe_exit=1 KILLED
+A rules-drop set_government_status    probe_exit=1 KILLED
+A rules-drop bind_institution         probe_exit=1 KILLED
+A rules-drop record_relation          probe_exit=1 KILLED
+A rules-drop grant_delegation         probe_exit=1 KILLED
+A rules-drop revoke_delegation        probe_exit=1 KILLED
+A rules-drop scope_service            probe_exit=1 KILLED
+A rules-drop scope_case               probe_exit=1 KILLED
+B guard-drop register_government      pytest_exit=1 KILLED · ======================= 2 failed, 22 deselected in 4.41s =======================
+B guard-drop set_government_status    pytest_exit=1 KILLED · ======================= 2 failed, 22 deselected in 4.76s =======================
+B guard-drop bind_institution         pytest_exit=1 KILLED · ======================= 2 failed, 22 deselected in 4.53s =======================
+B guard-drop record_relation          pytest_exit=1 KILLED · ======================= 2 failed, 22 deselected in 4.60s =======================
+B guard-drop grant_delegation         pytest_exit=1 KILLED · ======================= 2 failed, 22 deselected in 4.56s =======================
+B guard-drop revoke_delegation        pytest_exit=1 KILLED · ======================= 2 failed, 22 deselected in 4.58s =======================
+B guard-drop scope_service            pytest_exit=1 KILLED · ======================= 2 failed, 22 deselected in 4.63s =======================
+B guard-drop scope_case               pytest_exit=1 KILLED · ======================= 3 failed, 21 deselected in 5.95s =======================
+service.py restored byte-identical: True
+MUTATION RESULT: total=16 survived=0
+EXIT=0

@@ -1,0 +1,11 @@
+CALLER federal/executive/services/src/amos_federation/services/model_gateway/main.py:230 in invoke_model()
+  params      : ['request', '_']
+  authorizer  : NONE
+  order       : [(199, 'get_subsystem_boundary'), (230, 'log_cost'), (239, 'authorized_activity')]
+  depends     : [(185, 'Depends(require_auth)')]
+CALLER federal/executive/services/src/amos_federation/services/model_gateway/model_layer.py:304 in invoke_with_cache()
+  params      : ['self', 'prompt', 'model', 'max_tokens', 'invoke_fn']
+  authorizer  : NONE
+  order       : [(304, 'log_cost')]
+  depends     : NONE
+CALLERS=2

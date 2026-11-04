@@ -1,12 +1,12 @@
 {
  "$comment": "الهدف: قياسُ الدَّينِ المسمّى — نداءاتُ شهودِ الإلحاقِ (ج-1)(أ) في الإنتاجِ مصنَّفةً بموقعِها من العمليّاتِ المحروسة. مُخرَجُ tools/audit/append_witness_debt.py --json (§ 3 من A1_CD_DESIGN.md · W-806). والمفاتيحُ ثابتةٌ (ملفٌّ · دالّةٌ خارجيّةٌ) ولا تحملُ رقمَ سطرٍ (DISC-039). والتصنيفُ ساكنٌ بالنصِّ: guard_declared( في جسدِ الدالّةِ الخارجيّةِ — حدٌّ مُعلَنٌ لا اجتهادَ أداة.",
  "counts": {
-  "داخلَ مطبِّقٍ متداخلٍ في عمليّةٍ محروسةٍ": 22,
+  "داخلَ مطبِّقٍ متداخلٍ في عمليّةٍ محروسةٍ": 30,
   "في جسدِ عمليّةٍ محروسةٍ خارجَ المتداخلة": 21,
-  "خارجَ أيِّ عمليّةٍ محروسةٍ": 50
+  "خارجَ أيِّ عمليّةٍ محروسةٍ": 42
  },
  "total_calls": 93,
- "named_debt": 50,
+ "named_debt": 42,
  "outside_debt_keys": [
   "federal/executive/services/src/amos_federation/common/event_wiring.py::publish_task_created",
   "federal/executive/services/src/amos_federation/common/event_wiring.py::publish_agent_assigned",
@@ -30,14 +30,6 @@
   "federal/executive/services/src/amos_federation/services/executive_core/subsystem_boundary.py::record",
   "federal/executive/services/src/amos_federation/services/executive_core/subsystem_boundary.py::record",
   "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py::_record",
-  "federal/executive/services/src/amos_federation/services/federal_state/service.py::register_government",
-  "federal/executive/services/src/amos_federation/services/federal_state/service.py::set_government_status",
-  "federal/executive/services/src/amos_federation/services/federal_state/service.py::bind_institution",
-  "federal/executive/services/src/amos_federation/services/federal_state/service.py::record_relation",
-  "federal/executive/services/src/amos_federation/services/federal_state/service.py::grant_delegation",
-  "federal/executive/services/src/amos_federation/services/federal_state/service.py::revoke_delegation",
-  "federal/executive/services/src/amos_federation/services/federal_state/service.py::scope_service",
-  "federal/executive/services/src/amos_federation/services/federal_state/service.py::scope_case",
   "federal/executive/services/src/amos_federation/services/federal_state/service.py::_record_operation",
   "federal/executive/services/src/amos_federation/services/governance/canary.py::activate_kill_switch",
   "federal/executive/services/src/amos_federation/services/governance/expansion.py::enroll_agent",

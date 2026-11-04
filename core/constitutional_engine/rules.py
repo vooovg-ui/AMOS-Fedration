@@ -84,6 +84,22 @@ EXECUTIVE_ACTIONS = frozenset(
         # تنفيذيٌّ جديدٌ لا يدخلُ KILL_SWITCH_BLOCKS عندَ أيِّ مستوى (سابقةُ suspend_state)،
         # وlaunch_checklist باقٍ على orchestrate (①). توسيعٌ مضيِّقٌ على سابقةِ Q-18.
         "graceful_shutdown",
+        # ── Q-97 (التوجيهُ 42 § 1 السؤالانِ 1 و2 · W-818 · تصميمُ W-817 في
+        # Q83C_LEXICON_TABLE_DESIGN.md § 6) — الدفعةُ 1: أسطحُ federal_state الثمانية.
+        # فعلٌ جديدٌ باسمِ السطحِ لا ربطٌ بـcreate_state/grant_authority/revoke_authority
+        # (الربطُ يحجبُها عن التنفيذيِّ لا يُعبِرُها) · توسيعٌ مضيِّقٌ على سابقةِ Q-18:
+        # كلُّ اسمٍ يصيرُ حصرًا للفرعِ التنفيذيِّ فيُمنعُ على الفروعِ الأخرى بـR-003-1،
+        # والبديلُ (تركُها مجهولةً) يمرُّ 10/10 فلا يحمي شيئًا · لا تدخلُ KILL_SWITCH_BLOCKS
+        # (لم يُقرَّر — سابقةُ graceful_shutdown) · ومعنى «تسجيلِ الحكومةِ» الدستوريُّ سؤالٌ
+        # مفتوحٌ للمالكِ لا يحجبُ الشِّفرة.
+        "register_government",
+        "set_government_status",
+        "bind_institution",
+        "record_relation",
+        "grant_delegation",
+        "revoke_delegation",
+        "scope_service",
+        "scope_case",
     }
 )
 # معجمُ المالِ الدستوريّ — القرارُ السياديُّ Q-18 · الخيارُ 2 (2026-08-21).

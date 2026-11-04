@@ -13,7 +13,7 @@
 2026-11-04
 
 ## تاريخ آخر تعديل
-2026-11-04 (W-816 — النسخةُ الأولى)
+2026-11-04 (W-817 — § 6 تصميمُ الدفعةِ 1 بقرارِ Q-97 · قبلَ الشِّفرة) · 2026-11-04 (W-816 — النسخةُ الأولى)
 
 ---
 
@@ -73,3 +73,40 @@
 - **مقيس:** حكمُ المحرّكِ لثمانيةٍ وثلاثينَ فعلًا × عشرةِ فاعلين في الوضعين · وأثرُ كلِّ سطحٍ قراءةً ساكنة.
 - **لم يُقَس:** المسارُ الكاملُ `guard_declared` ⇒ الجسرُ ⇒ النواةُ لأيِّ سطح (لا شِفرةَ قبلَ الإقرار) · سلوكُ المعوِّضاتِ المقترحة · أثرُ الحصرِ الجديدِ على مُنادينَ قائمينَ يمرّونَ اليومَ بالاسمِ المجهول (يُقاسُ في دفعةِ كلِّ فعل) · تفاعلُ الأفعالِ الجديدةِ مع مستوياتِ مفتاحِ الإيقاف (ليست في `KILL_SWITCH_BLOCKS` — مقيسٌ عدمُ التصادمِ فقط).
 - **أثرُ الجدولِ على D-4:** صفر — وثيقةٌ لا شِفرة. وإن أُقِرَّ ونُفِّذَ كاملًا فالـ24 عبورٌ يُقاسُ في دفعتِه (المتوقَّعُ رقمٌ لا يُكتَبُ مقيسًا قبلَ قياسِه).
+
+## 6 · الدفعةُ 1 — الأسطحُ الثمانيةُ في `federal_state` (W-817 · قرارُ Q-97 · قبلَ الشِّفرة)
+
+**السند:** قرارُ المالكِ Q-97 (التوجيهُ 42 § 1) — السؤالُ 1: «فعلٌ جديدٌ باسمِ السطح» لا ربطٌ بـ`create_state`/`grant_authority`/`revoke_authority` · السؤالُ 2: الإضافةُ إلى `EXECUTIVE_ACTIONS` تضييقٌ على سابقةِ Q-18 بقيودِه (أ)–(هـ) · ترتيبُ الدفعات: هذه الأولى. **التصنيف: C4** (تمسُّ `core/constitutional_engine/rules.py`) — فلا يُسمّى شيءٌ فيها VERIFIED بغيرِ المراجعِ أو المجلس، والدمجُ بالمسارِ المعتادِ لا يمنحُ حالة.
+
+### 6.1 الجدول (لكلِّ سطحٍ: الفعلُ · الفاعلُ · الأثرُ المعلَن · المعوِّض · مفتاحُ الذرّيّة)
+
+| # | السطح | الفعل | الفاعل | الأثرُ المعلَن (`declared_effect`) | المعوِّض (`idempotent=True`) | مفتاحُ الذرّيّة (النطاق = الفعل) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | `register_government` | `register_government` | EXECUTIVE | CREATE `federation/{tenant}/governments/{code}` | حذفُ صفِّ `GovernmentModel` بمعرّفِه المولَّدِ قبلَ العبور (لا أثرَ إن غاب) | `{tenant}:{code}` — الرمزُ فريدٌ أبدًا (الحلُّ حالةٌ لا حذف) |
+| 2 | `set_government_status` | `set_government_status` | EXECUTIVE | WRITE `federation/{tenant}/governments/{code}/status` | إعادةُ `status`/`status_reason`/`updated_at` المقروءةِ قبلَ العبور | `{tenant}:{gov_id}:{prev_status}->{status}@{prev_updated_at}` — نسخةٌ لا محتوى، فالعمليّةُ المشروعةُ اللاحقةُ ليست إعادة |
+| 3 | `bind_institution` | `bind_institution` | EXECUTIVE | CREATE (ربطٌ جديد) أو WRITE (إعادةُ ربطٍ قائم) `federation/{tenant}/institutions/{code}/government` | جديد ⇒ حذفُ صفِّ الربط · قائم ⇒ إعادةُ `government_id`/`relation`/`assigned_by`/`assigned_by_identity_id`/`updated_at` | `{tenant}:{institution_id}:{row_version\|new}:{government_id}:{relation}` |
+| 4 | `record_relation` | `record_relation` | EXECUTIVE | CREATE `federation/{tenant}/relations/{id}` | حذفُ صفِّ العلاقة | `{tenant}:{id}` — المعرّفُ مولَّدٌ قبلَ العبور؛ **العلاقةُ ليست ذرّيّةً بالمحتوى** (علاقتانِ متطابقتانِ مسموحتانِ اليوم) فالمفتاحُ يحمي من تكرارِ أثرٍ واحدٍ لا من تكرارِ الطلب — انحرافٌ معلَن |
+| 5 | `grant_delegation` | `grant_delegation` | EXECUTIVE | CREATE `federation/{tenant}/delegations/{id}` | حذفُ صفِّ التفويض | `{tenant}:{id}` (مولَّدٌ بـ`new_delegation_id()` قبلَ العبور) — الانحرافُ نفسُه |
+| 6 | `revoke_delegation` | `revoke_delegation` | EXECUTIVE | WRITE `federation/{tenant}/delegations/{id}/status` | إعادةُ `status`/`revoked_at`/`revoked_reason`/`updated_at` | `{tenant}:{id}` — النقضُ مرّةً واحدة (والثانيةُ مرفوضةٌ قبلَ العبورِ كما هي اليوم) |
+| 7 | `scope_service` | `scope_service` | EXECUTIVE | CREATE أو WRITE `federation/{tenant}/services/{service_id}/scope` | جديد ⇒ حذف · قائم ⇒ إعادةُ `level`/`government_id`/`department_id`/`updated_at` | `{tenant}:{service_id}:{row_version\|new}:{level}:{department_id}` |
+| 8 | `scope_case` | `scope_case` | EXECUTIVE | CREATE `federation/{tenant}/cases/{case_id}/scope` | حذفُ صفِّ الإسناد | `{tenant}:{case_id}` — إسنادٌ واحدٌ للقضيّة (الثاني مرفوضٌ قبلَ العبور) |
+
+### 6.2 شكلُ العبور (نقطةٌ واحدةٌ للسطح · نمطُ `government_services.publish_service`)
+
+1. **الفحوصُ القائمةُ كلُّها قبلَ العبورِ ولا تُضعَّف:** `require_domain_permission` · المفرداتُ المقيَّدة · السببُ المكتوب · المستأجر · وجودُ الصفوف · `require_government_authority` في `scope_case` · ورفضُ التكرار. تُقرأُ في جلسةٍ تُغلَقُ قبلَ العبور.
+2. `self.authorizer.guard_declared(<الفعل>, target, declared_effects=(effect,), applier=_apply, operation_key=..., compensators=(...), metadata={tenant_id + رموزٌ لا مال})` — **مرّةً واحدةً في جسمِ كلِّ سطح** (فيعدُّها الجردُ `sovereign_write_inventory.py` عبورًا).
+3. `_apply` يفتحُ جلسةَ كتابةٍ جديدةً ويكتبُ ويُثبِّتُ ثمّ يُسجِّلُ `record_domain_trace` **داخلَه** (فالإعادةُ لا تُنتِجُ حدثًا ثانيًا لأثرٍ واحد). ولا تحقّقَ في المُطبِّق — كلُّ رفضٍ قبلَه، فلا يُغلَقُ سجلُّ الذرّيّةِ «غيرَ محسومٍ» بخطأِ تحقّق.
+4. **الإعادة:** `{…المعرّفات، "replayed": True, "operation_key": …}` · وغيرُها `{**guarded.value, "replayed": False}` — مفتاحٌ مضافٌ لا مفتاحٌ محذوف، فالمنادونَ القائمونَ لا ينكسرون.
+5. المُصرِّحُ معامَلٌ اختياريٌّ أخيرٌ في `FederalStateGovernment.__init__(executive_core=None, authorizer=None)` والافتراضُ `get_authorizer()` (الفاعلُ EXECUTIVE) بالاستيرادِ المؤجَّل.
+
+### 6.3 القيودُ (أ)–(هـ) من Q-97 وكيف تُقاسُ في W-818
+
+- **(أ)** قرارٌ سياديٌّ مستقلٌّ: Q-97 نفسُه للدفعةِ 1؛ ولكلِّ دفعةٍ لاحقةٍ تمسُّ `core/` قرارُها.
+- **(ب)** هذا القسمُ — مُدوَّنٌ قبلَ الشِّفرةِ في قيدِ W-817 السابقِ لقيدِ W-818 في الدفعةِ نفسِها.
+- **(ج)** مسبارٌ خامٌ بملفّ: `docs/audit/evidence/W-817/q97_engine_probe.py` يقرأُ `core/constitutional_engine/rules.py` **من القرص** (لا ترقيعَ في الذاكرة) ويُقيِّمُ كلَّ فعلٍ لعشرةِ فاعلين: المقبولُ EXECUTIVE وحدَه والتسعةُ مرفوضون، ومعه مستوياتُ مفتاحِ الإيقافِ 0–5.
+- **(د)** أثرُ الحصرِ على المنادين: مسحٌ ساكنٌ محفوظٌ لكلِّ نصٍّ حرفيٍّ للأفعالِ الثمانيةِ في الشِّفرةِ خارجَ هذه الدفعة + عددُ اجتيازِ `test_r8`/`test_r9` قبلُ وبعد. فإن ظهرَ منادٍ يمرُّ اليومَ بالاسمِ المجهولِ وسيُحجَبُ فلا دمج.
+- **(هـ)** طفرة: حذفُ كلِّ فعلٍ من `EXECUTIVE_ACTIONS` على نسخةٍ مؤقّتةٍ ⇒ المسبارُ يجبُ أن يفشل (8 طفرات) · ورفعُ `guard_declared` من كلِّ سطحٍ ⇒ اختبارُ العبورِ يجبُ أن يفشل (8 طفرات).
+
+### 6.4 ما لا تفعلُه الدفعة
+
+لا تُدخِلُ الأفعالَ الثمانيةَ في `KILL_SWITCH_BLOCKS` (لم يُقرَّر ذلك — سابقةُ `graceful_shutdown`: اسمٌ جديدٌ بلا منعٍ حتى يُقرَّر) ويُقاسُ أثرُ المستوياتِ كما هو · لا تمسُّ `execute_scoped_operation` ولا `execute_scoped_disbursement` (الدفعتانِ 3 و4) · لا تُغيِّرُ المعنى الدستوريَّ لتسجيلِ الحكومة (سؤالٌ مفتوحٌ للمالكِ في Q-97).

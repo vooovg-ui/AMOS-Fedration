@@ -105,6 +105,29 @@ if TYPE_CHECKING:
 
 TASK_TYPE_GOVERNMENT_OPERATION = "government_operation"
 
+# ── Q-97 (الدفعة 1): أفعالُ المحرّكِ الثمانيةُ لأسطحِ الفدرالية ──────────────
+# كلُّ سطحٍ كاتبٍ في هذه الوحدة يعبرُ `guard_declared` مرّةً واحدةً بفعلٍ باسمِه،
+# والأفعالُ في `EXECUTIVE_ACTIONS` (`core/constitutional_engine/rules.py`) بقرارِ
+# المالكِ Q-97 السؤالانِ 1 و2 — تصميمُها في `docs/audit/Q83C_LEXICON_TABLE_DESIGN.md` § 6.
+ACTION_REGISTER_GOVERNMENT = "register_government"
+ACTION_SET_GOVERNMENT_STATUS = "set_government_status"
+ACTION_BIND_INSTITUTION = "bind_institution"
+ACTION_RECORD_RELATION = "record_relation"
+ACTION_GRANT_DELEGATION = "grant_delegation"
+ACTION_REVOKE_DELEGATION = "revoke_delegation"
+ACTION_SCOPE_SERVICE = "scope_service"
+ACTION_SCOPE_CASE = "scope_case"
+Q97_FEDERAL_STATE_ACTIONS = (
+    ACTION_REGISTER_GOVERNMENT,
+    ACTION_SET_GOVERNMENT_STATUS,
+    ACTION_BIND_INSTITUTION,
+    ACTION_RECORD_RELATION,
+    ACTION_GRANT_DELEGATION,
+    ACTION_REVOKE_DELEGATION,
+    ACTION_SCOPE_SERVICE,
+    ACTION_SCOPE_CASE,
+)
+
 
 class FederationError(ValueError):
     """طلبٌ حكوميٌّ غيرُ صالحٍ بنيويًّا — لا رفضَ تخويل."""
@@ -134,12 +157,59 @@ def new_operation_id() -> str:
 class FederalStateGovernment:
     """واجهةُ الفدرالية والولايات — سجلٌّ وحدودٌ وتفويضٌ ونطاقٌ وأثرُ تنفيذ."""
 
-    def __init__(self, executive_core: Any | None = None) -> None:
+    def __init__(self, executive_core: Any | None = None, authorizer: Any | None = None) -> None:
         init_db()
         #: يُمرَّر في الاختبارات، وإلّا فالنواة المشتركة القائمة — لا نواة ثانية.
         self._core = executive_core if executive_core is not None else get_executive_core()
+        #: مُصرِّحُ العبور (Q-97) — يُمرَّر في الاختبارات، وإلّا فـ`get_authorizer()`.
+        self._authorizer = authorizer
+
+    @property
+    def authorizer(self) -> Any:
+        """مُصرِّحُ العبورِ السياديّ — بالاستيرادِ المؤجَّلِ كنمطِ `government_services`."""
+        if self._authorizer is None:
+            from amos_federation.services.executive_core.sovereignty_bridge import (
+                get_authorizer,
+            )
+
+            self._authorizer = get_authorizer()
+        return self._authorizer
 
     # ── أدوات داخلية ─────────────────────────────────────────────────────
+
+    def _delete_row(self, model: Any, row_id: str) -> None:
+        """معوِّضُ CREATE: احذفْ ما أنشأَه العبورُ بمعرِّفِه وحدَه — ولا أثرَ إن غاب."""
+        session = self._session()
+        try:
+            row = session.get(model, row_id)
+            if row is not None:
+                session.delete(row)
+                session.commit()
+        finally:
+            session.close()
+
+    def _restore_row(self, model: Any, row_id: str, values: dict[str, Any]) -> None:
+        """معوِّضُ WRITE: أعِدِ الحقولَ إلى قيمِها المقروءةِ قبلَ العبور."""
+        session = self._session()
+        try:
+            row = session.get(model, row_id)
+            if row is not None:
+                for field, value in values.items():
+                    setattr(row, field, value)
+                session.commit()
+        finally:
+            session.close()
+
+    @staticmethod
+    def _crossed(guarded: Any, replay: dict[str, Any]) -> dict[str, Any]:
+        """شكلُ الردِّ بعدَ العبور: مفتاحُ `replayed` مضافٌ ولا مفتاحَ محذوف."""
+        if guarded.is_replay:
+            return {
+                **replay,
+                "replayed": True,
+                "operation_key": guarded.outcome.operation_key,
+            }
+        return {**guarded.value, "replayed": False}
 
     def _session(self):
         return get_session_factory()()
@@ -241,40 +311,72 @@ class FederalStateGovernment:
                 parent_id = parent.id
             elif parent_code:
                 raise FederationError("الحكومةُ الفدرالية لا أصلَ لها")
-
-            row = GovernmentModel(
-                id=f"gov-{uuid.uuid4().hex[:12]}",
-                code=code,
-                name=name,
-                level=level,
-                parent_government_id=parent_id,
-                status="active",
-                status_reason="",
-                tenant_id=tenant,
-                created_by=context.principal_id,
-            )
-            session.add(row)
-            session.commit()
-            session.refresh(row)
-            payload = self._government_dict(row)
         finally:
             session.close()
 
-        trace = record_domain_trace(
-            context,
-            "federation.government.register",
-            "amos_federation.federation.government_registered",
-            {
-                "government_id": payload["id"],
-                "code": payload["code"],
-                "name": payload["name"],
-                "level": payload["level"],
-                "parent_government_id": payload["parent_government_id"],
-                "status": payload["status"],
-                "tenant_id": payload["tenant_id"],
-            },
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
         )
-        return {**payload, **trace}
+
+        government_id = f"gov-{uuid.uuid4().hex[:12]}"
+        target = f"federation/{tenant}/governments/{code}"
+        effect = declared_effect("CREATE", target, "تسجيلُ حكومةٍ في سجلِّ الفدرالية")
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                row = GovernmentModel(
+                    id=government_id,
+                    code=code,
+                    name=name,
+                    level=level,
+                    parent_government_id=parent_id,
+                    status="active",
+                    status_reason="",
+                    tenant_id=tenant,
+                    created_by=context.principal_id,
+                )
+                write.add(row)
+                write.commit()
+                write.refresh(row)
+                payload = self._government_dict(row)
+            finally:
+                write.close()
+            trace = record_domain_trace(
+                context,
+                "federation.government.register",
+                "amos_federation.federation.government_registered",
+                {
+                    "government_id": payload["id"],
+                    "code": payload["code"],
+                    "name": payload["name"],
+                    "level": payload["level"],
+                    "parent_government_id": payload["parent_government_id"],
+                    "status": payload["status"],
+                    "tenant_id": payload["tenant_id"],
+                },
+            )
+            return {**payload, **trace}
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_REGISTER_GOVERNMENT,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ACTION_REGISTER_GOVERNMENT, f"{tenant}:{code}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_row(GovernmentModel, government_id),
+                    "حذفُ الحكومةِ المسجَّلةِ بمعرِّفِها",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "code": code, "level": level},
+        )
+        return self._crossed(guarded, {"code": code, "tenant_id": tenant})
 
     def set_government_status(
         self, context: AuthorizationContext, code: str, status: str, reason: str
@@ -292,34 +394,78 @@ class FederalStateGovernment:
             raise FederationError(f"حالةُ حكومةٍ مجهولة: {status}")
         if not reason.strip():
             raise FederationError("تغييرُ الحالة يلزمه سببٌ مُصرَّح")
+        tenant = self._tenant_of(context)
         session = self._session()
         try:
             row = self._government_row(session, context, code)
+            government_id = row.id
             previous = row.status
-            row.status = status
-            row.status_reason = reason
-            row.updated_at = _now()
-            session.commit()
-            session.refresh(row)
-            payload = self._government_dict(row)
+            snapshot = {
+                "status": row.status,
+                "status_reason": row.status_reason,
+                "updated_at": row.updated_at,
+            }
         finally:
             session.close()
 
-        trace = record_domain_trace(
-            context,
-            "federation.government.status",
-            "amos_federation.federation.government_status_changed",
-            {
-                "government_id": payload["id"],
-                "code": payload["code"],
-                "level": payload["level"],
-                "status": payload["status"],
-                "previous_status": previous,
-                "reason": reason,
-                "tenant_id": payload["tenant_id"],
-            },
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
         )
-        return {**payload, "previous_status": previous, **trace}
+
+        target = f"federation/{tenant}/governments/{code}/status"
+        effect = declared_effect("WRITE", target, f"تغييرُ حالةِ الحكومة {previous} ⇒ {status}")
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                row = write.get(GovernmentModel, government_id)
+                row.status = status
+                row.status_reason = reason
+                row.updated_at = _now()
+                write.commit()
+                write.refresh(row)
+                payload = self._government_dict(row)
+            finally:
+                write.close()
+            trace = record_domain_trace(
+                context,
+                "federation.government.status",
+                "amos_federation.federation.government_status_changed",
+                {
+                    "government_id": payload["id"],
+                    "code": payload["code"],
+                    "level": payload["level"],
+                    "status": payload["status"],
+                    "previous_status": previous,
+                    "reason": reason,
+                    "tenant_id": payload["tenant_id"],
+                },
+            )
+            return {**payload, "previous_status": previous, **trace}
+
+        version = _iso(snapshot["updated_at"]) or "none"
+        guarded = self.authorizer.guard_declared(
+            ACTION_SET_GOVERNMENT_STATUS,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(
+                ACTION_SET_GOVERNMENT_STATUS,
+                f"{tenant}:{government_id}:{previous}->{status}@{version}",
+            ),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._restore_row(GovernmentModel, government_id, snapshot),
+                    "إعادةُ حالةِ الحكومةِ وسببِها إلى ما قبلَ العبور",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "code": code, "status": status},
+        )
+        return self._crossed(guarded, {"code": code, "status": status, "previous_status": previous})
 
     def bind_institution(
         self,
@@ -349,61 +495,126 @@ class FederalStateGovernment:
                     f"لا ربطَ بحكومةٍ حالتُها '{government.status}' — يلزمها 'active'"
                 )
             identity_id = self._identity_id(session, context)
-            row = session.scalar(
+            government_id = government.id
+            government_level = government.level
+            institution_id = institution.id
+            existing = session.scalar(
                 select(InstitutionGovernmentModel).where(
                     InstitutionGovernmentModel.institution_id == institution.id,
                     InstitutionGovernmentModel.tenant_id == tenant,
                 )
             )
-            if row is None:
-                row = InstitutionGovernmentModel(
-                    id=f"gvu-{uuid.uuid4().hex[:12]}",
-                    government_id=government.id,
-                    institution_id=institution.id,
-                    relation=relation,
-                    assigned_by=context.principal_id,
-                    assigned_by_identity_id=identity_id,
-                    tenant_id=tenant,
-                )
-                session.add(row)
-            else:
-                row.government_id = government.id
-                row.relation = relation
-                row.assigned_by = context.principal_id
-                row.assigned_by_identity_id = identity_id
-                row.updated_at = _now()
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "government_id": row.government_id,
-                "government_code": government.code,
-                "government_level": government.level,
-                "institution_id": row.institution_id,
-                "institution_code": institution.code,
-                "relation": row.relation,
-                "identity_id": row.assigned_by_identity_id,
-                "tenant_id": row.tenant_id,
-            }
+            binding_id = existing.id if existing is not None else f"gvu-{uuid.uuid4().hex[:12]}"
+            snapshot = (
+                None
+                if existing is None
+                else {
+                    "government_id": existing.government_id,
+                    "relation": existing.relation,
+                    "assigned_by": existing.assigned_by,
+                    "assigned_by_identity_id": existing.assigned_by_identity_id,
+                    "updated_at": existing.updated_at,
+                }
+            )
         finally:
             session.close()
 
-        trace = record_domain_trace(
-            context,
-            "federation.institution.bind",
-            "amos_federation.federation.institution_bound",
-            {
-                "binding_id": payload["id"],
-                "government_id": payload["government_id"],
-                "government_code": payload["government_code"],
-                "government_level": payload["government_level"],
-                "institution_id": payload["institution_id"],
-                "relation": payload["relation"],
-                "identity_id": payload["identity_id"],
-                "tenant_id": payload["tenant_id"],
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
+        )
+
+        target = f"federation/{tenant}/institutions/{institution_code}/government"
+        if snapshot is None:
+            effect = declared_effect("CREATE", target, "ربطُ مؤسسةٍ بحكومتِها")
+            undo = compensator(
+                effect.signature,
+                lambda: self._delete_row(InstitutionGovernmentModel, binding_id),
+                "حذفُ صفِّ الربطِ المُنشأ",
+                idempotent=True,
+            )
+            version = "new"
+        else:
+            effect = declared_effect("WRITE", target, "إعادةُ ربطِ مؤسسةٍ بحكومة")
+            undo = compensator(
+                effect.signature,
+                lambda: self._restore_row(InstitutionGovernmentModel, binding_id, snapshot),
+                "إعادةُ الربطِ إلى ما قبلَ العبور",
+                idempotent=True,
+            )
+            version = _iso(snapshot["updated_at"]) or "none"
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                row = write.get(InstitutionGovernmentModel, binding_id)
+                if row is None:
+                    row = InstitutionGovernmentModel(
+                        id=binding_id,
+                        government_id=government_id,
+                        institution_id=institution_id,
+                        relation=relation,
+                        assigned_by=context.principal_id,
+                        assigned_by_identity_id=identity_id,
+                        tenant_id=tenant,
+                    )
+                    write.add(row)
+                else:
+                    row.government_id = government_id
+                    row.relation = relation
+                    row.assigned_by = context.principal_id
+                    row.assigned_by_identity_id = identity_id
+                    row.updated_at = _now()
+                write.commit()
+                write.refresh(row)
+                payload = {
+                    "id": row.id,
+                    "government_id": row.government_id,
+                    "government_code": government_code,
+                    "government_level": government_level,
+                    "institution_id": row.institution_id,
+                    "institution_code": institution_code,
+                    "relation": row.relation,
+                    "identity_id": row.assigned_by_identity_id,
+                    "tenant_id": row.tenant_id,
+                }
+            finally:
+                write.close()
+            trace = record_domain_trace(
+                context,
+                "federation.institution.bind",
+                "amos_federation.federation.institution_bound",
+                {
+                    "binding_id": payload["id"],
+                    "government_id": payload["government_id"],
+                    "government_code": payload["government_code"],
+                    "government_level": payload["government_level"],
+                    "institution_id": payload["institution_id"],
+                    "relation": payload["relation"],
+                    "identity_id": payload["identity_id"],
+                    "tenant_id": payload["tenant_id"],
+                },
+            )
+            return {**payload, **trace}
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_BIND_INSTITUTION,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(
+                ACTION_BIND_INSTITUTION,
+                f"{tenant}:{institution_id}:{version}:{government_id}:{relation}",
+            ),
+            compensators=(undo,),
+            metadata={
+                "tenant_id": tenant,
+                "institution_code": institution_code,
+                "government_code": government_code,
             },
         )
-        return {**payload, **trace}
+        return self._crossed(guarded, {"id": binding_id, "institution_code": institution_code})
 
     # ── R8-H: العلاقات والتفويض ──────────────────────────────────────────
 
@@ -435,56 +646,89 @@ class FederalStateGovernment:
         session = self._session()
         try:
             identity_id = self._identity_id(session, context)
-            row = GovernmentRelationModel(
-                id=f"grl-{uuid.uuid4().hex[:12]}",
-                from_kind=from_kind,
-                from_ref=from_ref,
-                to_kind=to_kind,
-                to_ref=to_ref,
-                relation=relation,
-                status="active",
-                note=note,
-                created_by=context.principal_id,
-                created_by_identity_id=identity_id,
-                tenant_id=tenant,
-            )
-            session.add(row)
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "from_kind": row.from_kind,
-                "from_ref": row.from_ref,
-                "to_kind": row.to_kind,
-                "to_ref": row.to_ref,
-                "relation": row.relation,
-                "status": row.status,
-                "note": row.note or "",
-                "identity_id": row.created_by_identity_id,
-                "tenant_id": row.tenant_id,
-                "grants_authority": False,
-            }
         finally:
             session.close()
 
-        trace = record_domain_trace(
-            context,
-            "federation.relation.record",
-            "amos_federation.federation.relation_recorded",
-            {
-                "relation_id": payload["id"],
-                "from_kind": payload["from_kind"],
-                "from_ref": payload["from_ref"],
-                "to_kind": payload["to_kind"],
-                "to_ref": payload["to_ref"],
-                "relation": payload["relation"],
-                "status": payload["status"],
-                "note": payload["note"],
-                "identity_id": payload["identity_id"],
-                "tenant_id": payload["tenant_id"],
-            },
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
         )
-        return {**payload, **trace}
+
+        relation_id = f"grl-{uuid.uuid4().hex[:12]}"
+        target = f"federation/{tenant}/relations/{relation_id}"
+        effect = declared_effect("CREATE", target, f"تسجيلُ علاقةٍ إداريةٍ ({relation})")
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                row = GovernmentRelationModel(
+                    id=relation_id,
+                    from_kind=from_kind,
+                    from_ref=from_ref,
+                    to_kind=to_kind,
+                    to_ref=to_ref,
+                    relation=relation,
+                    status="active",
+                    note=note,
+                    created_by=context.principal_id,
+                    created_by_identity_id=identity_id,
+                    tenant_id=tenant,
+                )
+                write.add(row)
+                write.commit()
+                write.refresh(row)
+                payload = {
+                    "id": row.id,
+                    "from_kind": row.from_kind,
+                    "from_ref": row.from_ref,
+                    "to_kind": row.to_kind,
+                    "to_ref": row.to_ref,
+                    "relation": row.relation,
+                    "status": row.status,
+                    "note": row.note or "",
+                    "identity_id": row.created_by_identity_id,
+                    "tenant_id": row.tenant_id,
+                    "grants_authority": False,
+                }
+            finally:
+                write.close()
+            trace = record_domain_trace(
+                context,
+                "federation.relation.record",
+                "amos_federation.federation.relation_recorded",
+                {
+                    "relation_id": payload["id"],
+                    "from_kind": payload["from_kind"],
+                    "from_ref": payload["from_ref"],
+                    "to_kind": payload["to_kind"],
+                    "to_ref": payload["to_ref"],
+                    "relation": payload["relation"],
+                    "status": payload["status"],
+                    "note": payload["note"],
+                    "identity_id": payload["identity_id"],
+                    "tenant_id": payload["tenant_id"],
+                },
+            )
+            return {**payload, **trace}
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_RECORD_RELATION,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ACTION_RECORD_RELATION, f"{tenant}:{relation_id}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_row(GovernmentRelationModel, relation_id),
+                    "حذفُ العلاقةِ المسجَّلة",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "relation": relation},
+        )
+        return self._crossed(guarded, {"id": relation_id, "grants_authority": False})
 
     def grant_delegation(
         self,
@@ -532,61 +776,98 @@ class FederalStateGovernment:
             except DelegationError as exc:
                 raise FederationError(str(exc)) from exc
             identity_id = self._identity_id(session, context)
-            row = GovernmentDelegationModel(
-                id=new_delegation_id(),
-                from_government_id=source.id,
-                to_government_id=target_government.id if target_government else None,
-                to_institution_id=target_institution.id if target_institution else None,
-                operation=operation,
-                scope=scope,
-                # `to_money` لا `str`: النصُّ يُخفي العائمَ، والبابُ يردُّه (Q-20).
-                max_amount=to_money(max_amount) if max_amount is not None else None,
-                status="active",
-                reason=reason,
-                granted_by=context.principal_id,
-                granted_by_identity_id=identity_id,
-                tenant_id=tenant,
-                expires_at=expires_at,
-            )
-            session.add(row)
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "from_government_id": row.from_government_id,
-                "to_government_id": row.to_government_id,
-                "to_institution_id": row.to_institution_id,
-                "operation": row.operation,
-                "scope": row.scope,
-                "max_amount": row.max_amount,
-                "status": row.status,
-                "expires_at": _iso(row.expires_at),
-                "reason": row.reason or "",
-                "identity_id": row.granted_by_identity_id,
-                "tenant_id": row.tenant_id,
-            }
+            source_id = source.id
+            to_government_id = target_government.id if target_government else None
+            to_institution_id = target_institution.id if target_institution else None
         finally:
             session.close()
+        # `to_money` لا `str`: النصُّ يُخفي العائمَ، والبابُ يردُّه (Q-20) — قبلَ العبور.
+        money_cap = to_money(max_amount) if max_amount is not None else None
 
-        trace = record_domain_trace(
-            context,
-            "federation.delegation.grant",
-            "amos_federation.federation.delegation_granted",
-            {
-                "delegation_id": payload["id"],
-                "from_government_id": payload["from_government_id"],
-                "to_government_id": payload["to_government_id"],
-                "to_institution_id": payload["to_institution_id"],
-                "operation": payload["operation"],
-                "scope": payload["scope"],
-                "max_amount": payload["max_amount"],
-                "expires_at": payload["expires_at"],
-                "reason": payload["reason"],
-                "identity_id": payload["identity_id"],
-                "tenant_id": payload["tenant_id"],
-            },
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
         )
-        return {**payload, **trace}
+
+        delegation_id = new_delegation_id()
+        target = f"federation/{tenant}/delegations/{delegation_id}"
+        effect = declared_effect("CREATE", target, f"منحُ تفويضٍ للعمليّة {operation}")
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                row = GovernmentDelegationModel(
+                    id=delegation_id,
+                    from_government_id=source_id,
+                    to_government_id=to_government_id,
+                    to_institution_id=to_institution_id,
+                    operation=operation,
+                    scope=scope,
+                    max_amount=money_cap,
+                    status="active",
+                    reason=reason,
+                    granted_by=context.principal_id,
+                    granted_by_identity_id=identity_id,
+                    tenant_id=tenant,
+                    expires_at=expires_at,
+                )
+                write.add(row)
+                write.commit()
+                write.refresh(row)
+                payload = {
+                    "id": row.id,
+                    "from_government_id": row.from_government_id,
+                    "to_government_id": row.to_government_id,
+                    "to_institution_id": row.to_institution_id,
+                    "operation": row.operation,
+                    "scope": row.scope,
+                    "max_amount": row.max_amount,
+                    "status": row.status,
+                    "expires_at": _iso(row.expires_at),
+                    "reason": row.reason or "",
+                    "identity_id": row.granted_by_identity_id,
+                    "tenant_id": row.tenant_id,
+                }
+            finally:
+                write.close()
+            trace = record_domain_trace(
+                context,
+                "federation.delegation.grant",
+                "amos_federation.federation.delegation_granted",
+                {
+                    "delegation_id": payload["id"],
+                    "from_government_id": payload["from_government_id"],
+                    "to_government_id": payload["to_government_id"],
+                    "to_institution_id": payload["to_institution_id"],
+                    "operation": payload["operation"],
+                    "scope": payload["scope"],
+                    "max_amount": payload["max_amount"],
+                    "expires_at": payload["expires_at"],
+                    "reason": payload["reason"],
+                    "identity_id": payload["identity_id"],
+                    "tenant_id": payload["tenant_id"],
+                },
+            )
+            return {**payload, **trace}
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_GRANT_DELEGATION,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ACTION_GRANT_DELEGATION, f"{tenant}:{delegation_id}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_row(GovernmentDelegationModel, delegation_id),
+                    "حذفُ التفويضِ الممنوح",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "operation": operation, "scope": scope},
+        )
+        return self._crossed(guarded, {"id": delegation_id})
 
     def revoke_delegation(
         self, context: AuthorizationContext, delegation_id: str, reason: str
@@ -606,43 +887,83 @@ class FederalStateGovernment:
             if row.status == "revoked":
                 raise FederationError("التفويضُ منقوضٌ سابقًا")
             previous = row.status
-            row.status = "revoked"
-            row.revoked_at = _now()
-            row.revoked_reason = reason
-            row.updated_at = _now()
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "from_government_id": row.from_government_id,
-                "to_government_id": row.to_government_id,
-                "to_institution_id": row.to_institution_id,
-                "operation": row.operation,
+            tenant = row.tenant_id
+            snapshot = {
                 "status": row.status,
-                "previous_status": previous,
-                "revoked_at": _iso(row.revoked_at),
-                "reason": reason,
-                "tenant_id": row.tenant_id,
+                "revoked_at": row.revoked_at,
+                "revoked_reason": row.revoked_reason,
+                "updated_at": row.updated_at,
             }
         finally:
             session.close()
 
-        trace = record_domain_trace(
-            context,
-            "federation.delegation.revoke",
-            "amos_federation.federation.delegation_revoked",
-            {
-                "delegation_id": payload["id"],
-                "from_government_id": payload["from_government_id"],
-                "to_government_id": payload["to_government_id"],
-                "to_institution_id": payload["to_institution_id"],
-                "operation": payload["operation"],
-                "previous_status": previous,
-                "reason": reason,
-                "tenant_id": payload["tenant_id"],
-            },
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
         )
-        return {**payload, **trace}
+
+        target = f"federation/{tenant}/delegations/{delegation_id}/status"
+        effect = declared_effect("WRITE", target, "نقضُ تفويض")
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                row = write.get(GovernmentDelegationModel, delegation_id)
+                row.status = "revoked"
+                row.revoked_at = _now()
+                row.revoked_reason = reason
+                row.updated_at = _now()
+                write.commit()
+                write.refresh(row)
+                payload = {
+                    "id": row.id,
+                    "from_government_id": row.from_government_id,
+                    "to_government_id": row.to_government_id,
+                    "to_institution_id": row.to_institution_id,
+                    "operation": row.operation,
+                    "status": row.status,
+                    "previous_status": previous,
+                    "revoked_at": _iso(row.revoked_at),
+                    "reason": reason,
+                    "tenant_id": row.tenant_id,
+                }
+            finally:
+                write.close()
+            trace = record_domain_trace(
+                context,
+                "federation.delegation.revoke",
+                "amos_federation.federation.delegation_revoked",
+                {
+                    "delegation_id": payload["id"],
+                    "from_government_id": payload["from_government_id"],
+                    "to_government_id": payload["to_government_id"],
+                    "to_institution_id": payload["to_institution_id"],
+                    "operation": payload["operation"],
+                    "previous_status": previous,
+                    "reason": reason,
+                    "tenant_id": payload["tenant_id"],
+                },
+            )
+            return {**payload, **trace}
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_REVOKE_DELEGATION,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ACTION_REVOKE_DELEGATION, f"{tenant}:{delegation_id}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._restore_row(GovernmentDelegationModel, delegation_id, snapshot),
+                    "إعادةُ التفويضِ إلى حالتِه قبلَ النقض",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "delegation_id": delegation_id},
+        )
+        return self._crossed(guarded, {"id": delegation_id, "status": "revoked"})
 
     # ── R8-E: نطاقُ الخدمات ──────────────────────────────────────────────
 
@@ -704,62 +1025,122 @@ class FederalStateGovernment:
                     raise FederationError("نطاقٌ فدراليٌّ لمؤسسةٍ مربوطةٍ بولاية")
 
             identity_id = self._identity_id(session, context)
-            row = session.scalar(
+            service_id = service.id
+            institution_id = institution.id
+            scoped_government = government_id if level in ("FEDERAL", "STATE") else None
+            existing = session.scalar(
                 select(ServiceScopeModel).where(
                     ServiceScopeModel.service_id == service.id,
                     ServiceScopeModel.tenant_id == tenant,
                 )
             )
-            if row is None:
-                row = ServiceScopeModel(
-                    id=f"svs-{uuid.uuid4().hex[:12]}",
-                    service_id=service.id,
-                    level=level,
-                    government_id=government_id if level in ("FEDERAL", "STATE") else None,
-                    institution_id=institution.id,
-                    department_id=department_id,
-                    created_by=context.principal_id,
-                    created_by_identity_id=identity_id,
-                    tenant_id=tenant,
-                )
-                session.add(row)
-            else:
-                row.level = level
-                row.government_id = government_id if level in ("FEDERAL", "STATE") else None
-                row.department_id = department_id
-                row.updated_at = _now()
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "service_id": row.service_id,
-                "service_code": service.code,
-                "level": row.level,
-                "government_id": row.government_id,
-                "institution_id": row.institution_id,
-                "department_id": row.department_id,
-                "identity_id": row.created_by_identity_id,
-                "tenant_id": row.tenant_id,
-            }
+            scope_id = existing.id if existing is not None else f"svs-{uuid.uuid4().hex[:12]}"
+            snapshot = (
+                None
+                if existing is None
+                else {
+                    "level": existing.level,
+                    "government_id": existing.government_id,
+                    "department_id": existing.department_id,
+                    "updated_at": existing.updated_at,
+                }
+            )
         finally:
             session.close()
 
-        trace = record_domain_trace(
-            context,
-            "federation.service.scope",
-            "amos_federation.federation.service_scoped",
-            {
-                "scope_id": payload["id"],
-                "service_id": payload["service_id"],
-                "level": payload["level"],
-                "government_id": payload["government_id"],
-                "institution_id": payload["institution_id"],
-                "department_id": payload["department_id"],
-                "identity_id": payload["identity_id"],
-                "tenant_id": payload["tenant_id"],
-            },
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
         )
-        return {**payload, **trace}
+
+        target = f"federation/{tenant}/services/{service_id}/scope"
+        if snapshot is None:
+            effect = declared_effect("CREATE", target, f"إعلانُ نطاقِ خدمةٍ ({level})")
+            undo = compensator(
+                effect.signature,
+                lambda: self._delete_row(ServiceScopeModel, scope_id),
+                "حذفُ صفِّ النطاقِ المُنشأ",
+                idempotent=True,
+            )
+            version = "new"
+        else:
+            effect = declared_effect("WRITE", target, f"تعديلُ نطاقِ خدمةٍ ({level})")
+            undo = compensator(
+                effect.signature,
+                lambda: self._restore_row(ServiceScopeModel, scope_id, snapshot),
+                "إعادةُ النطاقِ إلى ما قبلَ العبور",
+                idempotent=True,
+            )
+            version = _iso(snapshot["updated_at"]) or "none"
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                row = write.get(ServiceScopeModel, scope_id)
+                if row is None:
+                    row = ServiceScopeModel(
+                        id=scope_id,
+                        service_id=service_id,
+                        level=level,
+                        government_id=scoped_government,
+                        institution_id=institution_id,
+                        department_id=department_id,
+                        created_by=context.principal_id,
+                        created_by_identity_id=identity_id,
+                        tenant_id=tenant,
+                    )
+                    write.add(row)
+                else:
+                    row.level = level
+                    row.government_id = scoped_government
+                    row.department_id = department_id
+                    row.updated_at = _now()
+                write.commit()
+                write.refresh(row)
+                payload = {
+                    "id": row.id,
+                    "service_id": row.service_id,
+                    "service_code": service_code,
+                    "level": row.level,
+                    "government_id": row.government_id,
+                    "institution_id": row.institution_id,
+                    "department_id": row.department_id,
+                    "identity_id": row.created_by_identity_id,
+                    "tenant_id": row.tenant_id,
+                }
+            finally:
+                write.close()
+            trace = record_domain_trace(
+                context,
+                "federation.service.scope",
+                "amos_federation.federation.service_scoped",
+                {
+                    "scope_id": payload["id"],
+                    "service_id": payload["service_id"],
+                    "level": payload["level"],
+                    "government_id": payload["government_id"],
+                    "institution_id": payload["institution_id"],
+                    "department_id": payload["department_id"],
+                    "identity_id": payload["identity_id"],
+                    "tenant_id": payload["tenant_id"],
+                },
+            )
+            return {**payload, **trace}
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_SCOPE_SERVICE,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(
+                ACTION_SCOPE_SERVICE,
+                f"{tenant}:{service_id}:{version}:{level}:{department_id or '-'}",
+            ),
+            compensators=(undo,),
+            metadata={"tenant_id": tenant, "service_code": service_code, "level": level},
+        )
+        return self._crossed(guarded, {"id": scope_id, "service_id": service_id})
 
     # ── R8-F: إسنادُ القضايا ─────────────────────────────────────────────
 
@@ -818,21 +1199,6 @@ class FederalStateGovernment:
                 # الرسالةُ حقيقةً لا خطأَ قيد.
                 classification = "PARTIAL"
 
-            row = CaseScopeModel(
-                id=f"css-{uuid.uuid4().hex[:12]}",
-                case_id=case.id,
-                level=level,
-                government_id=authority.target.government_id,
-                institution_id=case.institution_id,
-                department_id=department_id if level == "DEPARTMENT" else None,
-                responsible_official_id=responsible_official_id or authority.decision.official_id,
-                opened_by=context.principal_id,
-                opened_by_identity_id=authority.decision.identity_id,
-                position_id=authority.decision.position_id,
-                classification=classification,
-                authority=authority.as_dict(),
-                tenant_id=tenant,
-            )
             existing = session.scalar(
                 select(CaseScopeModel).where(
                     CaseScopeModel.case_id == case.id, CaseScopeModel.tenant_id == tenant
@@ -840,47 +1206,100 @@ class FederalStateGovernment:
             )
             if existing is not None:
                 raise FederationError(f"القضية '{case_reference}' مُسنَدةٌ سابقًا")
-            session.add(row)
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "case_id": row.case_id,
-                "case_reference": case.reference,
-                "level": row.level,
-                "government_id": row.government_id,
-                "institution_id": row.institution_id,
-                "department_id": row.department_id,
-                "responsible_official_id": row.responsible_official_id,
-                "identity_id": row.opened_by_identity_id,
-                "position_id": row.position_id,
-                "classification": row.classification,
-                "boundary_reason": authority.boundary_reason,
-                "tenant_id": row.tenant_id,
+            case_id = case.id
+            case_ref = case.reference
+            fields = {
+                "case_id": case.id,
+                "level": level,
+                "government_id": authority.target.government_id,
+                "institution_id": case.institution_id,
+                "department_id": department_id if level == "DEPARTMENT" else None,
+                "responsible_official_id": (
+                    responsible_official_id or authority.decision.official_id
+                ),
+                "opened_by": context.principal_id,
+                "opened_by_identity_id": authority.decision.identity_id,
+                "position_id": authority.decision.position_id,
+                "classification": classification,
+                "authority": authority.as_dict(),
+                "tenant_id": tenant,
             }
+            boundary_reason = authority.boundary_reason
         finally:
             session.close()
 
-        trace = record_domain_trace(
-            context,
-            "federation.case.scope",
-            "amos_federation.federation.case_scoped",
-            {
-                "scope_id": payload["id"],
-                "case_id": payload["case_id"],
-                "level": payload["level"],
-                "government_id": payload["government_id"],
-                "institution_id": payload["institution_id"],
-                "department_id": payload["department_id"],
-                "responsible_official_id": payload["responsible_official_id"],
-                "identity_id": payload["identity_id"],
-                "position_id": payload["position_id"],
-                "classification": payload["classification"],
-                "boundary_reason": payload["boundary_reason"],
-                "tenant_id": payload["tenant_id"],
-            },
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
         )
-        return {**payload, **trace}
+
+        scope_id = f"css-{uuid.uuid4().hex[:12]}"
+        target = f"federation/{tenant}/cases/{case_id}/scope"
+        effect = declared_effect("CREATE", target, f"إسنادُ قضيةٍ إلى نطاقِها ({level})")
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                row = CaseScopeModel(id=scope_id, **fields)
+                write.add(row)
+                write.commit()
+                write.refresh(row)
+                payload = {
+                    "id": row.id,
+                    "case_id": row.case_id,
+                    "case_reference": case_ref,
+                    "level": row.level,
+                    "government_id": row.government_id,
+                    "institution_id": row.institution_id,
+                    "department_id": row.department_id,
+                    "responsible_official_id": row.responsible_official_id,
+                    "identity_id": row.opened_by_identity_id,
+                    "position_id": row.position_id,
+                    "classification": row.classification,
+                    "boundary_reason": boundary_reason,
+                    "tenant_id": row.tenant_id,
+                }
+            finally:
+                write.close()
+            trace = record_domain_trace(
+                context,
+                "federation.case.scope",
+                "amos_federation.federation.case_scoped",
+                {
+                    "scope_id": payload["id"],
+                    "case_id": payload["case_id"],
+                    "level": payload["level"],
+                    "government_id": payload["government_id"],
+                    "institution_id": payload["institution_id"],
+                    "department_id": payload["department_id"],
+                    "responsible_official_id": payload["responsible_official_id"],
+                    "identity_id": payload["identity_id"],
+                    "position_id": payload["position_id"],
+                    "classification": payload["classification"],
+                    "boundary_reason": payload["boundary_reason"],
+                    "tenant_id": payload["tenant_id"],
+                },
+            )
+            return {**payload, **trace}
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_SCOPE_CASE,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ACTION_SCOPE_CASE, f"{tenant}:{case_id}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_row(CaseScopeModel, scope_id),
+                    "حذفُ إسنادِ القضيّة",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "case_reference": case_reference, "level": level},
+        )
+        return self._crossed(guarded, {"id": scope_id, "case_reference": case_reference})
 
     # ── R8-G: التنفيذ عبر النواة والخزانة ────────────────────────────────
 
