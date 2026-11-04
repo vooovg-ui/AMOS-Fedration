@@ -401,3 +401,39 @@ def test_q97_5b_rebinding_is_a_declared_write_not_a_replay(world: dict[str, Any]
     assert result["replayed"] is False
     assert result["government_id"] == world["federal"]["id"]
     assert recorder.calls[0]["declared_effects"][0].kind.value == "WRITE"
+
+
+# ── الصنفُ 6 · المسارُ كاملًا بتوصيلِ الإنتاج: إعلانٌ ⇒ جسرٌ ⇒ نواة (التوجيه 43 § 2 · W-820) ──
+# لم يُقَس هذا صراحةً في الدفعة 1: الأصنافُ أعلاه تحقنُ `ConstitutionalAuthorizer` بيدِها. هنا
+# `FederalStateGovernment()` بلا حقن ⇒ `get_authorizer()` كما في الإنتاج، ثمّ يُقرأُ قيدُ
+# `CONSTITUTIONAL_VERDICT` من سجلِّ النواةِ على القرصِ نفسِه وتُفحَصُ سلسلتُه.
+
+
+@pytest.mark.parametrize("verb", Q97_FEDERAL_STATE_ACTIONS)
+def test_q97_6_full_path_default_wiring_reaches_the_kernel_ledger(
+    verb: str, world: dict[str, Any]
+) -> None:
+    fs = FederalStateGovernment()  # لا مُصرِّحَ محقونًا
+    gateway = fs.authorizer.gateway  # المفردُ المشترك: نعدُّ ما يُضافُ بهذا النداءِ وحدَه
+    seen = len(gateway.records)
+
+    _call(fs, verb, world)
+
+    records = [r for r in gateway.records[seen:] if r.action == verb]
+    # البوّابةُ تُسجِّلُ مرحلتَين للتنفيذِ الواحد: AUTHORIZED ثمّ COMPLETED، ببصمةٍ وقيدٍ واحدَين.
+    assert [str(r.completion.value) for r in records] == ["AUTHORIZED", "COMPLETED"]
+    assert len({r.fingerprint for r in records}) == 1
+    assert len({r.ledger_entry_hash for r in records}) == 1
+    record = records[-1]
+    assert str(record.actor).upper() == "EXECUTIVE"
+    assert str(record.decision).upper() == "ALLOW"
+    assert record.ledger_entry_hash
+    ledger = gateway.engine.ledger
+    entries = [e for e in ledger.entries() if e.entry_hash == record.ledger_entry_hash]
+    assert len(entries) == 1, "قيدُ النواةِ غائبٌ عن السجلِّ على القرص"
+    body = entries[0].body
+    assert body["type"] == "CONSTITUTIONAL_VERDICT"
+    assert body["action"] == verb
+    assert str(body["actor"]).upper() == "EXECUTIVE"
+    assert str(body["decision"]).upper() == "ALLOW"
+    assert ledger.verify_chain() == [], "سلسلةُ سجلِّ النواةِ مكسورة"

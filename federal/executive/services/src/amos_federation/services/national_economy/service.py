@@ -112,6 +112,30 @@ TASK_TYPE_ECONOMIC_DECISION = "economic_decision"
 DOMAIN = "economy"
 
 
+# ── Q-98 (التوجيهُ 43 § 1 · W-820 · تصميمُ § 7 في Q83C_LEXICON_TABLE_DESIGN.md) ──
+# أفعالُ الأسطحِ التسعةِ في `EXECUTIVE_ACTIONS` — فعلٌ باسمِ السطحِ يعبرُ به `guard_declared`.
+ACTION_REGISTER_SECTOR = "register_sector"
+ACTION_REGISTER_CATEGORY = "register_category"
+ACTION_DEFINE_INDICATOR = "define_indicator"
+ACTION_REGISTER_PUBLIC_ENTITY = "register_public_entity"
+ACTION_CREATE_PROGRAM = "create_program"
+ACTION_ISSUE_POLICY = "issue_policy"
+ACTION_REGISTER_REVENUE_SOURCE = "register_revenue_source"
+ACTION_REGISTER_PUBLIC_ASSET = "register_public_asset"
+ACTION_REGISTER_PUBLIC_LIABILITY = "register_public_liability"
+Q98_NATIONAL_ECONOMY_ACTIONS = (
+    ACTION_REGISTER_SECTOR,
+    ACTION_REGISTER_CATEGORY,
+    ACTION_DEFINE_INDICATOR,
+    ACTION_REGISTER_PUBLIC_ENTITY,
+    ACTION_CREATE_PROGRAM,
+    ACTION_ISSUE_POLICY,
+    ACTION_REGISTER_REVENUE_SOURCE,
+    ACTION_REGISTER_PUBLIC_ASSET,
+    ACTION_REGISTER_PUBLIC_LIABILITY,
+)
+
+
 class EconomicStateError(ValueError):
     """خللٌ في مُدخَلٍ اقتصاديٍّ أو في مرجعٍ مفقود — ليس رفضَ تخويل."""
 
@@ -151,12 +175,51 @@ class NationalEconomy:
         self,
         executive_core: Any | None = None,
         federation: Any | None = None,
+        authorizer: Any | None = None,
     ) -> None:
         init_db()
         #: النواةُ المشتركة القائمة — تُمرَّر في الاختبارات ولا تُستبدَل بأخرى.
         self._core = executive_core if executive_core is not None else get_executive_core()
         #: طبقةُ الحكومة القائمة: منها حدُّ السلطة وأثرُ العملية. لا شجرةَ ثانية.
         self._federation = federation if federation is not None else get_federal_state()
+        #: مُصرِّحُ العبور (Q-98) — يُمرَّر في الاختبارات، وإلّا فـ`get_authorizer()`.
+        self._authorizer = authorizer
+
+    @property
+    def authorizer(self) -> Any:
+        """مُصرِّحُ العبورِ السياديّ — بالاستيرادِ المؤجَّلِ كنمطِ `federal_state` (Q-97)."""
+        if self._authorizer is None:
+            from amos_federation.services.executive_core.sovereignty_bridge import (
+                get_authorizer,
+            )
+
+            self._authorizer = get_authorizer()
+        return self._authorizer
+
+    def _delete_rows(self, *rows: tuple[Any, str | None]) -> None:
+        """معوِّضُ CREATE: احذفِ الصفوفَ بمعرِّفاتِها بالترتيبِ المعطى — ولا أثرَ لغائب."""
+        for model, row_id in rows:
+            if row_id is None:
+                continue
+            session = self._session()
+            try:
+                row = session.get(model, row_id)
+                if row is not None:
+                    session.delete(row)
+                    session.commit()
+            finally:
+                session.close()
+
+    @staticmethod
+    def _crossed(guarded: Any, replay: dict[str, Any]) -> dict[str, Any]:
+        """شكلُ الردِّ بعدَ العبور: مفتاحُ `replayed` مضافٌ ولا مفتاحَ محذوف."""
+        if guarded.is_replay:
+            return {
+                **replay,
+                "replayed": True,
+                "operation_key": guarded.outcome.operation_key,
+            }
+        return {**guarded.value, "replayed": False}
 
     # ── أدوات داخلية ─────────────────────────────────────────────────────
 
@@ -411,25 +474,59 @@ class NationalEconomy:
                 created_by_identity_id=self._identity_id(session, context),
                 tenant_id=tenant,
             )
-            session.add(row)
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "code": row.code,
-                "name": row.name,
-                "description": row.description or "",
-                "government_id": row.government_id,
-                "scope_level": row.scope_level,
-                "status": row.status,
-                "created_by": row.created_by,
-                "created_by_identity_id": row.created_by_identity_id,
-                "tenant_id": row.tenant_id,
-                "created_at": _iso(row.created_at),
-            }
         finally:
             session.close()
-        return payload
+
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
+        )
+
+        row_id = row.id
+        target = f"economy/{tenant}/sectors/{code}"
+        effect = declared_effect("CREATE", target, "تسجيلُ قطاعٍ اقتصاديٍّ لحكومةٍ قائمة")
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                write.add(row)
+                write.commit()
+                write.refresh(row)
+                payload = {
+                    "id": row.id,
+                    "code": row.code,
+                    "name": row.name,
+                    "description": row.description or "",
+                    "government_id": row.government_id,
+                    "scope_level": row.scope_level,
+                    "status": row.status,
+                    "created_by": row.created_by,
+                    "created_by_identity_id": row.created_by_identity_id,
+                    "tenant_id": row.tenant_id,
+                    "created_at": _iso(row.created_at),
+                }
+            finally:
+                write.close()
+            return payload
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_REGISTER_SECTOR,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ACTION_REGISTER_SECTOR, f"{tenant}:{code}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_rows((EconomicSectorModel, row_id)),
+                    "حذفُ الصفِّ المُنشأِ بمعرِّفِه",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "code": code},
+        )
+        return self._crossed(guarded, {"code": code, "tenant_id": tenant})
 
     def register_category(
         self,
@@ -472,21 +569,55 @@ class NationalEconomy:
                 created_by_identity_id=self._identity_id(session, context),
                 tenant_id=tenant,
             )
-            session.add(row)
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "sector_id": row.sector_id,
-                "code": row.code,
-                "name": row.name,
-                "status": row.status,
-                "tenant_id": row.tenant_id,
-                "created_at": _iso(row.created_at),
-            }
         finally:
             session.close()
-        return payload
+
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
+        )
+
+        row_id = row.id
+        target = f"economy/{tenant}/sectors/{sector_code}/categories/{code}"
+        effect = declared_effect("CREATE", target, "تسجيلُ فئةٍ داخلَ قطاعِها")
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                write.add(row)
+                write.commit()
+                write.refresh(row)
+                payload = {
+                    "id": row.id,
+                    "sector_id": row.sector_id,
+                    "code": row.code,
+                    "name": row.name,
+                    "status": row.status,
+                    "tenant_id": row.tenant_id,
+                    "created_at": _iso(row.created_at),
+                }
+            finally:
+                write.close()
+            return payload
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_REGISTER_CATEGORY,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ACTION_REGISTER_CATEGORY, f"{tenant}:{sector.id}:{code}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_rows((EconomicCategoryModel, row_id)),
+                    "حذفُ الصفِّ المُنشأِ بمعرِّفِه",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "code": code},
+        )
+        return self._crossed(guarded, {"code": code, "tenant_id": tenant})
 
     def define_indicator(
         self,
@@ -542,24 +673,58 @@ class NationalEconomy:
                 created_by_identity_id=self._identity_id(session, context),
                 tenant_id=tenant,
             )
-            session.add(row)
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "code": row.code,
-                "name": row.name,
-                "unit": row.unit,
-                "scope_level": row.scope_level,
-                "government_id": row.government_id,
-                "sector_id": row.sector_id,
-                "measurement_status": row.measurement_status,
-                "status": row.status,
-                "tenant_id": row.tenant_id,
-            }
         finally:
             session.close()
-        return payload
+
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
+        )
+
+        row_id = row.id
+        target = f"economy/{tenant}/indicators/{code}"
+        effect = declared_effect("CREATE", target, "تعريفُ مؤشّرٍ اقتصاديٍّ (تعريفٌ لا قياس)")
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                write.add(row)
+                write.commit()
+                write.refresh(row)
+                payload = {
+                    "id": row.id,
+                    "code": row.code,
+                    "name": row.name,
+                    "unit": row.unit,
+                    "scope_level": row.scope_level,
+                    "government_id": row.government_id,
+                    "sector_id": row.sector_id,
+                    "measurement_status": row.measurement_status,
+                    "status": row.status,
+                    "tenant_id": row.tenant_id,
+                }
+            finally:
+                write.close()
+            return payload
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_DEFINE_INDICATOR,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ACTION_DEFINE_INDICATOR, f"{tenant}:{code}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_rows((EconomicIndicatorDefinitionModel, row_id)),
+                    "حذفُ الصفِّ المُنشأِ بمعرِّفِه",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "code": code},
+        )
+        return self._crossed(guarded, {"code": code, "tenant_id": tenant})
 
     def _sector_row(
         self, session: Session, context: AuthorizationContext, code: str
@@ -725,48 +890,87 @@ class NationalEconomy:
                 created_by_identity_id=authority.decision.identity_id,
                 tenant_id=tenant,
             )
-            session.add(row)
-            decision = self._issue_decision(
-                session,
-                context,
-                operation="economy.entity.register",
-                subject_kind="ENTITY",
-                subject_id=row.id,
-                authority=authority,
-                government_id=government_id,
-                institution_id=institution.id,
-                department_id=department_id,
-                scope_level=scope_level,
-                correlation_id=correlation_id,
-            )
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "code": row.code,
-                "name": row.name,
-                "entity_kind": row.entity_kind,
-                "identity_id": row.identity_id,
-                "sector_id": row.sector_id,
-                "government_id": row.government_id,
-                "institution_id": row.institution_id,
-                "department_id": department_id if scope_level == "DEPARTMENT" else None,
-                "scope_level": scope_level,
-                "status": row.status,
-                "authority_classification": row.authority_classification,
-                "tenant_id": row.tenant_id,
-            }
-            decision_payload = self._decision_dict(decision)
         finally:
             session.close()
-        trace = self._announce(
-            context,
-            action="economy.entity.register",
-            subject="amos_federation.economy.public_entity_registered",
-            decision=decision_payload,
-            payload=payload,
+
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
         )
-        return {**payload, "decision": decision_payload, **trace}
+
+        row_id = row.id
+        created: dict[str, Any] = {}
+        target = f"economy/{tenant}/entities/{code}"
+        effect = declared_effect("CREATE", target, "تسجيلُ كيانٍ اقتصاديٍّ عامٍّ وقرارِه في معاملةٍ واحدة")
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                write.add(row)
+                decision = self._issue_decision(
+                    write,
+                    context,
+                    operation="economy.entity.register",
+                    subject_kind="ENTITY",
+                    subject_id=row.id,
+                    authority=authority,
+                    government_id=government_id,
+                    institution_id=institution.id,
+                    department_id=department_id,
+                    scope_level=scope_level,
+                    correlation_id=correlation_id,
+                )
+                created["decision_id"] = decision.id
+                write.commit()
+                write.refresh(row)
+                payload = {
+                    "id": row.id,
+                    "code": row.code,
+                    "name": row.name,
+                    "entity_kind": row.entity_kind,
+                    "identity_id": row.identity_id,
+                    "sector_id": row.sector_id,
+                    "government_id": row.government_id,
+                    "institution_id": row.institution_id,
+                    "department_id": department_id if scope_level == "DEPARTMENT" else None,
+                    "scope_level": scope_level,
+                    "status": row.status,
+                    "authority_classification": row.authority_classification,
+                    "tenant_id": row.tenant_id,
+                }
+                decision_payload = self._decision_dict(decision)
+            finally:
+                write.close()
+            trace = self._announce(
+                context,
+                action="economy.entity.register",
+                subject="amos_federation.economy.public_entity_registered",
+                decision=decision_payload,
+                payload=payload,
+            )
+            return {**payload, "decision": decision_payload, **trace}
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_REGISTER_PUBLIC_ENTITY,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ACTION_REGISTER_PUBLIC_ENTITY, f"{tenant}:{code}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_rows(
+                        (EconomicDecisionModel, created.get("decision_id")),
+                        (PublicEconomicEntityModel, row_id),
+                    ),
+                    "حذفُ القرارِ ثمّ الصفِّ بمعرِّفَيهما",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "code": code},
+        )
+        return self._crossed(guarded, {"code": code, "tenant_id": tenant})
 
     # ── R9-K: برنامجٌ اقتصاديٌّ حكوميّ ────────────────────────────────────
 
@@ -839,47 +1043,88 @@ class NationalEconomy:
                 created_by_identity_id=authority.decision.identity_id,
                 tenant_id=tenant,
             )
-            session.add(row)
-            decision = self._issue_decision(
-                session,
-                context,
-                operation="economy.program.create",
-                subject_kind="PROGRAM",
-                subject_id=row.id,
-                authority=authority,
-                government_id=government_id,
-                institution_id=institution.id,
-                department_id=department_id,
-                scope_level=scope_level,
-                correlation_id=correlation_id,
-            )
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "code": row.code,
-                "name": row.name,
-                "sector_id": row.sector_id,
-                "category_id": row.category_id,
-                "government_id": row.government_id,
-                "institution_id": row.institution_id,
-                "department_id": row.department_id,
-                "scope_level": row.scope_level,
-                "status": row.status,
-                "authority_classification": row.authority_classification,
-                "tenant_id": row.tenant_id,
-            }
-            decision_payload = self._decision_dict(decision)
         finally:
             session.close()
-        trace = self._announce(
-            context,
-            action="economy.program.create",
-            subject="amos_federation.economy.program_created",
-            decision=decision_payload,
-            payload=payload,
+
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
         )
-        return {**payload, "decision": decision_payload, **trace}
+
+        row_id = row.id
+        created: dict[str, Any] = {}
+        target = f"economy/{tenant}/programs/{code}"
+        effect = declared_effect(
+            "CREATE", target, "إنشاءُ برنامجٍ اقتصاديٍّ (مسوَّدة) وقرارِه في معاملةٍ واحدة"
+        )
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                write.add(row)
+                decision = self._issue_decision(
+                    write,
+                    context,
+                    operation="economy.program.create",
+                    subject_kind="PROGRAM",
+                    subject_id=row.id,
+                    authority=authority,
+                    government_id=government_id,
+                    institution_id=institution.id,
+                    department_id=department_id,
+                    scope_level=scope_level,
+                    correlation_id=correlation_id,
+                )
+                created["decision_id"] = decision.id
+                write.commit()
+                write.refresh(row)
+                payload = {
+                    "id": row.id,
+                    "code": row.code,
+                    "name": row.name,
+                    "sector_id": row.sector_id,
+                    "category_id": row.category_id,
+                    "government_id": row.government_id,
+                    "institution_id": row.institution_id,
+                    "department_id": row.department_id,
+                    "scope_level": row.scope_level,
+                    "status": row.status,
+                    "authority_classification": row.authority_classification,
+                    "tenant_id": row.tenant_id,
+                }
+                decision_payload = self._decision_dict(decision)
+            finally:
+                write.close()
+            trace = self._announce(
+                context,
+                action="economy.program.create",
+                subject="amos_federation.economy.program_created",
+                decision=decision_payload,
+                payload=payload,
+            )
+            return {**payload, "decision": decision_payload, **trace}
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_CREATE_PROGRAM,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ACTION_CREATE_PROGRAM, f"{tenant}:{code}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_rows(
+                        (EconomicDecisionModel, created.get("decision_id")),
+                        (EconomicProgramModel, row_id),
+                    ),
+                    "حذفُ القرارِ ثمّ الصفِّ بمعرِّفَيهما",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "code": code},
+        )
+        return self._crossed(guarded, {"code": code, "tenant_id": tenant})
 
     # ── R9-D: السياسةُ الاقتصادية — إصدارٌ ثمّ نفاذٌ بفعلين ────────────────
 
@@ -945,35 +1190,74 @@ class NationalEconomy:
                 authority_classification=authority.classification,
                 tenant_id=tenant,
             )
-            session.add(row)
-            decision = self._issue_decision(
-                session,
-                context,
-                operation="economy.policy.issue",
-                subject_kind="POLICY",
-                subject_id=row.id,
-                authority=authority,
-                government_id=government_id,
-                institution_id=institution.id,
-                department_id=department_id,
-                scope_level=scope_level,
-                correlation_id=correlation_id,
-            )
-            row.decision_id = decision.id
-            session.commit()
-            session.refresh(row)
-            payload = self._policy_dict(row)
-            decision_payload = self._decision_dict(decision)
         finally:
             session.close()
-        trace = self._announce(
-            context,
-            action="economy.policy.issue",
-            subject="amos_federation.economy.policy_created",
-            decision=decision_payload,
-            payload=payload,
+
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
         )
-        return {**payload, "decision": decision_payload, **trace}
+
+        row_id = row.id
+        created: dict[str, Any] = {}
+        target = f"economy/{tenant}/policies/{code}"
+        effect = declared_effect("CREATE", target, "إصدارُ سياسةٍ مسوَّدةٍ وقرارِها في معاملةٍ واحدة")
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                write.add(row)
+                decision = self._issue_decision(
+                    write,
+                    context,
+                    operation="economy.policy.issue",
+                    subject_kind="POLICY",
+                    subject_id=row.id,
+                    authority=authority,
+                    government_id=government_id,
+                    institution_id=institution.id,
+                    department_id=department_id,
+                    scope_level=scope_level,
+                    correlation_id=correlation_id,
+                )
+                row.decision_id = decision.id
+                created["decision_id"] = decision.id
+                write.commit()
+                write.refresh(row)
+                payload = self._policy_dict(row)
+                decision_payload = self._decision_dict(decision)
+            finally:
+                write.close()
+            trace = self._announce(
+                context,
+                action="economy.policy.issue",
+                subject="amos_federation.economy.policy_created",
+                decision=decision_payload,
+                payload=payload,
+            )
+            return {**payload, "decision": decision_payload, **trace}
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_ISSUE_POLICY,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ACTION_ISSUE_POLICY, f"{tenant}:{code}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_rows(
+                        (EconomicPolicyModel, row_id),
+                        (EconomicDecisionModel, created.get("decision_id")),
+                    ),
+                    "حذفُ السياسةِ ثمّ قرارِها بمعرِّفَيهما",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "code": code},
+        )
+        return self._crossed(guarded, {"code": code, "tenant_id": tenant})
 
     def activate_policy(
         self,
@@ -1188,51 +1472,92 @@ class NationalEconomy:
                 authority_classification=authority.classification,
                 tenant_id=tenant,
             )
-            session.add(row)
-            decision = self._issue_decision(
-                session,
-                context,
-                operation="economy.revenue.register",
-                subject_kind="REVENUE_SOURCE",
-                subject_id=row.id,
-                authority=authority,
-                government_id=government_id,
-                institution_id=institution.id,
-                department_id=department_id,
-                scope_level=scope_level,
-                correlation_id=correlation_id,
-            )
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "code": row.code,
-                "name": row.name,
-                "revenue_kind": row.revenue_kind,
-                "basis": row.basis,
-                "government_id": row.government_id,
-                "institution_id": row.institution_id,
-                "department_id": row.department_id,
-                "sector_id": row.sector_id,
-                "program_id": row.program_id,
-                "policy_id": row.policy_id,
-                "revenue_account_id": row.revenue_account_id,
-                "collection_status": row.collection_status,
-                "status": row.status,
-                "authority_classification": row.authority_classification,
-                "tenant_id": row.tenant_id,
-            }
-            decision_payload = self._decision_dict(decision)
         finally:
             session.close()
-        trace = self._announce(
-            context,
-            action="economy.revenue.register",
-            subject="amos_federation.economy.revenue_source_created",
-            decision=decision_payload,
-            payload=payload,
+
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
         )
-        return {**payload, "decision": decision_payload, **trace}
+
+        row_id = row.id
+        created: dict[str, Any] = {}
+        target = f"economy/{tenant}/revenue_sources/{code}"
+        effect = declared_effect(
+            "CREATE", target, "تسجيلُ مصدرِ إيرادٍ (تعريفٌ لا تحصيل) وقرارِه في معاملةٍ واحدة"
+        )
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                write.add(row)
+                decision = self._issue_decision(
+                    write,
+                    context,
+                    operation="economy.revenue.register",
+                    subject_kind="REVENUE_SOURCE",
+                    subject_id=row.id,
+                    authority=authority,
+                    government_id=government_id,
+                    institution_id=institution.id,
+                    department_id=department_id,
+                    scope_level=scope_level,
+                    correlation_id=correlation_id,
+                )
+                created["decision_id"] = decision.id
+                write.commit()
+                write.refresh(row)
+                payload = {
+                    "id": row.id,
+                    "code": row.code,
+                    "name": row.name,
+                    "revenue_kind": row.revenue_kind,
+                    "basis": row.basis,
+                    "government_id": row.government_id,
+                    "institution_id": row.institution_id,
+                    "department_id": row.department_id,
+                    "sector_id": row.sector_id,
+                    "program_id": row.program_id,
+                    "policy_id": row.policy_id,
+                    "revenue_account_id": row.revenue_account_id,
+                    "collection_status": row.collection_status,
+                    "status": row.status,
+                    "authority_classification": row.authority_classification,
+                    "tenant_id": row.tenant_id,
+                }
+                decision_payload = self._decision_dict(decision)
+            finally:
+                write.close()
+            trace = self._announce(
+                context,
+                action="economy.revenue.register",
+                subject="amos_federation.economy.revenue_source_created",
+                decision=decision_payload,
+                payload=payload,
+            )
+            return {**payload, "decision": decision_payload, **trace}
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_REGISTER_REVENUE_SOURCE,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ACTION_REGISTER_REVENUE_SOURCE, f"{tenant}:{code}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_rows(
+                        (EconomicDecisionModel, created.get("decision_id")),
+                        (RevenueSourceModel, row_id),
+                    ),
+                    "حذفُ القرارِ ثمّ الصفِّ بمعرِّفَيهما",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "code": code},
+        )
+        return self._crossed(guarded, {"code": code, "tenant_id": tenant})
 
     def _program_row(
         self, session: Session, context: AuthorizationContext, code: str
@@ -2053,50 +2378,89 @@ class NationalEconomy:
                 authority_classification=authority.classification,
                 tenant_id=tenant,
             )
-            session.add(row)
-            decision = self._issue_decision(
-                session,
-                context,
-                operation="economy.asset.register",
-                subject_kind="ASSET",
-                subject_id=row.id,
-                authority=authority,
-                government_id=government_id,
-                institution_id=institution.id,
-                department_id=department_id,
-                scope_level=scope_level,
-                correlation_id=correlation_id,
-            )
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "code": row.code,
-                "name": row.name,
-                "asset_class": row.asset_class,
-                "government_id": row.government_id,
-                "institution_id": row.institution_id,
-                "department_id": row.department_id,
-                "custodian_identity_id": row.custodian_identity_id,
-                "registration_class": row.registration_class,
-                "external_ownership_status": row.external_ownership_status,
-                "book_value": row.book_value,
-                "currency": row.currency,
-                "status": row.status,
-                "authority_classification": row.authority_classification,
-                "tenant_id": row.tenant_id,
-            }
-            decision_payload = self._decision_dict(decision)
         finally:
             session.close()
-        trace = self._announce(
-            context,
-            action="economy.asset.register",
-            subject="amos_federation.economy.public_asset_registered",
-            decision=decision_payload,
-            payload=payload,
+
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
         )
-        return {**payload, "decision": decision_payload, **trace}
+
+        row_id = row.id
+        created: dict[str, Any] = {}
+        target = f"economy/{tenant}/assets/{code}"
+        effect = declared_effect("CREATE", target, "تسجيلُ أصلٍ عامٍّ وقرارِه في معاملةٍ واحدة")
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                write.add(row)
+                decision = self._issue_decision(
+                    write,
+                    context,
+                    operation="economy.asset.register",
+                    subject_kind="ASSET",
+                    subject_id=row.id,
+                    authority=authority,
+                    government_id=government_id,
+                    institution_id=institution.id,
+                    department_id=department_id,
+                    scope_level=scope_level,
+                    correlation_id=correlation_id,
+                )
+                created["decision_id"] = decision.id
+                write.commit()
+                write.refresh(row)
+                payload = {
+                    "id": row.id,
+                    "code": row.code,
+                    "name": row.name,
+                    "asset_class": row.asset_class,
+                    "government_id": row.government_id,
+                    "institution_id": row.institution_id,
+                    "department_id": row.department_id,
+                    "custodian_identity_id": row.custodian_identity_id,
+                    "registration_class": row.registration_class,
+                    "external_ownership_status": row.external_ownership_status,
+                    "book_value": row.book_value,
+                    "currency": row.currency,
+                    "status": row.status,
+                    "authority_classification": row.authority_classification,
+                    "tenant_id": row.tenant_id,
+                }
+                decision_payload = self._decision_dict(decision)
+            finally:
+                write.close()
+            trace = self._announce(
+                context,
+                action="economy.asset.register",
+                subject="amos_federation.economy.public_asset_registered",
+                decision=decision_payload,
+                payload=payload,
+            )
+            return {**payload, "decision": decision_payload, **trace}
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_REGISTER_PUBLIC_ASSET,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ACTION_REGISTER_PUBLIC_ASSET, f"{tenant}:{code}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_rows(
+                        (EconomicDecisionModel, created.get("decision_id")),
+                        (PublicAssetModel, row_id),
+                    ),
+                    "حذفُ القرارِ ثمّ الصفِّ بمعرِّفَيهما",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "code": code},
+        )
+        return self._crossed(guarded, {"code": code, "tenant_id": tenant})
 
     def register_public_liability(
         self,
@@ -2169,50 +2533,89 @@ class NationalEconomy:
                 authority_classification=authority.classification,
                 tenant_id=tenant,
             )
-            session.add(row)
-            decision = self._issue_decision(
-                session,
-                context,
-                operation="economy.liability.register",
-                subject_kind="LIABILITY",
-                subject_id=row.id,
-                authority=authority,
-                government_id=government_id,
-                institution_id=institution.id,
-                department_id=department_id,
-                scope_level=scope_level,
-                correlation_id=correlation_id,
-            )
-            session.commit()
-            session.refresh(row)
-            payload = {
-                "id": row.id,
-                "code": row.code,
-                "name": row.name,
-                "liability_class": row.liability_class,
-                "government_id": row.government_id,
-                "institution_id": row.institution_id,
-                "department_id": row.department_id,
-                "creditor_identity_id": row.creditor_identity_id,
-                "principal_amount": row.principal_amount,
-                "currency": row.currency,
-                "external_enforceability": row.external_enforceability,
-                "due_at": _iso(row.due_at),
-                "status": row.status,
-                "authority_classification": row.authority_classification,
-                "tenant_id": row.tenant_id,
-            }
-            decision_payload = self._decision_dict(decision)
         finally:
             session.close()
-        trace = self._announce(
-            context,
-            action="economy.liability.register",
-            subject="amos_federation.economy.public_liability_registered",
-            decision=decision_payload,
-            payload=payload,
+
+        from amos_federation.services.executive_core.sovereignty_bridge import (
+            compensator,
+            declared_effect,
+            operation_key,
         )
-        return {**payload, "decision": decision_payload, **trace}
+
+        row_id = row.id
+        created: dict[str, Any] = {}
+        target = f"economy/{tenant}/liabilities/{code}"
+        effect = declared_effect("CREATE", target, "تسجيلُ التزامٍ عامٍّ وقرارِه في معاملةٍ واحدة")
+
+        def _apply(_effect: Any) -> dict[str, Any]:
+            write = self._session()
+            try:
+                write.add(row)
+                decision = self._issue_decision(
+                    write,
+                    context,
+                    operation="economy.liability.register",
+                    subject_kind="LIABILITY",
+                    subject_id=row.id,
+                    authority=authority,
+                    government_id=government_id,
+                    institution_id=institution.id,
+                    department_id=department_id,
+                    scope_level=scope_level,
+                    correlation_id=correlation_id,
+                )
+                created["decision_id"] = decision.id
+                write.commit()
+                write.refresh(row)
+                payload = {
+                    "id": row.id,
+                    "code": row.code,
+                    "name": row.name,
+                    "liability_class": row.liability_class,
+                    "government_id": row.government_id,
+                    "institution_id": row.institution_id,
+                    "department_id": row.department_id,
+                    "creditor_identity_id": row.creditor_identity_id,
+                    "principal_amount": row.principal_amount,
+                    "currency": row.currency,
+                    "external_enforceability": row.external_enforceability,
+                    "due_at": _iso(row.due_at),
+                    "status": row.status,
+                    "authority_classification": row.authority_classification,
+                    "tenant_id": row.tenant_id,
+                }
+                decision_payload = self._decision_dict(decision)
+            finally:
+                write.close()
+            trace = self._announce(
+                context,
+                action="economy.liability.register",
+                subject="amos_federation.economy.public_liability_registered",
+                decision=decision_payload,
+                payload=payload,
+            )
+            return {**payload, "decision": decision_payload, **trace}
+
+        guarded = self.authorizer.guard_declared(
+            ACTION_REGISTER_PUBLIC_LIABILITY,
+            target,
+            declared_effects=(effect,),
+            applier=_apply,
+            operation_key=operation_key(ACTION_REGISTER_PUBLIC_LIABILITY, f"{tenant}:{code}"),
+            compensators=(
+                compensator(
+                    effect.signature,
+                    lambda: self._delete_rows(
+                        (EconomicDecisionModel, created.get("decision_id")),
+                        (PublicLiabilityModel, row_id),
+                    ),
+                    "حذفُ القرارِ ثمّ الصفِّ بمعرِّفَيهما",
+                    idempotent=True,
+                ),
+            ),
+            metadata={"tenant_id": tenant, "code": code},
+        )
+        return self._crossed(guarded, {"code": code, "tenant_id": tenant})
 
     # ── R9-J: المشترياتُ — تجريدٌ داخليٌّ لا سوق ───────────────────────────
 

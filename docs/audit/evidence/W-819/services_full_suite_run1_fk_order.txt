@@ -1,0 +1,7 @@
+ERROR tests/test_w755_m1_treasury_single_crossing.py::test_m1_6_the_six_publics_cross_in_their_own_body_once
+ERROR tests/test_w755_m1_treasury_single_crossing.py::test_m1_6b_the_unwrap_is_exact_and_does_not_swallow_sovereign_errors
+ERROR tests/test_w755_m1_treasury_single_crossing.py::test_m1_6e_a_ledger_replay_reports_replayed_and_never_returns_a_value
+ERROR tests/test_w755_m1_treasury_single_crossing.py::test_m1_6d_the_crossing_authorizer_is_built_per_call_and_never_kept
+ERROR tests/test_w755_m1_treasury_single_crossing.py::test_m1_6c_accounts_budgets_without_crossing_are_not_left_behind
+===== 1896 passed, 53 skipped, 1 warning, 59 errors in 1343.52s (0:22:23) ======
+EXIT=1

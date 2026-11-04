@@ -17,8 +17,8 @@
    },
    "services": {
     "public": 159,
-    "sovereign": 102,
-    "non_sovereign": 56,
+    "sovereign": 111,
+    "non_sovereign": 47,
     "declared": 0
    },
    "tools": {
@@ -29,15 +29,15 @@
    }
   },
   "public_write_operations": 180,
-  "sovereign_write_operations": 102,
+  "sovereign_write_operations": 111,
   "closed_legacy_paths": 7,
   "declared_boundary_operations": 7,
-  "non_sovereign_write_operations": 69,
+  "non_sovereign_write_operations": 60,
   "non_sovereign_by_file": {
-   "federal/executive/services/src/amos_federation/services/national_economy/service.py": 16,
    "federal/executive/services/src/amos_federation/common/persistent.py": 11,
    "federal/executive/services/src/amos_federation/services/governance/treasury.py": 9,
    "federal/executive/services/src/amos_federation/services/royal/main.py": 9,
+   "federal/executive/services/src/amos_federation/services/national_economy/service.py": 7,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py": 6,
    "federal/executive/services/src/amos_federation/services/federal_judiciary/registry.py": 2,
    "federal/executive/services/src/amos_federation/services/federal_state/service.py": 2,
@@ -3101,13 +3101,11 @@
    "function": "create_program",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": [
+    "_delete_rows",
     "_issue_decision"
    ],
    "declared_boundary": null
@@ -3118,13 +3116,12 @@
    "function": "define_indicator",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": [],
+   "writes_via": [
+    "_delete_rows"
+   ],
    "declared_boundary": null
   },
   {
@@ -3175,13 +3172,11 @@
    "function": "issue_policy",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": [
+    "_delete_rows",
     "_issue_decision"
    ],
    "declared_boundary": null
@@ -3192,13 +3187,12 @@
    "function": "register_category",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": [],
+   "writes_via": [
+    "_delete_rows"
+   ],
    "declared_boundary": null
   },
   {
@@ -3207,13 +3201,11 @@
    "function": "register_public_asset",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": [
+    "_delete_rows",
     "_issue_decision"
    ],
    "declared_boundary": null
@@ -3224,13 +3216,11 @@
    "function": "register_public_entity",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": [
+    "_delete_rows",
     "_issue_decision"
    ],
    "declared_boundary": null
@@ -3241,13 +3231,11 @@
    "function": "register_public_liability",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": [
+    "_delete_rows",
     "_issue_decision"
    ],
    "declared_boundary": null
@@ -3258,13 +3246,11 @@
    "function": "register_revenue_source",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
    "writes_via": [
+    "_delete_rows",
     "_issue_decision"
    ],
    "declared_boundary": null
@@ -3275,13 +3261,12 @@
    "function": "register_sector",
    "ordinal": 0,
    "public": true,
-   "writes": [
-    "add()",
-    "commit()"
-   ],
-   "guarded": false,
+   "writes": [],
+   "guarded": true,
    "closed_legacy": false,
-   "writes_via": [],
+   "writes_via": [
+    "_delete_rows"
+   ],
    "declared_boundary": null
   },
   {

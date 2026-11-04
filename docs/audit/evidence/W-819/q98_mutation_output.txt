@@ -1,0 +1,21 @@
+A rules-drop register_sector          probe_exit=1 KILLED
+A rules-drop register_category        probe_exit=1 KILLED
+A rules-drop define_indicator         probe_exit=1 KILLED
+A rules-drop register_public_entity   probe_exit=1 KILLED
+A rules-drop create_program           probe_exit=1 KILLED
+A rules-drop issue_policy             probe_exit=1 KILLED
+A rules-drop register_revenue_source  probe_exit=1 KILLED
+A rules-drop register_public_asset    probe_exit=1 KILLED
+A rules-drop register_public_liability probe_exit=1 KILLED
+B guard-drop register_sector          pytest_exit=1 KILLED · ======================= 3 failed, 31 deselected in 9.55s =======================
+B guard-drop register_category        pytest_exit=1 KILLED · ======================= 3 failed, 31 deselected in 9.91s =======================
+B guard-drop define_indicator         pytest_exit=1 KILLED · ======================= 3 failed, 31 deselected in 9.98s =======================
+B guard-drop register_public_entity   pytest_exit=1 KILLED · ======================= 3 failed, 31 deselected in 9.87s =======================
+B guard-drop create_program           pytest_exit=1 KILLED · ====================== 4 failed, 30 deselected in 11.82s =======================
+B guard-drop issue_policy             pytest_exit=1 KILLED · ====================== 4 failed, 30 deselected in 11.96s =======================
+B guard-drop register_revenue_source  pytest_exit=1 KILLED · ======================= 3 failed, 31 deselected in 9.93s =======================
+B guard-drop register_public_asset    pytest_exit=1 KILLED · ======================= 3 failed, 31 deselected in 9.79s =======================
+B guard-drop register_public_liability pytest_exit=1 KILLED · ====================== 4 failed, 30 deselected in 12.83s =======================
+service.py restored byte-identical: True
+MUTATION RESULT: total=18 survived=0
+EXIT=0

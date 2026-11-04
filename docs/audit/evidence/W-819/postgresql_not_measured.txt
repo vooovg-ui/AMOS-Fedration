@@ -1,0 +1,17 @@
+الهدف: بيانُ ما لم يُقَس — PostgreSQL للأسطحِ السبعةَ عشرَ العابرة (التوجيه 43 § 2 · W-820).
+
+النتيجة: لم يُقَس. لا رقمَ PostgreSQL لأيٍّ من الأسطحِ الثمانيةِ (الدفعة 1) ولا التسعةِ (الدفعة 2).
+
+السبب (مقيسٌ بالقراءة لا مُفترَض):
+1. وظيفةُ CI «Cross-System Suites (E2.2-G — SQLite + PostgreSQL)» في `.github/workflows/ci.yml`
+   تُشغِّلُ `tools/governance/verify_cross_system_suites.py`، وحزمةُ PostgreSQL فيها قائمةٌ ثابتةٌ
+   من ثلاثةِ ملفّاتٍ معلَنة لا تشملُ `test_r8_q97_federal_state_crossing.py` ولا
+   `test_r9_economy_q98_crossing.py`.
+2. `federal/executive/services/tests/conftest.py` يفرضُ `AMOS_DATABASE_URL` على SQLite، ومثبِّتاتُ
+   R8/R9 التي يبني عليها اختبارا العبور تعملُ على تلك الجلسة؛ فتشغيلُها على PostgreSQL يحتاجُ
+   إعادةَ تصميمِ المثبِّتاتِ أو إضافةَ حزمةٍ معلَنةٍ جديدةٍ إلى المصفوفة — وكلاهما تغييرُ بوّابةٍ
+   خارجَ قيودِ هذه الدفعةِ الثلاثة (التوجيه 43 § 3)، فلم يُفعَل.
+3. لا خادمَ PostgreSQL في بيئةِ الوكيل (`which postgres pg_ctl psql` ⇒ لا شيء).
+
+ما يلزمُ لقياسه: قرارٌ بإضافةِ حزمةِ العبورِ إلى مصفوفةِ E2.2-G بمثبِّتٍ يقبلُ `postgres_url`
+(اقتراحٌ للدفعةِ التالية، لا قرار).

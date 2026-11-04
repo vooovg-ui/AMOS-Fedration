@@ -397,6 +397,22 @@
    "kind": "work_drift",
    "reason": "الدفعةُ 1 من Q-83 (ج) بقرارِ Q-97: أسطحُ federal_state الثمانيةُ تعبرُ guard_declared بأفعالِها الجديدةِ في EXECUTIVE_ACTIONS — الدَّينُ 84 ⇒ 76 (حرقٌ 8 · لا إعادةَ تصنيف)",
    "recorded_at": "2026-11-04T14:06:19+00:00"
+  },
+  {
+   "debt": 67,
+   "sovereign": 111,
+   "closed_legacy": 7,
+   "write_sites_total": 269,
+   "git_head": "4e2b676a",
+   "waves": {
+    "W1": 11,
+    "W2": 19,
+    "W3": 37
+   },
+   "decision": "W-820",
+   "kind": "work_drift",
+   "reason": "الدفعةُ 2 من Q-83 (ج) بقرارِ Q-98: أسطحُ national_economy التسعةُ تعبرُ guard_declared بأفعالِها الجديدةِ في EXECUTIVE_ACTIONS — الدَّينُ 76 ⇒ 67 (حرقٌ 9 · لا إعادةَ تصنيف)",
+   "recorded_at": "2026-11-04T17:22:42+00:00"
   }
  ]
 }

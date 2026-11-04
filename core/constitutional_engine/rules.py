@@ -100,6 +100,19 @@ EXECUTIVE_ACTIONS = frozenset(
         "revoke_delegation",
         "scope_service",
         "scope_case",
+        # ── Q-98 (التوجيهُ 43 § 1 · W-820 · تصميمُ W-819 في Q83C_LEXICON_TABLE_DESIGN.md
+        # § 7) — الدفعةُ 2: أسطحُ national_economy التسعة بنهجِ Q-97 نفسِه: فعلٌ جديدٌ
+        # باسمِ السطح · توسيعٌ مضيِّقٌ على سابقةِ Q-18 · لا KILL_SWITCH_BLOCKS · والثلاثةُ
+        # الأخيرةُ (الإيرادُ والأصلُ والالتزام) تنفيذيّةٌ افتراضًا مؤقّتًا كما في Q-97.
+        "register_sector",
+        "register_category",
+        "define_indicator",
+        "register_public_entity",
+        "create_program",
+        "issue_policy",
+        "register_revenue_source",
+        "register_public_asset",
+        "register_public_liability",
     }
 )
 # معجمُ المالِ الدستوريّ — القرارُ السياديُّ Q-18 · الخيارُ 2 (2026-08-21).

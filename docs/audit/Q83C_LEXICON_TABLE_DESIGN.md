@@ -13,7 +13,7 @@
 2026-11-04
 
 ## تاريخ آخر تعديل
-2026-11-04 (W-817 — § 6 تصميمُ الدفعةِ 1 بقرارِ Q-97 · قبلَ الشِّفرة) · 2026-11-04 (W-816 — النسخةُ الأولى)
+2026-11-04 (W-819 — § 7 تصميمُ الدفعةِ 2 بقرارِ Q-98 · قبلَ الشِّفرة) · 2026-11-04 (W-817 — § 6 تصميمُ الدفعةِ 1 بقرارِ Q-97 · قبلَ الشِّفرة) · 2026-11-04 (W-816 — النسخةُ الأولى)
 
 ---
 
@@ -110,3 +110,43 @@
 ### 6.4 ما لا تفعلُه الدفعة
 
 لا تُدخِلُ الأفعالَ الثمانيةَ في `KILL_SWITCH_BLOCKS` (لم يُقرَّر ذلك — سابقةُ `graceful_shutdown`: اسمٌ جديدٌ بلا منعٍ حتى يُقرَّر) ويُقاسُ أثرُ المستوياتِ كما هو · لا تمسُّ `execute_scoped_operation` ولا `execute_scoped_disbursement` (الدفعتانِ 3 و4) · لا تُغيِّرُ المعنى الدستوريَّ لتسجيلِ الحكومة (سؤالٌ مفتوحٌ للمالكِ في Q-97).
+
+## 7 · الدفعةُ 2 — الأسطحُ التسعةُ في `national_economy` (W-819 · قرارُ Q-98 · قبلَ الشِّفرة)
+
+**السند:** قرارُ المالكِ Q-98 (التوجيهُ 43 § 1): «أسطح national_economy التسعة، بنهج Q-97 نفسه (فعل جديد باسم السطح، تضييق على سابقة Q-18، قرار سيادي مستقل، تصميم قبل الشفرة، مسبار خام، قياس المنادين، طفرات). الأسطح 15–17 تبقى تنفيذية افتراضًا مؤقتًا كما في Q-97». **التصنيف: C4** (تمسُّ `core/constitutional_engine/rules.py`) — فلا VERIFIED بغيرِ المراجعِ أو المجلس، وتُدرَجُ في قائمةِ غيرِ المراجَعِ مع الدفعةِ 1 وWI-114 (RK-024).
+
+### 7.1 الجدول (الأسطحُ 9–17 من § 3 · كلُّها CREATE)
+
+| # | السطح | الفعل | الفاعل | الأثرُ المعلَن (`declared_effect`) | المعوِّض (`idempotent=True`) | مفتاحُ الذرّيّة |
+| --- | --- | --- | --- | --- | --- | --- |
+| 9 | `register_sector` | `register_sector` | EXECUTIVE | CREATE `economy/{tenant}/sectors/{code}` | حذفُ صفِّ `EconomicSectorModel` بمعرّفِه المولَّدِ قبلَ العبور | `{tenant}:{code}` |
+| 10 | `register_category` | `register_category` | EXECUTIVE | CREATE `economy/{tenant}/sectors/{sector_code}/categories/{code}` | حذفُ صفِّ `EconomicCategoryModel` | `{tenant}:{sector_id}:{code}` — الفئةُ فريدةٌ في قطاعِها لا في المستأجر |
+| 11 | `define_indicator` | `define_indicator` | EXECUTIVE | CREATE `economy/{tenant}/indicators/{code}` | حذفُ صفِّ `EconomicIndicatorDefinitionModel` | `{tenant}:{code}` |
+| 12 | `register_public_entity` | `register_public_entity` | EXECUTIVE | CREATE `economy/{tenant}/entities/{code}` | حذفُ القرارِ ثمّ الكيان | `{tenant}:{code}` |
+| 13 | `create_program` | `create_program` | EXECUTIVE | CREATE `economy/{tenant}/programs/{code}` | حذفُ القرارِ ثمّ البرنامج | `{tenant}:{code}` |
+| 14 | `issue_policy` | `issue_policy` | EXECUTIVE | CREATE `economy/{tenant}/policies/{code}` (مسوَّدة) | حذفُ السياسةِ ثمّ قرارِها (`decision_id` مفتاحٌ أجنبيٌّ من السياسةِ إلى القرار) | `{tenant}:{code}` |
+| 15 | `register_revenue_source` | `register_revenue_source` | EXECUTIVE (افتراضٌ مؤقّت) | CREATE `economy/{tenant}/revenue_sources/{code}` | حذفُ القرارِ ثمّ المصدر | `{tenant}:{code}` |
+| 16 | `register_public_asset` | `register_public_asset` | EXECUTIVE (افتراضٌ مؤقّت) | CREATE `economy/{tenant}/assets/{code}` | حذفُ القرارِ ثمّ الأصل | `{tenant}:{code}` |
+| 17 | `register_public_liability` | `register_public_liability` | EXECUTIVE (افتراضٌ مؤقّت) | CREATE `economy/{tenant}/liabilities/{code}` | حذفُ القرارِ ثمّ الالتزام | `{tenant}:{code}` |
+
+**انحرافٌ معلَنٌ عن § 3 الصفّ 12** («أثران · معوِّضان»): الأسطحُ 12–17 تكتبُ صفَّها وقرارَها الاقتصاديَّ **في معاملةٍ واحدة** اليوم. فإعلانُ أثرَين يقسمُ المطبِّقَ نداءَين بتثبيتَين ويُضعِفُ الذرّيّةَ القائمةَ في القاعدة. فالمعلَنُ أثرٌ واحدٌ يشملُ الصفَّين، ومعوِّضٌ واحدٌ يحذفُهما بترتيبِ مفاتيحِهما الأجنبيّة. ولا يُقاسُ أنّ هذا أقوى؛ هو حفظٌ لما هو قائم.
+
+### 7.2 شكلُ العبور (نمطُ § 6.2 نفسُه · أصغرُ فرقٍ في الشِّفرة)
+
+1. **الفحوصُ القائمةُ كلُّها قبلَ العبورِ ولا تُضعَّف:** `require_domain_permission` · المفرداتُ المقيَّدة (المستوى · الحالة · النوع) · المستأجر · وجودُ الصفوف · `_authorize` (حلُّ السلطةِ قراءةً: `require_government_authority` لا يكتب) · `_target_government` · رفضُ التكرار. تُقرأُ في جلسةٍ تُغلَقُ قبلَ العبور، **ويُبنى الصفُّ فيها كائنًا عابرًا لا يُضاف** (`session.add` لا يُنادى في جلسةِ القراءة).
+2. `self.authorizer.guard_declared(<الفعل>, target, declared_effects=(effect,), applier=_apply, operation_key=..., compensators=(...), metadata={tenant_id + الرمز})` مرّةً واحدةً في جسمِ كلِّ سطح.
+3. `_apply` يفتحُ جلسةَ كتابةٍ جديدة: يُضيفُ الصفَّ، ويُصدِرُ القرارَ بـ`_issue_decision` **فيها** (12–17)، ويُثبِّت، ثمّ `_announce` داخلَه. والأسطحُ 9–11 لا حدثَ لها اليومَ ولا يُضافُ لها حدث.
+4. **الإعادة:** `{…الرمز، "replayed": True, "operation_key": …}` · وغيرُها `{**guarded.value, "replayed": False}` — مفتاحٌ مضافٌ لا محذوف.
+5. المُصرِّحُ معامَلٌ اختياريٌّ أخيرٌ: `NationalEconomy.__init__(executive_core=None, federation=None, authorizer=None)` والافتراضُ `get_authorizer()` بالاستيرادِ المؤجَّل.
+
+### 7.3 القياس (Q-98 · ومعه ما طلبَه التوجيهُ 43 § 2)
+
+- **مسبارٌ خام** `evidence/W-819/q98_engine_probe.py`: يقرأُ `rules.py` من القرص · لكلِّ فعلٍ من التسعة عشرةُ فاعلين: المقبولُ EXECUTIVE وحدَه · ومستوياتُ مفتاحِ الإيقافِ 0–5.
+- **أثرُ الحصرِ على المنادين:** مسحٌ ساكنٌ لكلِّ نصٍّ حرفيٍّ للأفعالِ التسعةِ قبلُ وبعد + اجتيازُ `test_r8`/`test_r9` قبلُ وبعد.
+- **الطفرات:** حذفُ كلِّ فعلٍ من `EXECUTIVE_ACTIONS` ⇒ المسبارُ يفشل (9) · ورفعُ `guard_declared` من كلِّ سطح ⇒ اختبارُ العبورِ يفشل (9).
+- **المسارُ كاملًا إعلانًا ⇒ جسرًا ⇒ نواة** — لم يُقَس صراحةً في الدفعةِ 1 (اختبارُها حقنَ مُصرِّحًا وقرأَ `ledger_entry_hash` من الدليلِ لا من سجلِّ النواة). يُقاسُ الآنَ للأسطحِ السبعةَ عشرَ (8 + 9) بتوصيلِ الإنتاجِ الافتراضيّ (`authorizer=None` ⇒ `get_authorizer()`): بعدَ كلِّ نداءٍ يُقرأُ سجلُّ النواةِ `ConstitutionalLedger` نفسُه فيُوجَدُ قيدُ `CONSTITUTIONAL_VERDICT` بالفعلِ والفاعلِ EXECUTIVE وALLOW، وتُطابِقُ بصمتُه `ledger_entry_hash` في سجلِّ البوّابة، و`verify_chain()` فارغ.
+- **PostgreSQL:** وظيفةُ CI «Cross-System Suites (SQLite + PostgreSQL)» تُشغِّلُ حزمًا مسمّاة؛ يُقاسُ هل تشملُ ملفّاتِ العبور، وإلّا يُكتَبُ «لم يُقَس».
+
+### 7.4 ما لا تفعلُه الدفعة
+
+لا `KILL_SWITCH_BLOCKS` (كما في § 6.4) · لا تمسُّ أسطحَ الخزانةِ 18–20 (الدفعةُ 3) ولا المركَّبةَ 21–23 (الدفعةُ 4) ولا `log_cost` (لا شِفرةَ قبلَ القياس) · لا تُقرِّرُ أنّ 15–17 تنفيذيّةٌ نهائيًّا.

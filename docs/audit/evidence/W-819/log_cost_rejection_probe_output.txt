@@ -1,0 +1,16 @@
+STATIC invoke_model_line = 183
+STATIC log_cost_line = 230
+STATIC authorized_activity_line = 239
+STATIC log_before_boundary = True
+STATIC params = ['request', '_']
+STATIC principal_param_discarded = True
+STATIC log_cost_kwargs = ['invocation_id', 'model', 'tokens', 'cost_usd', 'latency_ms', 'source']
+STATIC log_cost_carries_identity = False
+RUNTIME b1_status = 404
+RUNTIME b1_cost_rows_delta = 1
+RUNTIME b2_status = 403
+RUNTIME b2_cost_rows_delta = 1
+RUNTIME b2_last_row_keys = ['cost_usd', 'created_at', 'invocation_id', 'latency_ms', 'model', 'source', 'tokens']
+ANSWER: نعم — تُسجَّلُ كلفةُ الطلبِ المرفوضِ بالحاجز
+MEASURED=True
+EXIT=0
