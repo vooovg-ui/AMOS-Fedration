@@ -4,6 +4,7 @@ AMOS-Federation Tests — Q-32 Money Enforcement Surface
 النطاق: tests — حِرزُ موجزِ Q-32 (قياسٌ لا قرار · W-021)
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-22 (Q-32)
+تاريخ آخر تعديل: 2026-11-04 (W-815 — مُغلِّفٌ ثالثٌ `enforce_ruling_via_treasury`: الجدولُ 10 → 11 · غيرُ المفروضةِ 6 → 7 · المفروضةُ أربعةٌ كما هي · DISC-155 · Q-96 القرار 1)
 تعتمد على: services/state_treasury/service.py · services/national_economy/service.py · services/governance/treasury.py
 
 ## لماذا حِرزٌ لموجزٍ لا لقرار
@@ -23,6 +24,10 @@ Q-32 **مسألةٌ سياديّةٌ لم تُحسَمْ بعد**، ولا يج�
 3. **حدُّ Q-17 مقصودٌ لا منسيّ**: خزانةُ الرصيدِ التشغيليِّ (`amos-credit`) خارجَ
    سؤالِ المُحرِّكِ بحكمِ Q-17، فلا تُقرأُ ضمنَ Q-32.
 4. **العددانِ 4 و 6 مُقيَّدان**: من زادَ موضعًا ماليًّا نسيَ فرضَه أسقطَ الحرس.
+
+[W-815 · DISC-155 · قرارُ المالكِ Q-96 القرار 1]: صارَ العددانِ **4 و 7** من أحدَ عشر.
+السابعُ مُغلِّفٌ ثالثٌ — `enforce_ruling_via_treasury` في القضاءِ الاتّحاديّ — يُشترَطُ نصًّا
+أن يُسنِدَ الحركةَ إلى `treasury.disburse` المحروس كالمُغلِّفَين الآخرَين.
 
 ## الحدُّ المُعلَنُ لهذا الحرس
 
@@ -44,10 +49,12 @@ REPO_MARKER = "core/constitutional_engine/rules.py"
 #: المداخلُ الأربعةُ التي قِيسَ أنّها تعبُرُ طبقةَ التخويلِ فيُسألُ المُحرِّكُ عندها.
 ENFORCED_ENTRYPOINTS = frozenset({"allocate", "post_funding", "disburse", "reverse_transaction"})
 
-#: الستّةُ التي لا تعبُرُها — مُصنَّفةً بما تفعلُه حقًّا لا بما يُظَنُّ أنّها تفعلُه.
+#: السبعةُ التي لا تعبُرُها (ستّةٌ حتّى W-815) — مُصنَّفةً بما تفعلُه حقًّا لا بما يُظَنُّ.
 CONTAINER_ENTRYPOINTS = frozenset({"establish_treasury", "open_account", "create_budget"})
 OBLIGATION_ENTRYPOINTS = frozenset({"authorize_expenditure"})
-WRAPPER_ENTRYPOINTS = frozenset({"execute_decision_disbursement", "execute_transfer"})
+WRAPPER_ENTRYPOINTS = frozenset(
+    {"execute_decision_disbursement", "execute_transfer", "enforce_ruling_via_treasury"}
+)
 
 
 def _repo_root() -> Path:
@@ -109,6 +116,11 @@ def economy_functions() -> dict[str, ast.FunctionDef]:
     return _functions(_services_dir() / "national_economy/service.py")
 
 
+@pytest.fixture(scope="module")
+def judiciary_functions() -> dict[str, ast.FunctionDef]:
+    return _functions(_services_dir() / "federal_judiciary/service.py")
+
+
 class TestA1MovementWriteIsOnePlaceAndItIsGuarded:
     """الدعوى الأولى: كلُّ حركةِ مالٍ تُكتَبُ من موضعٍ واحدٍ، وكلُّ منادِيه محروس."""
 
@@ -157,7 +169,7 @@ class TestA1MovementWriteIsOnePlaceAndItIsGuarded:
         }
         assert enforced == set(ENFORCED_ENTRYPOINTS), (
             f"عددُ المواضعِ المفروضةِ تغيَّرَ: {sorted(enforced)} — "
-            "والرقمُ «أربعةٌ من عشرة» مكتوبٌ في وثائقَ سياديّةٍ فيُصحَّحُ معه."
+            "والرقمُ «أربعةٌ من أحدَ عشر» مكتوبٌ في وثائقَ سياديّةٍ فيُصحَّحُ معه."
         )
 
 
@@ -176,6 +188,14 @@ class TestA2WhatTheSixReallyAre:
         )
         for name in ("authorize_expenditure", "execute_transfer"):
             assert "_authorize_money" not in _calls_in(economy_functions[name])
+
+    def test_the_judicial_wrapper_does_not_pass_the_authorization_layer_itself(
+        self, judiciary_functions: dict[str, ast.FunctionDef]
+    ) -> None:
+        """W-815: المُغلِّفُ القضائيُّ لا يعبرُ طبقةَ التخويلِ بنفسِه — يُسنِدُ الحركة."""
+        node = judiciary_functions["enforce_ruling_via_treasury"]
+        assert "_authorize_money" not in _calls_in(node)
+        assert "resolve_money_delegation" in _calls_in(node)
 
     def test_the_three_container_operations_write_no_movement(
         self, treasury_functions: dict[str, ast.FunctionDef]
@@ -234,22 +254,37 @@ class TestA2WhatTheSixReallyAre:
             economy_functions["execute_transfer"]
         ), "صرفُ التحويلِ صارَ لا يمرُّ بخزانةِ الدولةِ — فقد صارَ دفترًا ثانيًا للمال."
 
-    def test_the_six_are_six_no_more_no_less(self) -> None:
-        assert (
-            len(CONTAINER_ENTRYPOINTS | OBLIGATION_ENTRYPOINTS | WRAPPER_ENTRYPOINTS) == 6
-        ), "تصنيفُ الستّةِ في هذا الحرسِ لم يبقَ ستّةً — فالموجزُ والحرسُ افترقا."
+    def test_the_judicial_wrapper_hands_the_movement_to_the_guarded_disbursement(
+        self, judiciary_functions: dict[str, ast.FunctionDef]
+    ) -> None:
+        """W-815 · DISC-155: تنفيذُ الحكمِ يُسنِدُ الحركةَ إلى `treasury.disburse` المحروس.
 
-    def test_the_ten_declared_delegations_split_four_and_six(self) -> None:
-        """الجدولُ المُعلَنُ في Q-19 هو مصدرُ العددِ العشرةِ — لا عدٌّ يدويّ."""
+        فإن صارَ يكتبُ حركةً بنفسِه أو يمرُّ بغيرِ الخزانةِ سقطَ هنا — وكانَ ثقبًا.
+        """
+        calls = _qualified_calls_in(judiciary_functions["enforce_ruling_via_treasury"])
+        assert (
+            "treasury.disburse" in calls
+        ), "تنفيذُ الحكمِ لم يبقَ ماضيًا بخزانةِ الدولةِ — فصارَ القضاءُ دفترًا ثانيًا للمال."
+        assert not {c for c in calls if c.endswith("._post")}
+
+    def test_the_seven_are_seven_no_more_no_less(self) -> None:
+        # كانت ستّةً حتّى W-815؛ والسابعُ المُغلِّفُ القضائيّ (DISC-155 · Q-96 القرار 1).
+        assert (
+            len(CONTAINER_ENTRYPOINTS | OBLIGATION_ENTRYPOINTS | WRAPPER_ENTRYPOINTS) == 7
+        ), "تصنيفُ السبعةِ في هذا الحرسِ لم يبقَ سبعةً — فالموجزُ والحرسُ افترقا."
+        assert len(WRAPPER_ENTRYPOINTS) == 3
+
+    def test_the_eleven_declared_delegations_split_four_and_seven(self) -> None:
+        """الجدولُ المُعلَنُ في Q-19 هو مصدرُ العددِ (أحدَ عشرَ · عشرةٌ حتّى W-815)."""
         from amos_federation.common.money_delegation import MONEY_DELEGATIONS
 
         entrypoints = {d.entrypoint for d in MONEY_DELEGATIONS}
-        assert len(MONEY_DELEGATIONS) == 10
+        assert len(MONEY_DELEGATIONS) == 11
         assert entrypoints & set(ENFORCED_ENTRYPOINTS) == set(ENFORCED_ENTRYPOINTS)
         unenforced = entrypoints - set(ENFORCED_ENTRYPOINTS)
         assert unenforced == (
             CONTAINER_ENTRYPOINTS | OBLIGATION_ENTRYPOINTS | WRAPPER_ENTRYPOINTS
-        ), f"الستّةُ غيرُ المفروضةِ تغيَّرَت: {sorted(unenforced)}"
+        ), f"السبعةُ غيرُ المفروضةِ تغيَّرَت: {sorted(unenforced)}"
 
 
 class TestA3TheOperationalCreditTreasuryIsOutOfScopeByDecision:

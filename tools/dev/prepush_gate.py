@@ -36,6 +36,13 @@
     وتُطبَعُ في آخرِ كلِّ تشغيل. وخيارُ `--base` (الافتراضيُّ origin/main) لخطواتِ
     المدى. والسبعُ الأولى باقيةٌ بأوامرِها. التصميم: `docs/audit/DISC150_PREPUSH_PARITY_DESIGN.md`.
 
+    [إضافةٌ مؤرَّخةٌ (W-815 · WI-077 · DISC-153 · قرارُ المالكِ Q-96 القرار 3 · 2026-11-04)]:
+    الخطوةُ 18 تقيسُ شطرَ `--without-deps` وحدَه، والشطرُ الآخرُ (مصفوفتا القضاءِ والمال)
+    كان في CI وحدَه فاجتازَت W-774 هنا وسقطَت هناك. فأُضيفَت الخطوةُ 34: `--check
+    --only-deps` متى توفّرَت `cryptography` في المُفسِّرِ نفسِه ورمزُه رمزُها، وإن غابَت
+    طُبِعَ غيابُها سطرًا مُعلَنًا (تشديدٌ لا تخفيف). والخطواتُ 1–33 حرفًا.
+    التصميم: `docs/audit/DISC153_PREPUSH_ONLY_DEPS_DESIGN.md`.
+
 النطاق:
     بندُ WI-077 (توجيهُ المستشارِ 5 · G3 · DISC-098): الحرسُ السبعةُ المُلزِمةُ
     قبلَ الدفعِ — عقدتا 70441f8 و597d8bb بلغتا `main` حمراوَينِ لأنّ هذه
@@ -45,9 +52,9 @@
     Perplexity Computer (WI-077 · بإذنِ المالكِ العامِّ وتوجيهِ المستشارِ 5).
 
 تاريخ الإنشاء: 2026-10-16 (WI-077 · W-348)
-تاريخ آخر تعديل: 2026-11-01 (W-769 · WI-077 — تكافؤُ CI: الخطواتُ 8–33 · DISC-150 · Q-89) · وقبله 2026-10-16 (W-387 · WI-083 — صيغةُ الوسيطِ والمطابقةُ التامّةُ لاسمِ المستودع) · ووقبله 2026-10-15 (WI-077 · المرّةُ الأولى)
+تاريخ آخر تعديل: 2026-11-04 (W-815 · WI-077 — الخطوةُ 34: شطرُ --only-deps · DISC-153 · Q-96) · وقبله 2026-11-01 (W-769 · WI-077 — تكافؤُ CI: الخطواتُ 8–33 · DISC-150 · Q-89) · وقبله 2026-10-16 (W-387 · WI-083 — صيغةُ الوسيطِ والمطابقةُ التامّةُ لاسمِ المستودع) · ووقبله 2026-10-15 (WI-077 · المرّةُ الأولى)
 
-المحتويات (ثلاثٌ وثلاثونَ خطوةً بترتيبٍ ثابتٍ — السبعُ الأولى كما كانت):
+المحتويات (أربعٌ وثلاثونَ خطوةً بترتيبٍ ثابتٍ — السبعُ الأولى كما كانت · 34 أُضيفَت في W-815):
     1. `check_work_governance.py --commit HEAD` — كلُّ عملٍ مُسجَّلٌ ومملوكٌ
        ومساراتُهُ مُعلنةٌ (عيبُ 70441f8: `PATH_UNCLAIMED`).
     2. `check_work_governance.py --self-check --today <اليوم+4>` — الخارطةُ
@@ -69,6 +76,7 @@
        و`pytest tests/governance/` كلُّه.
     28–32. Lint: إصدارُ ruff · `ruff check .` · ruff في الخدمات · سقفُ دَينِ التنسيق.
     33. Lockfile: الحزمُ الستُّ في `requirements.lock`.
+    34. نَسَبُ القياساتِ — الشطرُ الآخر (`--check --only-deps` متى توفّرَت `cryptography`).
 
 الاستعمال:
     .venv/bin/python tools/dev/prepush_gate.py            # على الشجرةِ الحاضرةِ
@@ -341,6 +349,19 @@ def _gates(
             [PY, me, "--internal", "lockfile", "--repo-root", str(repo_root)],
             repo_root,
         ),
+        # ── نَسَبُ القياساتِ: الشطرُ الآخر (DISC-153 · Q-96 القرار 3) ─────────
+        (
+            "34· نَسَبُ القياساتِ — الشطرُ الآخر (--check --only-deps · متى توفّرَت cryptography)",
+            [
+                PY,
+                me,
+                "--internal",
+                "provenance-only-deps",
+                "--repo-root",
+                str(repo_root),
+            ],
+            repo_root,
+        ),
     ]
 
 
@@ -376,7 +397,10 @@ CI_PARITY_COVERED: dict[str, tuple[int, ...]] = {
 #: وظائفُ CI التي لا تُشغَّلُ محلّيًّا، وسببُ كلٍّ منها. تُطبَعُ في آخرِ كلِّ تشغيل،
 #: فخضرتُها تُقرأُ من CI وحدَه (DISC150_PREPUSH_PARITY_DESIGN.md § 7).
 CI_PARITY_NAMED_DIFFERENCES: dict[str, str] = {
-    "constitutional-kernel": "Constitutional Kernel: تغطيةُ فروعٍ ≥ 90% وسجلٌّ مؤقّت · نطاقُ K1",
+    "constitutional-kernel": (
+        "Constitutional Kernel: تغطيةُ فروعٍ ≥ 90% وسجلٌّ مؤقّت · نطاقُ K1 "
+        "(وشطرُ --only-deps يُقاسُ هنا في الخطوةِ 34 متى توفّرَت cryptography)"
+    ),
     "sovereignty-kernel": "Sovereignty Kernel: تبعيّاتُ الخدماتِ وتغطيةٌ ≥ 90% · نطاقُ C3",
     "crown-root-of-trust": "Crown Root of Trust: تبعيّاتُ الخدماتِ وفحصُ تاريخِ git كلِّه",
     "smoke": "Smoke: اثنا عشرَ مجالًا بتبعيّاتِ الخدماتِ كاملة",
@@ -489,6 +513,27 @@ def _internal(check: str, repo_root: Path) -> int:
             f"زائدٌ {len(extra)} · سُدِّدَ {len(debt - unformatted)}"
         )
         return code
+    if check == "provenance-only-deps":
+        # DISC-153 · Q-96 القرار 3: الشطرُ الآخرُ من نَسَبِ القياسات. الحضورُ يُقاسُ في
+        # المُفسِّرِ نفسِه، والغيابُ يُعلَنُ سطرًا ولا يُسقَطُ صامتًا.
+        if importlib.util.find_spec("cryptography") is None:
+            print(
+                "[PREPUSH] شطرُ --only-deps لا يُقاسُ هنا: cryptography غائبةٌ في هذا "
+                "المُفسِّر — خضرتُه من CI وحدَه (Constitutional Kernel)."
+            )
+            return 0
+        result = subprocess.run(
+            [
+                PY,
+                str(repo_root / "tools" / "governance" / "measurement_provenance.py"),
+                ".",
+                "--check",
+                "--only-deps",
+            ],
+            cwd=str(repo_root),
+            check=False,
+        )
+        return result.returncode
     print(f"✗ فحصٌ داخليٌّ غيرُ معروف: {check}")
     return 2
 

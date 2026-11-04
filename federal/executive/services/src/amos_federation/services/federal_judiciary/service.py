@@ -53,6 +53,7 @@ import uuid
 from typing import TYPE_CHECKING, Any
 
 from amos_federation.common.database import get_session_factory, init_db
+from amos_federation.common.money_delegation import resolve_money_delegation
 from amos_federation.common.principal import DEFAULT_TENANT
 from amos_federation.services.executive_core.engine import get_executive_core
 from amos_federation.services.federal_judiciary import docket, enforcement, registry, rulings
@@ -1027,7 +1028,15 @@ class FederalJudiciary:
         `treasury` يُمرَّر صراحةً ولا يُستورَد هنا: فالخزانةُ خدمةٌ قائمة بحدودها،
         وهذه الدالّة تُناديها كأيّ مُنادٍ آخر. فإن رفضت لنقص صلاحيةٍ أو مِنحة،
         انتشر الرفض وكُتب أثرٌ `failed` — **والحكمُ لا يمنح سلطةً مالية**.
+
+        [W-815 · DISC-155 · Q-96 القرار 1]: تفويضُ المالِ لهذا المدخلِ يُستخرَجُ من
+        جدولِ Q-19 **قبلَ أيِّ قراءةٍ أو كتابة** (سابقةُ `execute_decision_disbursement`)
+        — فإن غابَ المدخلُ من الجدولِ رُفِضَ التنفيذُ صراحةً قبلَ أن يُمَسَّ شيء.
+        والتفويضُ لا يمنحُ القضاءَ صرفًا: فاعلُه الخزانة، والحركةُ عبرَ `disburse`.
         """
+        resolve_money_delegation(
+            "treasury.disbursement.post", entrypoint="enforce_ruling_via_treasury"
+        )
         require_domain_permission(context, "judiciary.ruling.enforce", PERMISSIONS_RULING_WRITE)
         tenant = self._tenant_of(context)
         session = self._session()

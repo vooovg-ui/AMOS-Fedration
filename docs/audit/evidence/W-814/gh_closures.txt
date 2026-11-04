@@ -1,0 +1,69 @@
+# W-814 — إغلاقُ الطلباتِ الخمسةِ وحذفُ api-test-branch بقرارِ المالكِ Q-96 (التوجيه 41 § 1) — الأوامرُ ومخرجُها الخامُ
+# التاريخ (UTC): 2026-11-04T09:47:55+00:00
+# قبلَ الإغلاق: الخمسةُ OPEN CONFLICTING · api-test-branch = 6d7a1863ebf98036372b7a57fa7011fe5a69af36
+
+$ gh pr close 73 --comment "يُغلَقُ بقرارِ المالكِ Q-96 (توجيهُ المستشارِ 41 § 1 · 2026-11-04): «تُغلَق الخمسة بتعليق يسمّي ما يحل محلها على main، وتبقى فروعها (لا حذف)». ما يحلُّ محلَّه: ارتدادُ #72 (WI-082). WI-082 مُسجَّلٌ VERIFIED على main بمسارٍ لاحق (ACTIVE_WORK.md)، فلا محلَّ للارتداد. الفرعُ باقٍ لا يُحذَف. (قيدُ W-814)"
+API call failed: GraphQL: Something went wrong while executing your query on 2026-11-04T09:47:59Z. Please include `2E2B:2C675B:4EF17DE:102A37DF:6AEAFF4D` when reporting this issue.
+rc=1
+
+$ gh pr close 71 --comment "يُغلَقُ بقرارِ المالكِ Q-96 (توجيهُ المستشارِ 41 § 1 · 2026-11-04): «تُغلَق الخمسة بتعليق يسمّي ما يحل محلها على main، وتبقى فروعها (لا حذف)». ما يحلُّ محلَّه: WI-086 (C3) مكدَّسٌ فوقَ #69/#70. WI-086 مُسجَّلٌ PROPOSED على main ويُصمَّمُ من main عندَ دورِه. الفرعُ باقٍ لا يُحذَف. (قيدُ W-814)"
+✓ Closed pull request vooovg-ui/AMOS-Fedration#71 (WI-086 (C3): أ-2 في ConstitutionalLedger.append() — DISC-100 · مكدَّسٌ فوقَ WI-082 م3 وWI-085)
+rc=0
+
+$ gh pr close 70 --comment "يُغلَقُ بقرارِ المالكِ Q-96 (توجيهُ المستشارِ 41 § 1 · 2026-11-04): «تُغلَق الخمسة بتعليق يسمّي ما يحل محلها على main، وتبقى فروعها (لا حذف)». ما يحلُّ محلَّه: تصميمُ WI-085 (أ). نُقِلَ التصميمُ إلى main بإعادةِ قياسٍ في W-447 (العقدة ddcd2174). الفرعُ باقٍ لا يُحذَف. (قيدُ W-814)"
+✓ Closed pull request vooovg-ui/AMOS-Fedration#70 (WI-085: قياسُ جذرِ DISC-100 ووثيقةُ تصميمِ المسارِ (أ) — W-407..W-412 (مكدَّسٌ فوقَ wi-082-stage3 · لا دمجَ قبلَ قرارِ المالك))
+rc=0
+
+$ gh pr close 69 --comment "يُغلَقُ بقرارِ المالكِ Q-96 (توجيهُ المستشارِ 41 § 1 · 2026-11-04): «تُغلَق الخمسة بتعليق يسمّي ما يحل محلها على main، وتبقى فروعها (لا حذف)». ما يحلُّ محلَّه: WI-082 المرحلة 3. حلَّ محلَّه على main مسارُ WI-082 اللاحقُ (VERIFIED في ACTIVE_WORK.md). الفرعُ باقٍ لا يُحذَف. (قيدُ W-814)"
+✓ Closed pull request vooovg-ui/AMOS-Fedration#69 (W-402..W-404: WI-082 — هجرةُ register_identity عبرَ الحدِّ السياديِّ بفعلِ spawn_agent (Q-15 ①) + IN_REVIEW + تصحيحاتُ CI)
+rc=0
+
+$ gh pr close 55 --comment "يُغلَقُ بقرارِ المالكِ Q-96 (توجيهُ المستشارِ 41 § 1 · 2026-11-04): «تُغلَق الخمسة بتعليق يسمّي ما يحل محلها على main، وتبقى فروعها (لا حذف)». ما يحلُّ محلَّه: W-337 مِسبارُ طفرةِ Q-E. W-337 على main (179f21c8 وما تلاه) و docs/audit/evidence/W-337 موجود. الفرعُ باقٍ لا يُحذَف. (قيدُ W-814)"
+✓ Closed pull request vooovg-ui/AMOS-Fedration#55 (W-337: WI-074 — مِسبارُ الطفرةِ على حرسِ Q-E (4/4 CAUGHT) · IN_PROGRESS → IN_REVIEW)
+rc=0
+
+$ git push origin --delete api-test-branch
+remote: Internal Server Error        
+remote: Request ID AB7F:34C059:22852D6:2D9E34D:6AEAFF60        
+remote: Time 2026-11-04T09:48:16Z
+To https://git-agent-proxy.perplexity.ai/vooovg-ui/AMOS-Fedration.git
+ ! [remote rejected]   api-test-branch (Internal Server Error)
+error: failed to push some refs to 'https://git-agent-proxy.perplexity.ai/vooovg-ui/AMOS-Fedration.git'
+rc=1
+
+# بعد:
+#73 OPEN revert-72-wi-082-spawn-agent
+  الفرعُ باقٍ: 689b781d7e8b7478fc8e19a560499f48fa769eab	refs/heads/revert-72-wi-082-spawn-agent
+#71 CLOSED wi-086-ledger-a2
+  الفرعُ باقٍ: 1588b44b92fb5bab98036f6e6667293da3cc7525	refs/heads/wi-086-ledger-a2
+#70 CLOSED wi-085-ledger-append-design
+  الفرعُ باقٍ: dff28fea4b1663a1dd4a6701603a70018e9f919f	refs/heads/wi-085-ledger-append-design
+#69 CLOSED wi-082-stage3
+  الفرعُ باقٍ: fa22b092b7191520a0930e87d314bc3c58d99e6b	refs/heads/wi-082-stage3
+#55 CLOSED w-337-mutation-probe
+  الفرعُ باقٍ: f114696fa402b5bee4ff9b7729aa48df1cbab967	refs/heads/w-337-mutation-probe
+api-test-branch: 1 مرجعٍ باقٍ
+
+# إعادةٌ واحدةٌ لكلٍّ من الإخفاقَين (خطأُ خادمٍ لا رفضُ صلاحية) — 2026-11-04T09:48:35+00:00
+$ gh pr close 73 --comment "يُغلَقُ بقرارِ المالكِ Q-96 (توجيهُ المستشارِ 41 § 1 · 2026-11-04): «تُغلَق الخمسة بتعليق يسمّي ما يحل محلها على main، وتبقى فروعها (لا حذف)». ما يحلُّ محلَّه: ارتدادُ #72 (WI-082). WI-082 مُسجَّلٌ VERIFIED على main بمسارٍ لاحق (ACTIVE_WORK.md)، فلا محلَّ للارتداد. الفرعُ باقٍ لا يُحذَف. (قيدُ W-814)"
+✓ Closed pull request vooovg-ui/AMOS-Fedration#73 (Revert "W-402+W-403: WI-082 — هجرة register_identity عبر الحد السيادي بفعل spawn_agent (Q-15 ①)")
+rc=0
+
+$ gh api -X DELETE repos/vooovg-ui/AMOS-Fedration/git/refs/heads/api-test-branch   # مسلكُ REST لحذفِ الفرعِ وحدَه — ليس كتابةً على main (DISC-152 (أ): لا مسلكَ REST لـmain)
+{"message":"Repository rule violations found\n\nCannot delete this branch\n\n","documentation_url":"https://docs.github.com/rest/git/refs#delete-a-reference","status":"422"}gh: Repository rule violations found
+
+Cannot delete this branch
+
+ (HTTP 422)
+rc=1
+
+# بعد الإعادة:
+#73 CLOSED revert-72-wi-082-spawn-agent
+  الفرعُ باقٍ: 689b781d7e8b7478fc8e19a560499f48fa769eab	refs/heads/revert-72-wi-082-spawn-agent
+api-test-branch: 1 مرجعٍ باقٍ
+
+# قياسُ سببِ الرفض: قواعدُ المستودعِ على api-test-branch
+$ gh api repos/vooovg-ui/AMOS-Fedration/rules/branches/api-test-branch
+[{"type":"deletion","ruleset_source_type":"Repository","ruleset_source":"vooovg-ui/AMOS-Fedration","ruleset_id":23226080},{"type":"non_fast_forward","ruleset_source_type":"Repository","ruleset_source":"vooovg-ui/AMOS-Fedration","ruleset_id":23226080}]
+$ gh api repos/vooovg-ui/AMOS-Fedration/rulesets
+23226080 Main Security Rules branch active

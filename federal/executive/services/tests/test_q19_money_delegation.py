@@ -4,7 +4,7 @@ AMOS-Federation Tests — Q-19 Money Delegation Guard
 النطاق: federal/executive/services/tests
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-21 (Q-19)
-تاريخ آخر تعديل: 2026-08-22 (W-019 — نقضُ قيدِ «الوسمُ ما زالَ قائمًا» صراحةً)
+تاريخ آخر تعديل: 2026-11-04 (W-815 — المدخلُ الحادي عشر لـ`enforce_ruling_via_treasury` · DISC-155 · Q-96 القرار 1: العددُ 10 → 11 وعدُّ القضاءِ 1 وفحصُ الترتيبِ جديدان) · وقبله 2026-08-22 (W-019 — نقضُ قيدِ «الوسمُ ما زالَ قائمًا» صراحةً)
 
 ## ما يحرسُه هذا الملفّ ولماذا هكذا
 
@@ -42,6 +42,7 @@ from amos_federation.common.money_delegation import (
 SRC = Path(__file__).resolve().parents[1] / "src" / "amos_federation"
 TREASURY_SRC = SRC / "services" / "state_treasury" / "service.py"
 ECONOMY_SRC = SRC / "services" / "national_economy" / "service.py"
+JUDICIARY_SRC = SRC / "services" / "federal_judiciary" / "service.py"
 
 #: مواضعُ النداءِ الماليّةُ المقيسةُ في المصدرِ — عمليّةٌ ومدخلٌ لكلِّ موضع.
 MEASURED_CALL_SITES: tuple[tuple[str, str], ...] = (
@@ -55,6 +56,8 @@ MEASURED_CALL_SITES: tuple[tuple[str, str], ...] = (
     ("treasury.transaction.reverse", "reverse_transaction"),
     ("economy.expenditure.authorize", "authorize_expenditure"),
     ("economy.transfer.execute", "execute_transfer"),
+    # W-815 · DISC-155 · Q-96 القرار 1: مدخلُ تنفيذِ الحكمِ القضائيّ.
+    ("treasury.disbursement.post", "enforce_ruling_via_treasury"),
 )
 
 
@@ -174,7 +177,10 @@ def test_each_measured_call_site_passes_through_the_delegation_gate(
     يُقرأُ نصُّ المصدرِ لأنَّ المطلوبَ خاصّيّةُ الملفِّ لا خاصّيّةُ نداءٍ واحد. ومن
     نزعَ البوّابةَ غدًا من موضعٍ واحدٍ يسقطُ هنا ولو نجحَ كلُّ اختبارٍ حيّ.
     """
-    source = _source(ECONOMY_SRC if operation.startswith("economy.") else TREASURY_SRC)
+    if entrypoint == "enforce_ruling_via_treasury":
+        source = _source(JUDICIARY_SRC)
+    else:
+        source = _source(ECONOMY_SRC if operation.startswith("economy.") else TREASURY_SRC)
     if entrypoint in {"allocate", "post_funding", "disburse", "reverse_transaction"}:
         # هذه تعبرُ `_authorize_money`، فالمدخلُ يُمرَّرُ إليها معامَلًا.
         pattern = rf'"{re.escape(operation)}",\s*\n\s*entrypoint="{entrypoint}",'
@@ -214,14 +220,39 @@ def test_every_money_call_site_count_matches_the_declared_table() -> None:
     # وسطرُ الاستيرادِ لا يُعدُّ لأنّه لا يحملُ قوسًا.
     assert treasury == 4
     assert economy == 2
-    # مجموعُ المواضعِ عشرةٌ كما كان: ستّةٌ تُحضِرُ تفويضَها مباشرةً،
-    # وأربعةٌ تمرُّ بطبقةِ التخويلِ فتُحضَرُ لها هناك — وهي وحدها المفروضةُ دستوريًّا.
-    assert treasury + economy == 6
-    assert len(MONEY_DELEGATIONS) == len(MEASURED_CALL_SITES) == 10
+    # W-815 · DISC-155 · Q-96 القرار 1: نداءٌ مباشرٌ واحدٌ في القضاءِ لمدخلِ تنفيذِ
+    # الحكم — فحصٌ جديدٌ لا تخفيف: الخزانةُ والاقتصادُ بعددَيهما كما كانا.
+    judiciary = _source(JUDICIARY_SRC).count("resolve_money_delegation(")
+    assert judiciary == 1
+    # مجموعُ المواضعِ أحدَ عشرَ (كانَ عشرةً حتّى W-815): سبعةٌ تُحضِرُ تفويضَها
+    # مباشرةً، وأربعةٌ تمرُّ بطبقةِ التخويلِ فتُحضَرُ لها هناك — وهي وحدها المفروضةُ
+    # دستوريًّا.
+    assert treasury + economy + judiciary == 7
+    assert len(MONEY_DELEGATIONS) == len(MEASURED_CALL_SITES) == 11
+
+
+def test_judicial_enforcement_resolves_its_delegation_before_any_work() -> None:
+    """مدخلُ القضاءِ يُستخرَجُ في رأسِ الدالّةِ قبلَ الصلاحيةِ والقراءةِ والصرف.
+
+    W-815 · DISC-155 · M1 § 2.12 القرار 2: إن غابَ المدخلُ من الجدولِ رُفِضَ
+    التنفيذُ قبلَ أن تُفتَحَ جلسةٌ أو يُنادى `treasury.disburse`.
+    """
+    source = _source(JUDICIARY_SRC)
+    start = source.index("def enforce_ruling_via_treasury(")
+    end = source.index("\n    def ", start + 1)
+    body = source[start:end]
+    resolve_at = body.index("resolve_money_delegation(")
+    for later in (
+        "require_domain_permission(",
+        "self._session()",
+        "treasury.disburse(",
+    ):
+        assert later in body, later
+        assert resolve_at < body.index(later), f"الاستخراجُ بعدَ {later}"
 
 
 # ── 5 · المنع: لا وسمَ جملةٍ لخدمةٍ ماليّة (نصُّ Q-19) ───────────────────
-@pytest.mark.parametrize("path", [TREASURY_SRC, ECONOMY_SRC])
+@pytest.mark.parametrize("path", [TREASURY_SRC, ECONOMY_SRC, JUDICIARY_SRC])
 def test_no_service_wide_treasury_actor_tag(path: Path) -> None:
     """لا خدمةَ ماليّةً مَوسومةً بفاعلِ خزانةٍ على مستوى الوحدةِ أو البناء.
 

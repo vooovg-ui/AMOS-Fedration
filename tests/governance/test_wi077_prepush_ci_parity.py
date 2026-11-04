@@ -12,7 +12,7 @@
         docs/audit/evidence/W-769/.
 المالك: tests/governance — WI-077 (DISC-150 · Q-89 · التوجيهُ 37 § 1)
 تاريخ الإنشاء: 2026-11-01 (W-769 · WI-077)
-تاريخ آخر تعديل: 2026-11-01 (W-769 · المرّةُ الأولى)
+تاريخ آخر تعديل: 2026-11-04 (W-815 · الخطوةُ 34 · DISC-153 · Q-96 القرار 3) · وقبله 2026-11-01 (W-769 · المرّةُ الأولى)
 """
 
 from __future__ import annotations
@@ -208,3 +208,45 @@ def test_lockfile_internal_check_names_all_six(capsys) -> None:
 
 def test_unknown_internal_check_fails() -> None:
     assert gate._internal("no-such-check", _REPO_ROOT) == 2
+
+
+# ── DISC-153 · Q-96 القرار 3 (W-815): الشطرُ الآخرُ من نَسَبِ القياسات ──────
+def test_step_34_runs_the_only_deps_half_of_provenance() -> None:
+    """الخطوةُ 34 قائمةٌ وتُنادي الفحصَ الداخليَّ لشطرِ `--only-deps` لا غيرَه."""
+    steps = {_step_number(title): (title, cmd) for title, cmd, _cwd in _steps()}
+    assert 34 in steps
+    title, cmd = steps[34]
+    assert "--only-deps" in title
+    assert cmd[cmd.index("--internal") + 1] == "provenance-only-deps"
+
+
+def test_only_deps_runs_provenance_and_returns_its_code(monkeypatch) -> None:
+    """مع `cryptography`: يُشغَّلُ `--check --only-deps` ورمزُه رمزُ الخطوة (0 و1)."""
+    seen: list[list[str]] = []
+
+    for code in (0, 1):
+
+        def fake_run(cmd, **_kwargs):
+            seen.append(list(cmd))
+            return subprocess.CompletedProcess(cmd, code)
+
+        monkeypatch.setattr(gate.importlib.util, "find_spec", lambda _name: object())
+        monkeypatch.setattr(gate.subprocess, "run", fake_run)
+        assert gate._internal("provenance-only-deps", _REPO_ROOT) == code
+    for cmd in seen:
+        assert cmd[1].endswith("measurement_provenance.py")
+        assert cmd[2:] == [".", "--check", "--only-deps"]
+
+
+def test_only_deps_absence_is_declared_not_silent(monkeypatch, capsys) -> None:
+    """بلا `cryptography`: لا تشغيلَ، ويُطبَعُ الغيابُ سطرًا مُعلَنًا، والرمزُ 0."""
+
+    def no_run(*_args, **_kwargs):
+        raise AssertionError("لا يُشغَّلُ الشطرُ بلا cryptography")
+
+    monkeypatch.setattr(gate.importlib.util, "find_spec", lambda _name: None)
+    monkeypatch.setattr(gate.subprocess, "run", no_run)
+    assert gate._internal("provenance-only-deps", _REPO_ROOT) == 0
+    out = capsys.readouterr().out
+    assert "--only-deps لا يُقاسُ هنا" in out
+    assert "cryptography غائبةٌ" in out

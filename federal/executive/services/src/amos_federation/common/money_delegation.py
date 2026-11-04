@@ -1,9 +1,10 @@
 """
 AMOS-Federation Common — Money Delegation
 الهدف: لا يتحرّكُ مالٌ عامٌّ إلّا بتفويضٍ مُعلَنٍ لفاعلِ الخزانةِ عندَ عمليّتِه بعينِها
-النطاق: common — مفردةٌ مشتركةٌ بينَ خزانةِ الدولةِ والاقتصادِ الوطنيّ
+النطاق: common — مفردةٌ مشتركةٌ بينَ خزانةِ الدولةِ والاقتصادِ الوطنيّ (والقضاءِ الاتّحاديِّ بمدخلِ تنفيذِ الحكم · W-815)
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-21 (Q-19)
+تاريخ آخر تعديل: 2026-11-04 (W-815 — المدخلُ الحادي عشر لـ`enforce_ruling_via_treasury` · DISC-155 · Q-96 القرار 1)
 تعتمد على: core/constitutional_engine/rules.py — معجمُ المالِ المحسومُ في Q-18
 
 ## لماذا تفويضٌ لكلِّ عمليّةٍ لا وسمٌ لخدمةٍ كاملة
@@ -165,6 +166,21 @@ MONEY_DELEGATIONS: Final[tuple[MoneyDelegation, ...]] = (
         entrypoint="execute_transfer",
         actor=TREASURY_BRANCH,
         basis="التحويلُ نقلُ مالٍ عامٍّ بينَ جهتَين، والنقلُ حركةٌ لا إجراءٌ إداريّ.",
+    ),
+    # ── القضاءُ الاتّحاديّ · services/federal_judiciary/service.py ───────
+    # المدخلُ الحادي عشر (W-815 · DISC-155 · قرارُ المالكِ Q-96 القرار 1): مدخلٌ
+    # مستقلٌّ مُعلَنٌ سندُه الحكمُ القضائيّ، والفاعلُ خزانةٌ كسائرِ المداخل —
+    # القضاءُ يأمرُ بالحكمِ ولا يصرف، والحركةُ عبرَ `disburse` المفروض.
+    MoneyDelegation(
+        operation="treasury.disbursement.post",
+        constitutional_action="disburse_funds",
+        entrypoint="enforce_ruling_via_treasury",
+        actor=TREASURY_BRANCH,
+        basis=(
+            "صرفٌ تنفيذًا لحكمٍ قضائيٍّ نافذ (Q-83 (ب)) — مدخلٌ ثالثٌ للعمليّةِ نفسِها، "
+            "فيُفوَّضُ على حِدَةٍ لأنَّ سندَ الحكمِ لا يُغني عن تفويضِ الخزانة، "
+            "والقضاءُ يأمرُ ولا يصرف."
+        ),
     ),
 )
 

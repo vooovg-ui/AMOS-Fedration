@@ -1,0 +1,24 @@
+$ python tools/governance/ci_verdict_readability.py --from-json docs/audit/evidence/W-814/ci/run_41759768479_jobs.json --require-readable --expect-sha ede2e8db7b5f15cf77ce7e7a954103aaec8ffebb
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+[CI VERDICT] ✓ كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — فالدمجُ جائزٌ إجرائيًّا.
+EXIT=0
+$ python tools/governance/ci_verdict_readability.py --from-json docs/audit/evidence/W-814/ci/run_41759791838_jobs.json --require-readable --expect-sha ede2e8db7b5f15cf77ce7e7a954103aaec8ffebb
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+[CI VERDICT] ✓ كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — فالدمجُ جائزٌ إجرائيًّا.
+EXIT=0
+$ python tools/governance/ci_verdict_readability.py --from-json docs/audit/evidence/W-814/ci/run_41763182423_jobs.json --require-readable --expect-sha ede2e8db7b5f15cf77ce7e7a954103aaec8ffebb
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+[CI VERDICT] ✓ كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — فالدمجُ جائزٌ إجرائيًّا.
+EXIT=0
+$ python tools/governance/ci_verdict_readability.py --from-json docs/audit/evidence/W-814/ci/run_41763182430_jobs.json --require-readable --expect-sha ede2e8db7b5f15cf77ce7e7a954103aaec8ffebb
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+[CI VERDICT] ✓ كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — فالدمجُ جائزٌ إجرائيًّا.
+EXIT=0
+$ python tools/governance/ci_verdict_readability.py --from-json docs/audit/evidence/W-814/ci/run_41789376894_jobs.json --require-readable --expect-sha d1ac08bd5cbb554411b7085834e646221b46381d
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+[CI VERDICT] ✓ كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — فالدمجُ جائزٌ إجرائيًّا.
+EXIT=0
+$ python tools/governance/ci_verdict_readability.py --from-json docs/audit/evidence/W-814/ci/run_41789383465_jobs.json --require-readable --expect-sha d1ac08bd5cbb554411b7085834e646221b46381d
+[CI VERDICT] بوّابةُ الدمج — مقروءٌ **وأخضرُ** **وعلى العقدةِ نفسِها**
+[CI VERDICT] ✓ كلُّ التشغيلاتِ مقروءةٌ وخضراءُ وعلى العقدةِ نفسِها — فالدمجُ جائزٌ إجرائيًّا.
+EXIT=0

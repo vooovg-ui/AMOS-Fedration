@@ -4,6 +4,7 @@ AMOS-Federation Tests — Q-31 Money Engine Wiring
 النطاق: tests — حِرزُ قرارِ Q-31 (الخيارُ الثاني · W-015)
 المالك: federal/executive/services
 تاريخ الإنشاء: 2026-08-21 (Q-31)
+تاريخ آخر تعديل: 2026-11-04 (W-815 — الجدولُ 10 → 11 بمدخلِ `enforce_ruling_via_treasury` · غيرُ المفروضةِ 6 → 7 · DISC-155 · Q-96 القرار 1)
 تعتمد على: services/executive_core/money_authority.py · common/money_delegation.py
 
 ## لماذا حِرزٌ مستقلٌّ لا زيادةٌ في حِرزِ Q-19
@@ -18,7 +19,7 @@ AMOS-Federation Tests — Q-31 Money Engine Wiring
 2. أنَّ غيرَ `ALLOW` **يُغلِقُ** ولا يمرُّ ولا يُصبحُ تنبيهًا.
 3. أنَّ الفاعلَ **لا يُحفَظُ** بينَ النداءاتِ — منعُ عَودِ سابقةِ 2A بُنيةً.
 4. أنَّ الفعلَ الدستوريَّ يُؤخَذُ من الجدولِ المُعلَنِ لا من نصٍّ يُمرِّرُه منادٍ.
-5. **الحدُّ المُعلَن**: أنَّ الفرضَ يشملُ أربعةً من عشرةِ مواضعَ لا كلَّها (Q-32).
+5. **الحدُّ المُعلَن**: أنَّ الفرضَ يشملُ أربعةً من أحدَ عشرَ موضعًا لا كلَّها (Q-32 · كانت عشرةً حتّى W-815).
 """
 
 from __future__ import annotations
@@ -230,9 +231,12 @@ def test_treasury_asks_the_single_enforcement_point_and_builds_no_bridge() -> No
     assert "sovereignty_bridge" not in service
 
 
-# ── 6 · الحدُّ المُعلَن: أربعةٌ من عشرةٍ لا عشرةٌ من عشرة (Q-32) ─────────────
-def test_the_enforced_scope_is_declared_as_four_of_ten_sites() -> None:
-    """لا يُدَّعى ما ليس مفروضًا: ستّةُ مواضعَ لا تمرُّ بطبقةِ التخويلِ فتبقى بلا حكم.
+# ── 6 · الحدُّ المُعلَن: أربعةٌ من أحدَ عشرَ لا كلُّها (Q-32 · W-815) ───────────
+def test_the_enforced_scope_is_declared_as_four_of_eleven_sites() -> None:
+    """لا يُدَّعى ما ليس مفروضًا: سبعةُ مواضعَ لا تمرُّ بطبقةِ التخويلِ فتبقى بلا حكم.
+
+    [W-815 · DISC-155 · Q-96 القرار 1]: كانت ستّةً من عشرة؛ والسابعُ مدخلُ تنفيذِ
+    الحكمِ القضائيّ (`enforce_ruling_via_treasury`)، وحركتُه عبرَ `disburse` المفروض.
 
     هذا القيدُ يحرسُ **صدقَ الدعوى** لا الشِّفرة: فلو وُسِّعَ النطاقُ غدًا سقطَ هنا،
     فيُحدَّثُ العددُ مع الوثيقةِ ومع قرارِ **Q-32** — لا في صمت.
@@ -250,8 +254,15 @@ def test_the_enforced_scope_is_declared_as_four_of_ten_sites() -> None:
 
     # المواضعُ التي تُحضِرُ تفويضَها بنفسِها لا تمرُّ بـ`_authorize_money`، فلا يُسألُ
     # المُحرِّكُ عنها. وسطرُ الاستيرادِ لا يُعدُّ لأنّه لا يحملُ قوسًا.
+    judiciary_src = (
+        _repo_root()
+        / "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py"
+    ).read_text(encoding="utf-8")
     direct = treasury_src.count("resolve_money_delegation(") + economy_src.count(
         "resolve_money_delegation("
     )
-    assert len(MONEY_DELEGATIONS) == 10
+    judiciary = judiciary_src.count("resolve_money_delegation(")
+    assert len(MONEY_DELEGATIONS) == 11
     assert direct == 6, "تغيّرَ عددُ المواضعِ غيرِ المفروضةِ دستوريًّا — حدِّثْ Q-32"
+    assert judiciary == 1, "تغيّرَ عددُ مواضعِ القضاءِ غيرِ المفروضة — حدِّثْ Q-32"
+    assert direct + judiciary == 7

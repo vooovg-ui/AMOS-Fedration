@@ -1,0 +1,3 @@
+# W-815 — مقارنةُ الجردِ قبلَ (d1ac08bd · W-814 d4_before) وبعدَ (شجرةُ W-815) موضعًا موضعًا بلا أرقامِ الأسطر
+summary equal: True
+only before 0 only after 0

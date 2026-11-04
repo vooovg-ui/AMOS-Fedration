@@ -104,9 +104,10 @@
     92,
     93,
     94,
-    95
+    95,
+    96
   ],
-  "questions_count": 95,
+  "questions_count": 96,
   "questions_missing_1_to_max": [],
   "missing_docs": [],
   "missing_tools": [],

@@ -1,0 +1,264 @@
+# W-815 — الفرقُ الخامُ للحرّاسِ الثلاثة (Q-19 · Q-31 · Q-32) — DISC-155 · Q-96 القرار 1
+# الأساس: d1ac08bd (W-813) · الأمر: git diff d1ac08bd -- <الحرّاس الثلاثة>
+# القراءةُ سطرًا سطرًا: كلُّ سطرِ assert محذوفٍ (-) يقابلُه سطرٌ بعددٍ أكبرَ أو شرطٍ أضيق (+)، ولا فحصَ يُحذَف.
+
+diff --git a/federal/executive/services/tests/test_q19_money_delegation.py b/federal/executive/services/tests/test_q19_money_delegation.py
+index c6b3a8cd..80bb3f49 100644
+--- a/federal/executive/services/tests/test_q19_money_delegation.py
++++ b/federal/executive/services/tests/test_q19_money_delegation.py
+@@ -4,7 +4,7 @@ AMOS-Federation Tests — Q-19 Money Delegation Guard
+ النطاق: federal/executive/services/tests
+ المالك: federal/executive/services
+ تاريخ الإنشاء: 2026-08-21 (Q-19)
+-تاريخ آخر تعديل: 2026-08-22 (W-019 — نقضُ قيدِ «الوسمُ ما زالَ قائمًا» صراحةً)
++تاريخ آخر تعديل: 2026-11-04 (W-815 — المدخلُ الحادي عشر لـ`enforce_ruling_via_treasury` · DISC-155 · Q-96 القرار 1: العددُ 10 → 11 وعدُّ القضاءِ 1 وفحصُ الترتيبِ جديدان) · وقبله 2026-08-22 (W-019 — نقضُ قيدِ «الوسمُ ما زالَ قائمًا» صراحةً)
+ 
+ ## ما يحرسُه هذا الملفّ ولماذا هكذا
+ 
+@@ -42,6 +42,7 @@ from amos_federation.common.money_delegation import (
+ SRC = Path(__file__).resolve().parents[1] / "src" / "amos_federation"
+ TREASURY_SRC = SRC / "services" / "state_treasury" / "service.py"
+ ECONOMY_SRC = SRC / "services" / "national_economy" / "service.py"
++JUDICIARY_SRC = SRC / "services" / "federal_judiciary" / "service.py"
+ 
+ #: مواضعُ النداءِ الماليّةُ المقيسةُ في المصدرِ — عمليّةٌ ومدخلٌ لكلِّ موضع.
+ MEASURED_CALL_SITES: tuple[tuple[str, str], ...] = (
+@@ -55,6 +56,8 @@ MEASURED_CALL_SITES: tuple[tuple[str, str], ...] = (
+     ("treasury.transaction.reverse", "reverse_transaction"),
+     ("economy.expenditure.authorize", "authorize_expenditure"),
+     ("economy.transfer.execute", "execute_transfer"),
++    # W-815 · DISC-155 · Q-96 القرار 1: مدخلُ تنفيذِ الحكمِ القضائيّ.
++    ("treasury.disbursement.post", "enforce_ruling_via_treasury"),
+ )
+ 
+ 
+@@ -174,7 +177,10 @@ def test_each_measured_call_site_passes_through_the_delegation_gate(
+     يُقرأُ نصُّ المصدرِ لأنَّ المطلوبَ خاصّيّةُ الملفِّ لا خاصّيّةُ نداءٍ واحد. ومن
+     نزعَ البوّابةَ غدًا من موضعٍ واحدٍ يسقطُ هنا ولو نجحَ كلُّ اختبارٍ حيّ.
+     """
+-    source = _source(ECONOMY_SRC if operation.startswith("economy.") else TREASURY_SRC)
++    if entrypoint == "enforce_ruling_via_treasury":
++        source = _source(JUDICIARY_SRC)
++    else:
++        source = _source(ECONOMY_SRC if operation.startswith("economy.") else TREASURY_SRC)
+     if entrypoint in {"allocate", "post_funding", "disburse", "reverse_transaction"}:
+         # هذه تعبرُ `_authorize_money`، فالمدخلُ يُمرَّرُ إليها معامَلًا.
+         pattern = rf'"{re.escape(operation)}",\s*\n\s*entrypoint="{entrypoint}",'
+@@ -214,14 +220,39 @@ def test_every_money_call_site_count_matches_the_declared_table() -> None:
+     # وسطرُ الاستيرادِ لا يُعدُّ لأنّه لا يحملُ قوسًا.
+     assert treasury == 4
+     assert economy == 2
+-    # مجموعُ المواضعِ عشرةٌ كما كان: ستّةٌ تُحضِرُ تفويضَها مباشرةً،
+-    # وأربعةٌ تمرُّ بطبقةِ التخويلِ فتُحضَرُ لها هناك — وهي وحدها المفروضةُ دستوريًّا.
+-    assert treasury + economy == 6
+-    assert len(MONEY_DELEGATIONS) == len(MEASURED_CALL_SITES) == 10
++    # W-815 · DISC-155 · Q-96 القرار 1: نداءٌ مباشرٌ واحدٌ في القضاءِ لمدخلِ تنفيذِ
++    # الحكم — فحصٌ جديدٌ لا تخفيف: الخزانةُ والاقتصادُ بعددَيهما كما كانا.
++    judiciary = _source(JUDICIARY_SRC).count("resolve_money_delegation(")
++    assert judiciary == 1
++    # مجموعُ المواضعِ أحدَ عشرَ (كانَ عشرةً حتّى W-815): سبعةٌ تُحضِرُ تفويضَها
++    # مباشرةً، وأربعةٌ تمرُّ بطبقةِ التخويلِ فتُحضَرُ لها هناك — وهي وحدها المفروضةُ
++    # دستوريًّا.
++    assert treasury + economy + judiciary == 7
++    assert len(MONEY_DELEGATIONS) == len(MEASURED_CALL_SITES) == 11
++
++
++def test_judicial_enforcement_resolves_its_delegation_before_any_work() -> None:
++    """مدخلُ القضاءِ يُستخرَجُ في رأسِ الدالّةِ قبلَ الصلاحيةِ والقراءةِ والصرف.
++
++    W-815 · DISC-155 · M1 § 2.12 القرار 2: إن غابَ المدخلُ من الجدولِ رُفِضَ
++    التنفيذُ قبلَ أن تُفتَحَ جلسةٌ أو يُنادى `treasury.disburse`.
++    """
++    source = _source(JUDICIARY_SRC)
++    start = source.index("def enforce_ruling_via_treasury(")
++    end = source.index("\n    def ", start + 1)
++    body = source[start:end]
++    resolve_at = body.index("resolve_money_delegation(")
++    for later in (
++        "require_domain_permission(",
++        "self._session()",
++        "treasury.disburse(",
++    ):
++        assert later in body, later
++        assert resolve_at < body.index(later), f"الاستخراجُ بعدَ {later}"
+ 
+ 
+ # ── 5 · المنع: لا وسمَ جملةٍ لخدمةٍ ماليّة (نصُّ Q-19) ───────────────────
+-@pytest.mark.parametrize("path", [TREASURY_SRC, ECONOMY_SRC])
++@pytest.mark.parametrize("path", [TREASURY_SRC, ECONOMY_SRC, JUDICIARY_SRC])
+ def test_no_service_wide_treasury_actor_tag(path: Path) -> None:
+     """لا خدمةَ ماليّةً مَوسومةً بفاعلِ خزانةٍ على مستوى الوحدةِ أو البناء.
+ 
+diff --git a/federal/executive/services/tests/test_q31_money_engine_wiring.py b/federal/executive/services/tests/test_q31_money_engine_wiring.py
+index 76888370..d09b1e08 100644
+--- a/federal/executive/services/tests/test_q31_money_engine_wiring.py
++++ b/federal/executive/services/tests/test_q31_money_engine_wiring.py
+@@ -4,6 +4,7 @@ AMOS-Federation Tests — Q-31 Money Engine Wiring
+ النطاق: tests — حِرزُ قرارِ Q-31 (الخيارُ الثاني · W-015)
+ المالك: federal/executive/services
+ تاريخ الإنشاء: 2026-08-21 (Q-31)
++تاريخ آخر تعديل: 2026-11-04 (W-815 — الجدولُ 10 → 11 بمدخلِ `enforce_ruling_via_treasury` · غيرُ المفروضةِ 6 → 7 · DISC-155 · Q-96 القرار 1)
+ تعتمد على: services/executive_core/money_authority.py · common/money_delegation.py
+ 
+ ## لماذا حِرزٌ مستقلٌّ لا زيادةٌ في حِرزِ Q-19
+@@ -18,7 +19,7 @@ AMOS-Federation Tests — Q-31 Money Engine Wiring
+ 2. أنَّ غيرَ `ALLOW` **يُغلِقُ** ولا يمرُّ ولا يُصبحُ تنبيهًا.
+ 3. أنَّ الفاعلَ **لا يُحفَظُ** بينَ النداءاتِ — منعُ عَودِ سابقةِ 2A بُنيةً.
+ 4. أنَّ الفعلَ الدستوريَّ يُؤخَذُ من الجدولِ المُعلَنِ لا من نصٍّ يُمرِّرُه منادٍ.
+-5. **الحدُّ المُعلَن**: أنَّ الفرضَ يشملُ أربعةً من عشرةِ مواضعَ لا كلَّها (Q-32).
++5. **الحدُّ المُعلَن**: أنَّ الفرضَ يشملُ أربعةً من أحدَ عشرَ موضعًا لا كلَّها (Q-32 · كانت عشرةً حتّى W-815).
+ """
+ 
+ from __future__ import annotations
+@@ -230,9 +231,12 @@ def test_treasury_asks_the_single_enforcement_point_and_builds_no_bridge() -> No
+     assert "sovereignty_bridge" not in service
+ 
+ 
+-# ── 6 · الحدُّ المُعلَن: أربعةٌ من عشرةٍ لا عشرةٌ من عشرة (Q-32) ─────────────
+-def test_the_enforced_scope_is_declared_as_four_of_ten_sites() -> None:
+-    """لا يُدَّعى ما ليس مفروضًا: ستّةُ مواضعَ لا تمرُّ بطبقةِ التخويلِ فتبقى بلا حكم.
++# ── 6 · الحدُّ المُعلَن: أربعةٌ من أحدَ عشرَ لا كلُّها (Q-32 · W-815) ───────────
++def test_the_enforced_scope_is_declared_as_four_of_eleven_sites() -> None:
++    """لا يُدَّعى ما ليس مفروضًا: سبعةُ مواضعَ لا تمرُّ بطبقةِ التخويلِ فتبقى بلا حكم.
++
++    [W-815 · DISC-155 · Q-96 القرار 1]: كانت ستّةً من عشرة؛ والسابعُ مدخلُ تنفيذِ
++    الحكمِ القضائيّ (`enforce_ruling_via_treasury`)، وحركتُه عبرَ `disburse` المفروض.
+ 
+     هذا القيدُ يحرسُ **صدقَ الدعوى** لا الشِّفرة: فلو وُسِّعَ النطاقُ غدًا سقطَ هنا،
+     فيُحدَّثُ العددُ مع الوثيقةِ ومع قرارِ **Q-32** — لا في صمت.
+@@ -250,8 +254,15 @@ def test_the_enforced_scope_is_declared_as_four_of_ten_sites() -> None:
+ 
+     # المواضعُ التي تُحضِرُ تفويضَها بنفسِها لا تمرُّ بـ`_authorize_money`، فلا يُسألُ
+     # المُحرِّكُ عنها. وسطرُ الاستيرادِ لا يُعدُّ لأنّه لا يحملُ قوسًا.
++    judiciary_src = (
++        _repo_root()
++        / "federal/executive/services/src/amos_federation/services/federal_judiciary/service.py"
++    ).read_text(encoding="utf-8")
+     direct = treasury_src.count("resolve_money_delegation(") + economy_src.count(
+         "resolve_money_delegation("
+     )
+-    assert len(MONEY_DELEGATIONS) == 10
++    judiciary = judiciary_src.count("resolve_money_delegation(")
++    assert len(MONEY_DELEGATIONS) == 11
+     assert direct == 6, "تغيّرَ عددُ المواضعِ غيرِ المفروضةِ دستوريًّا — حدِّثْ Q-32"
++    assert judiciary == 1, "تغيّرَ عددُ مواضعِ القضاءِ غيرِ المفروضة — حدِّثْ Q-32"
++    assert direct + judiciary == 7
+diff --git a/federal/executive/services/tests/test_q32_money_enforcement_surface.py b/federal/executive/services/tests/test_q32_money_enforcement_surface.py
+index ad2cfa04..0584bb03 100644
+--- a/federal/executive/services/tests/test_q32_money_enforcement_surface.py
++++ b/federal/executive/services/tests/test_q32_money_enforcement_surface.py
+@@ -4,6 +4,7 @@ AMOS-Federation Tests — Q-32 Money Enforcement Surface
+ النطاق: tests — حِرزُ موجزِ Q-32 (قياسٌ لا قرار · W-021)
+ المالك: federal/executive/services
+ تاريخ الإنشاء: 2026-08-22 (Q-32)
++تاريخ آخر تعديل: 2026-11-04 (W-815 — مُغلِّفٌ ثالثٌ `enforce_ruling_via_treasury`: الجدولُ 10 → 11 · غيرُ المفروضةِ 6 → 7 · المفروضةُ أربعةٌ كما هي · DISC-155 · Q-96 القرار 1)
+ تعتمد على: services/state_treasury/service.py · services/national_economy/service.py · services/governance/treasury.py
+ 
+ ## لماذا حِرزٌ لموجزٍ لا لقرار
+@@ -24,6 +25,10 @@ Q-32 **مسألةٌ سياديّةٌ لم تُحسَمْ بعد**، ولا يج
+    سؤالِ المُحرِّكِ بحكمِ Q-17، فلا تُقرأُ ضمنَ Q-32.
+ 4. **العددانِ 4 و 6 مُقيَّدان**: من زادَ موضعًا ماليًّا نسيَ فرضَه أسقطَ الحرس.
+ 
++[W-815 · DISC-155 · قرارُ المالكِ Q-96 القرار 1]: صارَ العددانِ **4 و 7** من أحدَ عشر.
++السابعُ مُغلِّفٌ ثالثٌ — `enforce_ruling_via_treasury` في القضاءِ الاتّحاديّ — يُشترَطُ نصًّا
++أن يُسنِدَ الحركةَ إلى `treasury.disburse` المحروس كالمُغلِّفَين الآخرَين.
++
+ ## الحدُّ المُعلَنُ لهذا الحرس
+ 
+ هذا الحرسُ يقيسُ **بنيةَ المصدرِ** (شجرةَ التحليلِ لا نصًّا حرفيًّا)، ولا يُثبتُ
+@@ -44,10 +49,12 @@ REPO_MARKER = "core/constitutional_engine/rules.py"
+ #: المداخلُ الأربعةُ التي قِيسَ أنّها تعبُرُ طبقةَ التخويلِ فيُسألُ المُحرِّكُ عندها.
+ ENFORCED_ENTRYPOINTS = frozenset({"allocate", "post_funding", "disburse", "reverse_transaction"})
+ 
+-#: الستّةُ التي لا تعبُرُها — مُصنَّفةً بما تفعلُه حقًّا لا بما يُظَنُّ أنّها تفعلُه.
++#: السبعةُ التي لا تعبُرُها (ستّةٌ حتّى W-815) — مُصنَّفةً بما تفعلُه حقًّا لا بما يُظَنُّ.
+ CONTAINER_ENTRYPOINTS = frozenset({"establish_treasury", "open_account", "create_budget"})
+ OBLIGATION_ENTRYPOINTS = frozenset({"authorize_expenditure"})
+-WRAPPER_ENTRYPOINTS = frozenset({"execute_decision_disbursement", "execute_transfer"})
++WRAPPER_ENTRYPOINTS = frozenset(
++    {"execute_decision_disbursement", "execute_transfer", "enforce_ruling_via_treasury"}
++)
+ 
+ 
+ def _repo_root() -> Path:
+@@ -109,6 +116,11 @@ def economy_functions() -> dict[str, ast.FunctionDef]:
+     return _functions(_services_dir() / "national_economy/service.py")
+ 
+ 
++@pytest.fixture(scope="module")
++def judiciary_functions() -> dict[str, ast.FunctionDef]:
++    return _functions(_services_dir() / "federal_judiciary/service.py")
++
++
+ class TestA1MovementWriteIsOnePlaceAndItIsGuarded:
+     """الدعوى الأولى: كلُّ حركةِ مالٍ تُكتَبُ من موضعٍ واحدٍ، وكلُّ منادِيه محروس."""
+ 
+@@ -157,7 +169,7 @@ class TestA1MovementWriteIsOnePlaceAndItIsGuarded:
+         }
+         assert enforced == set(ENFORCED_ENTRYPOINTS), (
+             f"عددُ المواضعِ المفروضةِ تغيَّرَ: {sorted(enforced)} — "
+-            "والرقمُ «أربعةٌ من عشرة» مكتوبٌ في وثائقَ سياديّةٍ فيُصحَّحُ معه."
++            "والرقمُ «أربعةٌ من أحدَ عشر» مكتوبٌ في وثائقَ سياديّةٍ فيُصحَّحُ معه."
+         )
+ 
+ 
+@@ -177,6 +189,14 @@ class TestA2WhatTheSixReallyAre:
+         for name in ("authorize_expenditure", "execute_transfer"):
+             assert "_authorize_money" not in _calls_in(economy_functions[name])
+ 
++    def test_the_judicial_wrapper_does_not_pass_the_authorization_layer_itself(
++        self, judiciary_functions: dict[str, ast.FunctionDef]
++    ) -> None:
++        """W-815: المُغلِّفُ القضائيُّ لا يعبرُ طبقةَ التخويلِ بنفسِه — يُسنِدُ الحركة."""
++        node = judiciary_functions["enforce_ruling_via_treasury"]
++        assert "_authorize_money" not in _calls_in(node)
++        assert "resolve_money_delegation" in _calls_in(node)
++
+     def test_the_three_container_operations_write_no_movement(
+         self, treasury_functions: dict[str, ast.FunctionDef]
+     ) -> None:
+@@ -234,22 +254,37 @@ class TestA2WhatTheSixReallyAre:
+             economy_functions["execute_transfer"]
+         ), "صرفُ التحويلِ صارَ لا يمرُّ بخزانةِ الدولةِ — فقد صارَ دفترًا ثانيًا للمال."
+ 
+-    def test_the_six_are_six_no_more_no_less(self) -> None:
++    def test_the_judicial_wrapper_hands_the_movement_to_the_guarded_disbursement(
++        self, judiciary_functions: dict[str, ast.FunctionDef]
++    ) -> None:
++        """W-815 · DISC-155: تنفيذُ الحكمِ يُسنِدُ الحركةَ إلى `treasury.disburse` المحروس.
++
++        فإن صارَ يكتبُ حركةً بنفسِه أو يمرُّ بغيرِ الخزانةِ سقطَ هنا — وكانَ ثقبًا.
++        """
++        calls = _qualified_calls_in(judiciary_functions["enforce_ruling_via_treasury"])
++        assert (
++            "treasury.disburse" in calls
++        ), "تنفيذُ الحكمِ لم يبقَ ماضيًا بخزانةِ الدولةِ — فصارَ القضاءُ دفترًا ثانيًا للمال."
++        assert not {c for c in calls if c.endswith("._post")}
++
++    def test_the_seven_are_seven_no_more_no_less(self) -> None:
++        # كانت ستّةً حتّى W-815؛ والسابعُ المُغلِّفُ القضائيّ (DISC-155 · Q-96 القرار 1).
+         assert (
+-            len(CONTAINER_ENTRYPOINTS | OBLIGATION_ENTRYPOINTS | WRAPPER_ENTRYPOINTS) == 6
+-        ), "تصنيفُ الستّةِ في هذا الحرسِ لم يبقَ ستّةً — فالموجزُ والحرسُ افترقا."
++            len(CONTAINER_ENTRYPOINTS | OBLIGATION_ENTRYPOINTS | WRAPPER_ENTRYPOINTS) == 7
++        ), "تصنيفُ السبعةِ في هذا الحرسِ لم يبقَ سبعةً — فالموجزُ والحرسُ افترقا."
++        assert len(WRAPPER_ENTRYPOINTS) == 3
+ 
+-    def test_the_ten_declared_delegations_split_four_and_six(self) -> None:
+-        """الجدولُ المُعلَنُ في Q-19 هو مصدرُ العددِ العشرةِ — لا عدٌّ يدويّ."""
++    def test_the_eleven_declared_delegations_split_four_and_seven(self) -> None:
++        """الجدولُ المُعلَنُ في Q-19 هو مصدرُ العددِ (أحدَ عشرَ · عشرةٌ حتّى W-815)."""
+         from amos_federation.common.money_delegation import MONEY_DELEGATIONS
+ 
+         entrypoints = {d.entrypoint for d in MONEY_DELEGATIONS}
+-        assert len(MONEY_DELEGATIONS) == 10
++        assert len(MONEY_DELEGATIONS) == 11
+         assert entrypoints & set(ENFORCED_ENTRYPOINTS) == set(ENFORCED_ENTRYPOINTS)
+         unenforced = entrypoints - set(ENFORCED_ENTRYPOINTS)
+         assert unenforced == (
+             CONTAINER_ENTRYPOINTS | OBLIGATION_ENTRYPOINTS | WRAPPER_ENTRYPOINTS
+-        ), f"الستّةُ غيرُ المفروضةِ تغيَّرَت: {sorted(unenforced)}"
++        ), f"السبعةُ غيرُ المفروضةِ تغيَّرَت: {sorted(unenforced)}"
+ 
+ 
+ class TestA3TheOperationalCreditTreasuryIsOutOfScopeByDecision:

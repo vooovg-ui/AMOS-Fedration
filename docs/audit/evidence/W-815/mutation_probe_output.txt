@@ -1,0 +1,16 @@
+# W-815 — مخرجُ mutation_probe.py (الأمر: .venv/bin/python docs/audit/evidence/W-815/mutation_probe.py · EXIT=0)
+مقتولة · DISC-155 ① حذفُ المدخلِ الحادي عشر · pytest rc=1 · ======================= 1 failed, 40 deselected in 0.77s =======================
+مقتولة · DISC-155 ② حذفُ نداءِ الاستخراجِ من القضاء · pytest rc=1 · ========================= 1 failed, 22 passed in 0.72s =========================
+مقتولة · DISC-155 ③ فعلٌ غيرُ disburse_funds للمدخل · pytest rc=1 · =============================== 1 error in 0.67s ===============================
+مقتولة · DISC-155 ④ treasury.disburse يُستبدَلُ بنداءٍ آخر في القضاء · pytest rc=1 · ========================= 1 failed, 11 passed in 0.75s =========================
+مقتولة · DISC-155 ⑤ الاستخراجُ بعدَ treasury.disburse · pytest rc=1 · ======================= 1 failed, 30 deselected in 0.66s =======================
+مقتولة · DISC-153 ① حذفُ الخطوةِ 34 · pytest rc=1 · 1 failed, 19 passed in 0.06s
+مقتولة · DISC-153 ② إعادةُ 0 دائمًا مع الحزمة · pytest rc=1 · 1 failed, 20 passed in 0.05s
+مقتولة · DISC-153 ③ --without-deps بدلَ --only-deps في الفحصِ الداخليّ · pytest rc=1 · 1 failed, 20 passed in 0.05s
+مقتولة · DISC-153 ④ الغيابُ بلا سطرٍ مُعلَن · pytest rc=1 · 1 failed, 21 passed in 0.05s
+
+الحصيلة: 9/9 مقتولة · 0 ناجية
+
+# تكميلٌ للطفرةِ ① على سلوكِ القضاءِ وحدَه (tests/test_r7d_federal_judiciary.py -k treasury): الرفضُ صريحٌ قبلَ أيِّ كتابة
+E   amos_federation.common.money_delegation.UndeclaredMoneyDelegationError: تحريكُ مالٍ بلا تفويضٍ مُعلَن: العمليّةُ «treasury.disbursement.post» من المدخلِ «enforce_ruling_via_treasury». …
+1 failed, 26 deselected
