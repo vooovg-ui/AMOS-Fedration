@@ -45,6 +45,67 @@ class TestSuiteMatrixDeclaration:
         assert missing == []
 
 
+class TestQ99SeventeenSurfacesOnPostgres:
+    """Q-99 البند 6 (W-825): اختباراتُ عبورِ الأسطحِ السبعةَ عشرَ في حزمةِ PostgreSQL
+    **ومعها** مُلحَقُ الجلسة — فلا يجري ملفٌّ منها على SQLite داخلَ حزمةٍ اسمُها POSTGRES."""
+
+    CROSSING_FILES = (
+        "tests/test_r8_q97_federal_state_crossing.py",
+        "tests/test_r9_economy_q98_crossing.py",
+    )
+    PRE_EXISTING_FILES = (
+        "tests/test_phase1_postgres.py",
+        "tests/test_phase1_postgres_events.py",
+        "tests/test_wi076_pg_backup_restore.py",
+    )
+    PLUGIN = "tests.pg_session_dialect"
+
+    @staticmethod
+    def _pg_suite():
+        (suite,) = [s for s in gate.SUITES if s.name == "services-postgres"]
+        return suite
+
+    def test_the_two_crossing_files_are_postgres_targets(self) -> None:
+        targets = self._pg_suite().targets
+        for path in self.CROSSING_FILES:
+            assert path in targets, f"«{path}» خرجَ من حزمةِ PostgreSQL — Q-99 البند 6"
+
+    def test_no_pre_existing_postgres_file_was_dropped(self) -> None:
+        targets = self._pg_suite().targets
+        assert targets[: len(self.PRE_EXISTING_FILES)] == self.PRE_EXISTING_FILES
+        assert len(targets) == len(self.PRE_EXISTING_FILES) + len(self.CROSSING_FILES)
+
+    def test_postgres_suite_loads_the_session_dialect_plugin(self) -> None:
+        suite = self._pg_suite()
+        assert self.PLUGIN in suite.plugins
+        assert suite.forbid_skips is True
+        plugin_file = suite.workdir / (self.PLUGIN.replace(".", "/") + ".py")
+        assert plugin_file.exists()
+
+    def test_plugin_is_passed_to_pytest_with_p(self, monkeypatch) -> None:
+        seen: dict = {}
+
+        class _Done:
+            returncode = 0
+            stdout = "1 passed in 0.01s"
+            stderr = ""
+
+        def fake_run(cmd, **kwargs):
+            seen["cmd"] = cmd
+            return _Done()
+
+        monkeypatch.setattr(gate.subprocess, "run", fake_run)
+        gate.run_suite(self._pg_suite())
+        cmd = seen["cmd"]
+        i = cmd.index("-p", cmd.index(self.CROSSING_FILES[-1]))
+        assert cmd[i + 1] == self.PLUGIN
+
+    def test_other_suites_load_no_plugin(self) -> None:
+        for suite in gate.SUITES:
+            if suite.name != "services-postgres":
+                assert suite.plugins == (), f"«{suite.name}» حُمِّلَ مُلحَقًا — قرارُ E2.2-G"
+
+
 class TestSummaryParsing:
     """تحليل ملخّص pytest — الأرقام تُقرأ لا تُخمَّن."""
 

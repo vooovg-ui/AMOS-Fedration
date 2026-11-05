@@ -1,0 +1,61 @@
+# الفرقُ الخامُ لقائمةِ ملفّاتِ حزمةِ PostgreSQL (Q-99 البند 6 · W-825) مقابلَ fa22697a
+# الأمر: git diff fa22697a -- tools/governance/verify_cross_system_suites.py
+
+## القائمةُ قبلُ (من fa22697a بالأداةِ نفسِها)
+  tests/test_phase1_postgres.py
+  tests/test_phase1_postgres_events.py
+  tests/test_wi076_pg_backup_restore.py
+  plugins: (لا حقلَ قبلًا) forbid_skips: True
+
+## القائمةُ بعدُ
+  tests/test_phase1_postgres.py
+  tests/test_phase1_postgres_events.py
+  tests/test_wi076_pg_backup_restore.py
+  tests/test_r8_q97_federal_state_crossing.py
+  tests/test_r9_economy_q98_crossing.py
+  plugins: ('tests.pg_session_dialect',) forbid_skips: True
+
+## الفرقُ الخام
+diff --git a/tools/governance/verify_cross_system_suites.py b/tools/governance/verify_cross_system_suites.py
+index 11d97e54..05a5e9e9 100644
+--- a/tools/governance/verify_cross_system_suites.py
++++ b/tools/governance/verify_cross_system_suites.py
+@@ -75,6 +75,10 @@ class Suite:
+     forbid_skips: bool = False
+     # أعلام بيئة تُنزَع قبل التشغيل، فتُقاس اللهجة المقصودة لا ما ورثته البيئة.
+     unset_env: tuple[str, ...] = ()
++    # مُلحَقاتُ pytest تُحمَّلُ بـ`-p` لهذه الحزمةِ وحدَها (Q-99 البند 6 · W-825):
++    # `tests.pg_session_dialect` يحوّلُ الجلسةَ إلى PostgreSQL ويُسقِطُ أيَّ اختبارٍ
++    # يجري على غيرِه — فلا يجري ملفٌّ على SQLite داخلَ حزمةٍ اسمُها POSTGRES.
++    plugins: tuple[str, ...] = ()
+ 
+ 
+ # =============================================================================
+@@ -105,10 +109,18 @@ SUITES: tuple[Suite, ...] = (
+             "tests/test_phase1_postgres.py",
+             "tests/test_phase1_postgres_events.py",
+             "tests/test_wi076_pg_backup_restore.py",
++            # Q-99 البند 6 (W-825): اختباراتُ عبورِ الأسطحِ السبعةَ عشرَ —
++            # الدفعة 1 (‏8 · federal_state · Q-97) والدفعة 2 (‏9 · national_economy · Q-98).
++            "tests/test_r8_q97_federal_state_crossing.py",
++            "tests/test_r9_economy_q98_crossing.py",
+         ),
+         dialect=DIALECT_POSTGRES,
+-        purpose="إثبات لهجة PostgreSQL على قاعدة حقيقية — لا تُقبل خضرة بالتخطّي",
++        purpose=(
++            "إثبات لهجة PostgreSQL على قاعدة حقيقية — لا تُقبل خضرة بالتخطّي، "
++            "ولا اختبارٌ يجري على غيرِ PostgreSQL (مُلحَقُ الجلسة)"
++        ),
+         forbid_skips=True,
++        plugins=("tests.pg_session_dialect",),
+     ),
+ )
+ 
+@@ -199,6 +211,7 @@ def run_suite(suite: Suite) -> SuiteResult:
+             "-m",
+             "pytest",
+             *suite.targets,
++            *(arg for plugin in suite.plugins for arg in ("-p", plugin)),
+             "-q",
+             "--no-header",
+             "-p",
