@@ -1,0 +1,4 @@
+# مجموعُ فحوصِ الجذرِ (tests/) قبلَ/بعدَ — W-825 · الأمر: pytest tests/ --collect-only -q
+قبل (fa22697a): 3639 · بعد: 3644 · الفرق +5
+      5 tests/governance/test_cross_system_suites.py
+محذوف: 0

@@ -1,0 +1,20 @@
+# بلا بيئةِ PostgreSQL: env -u AMOS_RUN_POSTGRES_TESTS -u AMOS_TEST_DATABASE_URL python docs/audit/evidence/W-825/run_pg_suite.py — المتوقَّعُ سقوطٌ لا تخطٍّ
+targets:
+  tests/test_phase1_postgres.py
+  tests/test_phase1_postgres_events.py
+  tests/test_wi076_pg_backup_restore.py
+  tests/test_r8_q97_federal_state_crossing.py
+  tests/test_r9_economy_q98_crossing.py
+plugins: ('tests.pg_session_dialect',) forbid_skips: True
+exit_code: 4
+counts: {}
+summary: 
+violations: ['رمز خروج 4', 'لا اختبار ناجح واحد — الحزمة لم تُشغَّل فعلًا']
+duration_s: 0.3
+--- tail ---
+/home/user/workspace/amos/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+ERROR: [pg-session] AMOS_RUN_POSTGRES_TESTS=1 غائب — حزمةُ PostgreSQL لا تجري بلا PostgreSQL
+SUITE_FAIL
+EXIT=1
