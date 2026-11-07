@@ -1,0 +1,10 @@
+انحدارُ w792 في CI — PR #270 التشغيلُ الأولُ (run 42339336802 · 2026-11-07): فشلُ Tests وCoverage
+الجذرُ: تفكيكُ _fresh_state الجديدُ (تنظيفٌ بعدَ الاختبار) يحذفُ state_transactions دفعةً واحدةً وصفوفُ
+الحركاتِ العكسيةِ (reverses_transaction_id مفتاحٌ أجنبيٌّ مقيَّدٌ ذاتيٌّ) باقيةٌ — ملفُّ w792 يحذفُها
+بنفسِهِ لكن بعدَ تفكيكِ المثبِّتِ المستوردِ، فكسرَ القيدَ في 4 اختباراتٍ (teardown ERROR).
+الشواهدُ منَ الخرجِ الخامِّ (فحصُ Tests):
+====================================================================
+      1 2026-11-07T04:46:31.5388720Z _ ERROR at teardown of test_7_scoped_disbursement_late_failure_reverses_and_removes _
+      1 2026-11-07T04:46:30.9787783Z _ ERROR at teardown of test_5_status_update_failure_restores_fields_and_removes_the_record _
+      1 2026-11-07T04:46:30.9766436Z _ ERROR at teardown of test_4_transfer_late_failure_reverses_money_and_removes_the_record _
+      1 2026-11-07T04:46:30.9740966Z _ ERROR at teardown of test_3_expenditure_late_failure_reverses_money_and_removes_the_record _

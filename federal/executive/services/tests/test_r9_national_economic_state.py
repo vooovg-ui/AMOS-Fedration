@@ -250,6 +250,13 @@ def _purge_r9_state() -> None:
         session.query(LedgerEntryModel).delete()
         session.query(TransactionAuthorityModel).delete()
         session.flush()
+        # الحركاتُ العكسيةُ أوّلًا: `reverses_transaction_id` مفتاحٌ أجنبيٌّ مقيَّدٌ
+        # على الجدولِ نفسِه، فالحذفُ الشاملُ بوجودِها يكسرُ القيدَ (قياسُ W-826
+        # بعدَ انحدارِ w792 في CI #270 — العكوساتُ بيدِ ملفِّها حتى الآن).
+        session.query(TransactionModel).filter(
+            TransactionModel.reverses_transaction_id.isnot(None)
+        ).delete()
+        session.flush()
         session.query(TransactionModel).delete()
         session.query(AllocationModel).delete()
         session.query(BudgetModel).delete()
