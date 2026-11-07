@@ -22,6 +22,8 @@
 
 اسمُ الملفِّ `test_r9_economy_…` ليُجمَعَ **قبلَ** `test_r9_national_economic_state` فيُنظِّفَ مثبِّتُها
 `_fresh_state` صفوفَه (درسُ W-818/W-820 · DISC-161).
+[تحديثٌ مؤرَّخٌ (2026-11-07 · W-826 · DISC-161):] عُولِجَ الجذرُ — مثبِّتُ R9 صارَ ينظِّفُ
+بعدَ الاختبارِ أيضًا (`yield`) فلم يعدْ نجاحُ الحزمةِ يعتمدُ على هذا الترتيبِ.
 النطاق: `national_economy/service.py` وحدَه؛ والطفراتُ في `docs/audit/evidence/W-823/q99_mutation_probe.py`.
 المالك: Perplexity Computer (WI-127 · قيدُ W-823).
 """

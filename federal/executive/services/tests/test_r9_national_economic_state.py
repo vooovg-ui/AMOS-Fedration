@@ -30,7 +30,10 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 import pytest
 
@@ -209,9 +212,8 @@ def _context(
     )
 
 
-@pytest.fixture(autouse=True)
-def _fresh_state() -> None:
-    """قاعدةٌ نظيفةٌ من صفوف النطاق قبل كلِّ اختبار — الملفُّ مشتركٌ بينها.
+def _purge_r9_state() -> None:
+    """تنظيفُ صفوفِ النطاقِ كاملًا — قبلَ الاختبارِ وبعدَه (DISC-161 · W-826).
 
     الترتيبُ ترتيبُ القيود المرجعية: القرارُ الاقتصاديّ أوّلًا لأنه يشير إلى كلِّ
     موضوع، ثمّ المشترياتُ والتحويلاتُ ثمّ الإجازاتُ ثمّ التعريفاتُ ثمّ القطاعات.
@@ -273,6 +275,21 @@ def _fresh_state() -> None:
     reset_national_registry()
     reset_federal_state()
     reset_national_economy()
+
+
+@pytest.fixture(autouse=True)
+def _fresh_state() -> Iterator[None]:
+    """قاعدةٌ نظيفةٌ من صفوف النطاقِ قبلَ كلِّ اختبارٍ **وبعدَه** — الملفُّ مشتركٌ بينها.
+
+    [إضافةٌ مؤرَّخةٌ (2026-11-07 · `W-826` · `DISC-161` · أمرُ التوجيهِ 44 § 1
+    البند 5 (Q-99)):] كانَ التنظيفُ قبلَ الاختبارِ وحدَهُ فتبقى صفوفُ آخرِ اختبارٍ
+    في الوحدةِ بعدَ انتهائِها — فتنجحُ الحزمةُ الكاملةُ بدلالةِ أسماءِ الملفّاتِ لا
+    الشِّفرةِ (سابقةُ W-819: 59 خطأَ إعدادٍ بقيدٍ مرجعيٍّ). فصارَ المثبِّتُ ينظِّفُ
+    بعدَ الاختبارِ أيضًا (yield) فلا تبقى صفوفٌ مهما اختلفَ ترتيبُ الجمعِ.
+    """
+    _purge_r9_state()
+    yield
+    _purge_r9_state()
 
 
 @pytest.fixture

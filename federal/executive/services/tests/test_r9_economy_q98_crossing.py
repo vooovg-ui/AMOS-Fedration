@@ -19,6 +19,9 @@
 اسمُ الملفِّ `test_r9_economy_…` ليُجمَعَ **قبلَ** `test_r9_national_economic_state` فيُنظِّفَ مثبِّتُها
 `_fresh_state` صفوفَه (درسُ W-818، وقيسَ هنا: الاسمُ الأوّلُ `test_r9_q98_…` جُمِعَ بعدَها فبقيَت
 صفوفُه وأسقطَت تنظيفَ `test_w755` بقيدٍ مرجعيٍّ على `state_officials` — 59 خطأَ إعدادٍ في الحزمةِ الكاملة).
+[تحديثٌ مؤرَّخٌ (2026-11-07 · W-826 · DISC-161):] عُولِجَ الجذرُ — مثبِّتُ R9 صارَ ينظِّفُ
+بعدَ الاختبارِ أيضًا (`yield`) فلم يعدْ نجاحُ الحزمةِ يعتمدُ على هذا الترتيبِ؛ يُقاسُ
+بالزوجِ المعكوسِ في `docs/audit/evidence/W-826/disc161_repro_after.txt`.
 النطاق: `national_economy/service.py` وحدَه؛ والطفراتُ في
 `docs/audit/evidence/W-819/q98_mutation_probe.py`.
 المالك: Perplexity Computer (WI-127 · قيدُ W-820).
