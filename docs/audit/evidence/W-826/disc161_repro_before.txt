@@ -1,0 +1,5 @@
+E   sqlite3.IntegrityError: FOREIGN KEY constraint failed
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) FOREIGN KEY constraint failed
+ERROR federal/executive/services/tests/test_w755_m1_treasury_single_crossing.py::test_m1_6d_the_crossing_authorizer_is_built_per_call_and_never_kept
+ERROR federal/executive/services/tests/test_w755_m1_treasury_single_crossing.py::test_m1_6c_accounts_budgets_without_crossing_are_not_left_behind
+======================== 34 passed, 16 errors in 15.41s ========================

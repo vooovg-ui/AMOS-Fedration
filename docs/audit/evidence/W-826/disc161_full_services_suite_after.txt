@@ -1,0 +1,9 @@
+الحزمةُ الكاملةُ للخدماتِ بعدَ إصلاحِ العكوساتِ (الأمر: .venv/bin/python -m pytest federal/executive/services/tests/ -q --tb=short · 2026-11-07)
+النطاقُ: كلُّ الملفاتِ الـ23 المستوردةِ للمثبِّتِ _fresh_state (نطاقُ انفجارِ التغييرِ كاملًا — قياسُ السابقةِ كان ناقصًا)
+====================================================================
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========== 1999 passed, 53 skipped, 1 warning in 507.36s (0:08:27) ============
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+Transient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 0.81s. Error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+Failed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE, error details: failed to connect to all addresses; last error: UNKNOWN: ipv6:%5B::1%5D:4317: Failed to connect to remote host: Connection refused
+EXIT=0

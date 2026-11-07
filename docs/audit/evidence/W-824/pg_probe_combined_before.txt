@@ -1,0 +1,21 @@
+# مسبارُ ما قبلَ الشِّفرة (W-824): الملفّاتُ الثلاثةُ القائمةُ + ملفّا عبورِ الأسطحِ السبعةَ عشرَ على PostgreSQL محلّيٍّ
+# الخادم: PostgreSQL 18.6 (Ubuntu · apt) — لا 17 كـCI: المتاحُ في البيئةِ 18 وحدَه
+# الأمر (من federal/executive/services): PYTHONPATH=<evidence/W-824> AMOS_RUN_POSTGRES_TESTS=1 AMOS_TEST_DATABASE_URL=postgresql://postgres:***@localhost:5432/amos_federation_ci AMOS_DB_SSLMODE=disable OTEL_SDK_DISABLED=true python -m pytest -q --no-header -p no:cacheprovider -p pg_session_probe <الملفّاتُ الخمسة>
+# المسبارُ لا يفحصُ اللهجةَ لكلِّ اختبار — يطبعُ db_dialect() مرّةً بعدَ الجمع؛ والتحقُّقُ لكلِّ اختبارٍ في الشِّفرة (W-825)
+/home/user/workspace/amos/.venv/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+
+[pgprobe] dialect: postgresql
+collected 95 items
+
+tests/test_phase1_postgres.py ........                                   [  8%]
+tests/test_phase1_postgres_events.py .................                   [ 26%]
+tests/test_wi076_pg_backup_restore.py ....                               [ 30%]
+tests/test_r8_q97_federal_state_crossing.py ............................ [ 60%]
+....                                                                     [ 64%]
+tests/test_r9_economy_q98_crossing.py .................................. [100%]
+
+======================== 95 passed in 303.77s (0:05:03) ========================

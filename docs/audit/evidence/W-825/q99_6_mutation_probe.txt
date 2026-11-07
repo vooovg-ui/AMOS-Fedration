@@ -1,0 +1,9 @@
+M1 plugin does not switch the session    pytest_exit=1 KILLED · ====================== 9 failed, 23 deselected in 27.28s =======================
+M2 plugin dropped from SUITES            pytest_exit=1 KILLED · 2 failed, 34 passed in 0.80s
+M3 q98 crossing file dropped             pytest_exit=1 KILLED · 3 failed, 33 passed in 0.07s
+M4 env gate always passes                pytest_exit=1 KILLED · ========================= 2 failed, 12 passed in 0.72s =========================
+M5 dialect gate always passes            pytest_exit=1 KILLED · ========================= 6 failed, 8 passed in 0.72s ==========================
+M6 hook skips the dialect check          pytest_exit=1 KILLED · ========================= 1 failed, 13 passed in 0.68s =========================
+files restored byte-identical: True
+MUTATION RESULT: total=6 survived=0
+EXIT=0
